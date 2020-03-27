@@ -8,60 +8,6 @@
 `define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
 `define NUM_CYCLES_IN_MAC 3
 
-module matrix_multiplication(
- clk,
- reset,
- start_mat_mul,
- done_mat_mul,
- a_data,
- b_data,
- a_data_in, //Data values coming in from previous matmul - systolic connections
- b_data_in,
- c_data_in,
- c_data_out,
- a_data_out,
- b_data_out,
- a_addr,
- b_addr
-);
- input clk;
- input reset;
- input start_mat_mul;
- output done_mat_mul;
- input [4*`DWIDTH-1:0] a_data;
- input [4*`DWIDTH-1:0] b_data;
- input [4*`DWIDTH-1:0] a_data_in;
- input [4*`DWIDTH-1:0] b_data_in;
- input [4*`DWIDTH-1:0] c_data_in;
- output [4*`DWIDTH-1:0] c_data_out;
- output [4*`DWIDTH-1:0] a_data_out;
- output [4*`DWIDTH-1:0] b_data_out;
- output [`AWIDTH-1:0] a_addr;
- output [`AWIDTH-1:0] b_addr;
-
-matmul_4x4_systolic u_matmul_4x4(
-  .clk(clk),
-  .reset(reset),
-  .start_mat_mul(start_mat_mul),
-  .done_mat_mul(done_mat_mul),
-  .a_data(a_data),
-  .b_data(b_data),
-  .a_data_in(a_data_in),
-  .b_data_in(b_data_in),
-  .c_data_in(c_data_in),
-  .c_data_out(c_data_out),
-  .a_data_out(a_data_out),
-  .b_data_out(b_data_out),
-  .a_addr(a_addr),
-  .b_addr(b_addr),
-  .final_mat_mul_size(8'd4),
-  .a_loc(8'd0),
-  .b_loc(8'd0)
-);
-
-endmodule
-
-
 module matmul_4x4_systolic(
  clk,
  reset,
@@ -105,7 +51,6 @@ wire clk_cnt_cout_NC;
 wire [6:0] clk_cnt_inc;
 reg [6:0] clk_cnt;
 
-//adder u_add_clk_cnt(.a(1'b1), .b(clk_cnt), .cin(1'b0), .sumout(clk_cnt_inc), .cout(clk_cnt_cout_NC));
 
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
@@ -509,8 +454,8 @@ input [`DWIDTH-1:0] i_multiplicand;
 input [`DWIDTH-1:0] i_multiplier;
 output [2*`DWIDTH-1:0] o_result;
 
-//assign o_result = i_multiplicand * i_multiplier;
-DW02_mult #(`DWIDTH,`DWIDTH) u_mult(.A(i_multiplicand), .B(i_multiplier), .TC(1'b1), .PRODUCT(o_result));
+assign o_result = i_multiplicand * i_multiplier;
+//DW02_mult #(`DWIDTH,`DWIDTH) u_mult(.A(i_multiplicand), .B(i_multiplier), .TC(1'b1), .PRODUCT(o_result));
 
 endmodule
 
@@ -519,7 +464,7 @@ input [`DWIDTH-1:0] a;
 input [`DWIDTH-1:0] b;
 output [`DWIDTH-1:0] c;
 
-//assign c = a + b;
-DW01_add #(`DWIDTH) u_add(.A(a), .B(b), .CI(1'b0), .SUM(c), .CO());
+assign c = a + b;
+//DW01_add #(`DWIDTH) u_add(.A(a), .B(b), .CI(1'b0), .SUM(c), .CO());
 endmodule
 

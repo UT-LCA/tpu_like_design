@@ -226,24 +226,24 @@ input we0;
 output [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] q0;
 input clk;
 
-//reg [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] q0;
-//reg [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] ram[`MEM_SIZE-1:0];
-//
-//always @(posedge clk)  
-//begin 
-//        if (we0) 
-//        begin 
-//            ram[addr0] <= d0; 
-//        end 
-//        q0 <= ram[addr0];
-//end
+reg [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] q0;
+reg [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] ram[`MEM_SIZE-1:0];
 
-single_port_ram u_single_port_ram(
-  .data(d0),
-  .we(we0),
-  .addr(addr0),
-  .clk(clk),
-  .out(q0)
-);
+always @(posedge clk)  
+begin 
+        if (we0) 
+        begin 
+            ram[addr0] <= d0; 
+        end 
+        q0 <= ram[addr0];
+end
+
+//single_port_ram u_single_port_ram(
+//  .data(d0),
+//  .we(we0),
+//  .addr(addr0),
+//  .clk(clk),
+//  .out(q0)
+//);
 endmodule
 
