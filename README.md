@@ -22,7 +22,9 @@ You can use `make clean` to remove temporary files and build products, and start
 
 # Submodules in this repo
 I've added VTR and PYNQ are submodules to this repo. In the beginning, when we are just working on the design and verifying it, we won't need those. By default, these won't be cloned on cloning the repo. But later, we will need them and then we can do `git submodule update --init --recursive`. 
+
 We will also need to make changes to the files under the submodules. This page clearly lists the steps required to make changes to the submodules: https://stackoverflow.com/questions/5814319/git-submodule-push
+
 I found these helpful as well:
 * https://chrisjean.com/git-submodules-adding-using-removing-and-updating/
 * https://git-scm.com/book/en/v2/Git-Tools-Submodules
