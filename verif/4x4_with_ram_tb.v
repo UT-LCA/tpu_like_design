@@ -32,6 +32,11 @@ initial begin
   start = 0;
   clear_done = 1;
   #200;
+  #115 start = 1;
+  @(posedge u_matul.done_mat_mul);
+  start = 0;
+  clear_done = 1;
+  #200;
   $finish;
 end
 
