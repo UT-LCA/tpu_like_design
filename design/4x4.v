@@ -1,14 +1,35 @@
 
-`timescale 1ns/1ns
-`define DWIDTH 8 
-`define AWIDTH 7
-`define MEM_SIZE 128
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 04/10/2020 11:43:24 PM
+// Design Name: 
+// Module Name: matmul_4x4
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+`define DWIDTH 8
+`define AWIDTH 15
+`define MEM_SIZE 32768 
 `define MAT_MUL_SIZE 4
 `define LOG2_MAT_MUL_SIZE 2
 `define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
 `define NUM_CYCLES_IN_MAC 3
 
-module matmul_4x4_systolic(
+module matmul_4x4(
  clk,
  reset,
  start_mat_mul,
@@ -23,6 +44,8 @@ module matmul_4x4_systolic(
  b_data_out,
  a_addr,
  b_addr,
+ c_addr,
+ c_data_available,
  final_mat_mul_size,
  a_loc,
  b_loc
@@ -42,6 +65,8 @@ module matmul_4x4_systolic(
  output [4*`DWIDTH-1:0] b_data_out;
  output [`AWIDTH-1:0] a_addr;
  output [`AWIDTH-1:0] b_addr;
+ output [`AWIDTH-1:0] c_addr;
+ output c_data_available;
  input [7:0] final_mat_mul_size;
  input [7:0] a_loc;
  input [7:0] b_loc;
@@ -59,7 +84,7 @@ always @(posedge clk) begin
   end
   //else if (clk_cnt == 4*final_mat_mul_size-2+4) begin
   //Writing the line above to avoid multiplication:
-  else if (clk_cnt == (final_mat_mul_size<<2)+2) begin
+  else if (clk_cnt == (final_mat_mul_size<<2)+2+1) begin
       done_mat_mul <= 1;
   end
   else if (done_mat_mul == 0) begin
@@ -71,17 +96,17 @@ end
 reg [`AWIDTH-1:0] a_addr;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    a_addr <= `MEM_SIZE-1;//a_loc*16;
+    a_addr <= `MEM_SIZE-1-3;//a_loc*16;
   end
   //else if (clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    a_addr <= `MEM_SIZE-1; 
+    a_addr <= `MEM_SIZE-1-3; 
   end
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    a_addr <= a_addr + 1;
+    a_addr <= a_addr + 4;
   end
 end  
 
@@ -131,17 +156,17 @@ end
 reg [`AWIDTH-1:0] b_addr;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    b_addr <= `MEM_SIZE-1;//b_loc*16;
+    b_addr <= `MEM_SIZE-1-3;//b_loc*16;
   end
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    b_addr <= `MEM_SIZE-1;
+    b_addr <= `MEM_SIZE-1-3;
   end
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    b_addr <= b_addr + 1;
+    b_addr <= b_addr + 4;
   end
 end  
 
@@ -272,6 +297,29 @@ assign row0_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MU
 assign row1_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 8 +  `NUM_CYCLES_IN_MAC - 1));
 assign row2_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 9 +  `NUM_CYCLES_IN_MAC - 1));
 assign row3_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 + `NUM_CYCLES_IN_MAC - 1));
+
+reg c_data_available;
+reg [`AWIDTH-1:0] c_addr;
+reg start_capturing_c_data;
+always @(posedge clk) begin
+  if (reset) begin
+    start_capturing_c_data <= 1'b0;
+    c_data_available <= 1'b0;
+    c_addr <= `MEM_SIZE-1-3;
+  end else if (row0_latch_en) begin
+    start_capturing_c_data <= 1'b1;
+    c_data_available <= 1'b1;
+    c_addr <= c_addr + 4;
+  end else if (done_mat_mul) begin
+    start_capturing_c_data <= 1'b0;
+    c_data_available <= 1'b0;
+    c_addr <= `MEM_SIZE-1-3;
+  end 
+  else if (start_capturing_c_data) begin
+    c_data_available <= 1'b1;
+    c_addr <= c_addr + 4;
+  end
+end
 
 always @(posedge clk) begin
   if (reset) begin
@@ -467,4 +515,3 @@ output [`DWIDTH-1:0] c;
 assign c = a + b;
 //DW01_add #(`DWIDTH) u_add(.A(a), .B(b), .CI(1'b0), .SUM(c), .CO());
 endmodule
-

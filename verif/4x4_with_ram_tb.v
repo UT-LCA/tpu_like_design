@@ -2,32 +2,16 @@
 module matmul_tb;
 
 reg clk;
-reg reset;
-reg we1;
-reg we2;
-reg enable_writing_to_mem;
-reg enable_reading_from_mem;
-reg [15:0] data_pi;
-reg [4:0] addr_pi;
-wire done_mat_mul;
-reg [8:0] out_sel;
+reg resetn;
 reg start;
-
+reg clear_done;
 
 matrix_multiplication u_matul(
   .clk(clk), 
   .clk_mem(clk),
-  .reset(reset), 
-  .enable_writing_to_mem(enable_writing_to_mem), 
-  .enable_reading_from_mem(enable_reading_from_mem), 
-  .data_pi(), 
-  .addr_pi(), 
-  .we_a(),
-  .we_b(),
-  .we_c(),
-  .data_from_out_mat(),
-  .start_mat_mul(start),
-  .done_mat_mul(done_mat_mul));
+  .resetn(resetn), 
+  .start_reg(start),
+  .clear_done_reg(clear_done));
 
 initial begin
   clk = 0;
@@ -37,16 +21,17 @@ initial begin
 end
 
 initial begin
-  reset = 1;
-  #55 reset = 0;
+  resetn = 0;
+  #55 resetn = 1;
 end
 
 initial begin
   start = 0;
-  enable_writing_to_mem = 0;
-  enable_reading_from_mem = 0;
   #115 start = 1;
-  #1000;
+  @(posedge u_matul.done_mat_mul);
+  start = 0;
+  clear_done = 1;
+  #200;
   $finish;
 end
 
@@ -58,13 +43,56 @@ end
 
 initial begin
   //A is stored in row major format
-  force u_matul.matrix_A.ram[3:0] = '{32'h0506_0708, 32'h0001_0306, 32'h0102_0304, 32'h0905_0308};
+  force u_matul.matrix_A.ram[0]  = 8'h08;
+  force u_matul.matrix_A.ram[1]  = 8'h03;
+  force u_matul.matrix_A.ram[2]  = 8'h05;
+  force u_matul.matrix_A.ram[3] = 8'h09;
+  force u_matul.matrix_A.ram[4] = 8'h04;
+  force u_matul.matrix_A.ram[5] = 8'h03;
+  force u_matul.matrix_A.ram[6] = 8'h02;
+  force u_matul.matrix_A.ram[7] = 8'h01;
+  force u_matul.matrix_A.ram[8] = 8'h06;
+  force u_matul.matrix_A.ram[9] = 8'h03;
+  force u_matul.matrix_A.ram[10] = 8'h01;
+  force u_matul.matrix_A.ram[11] = 8'h00;
+  force u_matul.matrix_A.ram[12] = 8'h08;
+  force u_matul.matrix_A.ram[13] = 8'h07;
+  force u_matul.matrix_A.ram[14] = 8'h06;
+  force u_matul.matrix_A.ram[15] = 8'h05;
+  //force u_matul.matrix_A.ram[3:0] = '{32'h0506_0708, 32'h0001_0306, 32'h0102_0304, 32'h0905_0308};
+  
   //Last element is 0 (i think the logic requires this)
-  force u_matul.matrix_A.ram[127] = 32'h0;
+  force u_matul.matrix_A.ram[32764] = 8'h0;
+  force u_matul.matrix_A.ram[32765] = 8'h0;
+  force u_matul.matrix_A.ram[32766] = 8'h0;
+  force u_matul.matrix_A.ram[32767] = 8'h0;
+  //force u_matul.matrix_A.ram[127] = 32'h0;
+
   //B is stored in col major format
-  force u_matul.matrix_B.ram[3:0] = '{32'h0203_0609, 32'h0103_0503, 32'h0304_0100, 32'h0003_0101};
+  force u_matul.matrix_B.ram[0]  = 8'h01;
+  force u_matul.matrix_B.ram[1]  = 8'h01;
+  force u_matul.matrix_B.ram[2]  = 8'h03;
+  force u_matul.matrix_B.ram[3] = 8'h00;
+  force u_matul.matrix_B.ram[4] = 8'h00;
+  force u_matul.matrix_B.ram[5] = 8'h01;
+  force u_matul.matrix_B.ram[6] = 8'h04;
+  force u_matul.matrix_B.ram[7] = 8'h03;
+  force u_matul.matrix_B.ram[8] = 8'h03;
+  force u_matul.matrix_B.ram[9] = 8'h05;
+  force u_matul.matrix_B.ram[10] = 8'h03;
+  force u_matul.matrix_B.ram[11] = 8'h01;
+  force u_matul.matrix_B.ram[12] = 8'h09;
+  force u_matul.matrix_B.ram[13] = 8'h06;
+  force u_matul.matrix_B.ram[14] = 8'h03;
+  force u_matul.matrix_B.ram[15] = 8'h02;
+  //force u_matul.matrix_B.ram[3:0] = '{32'h0203_0609, 32'h0103_0503, 32'h0304_0100, 32'h0003_0101};
+
   //Last element is 0 (i think the logic requires this)
-  force u_matul.matrix_B.ram[127] = 32'h0;
+  force u_matul.matrix_B.ram[32764] = 8'h0;
+  force u_matul.matrix_B.ram[32765] = 8'h0;
+  force u_matul.matrix_B.ram[32766] = 8'h0;
+  force u_matul.matrix_B.ram[32767] = 8'h0;
+  //force u_matul.matrix_B.ram[127] = 32'h0;
 end
 /*
 reg [15:0] matA [15:0] = '{1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6};
