@@ -22,19 +22,19 @@ module matrix_multiplication(
   input start_reg;
   input clear_done_reg;
 
-		 wire [14:0] bram_addr_a;
+		 wire [`AWIDTH-1:0] bram_addr_a;
 		 wire [4*`DWIDTH-1:0] bram_rdata_a;
 		 wire [4*`DWIDTH-1:0] bram_wdata_a;
 		 wire [`MASK_WIDTH-1:0] bram_we_a;
 		 wire bram_en_a;
 
-		 wire [14:0] bram_addr_b;
+		 wire [`AWIDTH-1:0] bram_addr_b;
 		 wire [4*`DWIDTH-1:0] bram_rdata_b;
 		 wire [4*`DWIDTH-1:0] bram_wdata_b;
 		 wire [`MASK_WIDTH-1:0] bram_we_b;
 		 wire bram_en_b;
 		
-		 wire [14:0] bram_addr_c;
+		 wire [`AWIDTH-1:0] bram_addr_c;
 		 wire [4*`DWIDTH-1:0] bram_rdata_c;
 		 wire [4*`DWIDTH-1:0] bram_wdata_c;
 		 wire [`MASK_WIDTH-1:0] bram_we_c;
@@ -182,14 +182,14 @@ endmodule
 
 module ram (addr0, d0, we0, q0,  clk);
 
-input [14:0] addr0;
-input [31:0] d0;
-input [3:0] we0;
-output [31:0] q0;
+input [`AWIDTH-1:0] addr0;
+input [`MASK_WIDTH*`DWIDTH-1:0] d0;
+input [`MASK_WIDTH-1:0] we0;
+output [`MASK_WIDTH*`DWIDTH-1:0] q0;
 input clk;
 
-reg [31:0] q0;
-reg [7:0] ram[((1<<15)-1):0];
+reg [`MASK_WIDTH*`DWIDTH-1:0] q0;
+reg [7:0] ram[((1<<`AWIDTH)-1):0];
 
 always @(posedge clk)  
 begin 
