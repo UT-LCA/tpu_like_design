@@ -257,14 +257,7 @@ wire [`DWIDTH-1:0] cin_row0;
 wire [`DWIDTH-1:0] cin_row1;
 wire [`DWIDTH-1:0] cin_row2;
 wire [`DWIDTH-1:0] cin_row3;
-reg [4*`DWIDTH-1:0] row0_shift_reg;
-reg [4*`DWIDTH-1:0] row1_shift_reg;
-reg [4*`DWIDTH-1:0] row2_shift_reg;
-reg [4*`DWIDTH-1:0] row3_shift_reg;
-wire row0_latch_en;
-wire row1_latch_en;
-wire row2_latch_en;
-wire row3_latch_en;
+wire row_latch_en;
 
 wire [`DWIDTH-1:0] matrixC00;
 wire [`DWIDTH-1:0] matrixC01;
@@ -288,78 +281,48 @@ assign cin_row1 = c_data_in[2*`DWIDTH-1:`DWIDTH];
 assign cin_row2 = c_data_in[3*`DWIDTH-1:2*`DWIDTH];
 assign cin_row3 = c_data_in[4*`DWIDTH-1:3*`DWIDTH];
 
-//assign row0_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 7 +  `NUM_CYCLES_IN_MAC - 1));
-//assign row1_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 8 +  `NUM_CYCLES_IN_MAC - 1));
-//assign row2_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 9 +  `NUM_CYCLES_IN_MAC - 1));
-//assign row3_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 + `NUM_CYCLES_IN_MAC - 1));
+//assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 +  `NUM_CYCLES_IN_MAC - 1));
 //Writing the line above to avoid multiplication:
-assign row0_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 7 +  `NUM_CYCLES_IN_MAC - 1));
-assign row1_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 8 +  `NUM_CYCLES_IN_MAC - 1));
-assign row2_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 9 +  `NUM_CYCLES_IN_MAC - 1));
-assign row3_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 + `NUM_CYCLES_IN_MAC - 1));
+assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
 
 reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
+integer counter;
+reg [4*`DWIDTH-1:0] c_data_out;
+
 always @(posedge clk) begin
-  if (reset) begin
+  if (reset | ~start_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
     c_addr <= `MEM_SIZE-1-3;
-  end else if (row0_latch_en) begin
+    c_data_out <= 0;
+    counter <= 0;
+  end else if (row_latch_en) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
     c_addr <= c_addr + 4;
+    c_data_out <= {matrixC03, matrixC02, matrixC01, matrixC00};
+    counter <= counter + 1;
   end else if (done_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
     c_addr <= `MEM_SIZE-1-3;
+    c_data_out <= 0;
   end 
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
-    c_addr <= c_addr + 4;
+    c_addr <= c_addr + 4; 
+    counter <= counter + 1;
+    case (counter)
+        1: c_data_out <= {matrixC13, matrixC12, matrixC11, matrixC10};
+        2: c_data_out <= {matrixC23, matrixC22, matrixC21, matrixC20};
+        3: c_data_out <= {matrixC33, matrixC32, matrixC31, matrixC30};
+        default: c_data_out <= 0;
+    endcase
   end
 end
 
-always @(posedge clk) begin
-  if (reset) begin
-      row0_shift_reg <= 0;
-  end else if (row0_latch_en) begin
-      row0_shift_reg <= {matrixC03, matrixC02, matrixC01, matrixC00};
-  end else begin    
-      row0_shift_reg <= {cin_row0, row0_shift_reg[4*`DWIDTH-1:`DWIDTH]};
-  end
-end    
-
-always @(posedge clk) begin
-  if (reset) begin
-      row1_shift_reg <= 0;
-  end else if (row1_latch_en) begin
-      row1_shift_reg <= {matrixC13, matrixC12, matrixC11, matrixC10};
-  end else begin    
-      row1_shift_reg <= {cin_row1, row1_shift_reg[4*`DWIDTH-1:`DWIDTH]};
-  end
-end
-
-always @(posedge clk) begin
-  if (reset) begin
-      row2_shift_reg <= 0;
-  end else if (row2_latch_en) begin
-      row2_shift_reg <= {matrixC23, matrixC22, matrixC21, matrixC20};
-  end else begin    
-      row2_shift_reg <= {cin_row2, row2_shift_reg[4*`DWIDTH-1:`DWIDTH]};
-  end
-end
-
-always @(posedge clk) begin
-  if (reset) begin
-      row3_shift_reg <= 0;
-  end else if (row3_latch_en) begin
-      row3_shift_reg <= {matrixC33, matrixC32, matrixC31, matrixC30};
-  end else begin    
-      row3_shift_reg <= {cin_row3, row3_shift_reg[4*`DWIDTH-1:`DWIDTH]};
-  end
-end
 
 processing_element pe00(.reset(reset | ~start_mat_mul), .clk(clk),  .in_a(a0),      .in_b(b0),  .out_a(a00to01), .out_b(b00to10), .out_c(matrixC00));
 processing_element pe01(.reset(reset | ~start_mat_mul), .clk(clk),  .in_a(a00to01), .in_b(b1),  .out_a(a01to02), .out_b(b01to11), .out_c(matrixC01));
@@ -383,7 +346,6 @@ processing_element pe33(.reset(reset | ~start_mat_mul), .clk(clk),  .in_a(a32to3
 
 assign a_data_out = {a33to34,a23to24,a13to14,a03to04};
 assign b_data_out = {b33to43,b32to42,b31to41,b30to40};
-assign c_data_out = {row3_shift_reg[`DWIDTH-1:0], row2_shift_reg[`DWIDTH-1:0], row1_shift_reg[`DWIDTH-1:0], row0_shift_reg[`DWIDTH-1:0]};
 endmodule
 
 
