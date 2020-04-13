@@ -55,25 +55,30 @@ module matmul_4x4(
  input reset;
  input start_mat_mul;
  output done_mat_mul;
- input [4*`DWIDTH-1:0] a_data;
- input [4*`DWIDTH-1:0] b_data;
- input [4*`DWIDTH-1:0] a_data_in;
- input [4*`DWIDTH-1:0] b_data_in;
- input [4*`DWIDTH-1:0] c_data_in;
- output [4*`DWIDTH-1:0] c_data_out;
- output [4*`DWIDTH-1:0] a_data_out;
- output [4*`DWIDTH-1:0] b_data_out;
+ input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data;
+ input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
+ input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in;
+ input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in;
+ input [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
+ output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
+ output [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out;
+ output [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out;
  output [`AWIDTH-1:0] a_addr;
  output [`AWIDTH-1:0] b_addr;
  output [`AWIDTH-1:0] c_addr;
  output c_data_available;
+//7:0 is okay here. We aren't going to make a matmul larger than 128x128
+//In fact, these will get optimized out by the synthesis tool, because
+//we hardcode them at the instantiation level.
  input [7:0] final_mat_mul_size;
  input [7:0] a_loc;
  input [7:0] b_loc;
 
 reg done_mat_mul;
-wire clk_cnt_cout_NC;
-wire [6:0] clk_cnt_inc;
+//This is 7 bits because the expectation is that clock count will be pretty
+//small. For large matmuls, this will need to increased to have more bits.
+//In general, a systolic multiplier takes 4*N-2+P cycles, where N is the size 
+//of the matmul and P is the number of pipleine stages in the MAC block.
 reg [6:0] clk_cnt;
 
 
@@ -128,6 +133,7 @@ assign a1_data_in = a_data_in[2*`DWIDTH-1:`DWIDTH];
 assign a2_data_in = a_data_in[3*`DWIDTH-1:2*`DWIDTH];
 assign a3_data_in = a_data_in[4*`DWIDTH-1:3*`DWIDTH];
 
+//For larger matmuls, more such delaying flops will be needed
 reg [`DWIDTH-1:0] a1_data_delayed_1;
 reg [`DWIDTH-1:0] a2_data_delayed_1;
 reg [`DWIDTH-1:0] a2_data_delayed_2;
@@ -188,6 +194,7 @@ assign b1_data_in = b_data_in[2*`DWIDTH-1:`DWIDTH];
 assign b2_data_in = b_data_in[3*`DWIDTH-1:2*`DWIDTH];
 assign b3_data_in = b_data_in[4*`DWIDTH-1:3*`DWIDTH];
 
+//For larger matmuls, more such delaying flops will be needed
 reg [`DWIDTH-1:0] b1_data_delayed_1;
 reg [`DWIDTH-1:0] b2_data_delayed_1;
 reg [`DWIDTH-1:0] b2_data_delayed_2;
@@ -291,6 +298,7 @@ reg start_capturing_c_data;
 integer counter;
 reg [4*`DWIDTH-1:0] c_data_out;
 
+//For larger matmuls, this logic will have more entries in the case statement
 always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
     start_capturing_c_data <= 1'b0;
@@ -302,7 +310,7 @@ always @(posedge clk) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
     c_addr <= c_addr + 4;
-    c_data_out <= {matrixC03, matrixC02, matrixC01, matrixC00};
+    c_data_out <= {matrixC03, matrixC02, matrixC01, matrixC00};  //first set of elements is captured here
     counter <= counter + 1;
   end else if (done_mat_mul) begin
     start_capturing_c_data <= 1'b0;
@@ -314,7 +322,7 @@ always @(posedge clk) begin
     c_data_available <= 1'b1;
     c_addr <= c_addr + 4; 
     counter <= counter + 1;
-    case (counter)
+    case (counter)  //rest of the elements are captured here
         1: c_data_out <= {matrixC13, matrixC12, matrixC11, matrixC10};
         2: c_data_out <= {matrixC23, matrixC22, matrixC21, matrixC20};
         3: c_data_out <= {matrixC33, matrixC32, matrixC31, matrixC30};
@@ -323,7 +331,7 @@ always @(posedge clk) begin
   end
 end
 
-
+//For larger matmul, more PEs will be needed
 processing_element pe00(.reset(reset | ~start_mat_mul), .clk(clk),  .in_a(a0),      .in_b(b0),  .out_a(a00to01), .out_b(b00to10), .out_c(matrixC00));
 processing_element pe01(.reset(reset | ~start_mat_mul), .clk(clk),  .in_a(a00to01), .in_b(b1),  .out_a(a01to02), .out_b(b01to11), .out_c(matrixC01));
 processing_element pe02(.reset(reset | ~start_mat_mul), .clk(clk),  .in_a(a01to02), .in_b(b2),  .out_a(a02to03), .out_b(b02to12), .out_c(matrixC02));
