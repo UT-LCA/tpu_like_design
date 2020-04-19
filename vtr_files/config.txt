@@ -1,0 +1,24 @@
+##############################################
+# Configuration file for running experiments
+##############################################
+
+# Path to directory of circuits to use
+circuits_dir=vtr_flow/tasks/ee382v_proj
+
+# Path to directory of architectures to use
+archs_dir=arch/timing
+
+# Add circuits to list to sweep
+circuit_list_add=4x4.v
+
+# Add architectures to list to sweep
+arch_list_add=k6_frac_N10_mem32K_40nm.xml
+arch_list_add=k6_frac_N10_4add_2chains_tie_off_depop50_mem20K_22nm.xml
+arch_list_add=EArch.xml
+arch_list_add=k4_N4_90nm.xml
+
+# Parse info and how to parse
+parse_file=vpr_standard.txt
+
+# Pass requirements
+pass_requirements_file=pass_requirements.txt
