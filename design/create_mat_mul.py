@@ -457,10 +457,27 @@ processing_element pe33(.reset(effective_rst), .clk(clk),  .in_a(a32to33), .in_b
 
 """
 
-f.write("""
+f.write("assign a_data_out = {")
 
-assign a_data_out = {a33to34,a23to24,a13to14,a03to04};
-assign b_data_out = {b33to43,b32to42,b31to41,b30to40};
+for i in range(int(sys.argv[1])-1,-1,-1):
+	f.write("a" + str(i) + str(int(sys.argv[1])-1) + "to" +  str(i) + sys.argv[1])
+
+	if i != 0:
+		f.write(",")
+	else:
+		f.write("};\n") 
+
+f.write("assign b_data_out = {")
+
+for i in range(int(sys.argv[1])-1,-1,-1):
+	f.write("a" + str(int(sys.argv[1])-1) + str(i) + "to" +  sys.argv[1] + str(i) )
+
+	if i != 0:
+		f.write(",")
+	else:
+		f.write("};\n") 
+
+f.write("""
 endmodule
 
 module processing_element(
