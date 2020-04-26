@@ -44,7 +44,7 @@ f.write("""
 `define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
 `define NUM_CYCLES_IN_MAC 3
 
-module matmul_4x4(
+module matmul_""" + sys.argv[1] + """x""" + sys.argv[1] + """(
  clk,
  reset,
  start_mat_mul,
@@ -116,17 +116,17 @@ end
 reg [`AWIDTH-1:0] a_addr;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    a_addr <= `MEM_SIZE-1-3;//a_loc*16;
+    a_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1]) - 1) + """;//a_loc*16;
   end
   //else if (clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    a_addr <= `MEM_SIZE-1-3; 
+    a_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1]) - 1) + """; 
   end
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    a_addr <= a_addr + 4;
+    a_addr <= a_addr + """ + sys.argv[1] + """;
   end
 end  
 """)
@@ -188,17 +188,17 @@ end
 reg [`AWIDTH-1:0] b_addr;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    b_addr <= `MEM_SIZE-1-3;//b_loc*16;
+    b_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1])-1) + """;//b_loc*16;
   end
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    b_addr <= `MEM_SIZE-1-3;
+    b_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1])-1) + """;
   end
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    b_addr <= b_addr + 4;
+    b_addr <= b_addr + """ + sys.argv[1] + """;
   end
 end
 
@@ -350,7 +350,7 @@ always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= `MEM_SIZE-1-3;
+    c_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1])-1) + """;
     c_data_out <= 0;
     counter <= 0;
   end else if (row_latch_en) begin
@@ -374,7 +374,7 @@ f.write(
   end else if (done_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= `MEM_SIZE-1-3;
+    c_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1])-1) + """;
     c_data_out <= 0;
   end 
   else if (start_capturing_c_data) begin
@@ -470,7 +470,7 @@ for i in range(int(sys.argv[1])-1,-1,-1):
 f.write("assign b_data_out = {")
 
 for i in range(int(sys.argv[1])-1,-1,-1):
-	f.write("a" + str(int(sys.argv[1])-1) + str(i) + "to" +  sys.argv[1] + str(i) )
+	f.write("b" + str(int(sys.argv[1])-1) + str(i) + "to" +  sys.argv[1] + str(i) )
 
 	if i != 0:
 		f.write(",")
