@@ -1,0 +1,8 @@
+`define DWIDTH 8
+`define AWIDTH 13
+`define MEM_SIZE 8192
+`define MAT_MUL_SIZE 4
+`define LOG2_MAT_MUL_SIZE 2
+`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
+`define NUM_CYCLES_IN_MAC 3
+
