@@ -9,7 +9,7 @@ module cfg(
     //HIGH_PRECISION_DWIDTH kind of thing
     output [`DWIDTH-1:0] mean,
     output [`DWIDTH-1:0] inv_var,
-    input done
+    input done_all
 );
 
 //TODO: For now, I'll force the inputs and ouputs of this block from

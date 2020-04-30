@@ -3,8 +3,13 @@ module control(
     input clk,
     input reset,
     input start,
-    output start_mat_mul
+    output reg start_mat_mul,
+    input done_mat_mul,
+    input done_norm,
+    output reg done_all
 );
+
+reg [3:0] state;
 
 `define STATE_INIT 4'b0000
 `define STATE_MATMUL 4'b0010
@@ -15,6 +20,7 @@ always @( posedge clk) begin
     if (reset || ~start) begin
       state <= `STATE_INIT;
       start_mat_mul <= 1'b0;
+      done_all <= 1'b0;
     end else begin
       case (state)
       `STATE_INIT: begin
@@ -37,7 +43,7 @@ always @( posedge clk) begin
       end
 
       `STATE_DONE: begin
-        done <= 1;
+        done_all <= 1;
       end
       endcase  
     end 

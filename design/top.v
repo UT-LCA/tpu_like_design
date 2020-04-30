@@ -16,20 +16,36 @@ wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a;
 wire [`MASK_WIDTH-1:0] bram_we_a;
 wire bram_en_a;
-
 wire [`AWIDTH-1:0] bram_addr_b;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b;
 wire [`MASK_WIDTH-1:0] bram_we_b;
 wire bram_en_b;
-
 reg  [`AWIDTH-1:0] bram_addr_c;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c;
 reg  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c;
 wire [`MASK_WIDTH-1:0] bram_we_c;
 wire bram_en_c;
-
 reg bram_c_data_available;
+wire done_all;
+wire start_mat_mul;
+wire done_mat_mul;
+wire norm_out_data_available;
+wire done_norm;
+wire enable_matmul;
+wire enable_norm;
+wire enable_activation;
+wire enable_pool;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] matmul_c_data_out;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] norm_data_out;
+wire matmul_c_data_available;
+wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out_NC;
+wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out_NC;
+wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_NC;
+wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_NC;
+wire [`AWIDTH-1:0] bram_addr_c_NC;
+wire [`DWIDTH-1:0] mean;
+wire [`DWIDTH-1:0] inv_var;
 
 //Connections for bram c (output matrix)
 //bram_addr_c -> connected to u_matmul_4x4 block
@@ -38,7 +54,7 @@ reg bram_c_data_available;
 //bram_we_c -> Will be 1 when the last block's data is available
 //bram_en_c -> hardcoded to 1 
 assign bram_en_c = 1'b1;
-assign bram_we_c = (bram_c_data_available) ? {`MASK_WIDTH{1'b}} : {`MASK_WIDTH{1'b0}};  
+assign bram_we_c = (bram_c_data_available) ? {`MASK_WIDTH{1'b1}} : {`MASK_WIDTH{1'b0}};  
 
 //Connections for bram a (first input matrix)
 //bram_addr_a -> connected to u_matmul_4x4
@@ -60,7 +76,6 @@ assign bram_wdata_b = {`BB_MAT_MUL_SIZE*`DWIDTH{1'b0}};
 assign bram_en_b = 1'b1;
 assign bram_we_b = {`MASK_WIDTH{1'b0}};
   
-
 // BRAM matrix A 
 ram matrix_A (
   .addr0(bram_addr_a),
@@ -85,20 +100,18 @@ ram matrix_C (
   .q0(bram_rdata_c),
   .clk(clk_mem));
 
+// Control logic that directs all the operation
 control u_control(
   .clk(clk),
   .reset(reset),
   .start(start),
   .start_mat_mul(start_mat_mul),
+  .done_mat_mul(done_mat_mul),
+  .done_norm(done_norm),
+  .done_all(done_all)
 );
 
-wire enable_matmul;
-wire enable_norm;
-wire enable_activation;
-wire enable_pool;
-wire done;
-wire 
-
+// Configuration (register) block
 cfg u_cfg(
   .start(start),
   .enable_matmul(enable_matmul),
@@ -107,25 +120,15 @@ cfg u_cfg(
   .enable_pool(enable_pool),
   .mean(mean),
   .inv_var(inv_var),
-  .done(done)
+  .done_all(done_all)
 );
-
-wire start_mat_mul;
-wire done_mat_mul;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] matmul_c_data_out;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] norm_data_out;
-wire matmul_c_data_available;
-
-//NC wires 
-wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out_NC;
-wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out_NC;
-wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_NC;
-wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_NC;
 
 //TODO: We want to move the data setup part
 //and the interface to BRAM_A and BRAM_B outside
 //into its own modules. For now, it is all inside
 //the matmul block
+
+//Matrix multiplier
 matmul_4x4 u_matmul_4x4(
   .clk(clk),
   .reset(reset),
@@ -148,8 +151,7 @@ matmul_4x4 u_matmul_4x4(
   .b_loc(8'd0)
 );
 
-wire norm_out_data_available;
-  
+// Normalization module
 norm u_norm(
   .enable_norm(enable_norm),
   .mean(mean),
@@ -158,6 +160,7 @@ norm u_norm(
   .inp_data(matmul_c_data_out),
   .out_data(norm_data_out),
   .out_data_available(norm_out_data_available),
+  .done_norm(done_norm),
   .clk(clk),
   .reset(reset)
 );
