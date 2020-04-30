@@ -1,5 +1,4 @@
 module norm(
-    input enable_norm,
     input [`DWIDTH-1:0] mean,
     input [`DWIDTH-1:0] inv_var,
     input in_data_available,
@@ -25,7 +24,7 @@ module norm(
 
 integer cycle_count;
 always @(posedge clk) begin
-    if (reset || ~enable_norm || ~in_data_available) begin
+    if (reset || ~in_data_available) begin
         out_data <= 0;
         out_data_available <= 0;
         cycle_count <= 0;
@@ -62,7 +61,7 @@ reg [3:0] state;
 `define STATE_MUL 4'b0010
 `define 
 always @( posedge clk) begin
-  if (reset || ~enable_norm || ~in_data_available) begin
+  if (reset || ~in_data_available) begin
     state <= 4'b0000;
     out_data <= 0;
     out_data_available <= 0;

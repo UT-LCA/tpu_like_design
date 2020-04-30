@@ -11,6 +11,7 @@ compile:
 	../design/ram.v \
 	../design/control.v \
 	../design/top.v \
+	../verif/top_tb.v \
 	-sverilog \
 	-debug_access+all \
   -y /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \

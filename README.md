@@ -1,7 +1,7 @@
 # Introduction
 This repo contains a parameterizable TPU-like design (in Verilog) that will be overlayed onto an FPGA (probably PYNQ). We plan to add this design to VTR to serve as a benchmark for FPGA architecture exploration. 
 
-# Instructions for the 4x4 matrix multiplier
+# Instructions for the TPU design
 I've compiled and tested the design with Synopsys VCS 2018 on UT ECE LRC machines. Use the following command to load the tool:
 ```
 module load synopsys/2018
@@ -11,14 +11,17 @@ Note that this only works on CentOS7 machines. So, please ensure you are on the 
 Then, to compile and run the simple testbench, you can use:
 ```
 cd verif
-make
+make -f Makefile.tpu
 ```
 This will also dump waveforms. To view waves using DVE, use:
 ```
-make waves
+make -f Makefile.tpu waves
 ```
 Note that you'll need X server to be enabled to view waves. I use https://mobaxterm.mobatek.net/ for this. 
-You can use `make clean` to remove temporary files and build products, and start fresh.
+You can use `make -f Makefile.tpu clean` to remove temporary files and build products, and start fresh.
+
+# Instructions for the 4x4 and 8x8 matrix multiplier designs
+Same instructions as above, just change the Makefile's name to Makefile.4x4 or Makefile.8x8
 
 # Submodules in this repo
 I've added VTR and PYNQ are submodules to this repo. In the beginning, when we are just working on the design and verifying it, we won't need those. By default, these won't be cloned on cloning the repo. But later, we will need them and then we can do `git submodule update --init --recursive`. 

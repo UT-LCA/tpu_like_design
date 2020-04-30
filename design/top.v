@@ -105,6 +105,10 @@ control u_control(
   .clk(clk),
   .reset(reset),
   .start(start),
+  .enable_matmul(enable_matmul),
+  .enable_norm(enable_norm),
+  .enable_activation(enable_activation),
+  .enable_pool(enable_pool),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul),
   .done_norm(done_norm),
@@ -153,7 +157,6 @@ matmul_4x4 u_matmul_4x4(
 
 // Normalization module
 norm u_norm(
-  .enable_norm(enable_norm),
   .mean(mean),
   .inv_var(inv_var),
   .in_data_available(matmul_c_data_available),
