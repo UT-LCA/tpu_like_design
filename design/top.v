@@ -156,6 +156,10 @@ matmul_4x4 u_matmul_4x4(
 );
 
 // Normalization module
+//TODO: If norm is disabled, then connecting matmul_c_data_out to 
+//norm is incorrect. Need to add muxing stucture (may be inside control block).
+//A better approach is to just have the muxing inside each block (eg. we can loopback
+//the input data back to output if norm is not enabled)
 norm u_norm(
   .mean(mean),
   .inv_var(inv_var),
