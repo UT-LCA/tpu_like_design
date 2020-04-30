@@ -1,6 +1,0 @@
-[submodule "vtr"]
-	path = vtr
-	url = https://github.com/verilog-to-routing/vtr-verilog-to-routing
-[submodule "pynq"]
-	path = pynq
-	url = https://github.com/Xilinx/PYNQ.git
