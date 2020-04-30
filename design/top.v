@@ -188,6 +188,11 @@ always @(posedge clk) begin
     bram_addr_c <= bram_addr_c + `BB_MAT_MUL_SIZE;
     bram_c_data_available <= norm_out_data_available;
   end
+  else begin
+    bram_wdata_c <= 0;
+    bram_addr_c <= `MEM_SIZE-`BB_MAT_MUL_SIZE; //last but 1 location
+    bram_c_data_available <= 0;
+  end
 end  
 
 endmodule

@@ -39,12 +39,19 @@ always @( posedge clk) begin
       
       //start_mat_mul is kinda used as a reset in some logic
       //inside the matmul unit. So, we can't make it 0 right away after
-      //asserting it
+      //asserting it.
+      //TODO: I think we can change this behavior. This currently leads to 
+      //one extra wasted cycle
       `STATE_MATMUL: begin
         start_mat_mul <= 1'b1;	      
         if (done_mat_mul == 1'b1) begin
             start_mat_mul <= 1'b0;
             if (enable_norm) begin
+              //Currently there is no start_norm on the norm block.
+              //It starts when the matmul's data_available signal becomes 1.
+              //But we should have a consistent interface for all blocks.
+              //TODO: Think about how to handle this
+              //start_norm <= 1'b1;
               state <= `STATE_NORM;
             end 
             else begin
@@ -53,7 +60,6 @@ always @( posedge clk) begin
         end 
       end      
       
-      //There is no d
       `STATE_NORM: begin                 
         if (done_norm == 1'b1) begin
           state <= `STATE_DONE;
