@@ -301,7 +301,7 @@ always @(posedge clk) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
     c_addr <= c_addr + 4;
-    c_data_out <= {matrixC03, matrixC02, matrixC01, matrixC00};  //first set of elements is captured here
+    c_data_out <= {matrixC30, matrixC20, matrixC10, matrixC00};  //first set of elements is captured here
     counter <= counter + 1;
   end else if (done_mat_mul) begin
     start_capturing_c_data <= 1'b0;
@@ -314,9 +314,9 @@ always @(posedge clk) begin
     c_addr <= c_addr + 4; 
     counter <= counter + 1;
     case (counter)  //rest of the elements are captured here
-        1: c_data_out <= {matrixC13, matrixC12, matrixC11, matrixC10};
-        2: c_data_out <= {matrixC23, matrixC22, matrixC21, matrixC20};
-        3: c_data_out <= {matrixC33, matrixC32, matrixC31, matrixC30};
+        1: c_data_out <= {matrixC31, matrixC21, matrixC11, matrixC01};
+        2: c_data_out <= {matrixC32, matrixC22, matrixC12, matrixC02};
+        3: c_data_out <= {matrixC33, matrixC23, matrixC13, matrixC03};
         default: c_data_out <= 0;
     endcase
   end
