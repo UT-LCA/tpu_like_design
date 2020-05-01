@@ -1,18 +1,27 @@
 module top(
-    input clk,
-    input clk_mem,
-    input reset,
-    input resetn,
-    input        [`REG_ADDRWIDTH-1:0] PADDR,
-    input                             PWRITE,
-    input                             PSEL,
-    input                             PENABLE,
-    input        [`REG_DATAWIDTH-1:0] PWDATA,
-    output       [`REG_DATAWIDTH-1:0] PRDATA,
-    output                            PREADY
-//TODO: Add signals to interface with the cfg block
-//TODO: Provide an interface to BRAM from the top-level 
-//to avoid things getting optimized out
+    input  clk,
+    input  clk_mem,
+    input  reset,
+    input  resetn,
+    input  [`REG_ADDRWIDTH-1:0] PADDR,
+    input  PWRITE,
+    input  PSEL,
+    input  PENABLE,
+    input  [`REG_DATAWIDTH-1:0] PWDATA,
+    output [`REG_DATAWIDTH-1:0] PRDATA,
+    output PREADY,
+    input  [`AWIDTH-1:0] bram_addr_a_ext,
+    output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_ext,
+    input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_ext,
+    input  [`MASK_WIDTH-1:0] bram_we_a_ext,
+    input  [`AWIDTH-1:0] bram_addr_b_ext,
+    output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_ext,
+    input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_ext,
+    input  [`MASK_WIDTH-1:0] bram_we_b_ext,
+    input  [`AWIDTH-1:0] bram_addr_c_ext,
+    output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_ext,
+    input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_ext,
+    input  [`MASK_WIDTH-1:0] bram_we_c_ext
 );
 
 //TODO: Introduce the concept of addresses of each matrix.
@@ -55,6 +64,11 @@ wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_NC;
 wire [`AWIDTH-1:0] bram_addr_c_NC;
 wire [`DWIDTH-1:0] mean;
 wire [`DWIDTH-1:0] inv_var;
+wire done_pool; 
+wire done_activation; 
+
+assign done_pool = 1; //TODO: For now, tying to 1. Harsh will fix this.
+assign done_activation = 1; //TODO: for now, tying to 1. Bagus will fix this.
 
 //Connections for bram c (output matrix)
 //bram_addr_c -> connected to u_matmul_4x4 block
@@ -91,6 +105,10 @@ ram matrix_A (
   .d0(bram_wdata_a), 
   .we0(bram_we_a), 
   .q0(bram_rdata_a), 
+  .addr1(bram_addr_a_ext),
+  .d1(bram_wdata_a_ext), 
+  .we1(bram_we_a_ext), 
+  .q1(bram_rdata_a_ext), 
   .clk(clk_mem));
 
 // BRAM matrix B
@@ -99,6 +117,10 @@ ram matrix_B (
   .d0(bram_wdata_b), 
   .we0(bram_we_b), 
   .q0(bram_rdata_b), 
+  .addr1(bram_addr_b_ext),
+  .d1(bram_wdata_b_ext), 
+  .we1(bram_we_b_ext), 
+  .q1(bram_rdata_b_ext), 
   .clk(clk_mem));
 
 // BRAM matrix C
@@ -107,6 +129,10 @@ ram matrix_C (
   .d0(bram_wdata_c),
   .we0(bram_we_c),
   .q0(bram_rdata_c),
+  .addr1(bram_addr_c_ext),
+  .d1(bram_wdata_c_ext),
+  .we1(bram_we_c_ext),
+  .q1(bram_rdata_c_ext),
   .clk(clk_mem));
 
 // Control logic that directs all the operation
@@ -121,6 +147,8 @@ control u_control(
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul),
   .done_norm(done_norm),
+  .done_pool(done_pool), 
+  .done_activation(done_activation),
   .done_tpu(done_tpu)
 );
 
@@ -179,6 +207,7 @@ matmul_4x4 u_matmul_4x4(
 //A better approach is to just have the muxing inside each block (eg. we can loopback
 //the input data back to output if norm is not enabled)
 norm u_norm(
+  .enable_norm(enable_norm),
   .mean(mean),
   .inv_var(inv_var),
   .in_data_available(matmul_c_data_available),

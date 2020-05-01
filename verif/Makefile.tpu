@@ -22,6 +22,9 @@ compile:
 run:
 	./simv
 
+run_norm_disabled:
+	./simv +norm_disabled
+
 waves:
 	$(VCS_HOME)/bin/dve -vpd vcdplus.vpd
 

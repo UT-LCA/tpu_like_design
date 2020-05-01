@@ -10,15 +10,25 @@ module control(
     output reg start_mat_mul,
     input done_mat_mul,
     input done_norm,
+    input done_pool,
+    input done_activation,
     output reg done_tpu
 );
 
 reg [3:0] state;
 
-`define STATE_INIT 4'b0000
-`define STATE_MATMUL 4'b0001
-`define STATE_NORM 4'b0010
-`define STATE_DONE 4'b0011
+`define STATE_INIT         4'b0000
+`define STATE_MATMUL       4'b0001
+`define STATE_NORM         4'b0010
+`define STATE_POOL         4'b0011
+`define STATE_ACTIVATION   4'b0100
+`define STATE_DONE         4'b0101
+
+//////////////////////////////////////////////////////
+// Assumption: We will always run matmul first. That is, matmul is not optional. 
+//             The other blocks - norm, act, pool - are optional.
+// Assumption: Order is fixed: Matmul -> Norm -> Pool -> Activation
+//////////////////////////////////////////////////////
 
 always @( posedge clk) begin
     if (reset) begin
@@ -53,6 +63,12 @@ always @( posedge clk) begin
               //start_norm <= 1'b1;
               state <= `STATE_NORM;
             end 
+            else if (enable_pool) begin
+              state <= `STATE_POOL;
+            end
+            else if (enable_activation) begin
+              state <= `STATE_ACTIVATION;
+            end
             else begin
               state <= `STATE_DONE;
             end  
@@ -61,6 +77,31 @@ always @( posedge clk) begin
       
       `STATE_NORM: begin                 
         if (done_norm == 1'b1) begin
+          if (enable_pool) begin
+            state <= `STATE_POOL;
+          end
+          else if (enable_activation) begin
+            state <= `STATE_ACTIVATION;
+          end
+          else begin
+            state <= `STATE_DONE;
+          end
+        end
+      end
+
+      `STATE_POOL: begin                 
+        if (done_pool == 1'b1) begin
+          if (enable_activation) begin
+            state <= `STATE_ACTIVATION;
+          end
+          else begin
+            state <= `STATE_DONE;
+          end
+        end
+      end
+
+      `STATE_ACTIVATION: begin                 
+        if (done_activation == 1'b1) begin
           state <= `STATE_DONE;
         end
       end

@@ -6,6 +6,9 @@ reg reset;
 wire resetn;
 assign resetn = ~reset;
 
+////////////////////////////////////////////
+//Clock generation logic
+////////////////////////////////////////////
 initial begin
   clk = 0;
   forever begin
@@ -13,14 +16,29 @@ initial begin
   end
 end
 
-reg        [`REG_ADDRWIDTH-1:0] PADDR;
-reg                             PWRITE;
-reg                             PSEL;
-reg                             PENABLE;
-reg     	 [`REG_DATAWIDTH-1:0] PWDATA;
-wire 	  	 [`REG_DATAWIDTH-1:0] PRDATA;
-wire	                          PREADY;
+reg  [`REG_ADDRWIDTH-1:0] PADDR;
+reg  PWRITE;
+reg  PSEL;
+reg  PENABLE;
+reg  [`REG_DATAWIDTH-1:0] PWDATA;
+wire [`REG_DATAWIDTH-1:0] PRDATA;
+wire PREADY;
+wire [`AWIDTH-1:0] bram_addr_a_ext;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_ext;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_ext;
+wire [`MASK_WIDTH-1:0] bram_we_a_ext;
+wire [`AWIDTH-1:0] bram_addr_b_ext;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_ext;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_ext;
+wire [`MASK_WIDTH-1:0] bram_we_b_ext;
+wire [`AWIDTH-1:0] bram_addr_c_ext;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_ext;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_ext;
+wire [`MASK_WIDTH-1:0] bram_we_c_ext;
 
+////////////////////////////////////////////
+//Instance of the DUT
+////////////////////////////////////////////
 top u_top(
     .clk(clk),
     .clk_mem(clk),
@@ -32,9 +50,13 @@ top u_top(
     .PENABLE(PENABLE),
     .PWDATA(PWDATA),
     .PRDATA(PRDATA),
-    .PREADY(PREADY)
+    .PREADY(PREADY),
+    .*
 );
 
+////////////////////////////////////////////
+//Task to write into the configuration block of the DUT
+////////////////////////////////////////////
 task write(input [`REG_ADDRWIDTH-1:0] addr, input [`REG_DATAWIDTH-1:0] data);
  begin
   @(negedge clk);
@@ -54,7 +76,9 @@ task write(input [`REG_ADDRWIDTH-1:0] addr, input [`REG_DATAWIDTH-1:0] data);
  end  
 endtask
 
-		 
+////////////////////////////////////////////
+//Task to read from the configuration block of the DUT
+////////////////////////////////////////////
 task read(input [`REG_ADDRWIDTH-1:0] addr, output [`REG_DATAWIDTH-1:0] data);
 begin 
 	@(negedge clk);
@@ -76,6 +100,9 @@ endtask
 reg [`REG_DATAWIDTH-1:0] rdata;
 reg done;
 
+////////////////////////////////////////////
+// Main routine. Calls the appropriate task
+////////////////////////////////////////////
 initial begin
   //Reset conditions
   reset = 1;
@@ -93,13 +120,17 @@ initial begin
   #30;
 
   //Start the actual test
-  
   $display("Set enables to 1");
   //enable_matmul = 1;
   //enable_norm = 1;
   //enable_activation = 1;
   //enable_pool = 1;
-  write(`REG_ENABLES_ADDR, 32'h0000_000f);
+  if ($test$plusargs("+norm_disabled")) begin
+    write(`REG_ENABLES_ADDR, 32'h0000_000d);
+  end 
+  else begin//all blocks enabled
+    write(`REG_ENABLES_ADDR, 32'h0000_000f);
+  end
   read(`REG_ENABLES_ADDR, rdata);
 
   $display("Configure the value of mean and inv_variance");
@@ -127,6 +158,9 @@ initial begin
 end
 
 
+//////////////////////////////////////////////
+//Initialize BRAMs A and B
+//////////////////////////////////////////////
 //  A           B        Output       Output in hex
 // 8 4 6 8   1 1 3 0   98 90 82 34    62 5A 52 22
 // 3 3 3 7   0 1 4 3   75 63 51 26    4B 3F 33 1A
@@ -157,7 +191,6 @@ initial begin
   //bram_a.write(8, int('0x00010306',16))
   //bram_a.write(12, int('0x05060708',16))
   //bram_a.write(32764,int('0x00000000',16))
-  
   
   //Last element is 0 (i think the logic requires this)
   force u_top.matrix_A.ram[`MEM_SIZE-1-3] = 8'h0;
@@ -198,7 +231,9 @@ initial begin
   //bram_b.write(32764,int('0x00000000',16))
 end
 
-
+//////////////////////////////////////////////
+//Dump waves
+//////////////////////////////////////////////
 initial begin
   $vcdpluson;
   $vcdplusmemon;

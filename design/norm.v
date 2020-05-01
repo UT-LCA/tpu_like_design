@@ -1,14 +1,24 @@
 module norm(
+    input enable_norm,
     input [`DWIDTH-1:0] mean,
     input [`DWIDTH-1:0] inv_var,
     input in_data_available,
     input [`MAT_MUL_SIZE*`DWIDTH-1:0] inp_data,
-    output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] out_data,
-    output reg out_data_available,
-    output reg done_norm,
+    output [`MAT_MUL_SIZE*`DWIDTH-1:0] out_data,
+    output out_data_available,
+    output done_norm,
     input clk,
     input reset
 );
+
+reg out_data_available_internal;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] out_data_internal;
+reg done_norm_internal;
+
+//Muxing logic to handle the case when this block is disabled
+assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
+assign out_data = (enable_norm) ? out_data_internal : inp_data;
+assign done_norm = (enable_norm) ? done_norm_internal : 1'b1;
 
 //inp_data will have multiple elements in it. the number of elements is the same as size of the matmul.
 //on each clock edge, if in_data_available is 1, then we will normalize the inputs.
@@ -24,11 +34,11 @@ module norm(
 
 integer cycle_count;
 always @(posedge clk) begin
-    if (reset || ~in_data_available) begin
-        out_data <= 0;
-        out_data_available <= 0;
+    if (reset || ~in_data_available || ~enable_norm) begin
+        out_data_internal <= 0;
+        out_data_available_internal <= 0;
         cycle_count <= 0;
-        done_norm <= 0;
+        done_norm_internal <= 0;
     end else if (in_data_available) begin
         cycle_count++;
         //TODO: This may not compile on ODIN. So, might have to change
@@ -36,17 +46,17 @@ always @(posedge clk) begin
         //Note: the following loop is not a loop across multiple cycles.
         //This loop will run in 1 cycle.
         for (integer i = 0; i < `MAT_MUL_SIZE; i++) begin
-            out_data[i*`DWIDTH +: `DWIDTH] <= (inp_data[i*`DWIDTH +: `DWIDTH] - mean) * inv_var;
+            out_data_internal[i*`DWIDTH +: `DWIDTH] <= (inp_data[i*`DWIDTH +: `DWIDTH] - mean) * inv_var;
         end
 
         //In each cycle while we're doing normalization, keep
         //data available asserted.
-        out_data_available <= 1;
+        out_data_available_internal <= 1;
 
         //When we've normalized values N times, where N is the matmul
         //size, that means we're done. Eg 4 cycles for 4x4 matmul.
         if(cycle_count==`MAT_MUL_SIZE) begin
-            done_norm <= 1'b1;
+            done_norm_internal <= 1'b1;
         end
     end
 end
