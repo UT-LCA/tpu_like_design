@@ -4,7 +4,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020-04-25 18:37:32.659360
+// Create Date: 2020-05-01 15:29:27.476318
 // Design Name: 
 // Module Name: matmul_8x8
 // Project Name: 
@@ -548,7 +548,7 @@ always @(posedge clk) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
     c_addr <= c_addr + 8;
-    c_data_out <= {matrixC07, matrixC06, matrixC05, matrixC04, matrixC03, matrixC02, matrixC01, matrixC00};
+    c_data_out <= {matrixC70, matrixC60, matrixC50, matrixC40, matrixC30, matrixC20, matrixC10, matrixC00};
 
     counter <= counter + 1;
   end else if (done_mat_mul) begin
@@ -562,13 +562,13 @@ always @(posedge clk) begin
     c_addr <= c_addr + 8; 
     counter <= counter + 1;
     case (counter)  //rest of the elements are captured here
-    		1: c_data_out <= {matrixC17, matrixC16, matrixC15, matrixC14, matrixC13, matrixC12, matrixC11, matrixC10};
-		2: c_data_out <= {matrixC27, matrixC26, matrixC25, matrixC24, matrixC23, matrixC22, matrixC21, matrixC20};
-		3: c_data_out <= {matrixC37, matrixC36, matrixC35, matrixC34, matrixC33, matrixC32, matrixC31, matrixC30};
-		4: c_data_out <= {matrixC47, matrixC46, matrixC45, matrixC44, matrixC43, matrixC42, matrixC41, matrixC40};
-		5: c_data_out <= {matrixC57, matrixC56, matrixC55, matrixC54, matrixC53, matrixC52, matrixC51, matrixC50};
-		6: c_data_out <= {matrixC67, matrixC66, matrixC65, matrixC64, matrixC63, matrixC62, matrixC61, matrixC60};
-		7: c_data_out <= {matrixC77, matrixC76, matrixC75, matrixC74, matrixC73, matrixC72, matrixC71, matrixC70};
+    		1: c_data_out <= {matrixC71, matrixC61, matrixC51, matrixC41, matrixC31, matrixC21, matrixC11, matrixC01};
+		2: c_data_out <= {matrixC72, matrixC62, matrixC52, matrixC42, matrixC32, matrixC22, matrixC12, matrixC02};
+		3: c_data_out <= {matrixC73, matrixC63, matrixC53, matrixC43, matrixC33, matrixC23, matrixC13, matrixC03};
+		4: c_data_out <= {matrixC74, matrixC64, matrixC54, matrixC44, matrixC34, matrixC24, matrixC14, matrixC04};
+		5: c_data_out <= {matrixC75, matrixC65, matrixC55, matrixC45, matrixC35, matrixC25, matrixC15, matrixC05};
+		6: c_data_out <= {matrixC76, matrixC66, matrixC56, matrixC46, matrixC36, matrixC26, matrixC16, matrixC06};
+		7: c_data_out <= {matrixC77, matrixC67, matrixC57, matrixC47, matrixC37, matrixC27, matrixC17, matrixC07};
 
         default: c_data_out <= 0;
     endcase

@@ -360,7 +360,7 @@ always @(posedge clk) begin
     c_data_out <= {""")
 
 for i in range(int(sys.argv[1])-1,-1,-1):
-    f.write("matrixC0" + str(i))
+    f.write("matrixC" + str(i) + "0")
 
     if i == 0:
     	f.write("};\n")
@@ -387,7 +387,7 @@ f.write(
 for i in range(1,int(sys.argv[1])):
 	f.write("		"+str(i) + ": c_data_out <= {")
 	for j in range(int(sys.argv[1])-1,-1,-1):
-		f.write("matrixC" + str(i) + str(j))
+		f.write("matrixC" + str(j) + str(i))
 
 		if j == 0:
 			f.write("};\n")
