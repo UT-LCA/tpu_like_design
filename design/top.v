@@ -1,7 +1,15 @@
 module top(
     input clk,
     input clk_mem,
-    input reset
+    input reset,
+    input resetn,
+    input        [`REG_ADDRWIDTH-1:0] PADDR,
+    input                             PWRITE,
+    input                             PSEL,
+    input                             PENABLE,
+    input        [`REG_DATAWIDTH-1:0] PWDATA,
+    output       [`REG_DATAWIDTH-1:0] PRDATA,
+    output                            PREADY
 //TODO: Add signals to interface with the cfg block
 //TODO: Provide an interface to BRAM from the top-level 
 //to avoid things getting optimized out
@@ -27,7 +35,8 @@ reg  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c;
 wire [`MASK_WIDTH-1:0] bram_we_c;
 wire bram_en_c;
 reg bram_c_data_available;
-wire done_all;
+wire start_tpu;
+wire done_tpu;
 wire start_mat_mul;
 wire done_mat_mul;
 wire norm_out_data_available;
@@ -104,7 +113,7 @@ ram matrix_C (
 control u_control(
   .clk(clk),
   .reset(reset),
-  .start(start),
+  .start_tpu(start_tpu),
   .enable_matmul(enable_matmul),
   .enable_norm(enable_norm),
   .enable_activation(enable_activation),
@@ -112,19 +121,28 @@ control u_control(
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul),
   .done_norm(done_norm),
-  .done_all(done_all)
+  .done_tpu(done_tpu)
 );
 
 // Configuration (register) block
 cfg u_cfg(
-  .start(start),
+  .PCLK(clk),
+  .PRESETn(resetn),
+  .PADDR(PADDR),
+  .PWRITE(PWRITE),
+  .PSEL(PSEL),
+  .PENABLE(PENABLE),
+  .PWDATA(PWDATA),
+  .PRDATA(PRDATA),
+  .PREADY(PREADY),
+  .start_tpu(start_tpu),
   .enable_matmul(enable_matmul),
   .enable_norm(enable_norm),
   .enable_activation(enable_activation),
   .enable_pool(enable_pool),
   .mean(mean),
   .inv_var(inv_var),
-  .done_all(done_all)
+  .done_tpu(done_tpu)
 );
 
 //TODO: We want to move the data setup part

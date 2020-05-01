@@ -2,7 +2,7 @@
 module control(
     input clk,
     input reset,
-    input start,
+    input start_tpu,
     input enable_matmul,
     input enable_norm,
     input enable_activation,
@@ -10,7 +10,7 @@ module control(
     output reg start_mat_mul,
     input done_mat_mul,
     input done_norm,
-    output reg done_all
+    output reg done_tpu
 );
 
 reg [3:0] state;
@@ -24,12 +24,11 @@ always @( posedge clk) begin
     if (reset) begin
       state <= `STATE_INIT;
       start_mat_mul <= 1'b0;
-      done_all <= 1'b0;
+      done_tpu <= 1'b0;
     end else begin
       case (state)
       `STATE_INIT: begin
-        done_all <= 0;
-        if (start == 1'b1) begin
+        if ((start_tpu == 1'b1) && (done_tpu == 1'b0)) begin
           if (enable_matmul == 1'b1) begin
             start_mat_mul <= 1'b1;
             state <= `STATE_MATMUL;
@@ -67,7 +66,7 @@ always @( posedge clk) begin
       end
 
       `STATE_DONE: begin
-        done_all <= 1;
+        done_tpu <= 1;
         state <= `STATE_INIT;
       end
       endcase  

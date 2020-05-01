@@ -3,6 +3,8 @@ module top_tb();
 
 reg clk;
 reg reset;
+wire resetn;
+assign resetn = ~reset;
 
 initial begin
   clk = 0;
@@ -11,28 +13,116 @@ initial begin
   end
 end
 
-initial begin
-  reset = 1;
-  #55 reset = 0;
-end
+reg        [`REG_ADDRWIDTH-1:0] PADDR;
+reg                             PWRITE;
+reg                             PSEL;
+reg                             PENABLE;
+reg     	 [`REG_DATAWIDTH-1:0] PWDATA;
+wire 	  	 [`REG_DATAWIDTH-1:0] PRDATA;
+wire	                          PREADY;
 
 top u_top(
     .clk(clk),
     .clk_mem(clk),
-    .reset(reset)
+    .reset(reset),
+    .resetn(resetn),
+    .PADDR(PADDR),
+    .PWRITE(PWRITE),
+    .PSEL(PSEL),
+    .PENABLE(PENABLE),
+    .PWDATA(PWDATA),
+    .PRDATA(PRDATA),
+    .PREADY(PREADY)
 );
 
-initial begin
-  u_top.u_cfg.enable_matmul = 1;
-  u_top.u_cfg.enable_norm = 1;
-  u_top.u_cfg.enable_activation = 1;
-  u_top.u_cfg.enable_pool = 1;
-  u_top.u_cfg.mean = 8'h01;
-  u_top.u_cfg.inv_var = 8'h01;
+task write(input [`REG_ADDRWIDTH-1:0] addr, input [`REG_DATAWIDTH-1:0] data);
+ begin
+  @(negedge clk);
+  PSEL = 1;
+  PWRITE = 1;
+  PADDR = addr;
+  PWDATA = data;
+	@(negedge clk);
+  PENABLE = 1;
+	@(negedge clk);
+  PSEL = 0;
+  PENABLE = 0;
+  PWRITE = 0;
+  PADDR = 0;
+  PWDATA = 0;
+  $display("%t: PADDR %h, PWDATA %h", $time, addr, data);
+ end  
+endtask
 
-  u_top.u_cfg.start = 0;
-  #115 u_top.u_cfg.start = 1;
-  #2000;
+		 
+task read(input [`REG_ADDRWIDTH-1:0] addr, output [`REG_DATAWIDTH-1:0] data);
+begin 
+	@(negedge clk);
+	PSEL = 1;
+	PWRITE = 0;
+  PADDR = addr;
+	@(negedge clk);
+  PENABLE = 1;
+	@(negedge clk);
+  PSEL = 0;
+  PENABLE = 0;
+  data = PRDATA;
+  PADDR = 0;
+	$display("%t: PADDR %h, PRDATA %h",$time, addr,data);
+end
+endtask
+
+//Temporary variables required in the test
+reg [`REG_DATAWIDTH-1:0] rdata;
+reg done;
+
+initial begin
+  //Reset conditions
+  reset = 1;
+	PSEL = 0;
+	PWRITE = 0;
+  PADDR = 0;
+  PWDATA = 0;
+  PENABLE = 0;
+  done = 0;
+
+  //Assert reset
+  #55 reset = 0;
+
+  //Wait for a clock or two
+  #30;
+
+  //Start the actual test
+  
+  $display("Set enables to 1");
+  //enable_matmul = 1;
+  //enable_norm = 1;
+  //enable_activation = 1;
+  //enable_pool = 1;
+  write(`REG_ENABLES_ADDR, 32'h0000_000f);
+  read(`REG_ENABLES_ADDR, rdata);
+
+  $display("Configure the value of mean and inv_variance");
+  //mean = 8'h01;
+  //inv_var = 8'h01;
+  write(`REG_MEAN_ADDR, 32'h0000_0001);
+  write(`REG_INV_VAR_ADDR, 32'h0000_0001);
+
+  $display("Start the TPU");
+  //start = 1;
+  write(`REG_STDN_TPU_ADDR, 32'h0000_0001);
+  
+  $display("Wait until TPU is done");
+  do 
+  begin
+      read(`REG_STDN_TPU_ADDR, rdata);
+      done = rdata[31];
+  end 
+  while (done == 0);
+  
+  $display("TPU is done now. Ending sim.");
+  //A little bit of drain time before we finish
+  #200;
   $finish;
 end
 
