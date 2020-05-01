@@ -125,7 +125,7 @@ initial begin
   //enable_norm = 1;
   //enable_activation = 1;
   //enable_pool = 1;
-  if ($test$plusargs("+norm_disabled")) begin
+  if ($test$plusargs("norm_disabled")) begin
     write(`REG_ENABLES_ADDR, 32'h0000_000d);
   end 
   else begin//all blocks enabled
