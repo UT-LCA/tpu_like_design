@@ -22,6 +22,8 @@ output reg [`MASK_WIDTH*`DWIDTH-1:0] q0;
 output reg [`MASK_WIDTH*`DWIDTH-1:0] q1;
 input clk;
 
+`ifdef SIMULATION
+
 reg [7:0] ram[((1<<`AWIDTH)-1):0];
 
 always @(posedge clk)  
@@ -41,5 +43,22 @@ begin
         if (we1[3]) ram[addr1+3] <= d1[31:24]; 
         q1 <= {ram[addr1+3], ram[addr1+2], ram[addr1+1], ram[addr1]};
 end
+
+`else
+
+dual_port_ram u_dual_port_ram(
+.addr1(addr0),
+.we1(we0),
+.data1(d0),
+.out1(q0),
+.addr2(addr1),
+.we2(we1),
+.data2(d1),
+.out2(q1),
+.clk(clk)
+);
+
+`endif
+
 
 endmodule

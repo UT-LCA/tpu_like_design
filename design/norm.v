@@ -37,6 +37,7 @@ assign done_norm = (enable_norm) ? done_norm_internal : 1'b1;
 //PA[loc -:4] = PA[loc+1 +:4];  // equivalent to PA[3:0] = PA[7:4];
 
 integer cycle_count;
+integer i;
 always @(posedge clk) begin
     if ((reset || ~enable_norm)) begin
         mean_applied_data <= 0;
@@ -46,14 +47,14 @@ always @(posedge clk) begin
         done_norm_internal <= 0;
         norm_in_progress <= 0;
     end else if (in_data_available || norm_in_progress) begin
-        cycle_count++;
+        cycle_count = cycle_count + 1;
         //Let's apply mean and variance as the input data comes in.
         //We have a pipeline here. First stage does the add (to apply the mean)
         //and second stage does the multiplication (to apply the variance).
         //Note: the following loop is not a loop across multiple columns of data.
         //This loop will run in 2 cycle on the same column of data that comes into 
         //this module in 1 clock.
-        for (integer i = 0; i < `MAT_MUL_SIZE; i++) begin
+        for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
             if (validity_mask[i] == 1'b1) begin
                 mean_applied_data[i*`DWIDTH +: `DWIDTH] <= (inp_data[i*`DWIDTH +: `DWIDTH] - mean);
                 variance_applied_data[i*`DWIDTH +: `DWIDTH] <= (mean_applied_data[i*`DWIDTH +: `DWIDTH] * inv_var);

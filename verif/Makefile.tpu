@@ -18,6 +18,7 @@ compile:
 	-debug_access+all \
   -y /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
   -v /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
+    +define+SIMULATION \
 	+libext+.v
 
 compile_one_file_design:

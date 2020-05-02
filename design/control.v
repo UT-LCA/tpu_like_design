@@ -50,7 +50,6 @@ always @( posedge clk) begin
       //inside the matmul unit. So, we can't make it 0 right away after
       //asserting it.
       `STATE_MATMUL: begin
-        start_mat_mul <= 1'b1;	      
         if (done_mat_mul == 1'b1) begin
             start_mat_mul <= 1'b0;
             if (enable_norm) begin
@@ -66,6 +65,9 @@ always @( posedge clk) begin
               state <= `STATE_DONE;
             end  
         end 
+        else begin
+          start_mat_mul <= 1'b1;	      
+        end
       end      
       
       `STATE_NORM: begin                 
@@ -100,11 +102,13 @@ always @( posedge clk) begin
       end
 
       `STATE_DONE: begin
-        done_tpu <= 1;
         //We need to write start_tpu to 0 in the CFG block to get out of this state
         if (start_tpu == 1'b0) begin
           state <= `STATE_INIT;
           done_tpu <= 0;
+        end
+        else begin
+          done_tpu <= 1;
         end
       end
       endcase  
