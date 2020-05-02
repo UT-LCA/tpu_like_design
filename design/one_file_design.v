@@ -809,6 +809,7 @@ assign done_norm = (enable_norm) ? done_norm_internal : 1'b1;
 //PA[loc -:4] = PA[loc+1 +:4];  // equivalent to PA[3:0] = PA[7:4];
 
 integer cycle_count;
+integer i;
 always @(posedge clk) begin
     if ((reset || ~enable_norm)) begin
         mean_applied_data <= 0;
@@ -818,14 +819,14 @@ always @(posedge clk) begin
         done_norm_internal <= 0;
         norm_in_progress <= 0;
     end else if (in_data_available || norm_in_progress) begin
-        cycle_count++;
+        cycle_count = cycle_count + 1;
         //Let's apply mean and variance as the input data comes in.
         //We have a pipeline here. First stage does the add (to apply the mean)
         //and second stage does the multiplication (to apply the variance).
         //Note: the following loop is not a loop across multiple columns of data.
         //This loop will run in 2 cycle on the same column of data that comes into 
         //this module in 1 clock.
-        for (integer i = 0; i < `MAT_MUL_SIZE; i++) begin
+        for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
             if (validity_mask[i] == 1'b1) begin
                 mean_applied_data[i*`DWIDTH +: `DWIDTH] <= (inp_data[i*`DWIDTH +: `DWIDTH] - mean);
                 variance_applied_data[i*`DWIDTH +: `DWIDTH] <= (mean_applied_data[i*`DWIDTH +: `DWIDTH] * inv_var);
@@ -899,25 +900,37 @@ output reg [`MASK_WIDTH*`DWIDTH-1:0] q0;
 output reg [`MASK_WIDTH*`DWIDTH-1:0] q1;
 input clk;
 
-reg [7:0] ram[((1<<`AWIDTH)-1):0];
+//reg [7:0] ram[((1<<`AWIDTH)-1):0];
+//
+//always @(posedge clk)  
+//begin 
+//        if (we0[0]) ram[addr0+0] <= d0[7:0]; 
+//        if (we0[1]) ram[addr0+1] <= d0[15:8]; 
+//        if (we0[2]) ram[addr0+2] <= d0[23:16]; 
+//        if (we0[3]) ram[addr0+3] <= d0[31:24]; 
+//        q0 <= {ram[addr0+3], ram[addr0+2], ram[addr0+1], ram[addr0]};
+//end
+//
+//always @(posedge clk)  
+//begin 
+//        if (we1[0]) ram[addr1+0] <= d1[7:0]; 
+//        if (we1[1]) ram[addr1+1] <= d1[15:8]; 
+//        if (we1[2]) ram[addr1+2] <= d1[23:16]; 
+//        if (we1[3]) ram[addr1+3] <= d1[31:24]; 
+//        q1 <= {ram[addr1+3], ram[addr1+2], ram[addr1+1], ram[addr1]};
+//end
 
-always @(posedge clk)  
-begin 
-        if (we0[0]) ram[addr0+0] <= d0[7:0]; 
-        if (we0[1]) ram[addr0+1] <= d0[15:8]; 
-        if (we0[2]) ram[addr0+2] <= d0[23:16]; 
-        if (we0[3]) ram[addr0+3] <= d0[31:24]; 
-        q0 <= {ram[addr0+3], ram[addr0+2], ram[addr0+1], ram[addr0]};
-end
-
-always @(posedge clk)  
-begin 
-        if (we1[0]) ram[addr1+0] <= d1[7:0]; 
-        if (we1[1]) ram[addr1+1] <= d1[15:8]; 
-        if (we1[2]) ram[addr1+2] <= d1[23:16]; 
-        if (we1[3]) ram[addr1+3] <= d1[31:24]; 
-        q1 <= {ram[addr1+3], ram[addr1+2], ram[addr1+1], ram[addr1]};
-end
+dual_port_ram u_dual_port_ram(
+.addr1(addr0),
+.we1(we0),
+.data1(d0),
+.out1(q0),
+.addr2(addr1),
+.we2(we1),
+.data2(d1),
+.out2(q1),
+.clk(clk)
+);
 
 endmodule
 
@@ -979,7 +992,6 @@ always @( posedge clk) begin
       //inside the matmul unit. So, we can't make it 0 right away after
       //asserting it.
       `STATE_MATMUL: begin
-        start_mat_mul <= 1'b1;	      
         if (done_mat_mul == 1'b1) begin
             start_mat_mul <= 1'b0;
             if (enable_norm) begin
@@ -995,6 +1007,9 @@ always @( posedge clk) begin
               state <= `STATE_DONE;
             end  
         end 
+        else begin
+        start_mat_mul <= 1'b1;	      
+        end
       end      
       
       `STATE_NORM: begin                 
@@ -1029,12 +1044,14 @@ always @( posedge clk) begin
       end
 
       `STATE_DONE: begin
-        done_tpu <= 1;
         //We need to write start_tpu to 0 in the CFG block to get out of this state
         if (start_tpu == 1'b0) begin
           state <= `STATE_INIT;
           done_tpu <= 0;
         end
+       else begin
+          done_tpu <= 1;
+       end
       end
       endcase  
     end 
@@ -1247,8 +1264,8 @@ cfg u_cfg(
   .start_tpu(start_tpu),
   .enable_matmul(enable_matmul),
   .enable_norm(enable_norm),
-  .enable_activation(enable_activation),
   .enable_pool(enable_pool),
+  .enable_activation(enable_activation),
   .mean(mean),
   .inv_var(inv_var),
   .address_mat_a(address_mat_a),
