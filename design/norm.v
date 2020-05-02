@@ -41,8 +41,6 @@ always @(posedge clk) begin
         done_norm_internal <= 0;
     end else if (in_data_available) begin
         cycle_count++;
-        //TODO: This may not compile on ODIN. So, might have to change
-        //to a non-loop implementation
         //Note: the following loop is not a loop across multiple cycles.
         //This loop will run in 1 cycle.
         for (integer i = 0; i < `MAT_MUL_SIZE; i++) begin

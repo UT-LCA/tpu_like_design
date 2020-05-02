@@ -46,12 +46,18 @@ wire start_mat_mul;
 wire done_mat_mul;
 wire norm_out_data_available;
 wire done_norm;
+wire pool_out_data_available;
+wire done_pool;
+wire activation_out_data_available;
+wire done_activation;
 wire enable_matmul;
 wire enable_norm;
 wire enable_activation;
 wire enable_pool;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] matmul_c_data_out;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] norm_data_out;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] pool_data_out;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] activation_data_out;
 wire matmul_c_data_available;
 wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out_NC;
 wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out_NC;
@@ -60,14 +66,9 @@ wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_NC;
 wire [`AWIDTH-1:0] bram_addr_c_NC;
 wire [`DWIDTH-1:0] mean;
 wire [`DWIDTH-1:0] inv_var;
-wire done_pool; 
-wire done_activation; 
 wire [`AWIDTH-1:0] address_mat_a;
 wire [`AWIDTH-1:0] address_mat_b;
 wire [`AWIDTH-1:0] address_mat_c;
-
-assign done_pool = 1; //TODO: For now, tying to 1. Harsh will fix this.
-assign done_activation = 1; //TODO: for now, tying to 1. Bagus will fix this.
 
 //Connections for bram c (output matrix)
 //bram_addr_c -> connected to u_matmul_4x4 block
@@ -98,7 +99,9 @@ assign bram_wdata_b = {`BB_MAT_MUL_SIZE*`DWIDTH{1'b0}};
 assign bram_en_b = 1'b1;
 assign bram_we_b = {`MASK_WIDTH{1'b0}};
   
-// BRAM matrix A 
+////////////////////////////////////////////////////////////////
+// BRAM matrix A (inputs/activations)
+////////////////////////////////////////////////////////////////
 ram matrix_A (
   .addr0(bram_addr_a),
   .d0(bram_wdata_a), 
@@ -110,7 +113,9 @@ ram matrix_A (
   .q1(bram_rdata_a_ext), 
   .clk(clk_mem));
 
-// BRAM matrix B
+////////////////////////////////////////////////////////////////
+// BRAM matrix B (weights)
+////////////////////////////////////////////////////////////////
 ram matrix_B (
   .addr0(bram_addr_b),
   .d0(bram_wdata_b), 
@@ -122,7 +127,9 @@ ram matrix_B (
   .q1(bram_rdata_b_ext), 
   .clk(clk_mem));
 
+////////////////////////////////////////////////////////////////
 // BRAM matrix C
+////////////////////////////////////////////////////////////////
 ram matrix_C (
   .addr0(bram_addr_c),
   .d0(bram_wdata_c),
@@ -134,7 +141,9 @@ ram matrix_C (
   .q1(bram_rdata_c_ext),
   .clk(clk_mem));
 
+////////////////////////////////////////////////////////////////
 // Control logic that directs all the operation
+////////////////////////////////////////////////////////////////
 control u_control(
   .clk(clk),
   .reset(reset),
@@ -151,7 +160,9 @@ control u_control(
   .done_tpu(done_tpu)
 );
 
+////////////////////////////////////////////////////////////////
 // Configuration (register) block
+////////////////////////////////////////////////////////////////
 cfg u_cfg(
   .PCLK(clk),
   .PRESETn(resetn),
@@ -180,7 +191,9 @@ cfg u_cfg(
 //into its own modules. For now, it is all inside
 //the matmul block
 
+////////////////////////////////////////////////////////////////
 //Matrix multiplier
+////////////////////////////////////////////////////////////////
 matmul_4x4 u_matmul_4x4(
   .clk(clk),
   .reset(reset),
@@ -206,11 +219,9 @@ matmul_4x4 u_matmul_4x4(
   .b_loc(8'd0)
 );
 
+////////////////////////////////////////////////////////////////
 // Normalization module
-//TODO: If norm is disabled, then connecting matmul_c_data_out to 
-//norm is incorrect. Need to add muxing stucture (may be inside control block).
-//A better approach is to just have the muxing inside each block (eg. we can loopback
-//the input data back to output if norm is not enabled)
+////////////////////////////////////////////////////////////////
 norm u_norm(
   .enable_norm(enable_norm),
   .mean(mean),
@@ -224,10 +235,38 @@ norm u_norm(
   .reset(reset)
 );
 
- //TODO: For now assigning output of NORM block
- //to the BRAM C data. This will change based on 
- //which other blocks (activation/pool/etc) are 
- //enabled. I expect some sort of a muxing structure.
+////////////////////////////////////////////////////////////////
+// Pooling module
+////////////////////////////////////////////////////////////////
+pool u_pool(
+  .enable_pool(enable_pool),
+  .in_data_available(norm_out_data_available),
+  .inp_data(norm_data_out),
+  .out_data(pool_data_out),
+  .out_data_available(pool_out_data_available),
+  .done_pool(done_pool),
+  .clk(clk),
+  .reset(reset)
+);
+
+////////////////////////////////////////////////////////////////
+// Activation module
+////////////////////////////////////////////////////////////////
+activation u_activation(
+  .enable_activation(enable_activation),
+  .in_data_available(pool_out_data_available),
+  .inp_data(pool_data_out),
+  .out_data(activation_data_out),
+  .out_data_available(activation_out_data_available),
+  .done_activation(done_activation),
+  .clk(clk),
+  .reset(reset)
+);
+
+//TODO: For now assigning output of NORM block
+//to the BRAM C data. This will change based on 
+//which other blocks (activation/pool/etc) are 
+//enabled. I expect some sort of a muxing structure.
 
 //Interface to BRAM to write the output.
 //Ideally, we could remove this flop stage. But then we'd
@@ -239,10 +278,10 @@ always @(posedge clk) begin
     bram_addr_c <= address_mat_c-`MAT_MUL_SIZE;
     bram_c_data_available <= 0;
   end
-  else if (norm_out_data_available) begin
+  else if (activation_out_data_available) begin
     bram_wdata_c <= norm_data_out;
     bram_addr_c <= bram_addr_c + `BB_MAT_MUL_SIZE;
-    bram_c_data_available <= norm_out_data_available;
+    bram_c_data_available <= activation_out_data_available;
   end
   else begin
     bram_wdata_c <= 0;

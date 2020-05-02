@@ -10,6 +10,8 @@ compile:
 	../design/norm.v \
 	../design/ram.v \
 	../design/control.v \
+	../design/pool.v \
+	../design/activation.v \
 	../design/top.v \
 	../verif/top_tb.v \
 	-sverilog \
