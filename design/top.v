@@ -221,6 +221,7 @@ pool u_pool(
   .inp_data(norm_data_out),
   .out_data(pool_data_out),
   .out_data_available(pool_out_data_available),
+  .validity_mask(validity_mask),
   .done_pool(done_pool),
   .clk(clk),
   .reset(reset)
@@ -235,6 +236,7 @@ activation u_activation(
   .inp_data(pool_data_out),
   .out_data(activation_data_out),
   .out_data_available(activation_out_data_available),
+  .validity_mask(validity_mask),
   .done_activation(done_activation),
   .clk(clk),
   .reset(reset)

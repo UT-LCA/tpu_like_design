@@ -4,6 +4,7 @@ module pool(
     input [`MAT_MUL_SIZE*`DWIDTH-1:0] inp_data,
     output [`MAT_MUL_SIZE*`DWIDTH-1:0] out_data,
     output out_data_available,
+    input [`MASK_WIDTH-1] validity_mask,
     output done_pool,
     input clk,
     input reset
