@@ -87,14 +87,15 @@ always @(posedge clk) begin
   //else if (clk_cnt == 4*final_mat_mul_size-2+4) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt == (final_mat_mul_size<<2)+2+1) begin
-      done_mat_mul <= 1;
+    done_mat_mul <= 1;
+    clk_cnt <= clk_cnt + 1;
   end
   else if (done_mat_mul == 0) begin
-      clk_cnt <= clk_cnt + 1;
-      //clk_cnt <= clk_cnt_inc;
+    clk_cnt <= clk_cnt + 1;
   end    
   else begin
     done_mat_mul <= 0;
+    clk_cnt <= clk_cnt + 1;
   end
 end
  

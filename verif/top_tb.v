@@ -159,7 +159,32 @@ initial begin
   end 
   while (done == 0);
   
-  $display("TPU is done now. Ending sim.");
+  $display("TPU operation is done now.");
+
+  $display("Stop the TPU");
+  //start = 0;
+  write(`REG_STDN_TPU_ADDR, 32'h0000_0000);
+
+  $display("Restart the TPU");
+  //start = 1;
+  write(`REG_STDN_TPU_ADDR, 32'h0000_0001);
+  
+  $display("Wait until TPU is done");
+  do 
+  begin
+      read(`REG_STDN_TPU_ADDR, rdata);
+      done = rdata[31];
+  end 
+  while (done == 0);
+  
+  $display("TPU operation is done now.");
+
+  $display("Stop the TPU");
+  //start = 0;
+  write(`REG_STDN_TPU_ADDR, 32'h0000_0000);
+ 
+  $display("Finishing simulation");
+  
   //A little bit of drain time before we finish
   #200;
   $finish;

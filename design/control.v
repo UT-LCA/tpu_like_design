@@ -108,7 +108,11 @@ always @( posedge clk) begin
 
       `STATE_DONE: begin
         done_tpu <= 1;
-        state <= `STATE_INIT;
+        //We need to write start_tpu to 0 in the CFG block to get out of this state
+        if (start_tpu == 1'b0) begin
+          state <= `STATE_INIT;
+          done_tpu <= 0;
+        end
       end
       endcase  
     end 
