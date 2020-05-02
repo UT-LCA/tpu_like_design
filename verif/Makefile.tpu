@@ -29,7 +29,7 @@ waves:
 	$(VCS_HOME)/bin/dve -vpd vcdplus.vpd
 
 clean:
-	\rm -rf csrc DVEFiles simv.daidir simv ucli.key vcdplus.vpd *.syn *.pvl *.mr *.svf command.log
+	\rm -rf csrc DVEfiles simv.daidir simv ucli.key vcdplus.vpd *.syn *.pvl *.mr *.svf command.log
 
 #Paths when not using LRC machines
 #export VCS_HOME /home/tools/vcs/mx-2017.12-SP1-1
