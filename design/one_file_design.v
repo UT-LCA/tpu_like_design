@@ -1083,10 +1083,21 @@ module pool(
     input reset
 );
 
-//This is a stub for now
+//This is a stub for now, until we get real logic here
 assign out_data = inp_data;
 assign out_data_available = in_data_available;
 assign done_pool = 1;
+
+//Dummy logic to make ODIN happy, until we get real logic here
+reg [`MASK_WIDTH-1:0] temp;
+always @(posedge clk) begin
+    if (reset) begin
+      temp <= 0;
+    end
+    else if (enable_pool) begin
+      temp <= validity_mask;
+    end
+end
 
 endmodule
 
@@ -1109,10 +1120,21 @@ module activation(
     input reset
 );
 
-//This is a stub for now
+//This is a stub for now, until we get real logic here
 assign out_data = inp_data;
 assign out_data_available = in_data_available;
 assign done_activation = 1;
+
+//Dummy logic to make ODIN happy, until we get real logic here
+reg [`MASK_WIDTH-1:0] temp;
+always @(posedge clk) begin
+    if (reset) begin
+      temp <= 0;
+    end
+    else if (enable_activation) begin
+      temp <= validity_mask;
+    end
+end
 
 endmodule
 
