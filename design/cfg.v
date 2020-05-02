@@ -21,6 +21,7 @@ module cfg(
     output reg [`AWIDTH-1:0] address_mat_a,
     output reg [`AWIDTH-1:0] address_mat_b,
     output reg [`AWIDTH-1:0] address_mat_c,
+    output reg [`MASK_WIDTH-1:0] validity_mask,
     input done_tpu
 );
 
@@ -53,6 +54,7 @@ always @(posedge PCLK) begin
     address_mat_a <= 0;
     address_mat_b <= 0;
     address_mat_c <= 0;
+    validity_mask <= {`MASK_WIDTH{1'b1}};
   end
 
   else begin
@@ -85,6 +87,7 @@ always @(posedge PCLK) begin
           `REG_MATRIX_A_ADDR  : address_mat_a <= PWDATA[`AWIDTH-1:0];
           `REG_MATRIX_B_ADDR  : address_mat_b <= PWDATA[`AWIDTH-1:0];
           `REG_MATRIX_C_ADDR  : address_mat_c <= PWDATA[`AWIDTH-1:0];
+          `REG_VALID_MASK_ADDR: validity_mask <= PWDATA[`MASK_WIDTH-1:0];
           default: reg_dummy <= PWDATA; //sink writes to a dummy register
           endcase
           PREADY <=1;          
@@ -103,6 +106,7 @@ always @(posedge PCLK) begin
           `REG_MATRIX_A_ADDR  : PRDATA <= address_mat_a;
           `REG_MATRIX_B_ADDR  : PRDATA <= address_mat_b;
           `REG_MATRIX_C_ADDR  : PRDATA <= address_mat_c;
+          `REG_VALID_MASK_ADDR: PRDATA <= validity_mask;
           default             : PRDATA <= reg_dummy; //read the dummy register for undefined addresses
           endcase
         end

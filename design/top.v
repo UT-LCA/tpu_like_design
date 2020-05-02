@@ -62,6 +62,7 @@ wire [`DWIDTH-1:0] inv_var;
 wire [`AWIDTH-1:0] address_mat_a;
 wire [`AWIDTH-1:0] address_mat_b;
 wire [`AWIDTH-1:0] address_mat_c;
+wire [`MASK_WIDTH-1:0] validity_mask;
 
 //Connections for bram c (output matrix)
 
@@ -155,6 +156,7 @@ cfg u_cfg(
   .address_mat_a(address_mat_a),
   .address_mat_b(address_mat_b),
   .address_mat_c(address_mat_c),
+  .validity_mask(validity_mask),
   .done_tpu(done_tpu)
 );
 
@@ -204,6 +206,7 @@ norm u_norm(
   .inp_data(matmul_c_data_out),
   .out_data(norm_data_out),
   .out_data_available(norm_out_data_available),
+  .validity_mask(validity_mask),
   .done_norm(done_norm),
   .clk(clk),
   .reset(reset)

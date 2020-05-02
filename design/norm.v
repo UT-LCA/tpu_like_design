@@ -6,14 +6,18 @@ module norm(
     input [`MAT_MUL_SIZE*`DWIDTH-1:0] inp_data,
     output [`MAT_MUL_SIZE*`DWIDTH-1:0] out_data,
     output out_data_available,
+    input [`MASK_WIDTH-1:0] validity_mask,
     output done_norm,
     input clk,
     input reset
 );
 
 reg out_data_available_internal;
-reg [`MAT_MUL_SIZE*`DWIDTH-1:0] out_data_internal;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] out_data_internal;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] mean_applied_data;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] variance_applied_data;
 reg done_norm_internal;
+reg norm_in_progress;
 
 //Muxing logic to handle the case when this block is disabled
 assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
@@ -34,58 +38,61 @@ assign done_norm = (enable_norm) ? done_norm_internal : 1'b1;
 
 integer cycle_count;
 always @(posedge clk) begin
-    if (reset || ~in_data_available || ~enable_norm) begin
-        out_data_internal <= 0;
+    if ((reset || ~enable_norm)) begin
+        mean_applied_data <= 0;
+        variance_applied_data <= 0;
         out_data_available_internal <= 0;
         cycle_count <= 0;
         done_norm_internal <= 0;
-    end else if (in_data_available) begin
+        norm_in_progress <= 0;
+    end else if (in_data_available || norm_in_progress) begin
         cycle_count++;
-        //Note: the following loop is not a loop across multiple cycles.
-        //This loop will run in 1 cycle.
+        //Let's apply mean and variance as the input data comes in.
+        //We have a pipeline here. First stage does the add (to apply the mean)
+        //and second stage does the multiplication (to apply the variance).
+        //Note: the following loop is not a loop across multiple columns of data.
+        //This loop will run in 2 cycle on the same column of data that comes into 
+        //this module in 1 clock.
         for (integer i = 0; i < `MAT_MUL_SIZE; i++) begin
-            out_data_internal[i*`DWIDTH +: `DWIDTH] <= (inp_data[i*`DWIDTH +: `DWIDTH] - mean) * inv_var;
+            if (validity_mask[i] == 1'b1) begin
+                mean_applied_data[i*`DWIDTH +: `DWIDTH] <= (inp_data[i*`DWIDTH +: `DWIDTH] - mean);
+                variance_applied_data[i*`DWIDTH +: `DWIDTH] <= (mean_applied_data[i*`DWIDTH +: `DWIDTH] * inv_var);
+            end 
+            else begin
+                mean_applied_data[i*`DWIDTH +: `DWIDTH] <= (inp_data[i*`DWIDTH +: `DWIDTH]);
+                variance_applied_data[i*`DWIDTH +: `DWIDTH] <= (mean_applied_data[i*`DWIDTH +: `DWIDTH]);
+            end
         end
 
-        //In each cycle while we're doing normalization, keep
-        //data available asserted.
-        out_data_available_internal <= 1;
+        //Out data is available starting with the second clock cycle because 
+        //in the first cycle, we only apply the mean.
+        if(cycle_count==2) begin
+            out_data_available_internal <= 1;
+        end
 
         //When we've normalized values N times, where N is the matmul
-        //size, that means we're done. Eg 4 cycles for 4x4 matmul.
-        if(cycle_count==`MAT_MUL_SIZE) begin
+        //size, that means we're done. But there is one additional cycle
+        //that is taken in the beginning (when we are applying the mean to the first
+        //column of data). We can call this the Initiation Interval of the pipeline.
+        //So, for a 4x4 matmul, this block takes 5 cycles.
+        if(cycle_count==(`MAT_MUL_SIZE+1)) begin
             done_norm_internal <= 1'b1;
+            norm_in_progress <= 0;
         end
+        else begin
+            norm_in_progress <= 1;
+        end
+    end
+    else begin
+        mean_applied_data <= 0;
+        variance_applied_data <= 0;
+        out_data_available_internal <= 0;
+        cycle_count <= 0;
+        done_norm_internal <= 0;
+        norm_in_progress <= 0;
     end
 end
 
-//TODO: Will need to create a pipelined design here.
-//We want to do the subtraction in one cycle
-//and multiplication in the next cycle
-/*
-reg [3:0] state;
-`define STATE_INIT 4'b0000
-`define STATE_ADD 4'b0001
-`define STATE_MUL 4'b0010
-`define 
-always @( posedge clk) begin
-  if (reset || ~in_data_available) begin
-    state <= 4'b0000;
-    out_data <= 0;
-    out_data_available <= 0;
-  end else begin
-    case (state)
-    4'b0000: begin
-      start_mat_mul <= 1'b0;
-      if (start_reg == 1'b1) begin
-        state <= 4'b0001;
-      end else begin
-        state <= 4'b0000;
-      end
-    end
-  endcase  
-end 
-end
-*/
+assign out_data_internal = variance_applied_data;
 
 endmodule

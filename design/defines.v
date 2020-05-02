@@ -59,3 +59,24 @@
 `define REG_MATRIX_C_ADDR 32'h16
 //Bit `AWIDTH-1:0 address_mat_c
 
+//---------------------------------------
+//Register that stores the mask of which parts of the matrices are valid.
+//
+//Some examples where this is useful:
+//1. Input matrix is smaller than the matmul. 
+//   Say we want to multiply a 6x6 using an 8x8 matmul.
+//   The matmul still operates on the whole 8x8 part, so we need
+//   to ensure that there are 0s in the BRAMs in the invalid parts.
+//   But the mask is used by the blocks other than matmul. For ex,
+//   norm block will use the mask to avoid applying mean and variance 
+//   to invalid parts (so tha they stay 0). 
+//2. When we start with large matrices, the size of the matrices can
+//   reduce to something less than the matmul size because of pooling.
+//   In that case for the next layer, we need to tell blocks like norm,
+//   what is valid and what is not.
+//
+//Note: This masks is applied to both x and y directions and also
+//applied to both input matrices - A and B.
+//---------------------------------------
+`define REG_VALID_MASK_ADDR 32'h20
+//Bit `MASK_WIDTH-1:0 mask for a row or column of both matrices
