@@ -128,7 +128,7 @@ always @(posedge clk) begin
     a_mem_access_counter <= 0;
   end
   else if (a_mem_access == 1) begin
-    a_mem_access_counter++;  
+    a_mem_access_counter = a_mem_access_counter + 1;  
     if (a_mem_access_counter == `MEM_ACCESS_LATENCY) begin
       a_data_valid <= 1;
     end
@@ -213,7 +213,7 @@ always @(posedge clk) begin
     b_mem_access_counter <= 0;
   end
   else if (b_mem_access == 1) begin
-    b_mem_access_counter++;  
+    b_mem_access_counter = b_mem_access_counter + 1;  
     if (b_mem_access_counter == `MEM_ACCESS_LATENCY) begin
       b_data_valid <= 1;
     end

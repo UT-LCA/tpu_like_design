@@ -64,8 +64,6 @@ wire [`AWIDTH-1:0] address_mat_b;
 wire [`AWIDTH-1:0] address_mat_c;
 wire [`MASK_WIDTH-1:0] validity_mask;
 
-//Connections for bram c (output matrix)
-
 //Connections for bram a (activation/input matrix)
 //bram_addr_a -> connected to u_matmul_4x4
 //bram_rdata_a -> connected to u_matmul_4x4
