@@ -17,16 +17,14 @@ module top(
     input  [`AWIDTH-1:0] bram_addr_b_ext,
     output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_ext,
     input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_ext,
-    input  [`MASK_WIDTH-1:0] bram_we_b_ext,
-    input  [`AWIDTH-1:0] bram_addr_c_ext,
-    output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_ext,
-    input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_ext,
-    input  [`MASK_WIDTH-1:0] bram_we_c_ext
+    input  [`MASK_WIDTH-1:0] bram_we_b_ext
 );
 
 wire [`AWIDTH-1:0] bram_addr_a;
+wire [`AWIDTH-1:0] bram_addr_a_for_reading;
+reg [`AWIDTH-1:0] bram_addr_a_for_writing;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a;
 wire [`MASK_WIDTH-1:0] bram_we_a;
 wire bram_en_a;
 wire [`AWIDTH-1:0] bram_addr_b;
@@ -34,12 +32,8 @@ wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b;
 wire [`MASK_WIDTH-1:0] bram_we_b;
 wire bram_en_b;
-reg  [`AWIDTH-1:0] bram_addr_c;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c;
-reg  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c;
-wire [`MASK_WIDTH-1:0] bram_we_c;
-wire bram_en_c;
-reg bram_c_data_available;
+reg bram_a_wdata_available;
+wire [`AWIDTH-1:0] bram_addr_c_NC;
 wire start_tpu;
 wire done_tpu;
 wire start_mat_mul;
@@ -63,7 +57,6 @@ wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out_NC;
 wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out_NC;
 wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_NC;
 wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_NC;
-wire [`AWIDTH-1:0] bram_addr_c_NC;
 wire [`DWIDTH-1:0] mean;
 wire [`DWIDTH-1:0] inv_var;
 wire [`AWIDTH-1:0] address_mat_a;
@@ -71,25 +64,18 @@ wire [`AWIDTH-1:0] address_mat_b;
 wire [`AWIDTH-1:0] address_mat_c;
 
 //Connections for bram c (output matrix)
-//bram_addr_c -> connected to u_matmul_4x4 block
-//bram_rdata_c -> not used
-//bram_wdata_c -> Will come from the last block that is enabled
-//bram_we_c -> Will be 1 when the last block's data is available
-//bram_en_c -> hardcoded to 1 
-assign bram_en_c = 1'b1;
-assign bram_we_c = (bram_c_data_available) ? {`MASK_WIDTH{1'b1}} : {`MASK_WIDTH{1'b0}};  
 
-//Connections for bram a (first input matrix)
+//Connections for bram a (activation/input matrix)
 //bram_addr_a -> connected to u_matmul_4x4
 //bram_rdata_a -> connected to u_matmul_4x4
-//bram_wdata_a -> hardcoded to 0 (this block only reads from bram a)
-//bram_we_a -> hardcoded to 0 (this block only reads from bram a)
+//bram_wdata_a -> will come from the last block that is enabled
+//bram_we_a -> will be 1 when the last block's data is available
 //bram_en_a -> hardcoded to 1
-assign bram_wdata_a = {`BB_MAT_MUL_SIZE*`DWIDTH{1'b0}};
+assign bram_addr_a = (bram_a_wdata_available) ? bram_addr_a_for_writing : bram_addr_a_for_reading;
 assign bram_en_a = 1'b1;
-assign bram_we_a = {`MASK_WIDTH{1'b0}};
+assign bram_we_a = (bram_a_wdata_available) ? {`MASK_WIDTH{1'b1}} : {`MASK_WIDTH{1'b0}};  
   
-//Connections for bram b (second input matrix)
+//Connections for bram b (weights matrix)
 //bram_addr_b -> connected to u_matmul_4x4
 //bram_rdata_b -> connected to u_matmul_4x4
 //bram_wdata_b -> hardcoded to 0 (this block only reads from bram b)
@@ -125,20 +111,6 @@ ram matrix_B (
   .d1(bram_wdata_b_ext), 
   .we1(bram_we_b_ext), 
   .q1(bram_rdata_b_ext), 
-  .clk(clk_mem));
-
-////////////////////////////////////////////////////////////////
-// BRAM matrix C
-////////////////////////////////////////////////////////////////
-ram matrix_C (
-  .addr0(bram_addr_c),
-  .d0(bram_wdata_c),
-  .we0(bram_we_c),
-  .q0(bram_rdata_c),
-  .addr1(bram_addr_c_ext),
-  .d1(bram_wdata_c_ext),
-  .we1(bram_we_c_ext),
-  .q1(bram_rdata_c_ext),
   .clk(clk_mem));
 
 ////////////////////////////////////////////////////////////////
@@ -193,6 +165,8 @@ cfg u_cfg(
 
 ////////////////////////////////////////////////////////////////
 //Matrix multiplier
+//Note: the ports on this module to write data to bram c
+//are not used in this top module. 
 ////////////////////////////////////////////////////////////////
 matmul_4x4 u_matmul_4x4(
   .clk(clk),
@@ -210,7 +184,7 @@ matmul_4x4 u_matmul_4x4(
   .c_data_out(matmul_c_data_out),
   .a_data_out(a_data_out_NC),
   .b_data_out(b_data_out_NC),
-  .a_addr(bram_addr_a),
+  .a_addr(bram_addr_a_for_reading),
   .b_addr(bram_addr_b),
   .c_addr(bram_addr_c_NC),
   .c_data_available(matmul_c_data_available),
@@ -263,30 +237,25 @@ activation u_activation(
   .reset(reset)
 );
 
-//TODO: For now assigning output of NORM block
-//to the BRAM C data. This will change based on 
-//which other blocks (activation/pool/etc) are 
-//enabled. I expect some sort of a muxing structure.
-
 //Interface to BRAM to write the output.
 //Ideally, we could remove this flop stage. But then we'd
 //have to generate the address for the output BRAM in each
 //block that could potentially write the output.
 always @(posedge clk) begin
   if (reset) begin
-    bram_wdata_c <= 0;
-    bram_addr_c <= address_mat_c-`MAT_MUL_SIZE;
-    bram_c_data_available <= 0;
+    bram_wdata_a <= 0;
+    bram_addr_a_for_writing <= address_mat_c-`MAT_MUL_SIZE;
+    bram_a_wdata_available <= 0;
   end
   else if (activation_out_data_available) begin
-    bram_wdata_c <= norm_data_out;
-    bram_addr_c <= bram_addr_c + `BB_MAT_MUL_SIZE;
-    bram_c_data_available <= activation_out_data_available;
+    bram_wdata_a <= activation_data_out;
+    bram_addr_a_for_writing <= bram_addr_a_for_writing + `BB_MAT_MUL_SIZE;
+    bram_a_wdata_available <= activation_out_data_available;
   end
   else begin
-    bram_wdata_c <= 0;
-    bram_addr_c <= address_mat_c-`MAT_MUL_SIZE;
-    bram_c_data_available <= 0;
+    bram_wdata_a <= 0;
+    bram_addr_a_for_writing <= address_mat_c-`MAT_MUL_SIZE;
+    bram_a_wdata_available <= 0;
   end
 end  
 
