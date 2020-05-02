@@ -66,6 +66,9 @@ wire [`DWIDTH-1:0] mean;
 wire [`DWIDTH-1:0] inv_var;
 wire done_pool; 
 wire done_activation; 
+wire [`AWIDTH-1:0] address_mat_a;
+wire [`AWIDTH-1:0] address_mat_b;
+wire [`AWIDTH-1:0] address_mat_c;
 
 assign done_pool = 1; //TODO: For now, tying to 1. Harsh will fix this.
 assign done_activation = 1; //TODO: for now, tying to 1. Bagus will fix this.
@@ -170,6 +173,9 @@ cfg u_cfg(
   .enable_pool(enable_pool),
   .mean(mean),
   .inv_var(inv_var),
+  .address_mat_a(address_mat_a),
+  .address_mat_b(address_mat_b),
+  .address_mat_c(address_mat_c),
   .done_tpu(done_tpu)
 );
 
@@ -184,6 +190,9 @@ matmul_4x4 u_matmul_4x4(
   .reset(reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul),
+  .address_mat_a(address_mat_a),
+  .address_mat_b(address_mat_b),
+  .address_mat_c(address_mat_c),
   .a_data(bram_rdata_a),
   .b_data(bram_rdata_b),
   .a_data_in(a_data_in_NC),
@@ -231,7 +240,7 @@ norm u_norm(
 always @(posedge clk) begin
   if (reset) begin
     bram_wdata_c <= 0;
-    bram_addr_c <= `MEM_SIZE-`BB_MAT_MUL_SIZE; //last but 1 location
+    bram_addr_c <= address_mat_c-`MAT_MUL_SIZE;
     bram_c_data_available <= 0;
   end
   else if (norm_out_data_available) begin
@@ -241,7 +250,7 @@ always @(posedge clk) begin
   end
   else begin
     bram_wdata_c <= 0;
-    bram_addr_c <= `MEM_SIZE-`BB_MAT_MUL_SIZE; //last but 1 location
+    bram_addr_c <= address_mat_c-`MAT_MUL_SIZE;
     bram_c_data_available <= 0;
   end
 end  

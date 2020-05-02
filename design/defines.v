@@ -6,7 +6,7 @@
 `define LOG2_MAT_MUL_SIZE 2
 `define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
 `define NUM_CYCLES_IN_MAC 3
-
+`define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
 
@@ -40,3 +40,22 @@
 //---------------------------------------
 `define REG_INV_VAR_ADDR 32'hA
 //Bit 7:0: inv_var
+
+//---------------------------------------
+//Register that stores the starting address of matrix A in BRAM A
+//---------------------------------------
+`define REG_MATRIX_A_ADDR 32'he
+//Bit `AWIDTH-1:0 address_mat_a
+
+//---------------------------------------
+//Register that stores the starting address of matrix B in BRAM B
+//---------------------------------------
+`define REG_MATRIX_B_ADDR 32'h12
+//Bit `AWIDTH-1:0 address_mat_b
+
+//---------------------------------------
+//Register that stores the starting address of matrix C in BRAM C
+//---------------------------------------
+`define REG_MATRIX_C_ADDR 32'h16
+//Bit `AWIDTH-1:0 address_mat_c
+

@@ -25,6 +25,9 @@ module matmul_4x4(
  reset,
  start_mat_mul,
  done_mat_mul,
+ address_mat_a,
+ address_mat_b,
+ address_mat_c,
  a_data,
  b_data,
  a_data_in, //Data values coming in from previous matmul - systolic connections
@@ -46,6 +49,9 @@ module matmul_4x4(
  input reset;
  input start_mat_mul;
  output done_mat_mul;
+ input [`AWIDTH-1:0] address_mat_a;
+ input [`AWIDTH-1:0] address_mat_b;
+ input [`AWIDTH-1:0] address_mat_c;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in;
@@ -87,33 +93,60 @@ always @(posedge clk) begin
       clk_cnt <= clk_cnt + 1;
       //clk_cnt <= clk_cnt_inc;
   end    
+  else begin
+    done_mat_mul <= 0;
+  end
 end
  
 reg [`AWIDTH-1:0] a_addr;
+reg a_mem_access; //flag that tells whether the matmul is trying to access memory or not
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    a_addr <= `MEM_SIZE-1-3;//a_loc*16;
+    a_addr <= address_mat_a-`MAT_MUL_SIZE;
+    a_mem_access <= 0;
   end
   //else if (clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    a_addr <= `MEM_SIZE-1-3; 
+    a_addr <= address_mat_a-`MAT_MUL_SIZE;
+    a_mem_access <= 0;
   end
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    a_addr <= a_addr + 4;
+    a_addr <= a_addr + `MAT_MUL_SIZE;
+    a_mem_access <= 1;
   end
 end  
 
+reg a_data_valid; //flag that tells whether the data from memory is valid
+reg [7:0] a_mem_access_counter;
+always @(posedge clk) begin
+  if (reset || ~start_mat_mul) begin
+    a_data_valid <= 0;
+    a_mem_access_counter <= 0;
+  end
+  else if (a_mem_access == 1) begin
+    a_mem_access_counter++;  
+    if (a_mem_access_counter == `MEM_ACCESS_LATENCY) begin
+      a_data_valid <= 1;
+    end
+  end
+  else begin
+    a_data_valid <= 0;
+    a_mem_access_counter <= 0;
+  end
+end
+
+//Slice data into chunks and qualify it with whether it is valid or not
 wire [`DWIDTH-1:0] a0_data;
 wire [`DWIDTH-1:0] a1_data;
 wire [`DWIDTH-1:0] a2_data;
 wire [`DWIDTH-1:0] a3_data;
-assign a0_data = a_data[`DWIDTH-1:0];
-assign a1_data = a_data[2*`DWIDTH-1:`DWIDTH];
-assign a2_data = a_data[3*`DWIDTH-1:2*`DWIDTH];
-assign a3_data = a_data[4*`DWIDTH-1:3*`DWIDTH];
+assign a0_data = a_data[`DWIDTH-1:0] & {`DWIDTH{a_data_valid}};
+assign a1_data = a_data[2*`DWIDTH-1:`DWIDTH] & {`DWIDTH{a_data_valid}};
+assign a2_data = a_data[3*`DWIDTH-1:2*`DWIDTH] & {`DWIDTH{a_data_valid}};
+assign a3_data = a_data[4*`DWIDTH-1:3*`DWIDTH] & {`DWIDTH{a_data_valid}};
 
 wire [`DWIDTH-1:0] a0_data_in;
 wire [`DWIDTH-1:0] a1_data_in;
@@ -151,30 +184,54 @@ always @(posedge clk) begin
 end
 
 reg [`AWIDTH-1:0] b_addr;
+reg b_mem_access; //flag that tells whether the matmul is trying to access memory or not
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    b_addr <= `MEM_SIZE-1-3;//b_loc*16;
+    b_addr <= address_mat_b-`MAT_MUL_SIZE;
+    b_mem_access <= 0;
   end
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    b_addr <= `MEM_SIZE-1-3;
+    b_addr <= address_mat_b-`MAT_MUL_SIZE;
+    b_mem_access <= 0;
   end
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    b_addr <= b_addr + 4;
+    b_addr <= b_addr + `MAT_MUL_SIZE;
+    b_mem_access <= 1;
   end
 end  
 
+reg b_data_valid; //flag that tells whether the data from memory is valid
+reg [7:0] b_mem_access_counter;
+always @(posedge clk) begin
+  if (reset || ~start_mat_mul) begin
+    b_data_valid <= 0;
+    b_mem_access_counter <= 0;
+  end
+  else if (b_mem_access == 1) begin
+    b_mem_access_counter++;  
+    if (b_mem_access_counter == `MEM_ACCESS_LATENCY) begin
+      b_data_valid <= 1;
+    end
+  end
+  else begin
+    b_data_valid <= 0;
+    b_mem_access_counter <= 0;
+  end
+end
+
+//Slice data into chunks and qualify it with whether it is valid or not
 wire [`DWIDTH-1:0] b0_data;
 wire [`DWIDTH-1:0] b1_data;
 wire [`DWIDTH-1:0] b2_data;
 wire [`DWIDTH-1:0] b3_data;
-assign b0_data = b_data[`DWIDTH-1:0];
-assign b1_data = b_data[2*`DWIDTH-1:`DWIDTH];
-assign b2_data = b_data[3*`DWIDTH-1:2*`DWIDTH];
-assign b3_data = b_data[4*`DWIDTH-1:3*`DWIDTH];
+assign b0_data = b_data[`DWIDTH-1:0] & {`DWIDTH{b_data_valid}};
+assign b1_data = b_data[2*`DWIDTH-1:`DWIDTH] & {`DWIDTH{b_data_valid}};
+assign b2_data = b_data[3*`DWIDTH-1:2*`DWIDTH] & {`DWIDTH{b_data_valid}};
+assign b3_data = b_data[4*`DWIDTH-1:3*`DWIDTH] & {`DWIDTH{b_data_valid}};
 
 wire [`DWIDTH-1:0] b0_data_in;
 wire [`DWIDTH-1:0] b1_data_in;
@@ -287,31 +344,31 @@ reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
 integer counter;
-reg [4*`DWIDTH-1:0] c_data_out;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
 
 //For larger matmuls, this logic will have more entries in the case statement
 always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= `MEM_SIZE-1-3;
+    c_addr <= address_mat_c-`MAT_MUL_SIZE;
     c_data_out <= 0;
     counter <= 0;
   end else if (row_latch_en) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
-    c_addr <= c_addr + 4;
+    c_addr <= c_addr + `MAT_MUL_SIZE;
     c_data_out <= {matrixC30, matrixC20, matrixC10, matrixC00};  //first set of elements is captured here
     counter <= counter + 1;
   end else if (done_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= `MEM_SIZE-1-3;
+    c_addr <= address_mat_c-`MAT_MUL_SIZE;
     c_data_out <= 0;
   end 
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
-    c_addr <= c_addr + 4; 
+    c_addr <= c_addr + `MAT_MUL_SIZE;
     counter <= counter + 1;
     case (counter)  //rest of the elements are captured here
         1: c_data_out <= {matrixC31, matrixC21, matrixC11, matrixC01};
@@ -325,6 +382,7 @@ end
 //For larger matmul, more PEs will be needed
 wire effective_rst;
 assign effective_rst = reset | ~start_mat_mul;
+
 processing_element pe00(.reset(effective_rst), .clk(clk),  .in_a(a0),      .in_b(b0),  .out_a(a00to01), .out_b(b00to10), .out_c(matrixC00));
 processing_element pe01(.reset(effective_rst), .clk(clk),  .in_a(a00to01), .in_b(b1),  .out_a(a01to02), .out_b(b01to11), .out_c(matrixC01));
 processing_element pe02(.reset(effective_rst), .clk(clk),  .in_a(a01to02), .in_b(b2),  .out_a(a02to03), .out_b(b02to12), .out_c(matrixC02));

@@ -139,6 +139,14 @@ initial begin
   write(`REG_MEAN_ADDR, 32'h0000_0001);
   write(`REG_INV_VAR_ADDR, 32'h0000_0001);
 
+  $display("Configure the addresses of matrix A, B and C");
+  //matrix A -> starts at address 0x8 in BRAM A
+  //matrix B -> starts at address 0x0 in BRAM B
+  //matrix C -> will start at address 0x20 in BRAM C
+  write(`REG_MATRIX_A_ADDR, 32'h0000_0008);
+  write(`REG_MATRIX_B_ADDR, 32'h0000_0000);
+  write(`REG_MATRIX_C_ADDR, 32'h0000_0020);
+
   $display("Start the TPU");
   //start = 1;
   write(`REG_STDN_TPU_ADDR, 32'h0000_0001);
@@ -169,36 +177,28 @@ end
 
 initial begin
   //A is stored in row major format
-  force u_top.matrix_A.ram[0]  = 8'h08;
-  force u_top.matrix_A.ram[1]  = 8'h03;
-  force u_top.matrix_A.ram[2]  = 8'h05;
-  force u_top.matrix_A.ram[3]  = 8'h09;
-  force u_top.matrix_A.ram[4]  = 8'h04;
-  force u_top.matrix_A.ram[5]  = 8'h03;
-  force u_top.matrix_A.ram[6]  = 8'h02;
-  force u_top.matrix_A.ram[7]  = 8'h01;
-  force u_top.matrix_A.ram[8]  = 8'h06;
+  force u_top.matrix_A.ram[8]  = 8'h08;
   force u_top.matrix_A.ram[9]  = 8'h03;
-  force u_top.matrix_A.ram[10] = 8'h01;
-  force u_top.matrix_A.ram[11] = 8'h00;
-  force u_top.matrix_A.ram[12] = 8'h08;
-  force u_top.matrix_A.ram[13] = 8'h07;
-  force u_top.matrix_A.ram[14] = 8'h06;
-  force u_top.matrix_A.ram[15] = 8'h05;
+  force u_top.matrix_A.ram[10]  = 8'h05;
+  force u_top.matrix_A.ram[11]  = 8'h09;
+  force u_top.matrix_A.ram[12]  = 8'h04;
+  force u_top.matrix_A.ram[13]  = 8'h03;
+  force u_top.matrix_A.ram[14]  = 8'h02;
+  force u_top.matrix_A.ram[15]  = 8'h01;
+  force u_top.matrix_A.ram[16]  = 8'h06;
+  force u_top.matrix_A.ram[17]  = 8'h03;
+  force u_top.matrix_A.ram[18] = 8'h01;
+  force u_top.matrix_A.ram[19] = 8'h00;
+  force u_top.matrix_A.ram[20] = 8'h08;
+  force u_top.matrix_A.ram[21] = 8'h07;
+  force u_top.matrix_A.ram[22] = 8'h06;
+  force u_top.matrix_A.ram[23] = 8'h05;
   //force u_top.matrix_A.ram[3:0] = '{32'h0506_0708, 32'h0001_0306, 32'h0102_0304, 32'h0905_0308};
   //bram_a.write(0, int('0x09050308',16))
   //bram_a.write(4, int('0x01020304',16))
   //bram_a.write(8, int('0x00010306',16))
   //bram_a.write(12, int('0x05060708',16))
-  //bram_a.write(32764,int('0x00000000',16))
   
-  //Last element is 0 (i think the logic requires this)
-  force u_top.matrix_A.ram[`MEM_SIZE-1-3] = 8'h0;
-  force u_top.matrix_A.ram[`MEM_SIZE-1-2] = 8'h0;
-  force u_top.matrix_A.ram[`MEM_SIZE-1-1] = 8'h0;
-  force u_top.matrix_A.ram[`MEM_SIZE-1-0] = 8'h0;
-  //force u_top.matrix_A.ram[127] = 32'h0;
-
   //B is stored in col major format
   force u_top.matrix_B.ram[0]  = 8'h01;
   force u_top.matrix_B.ram[1]  = 8'h01;
@@ -217,18 +217,10 @@ initial begin
   force u_top.matrix_B.ram[14] = 8'h03;
   force u_top.matrix_B.ram[15] = 8'h02;
   //force u_top.matrix_B.ram[3:0] = '{32'h0203_0609, 32'h0103_0503, 32'h0304_0100, 32'h0003_0101};
-
-  //Last element is 0 (i think the logic requires this)
-  force u_top.matrix_B.ram[`MEM_SIZE-1-3] = 8'h0;
-  force u_top.matrix_B.ram[`MEM_SIZE-1-2] = 8'h0;
-  force u_top.matrix_B.ram[`MEM_SIZE-1-1] = 8'h0;
-  force u_top.matrix_B.ram[`MEM_SIZE-1-0] = 8'h0;
-  //force u_top.matrix_B.ram[127] = 32'h0;
   //bram_b.write(0, int('0x00030101',16))
   //bram_b.write(4, int('0x03040100',16))
   //bram_b.write(8, int('0x01030503',16))
   //bram_b.write(12, int('0x02030609',16))
-  //bram_b.write(32764,int('0x00000000',16))
 end
 
 //////////////////////////////////////////////

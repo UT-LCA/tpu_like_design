@@ -18,6 +18,9 @@ module cfg(
     //HIGH_PRECISION_DWIDTH kind of thing
     output reg [`DWIDTH-1:0] mean,
     output reg [`DWIDTH-1:0] inv_var,
+    output reg [`AWIDTH-1:0] address_mat_a,
+    output reg [`AWIDTH-1:0] address_mat_b,
+    output reg [`AWIDTH-1:0] address_mat_c,
     input done_tpu
 );
 
@@ -47,6 +50,9 @@ always @(posedge PCLK) begin
     mean <= 0;
     inv_var <= 0;
     reg_dummy <= 0;
+    address_mat_a <= 0;
+    address_mat_b <= 0;
+    address_mat_c <= 0;
   end
 
   else begin
@@ -76,6 +82,9 @@ always @(posedge PCLK) begin
           `REG_STDN_TPU_ADDR  : start_tpu <= PWDATA[0];
           `REG_MEAN_ADDR      : mean <= PWDATA[`DWIDTH-1:0];
           `REG_INV_VAR_ADDR   : inv_var <= PWDATA[`DWIDTH-1:0];
+          `REG_MATRIX_A_ADDR  : address_mat_a <= PWDATA[`AWIDTH-1:0];
+          `REG_MATRIX_B_ADDR  : address_mat_b <= PWDATA[`AWIDTH-1:0];
+          `REG_MATRIX_C_ADDR  : address_mat_c <= PWDATA[`AWIDTH-1:0];
           default: reg_dummy <= PWDATA; //sink writes to a dummy register
           endcase
           PREADY <=1;          
@@ -91,6 +100,9 @@ always @(posedge PCLK) begin
           `REG_STDN_TPU_ADDR  : PRDATA <= {done_tpu, 30'b0, start_tpu};
           `REG_MEAN_ADDR      : PRDATA <= mean;
           `REG_INV_VAR_ADDR   : PRDATA <= inv_var;
+          `REG_MATRIX_A_ADDR  : PRDATA <= address_mat_a;
+          `REG_MATRIX_B_ADDR  : PRDATA <= address_mat_b;
+          `REG_MATRIX_C_ADDR  : PRDATA <= address_mat_c;
           default             : PRDATA <= reg_dummy; //read the dummy register for undefined addresses
           endcase
         end
