@@ -24,10 +24,6 @@ module top(
     input  [`MASK_WIDTH-1:0] bram_we_c_ext
 );
 
-//TODO: Introduce the concept of addresses of each matrix.
-//For now, I just read RAMs starting from address 0 and 
-//write starting from address 0.
-
 wire [`AWIDTH-1:0] bram_addr_a;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a;
