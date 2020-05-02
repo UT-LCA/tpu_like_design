@@ -128,6 +128,12 @@ initial begin
   if ($test$plusargs("norm_disabled")) begin
     write(`REG_ENABLES_ADDR, 32'h0000_000d);
   end 
+  if ($test$plusargs("pool_disabled")) begin
+    write(`REG_ENABLES_ADDR, 32'h0000_000b);
+  end 
+  if ($test$plusargs("activation_disabled")) begin
+    write(`REG_ENABLES_ADDR, 32'h0000_0007);
+  end 
   else begin//all blocks enabled
     write(`REG_ENABLES_ADDR, 32'h0000_000f);
   end
@@ -139,10 +145,13 @@ initial begin
   write(`REG_MEAN_ADDR, 32'h0000_0001);
   write(`REG_INV_VAR_ADDR, 32'h0000_0001);
 
+  $display("-------------------------------------------");
+  $display("Layer 0");
+  $display("-------------------------------------------");
   $display("Configure the addresses of matrix A, B and C");
   //matrix A -> starts at address 0x8 in BRAM A
   //matrix B -> starts at address 0x0 in BRAM B
-  //matrix C -> will start at address 0x20 in BRAM C
+  //matrix C -> will start at address 0x20 in BRAM A
   write(`REG_MATRIX_A_ADDR, 32'h0000_0008);
   write(`REG_MATRIX_B_ADDR, 32'h0000_0000);
   write(`REG_MATRIX_C_ADDR, 32'h0000_0020);
@@ -164,6 +173,17 @@ initial begin
   $display("Stop the TPU");
   //start = 0;
   write(`REG_STDN_TPU_ADDR, 32'h0000_0000);
+
+  $display("-------------------------------------------");
+  $display("Layer 1");
+  $display("-------------------------------------------");
+  $display("Configure the addresses of matrix A, B and C");
+  //matrix A -> 0x20 in BRAM A (the last layer wrote output here)
+  //matrix B -> starts at address 0x0 in BRAM B
+  //matrix C -> will start at address 0x40 in BRAM A
+  write(`REG_MATRIX_A_ADDR, 32'h0000_0020); //
+  write(`REG_MATRIX_B_ADDR, 32'h0000_0000);
+  write(`REG_MATRIX_C_ADDR, 32'h0000_0040);
 
   $display("Restart the TPU");
   //start = 1;

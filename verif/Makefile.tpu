@@ -20,12 +20,17 @@ compile:
   -v /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
 	+libext+.v
 
-
 run:
 	./simv
 
 run_norm_disabled:
 	./simv +norm_disabled
+
+run_pool_disabled:
+	./simv +pool_disabled
+
+run_activation_disabled:
+	./simv +activation_disabled
 
 waves:
 	$(VCS_HOME)/bin/dve -vpd vcdplus.vpd
