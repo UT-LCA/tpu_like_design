@@ -1,5 +1,5 @@
 `define DWIDTH 8
-`define AWIDTH 13
+`define AWIDTH 10
 `define MEM_SIZE 8192
 `define MAT_MUL_SIZE 4
 `define MASK_WIDTH 4

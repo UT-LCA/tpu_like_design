@@ -45,14 +45,21 @@ begin
 end
 
 `else
+//BRAMs available in VTR FPGA architectures have one bit write-enables.
+//So let's combine multiple bits into 1. We don't have a usecase of
+//writing/not-writing only parts of the word anyway.
+wire we0_coalesced;
+assign we0_coalesced = |we0;
+wire we1_coalesced;
+assign we1_coalesced = |we1;
 
 dual_port_ram u_dual_port_ram(
 .addr1(addr0),
-.we1(we0),
+.we1(we0_coalesced),
 .data1(d0),
 .out1(q0),
 .addr2(addr1),
-.we2(we1),
+.we2(we1_coalesced),
 .data2(d1),
 .out2(q1),
 .clk(clk)
