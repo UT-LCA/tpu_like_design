@@ -30,37 +30,37 @@
 //Bit 31: done_tpu
 
 //---------------------------------------
-//Register that stores the mean of the values
+//Addr 8: Register that stores the mean of the values
 //---------------------------------------
 `define REG_MEAN_ADDR 32'h8
 //Bit 7:0: mean
 
 //---------------------------------------
-//Register that stores the inverse variance of the values
+//Addr A: Register that stores the inverse variance of the values
 //---------------------------------------
 `define REG_INV_VAR_ADDR 32'hA
 //Bit 7:0: inv_var
 
 //---------------------------------------
-//Register that stores the starting address of matrix A in BRAM A
+//Addr E: Register that stores the starting address of matrix A in BRAM A
 //---------------------------------------
 `define REG_MATRIX_A_ADDR 32'he
 //Bit `AWIDTH-1:0 address_mat_a
 
 //---------------------------------------
-//Register that stores the starting address of matrix B in BRAM B
+//Addr 12: Register that stores the starting address of matrix B in BRAM B
 //---------------------------------------
 `define REG_MATRIX_B_ADDR 32'h12
 //Bit `AWIDTH-1:0 address_mat_b
 
 //---------------------------------------
-//Register that stores the starting address of matrix C in BRAM C
+//Addr 16: Register that stores the starting address of matrix C in BRAM C
 //---------------------------------------
 `define REG_MATRIX_C_ADDR 32'h16
 //Bit `AWIDTH-1:0 address_mat_c
 
 //---------------------------------------
-//Register that stores the mask of which parts of the matrices are valid.
+//Addr 20: Register that stores the mask of which parts of the matrices are valid.
 //
 //Some examples where this is useful:
 //1. Input matrix is smaller than the matmul. 

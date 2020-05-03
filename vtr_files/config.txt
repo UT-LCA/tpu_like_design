@@ -15,7 +15,7 @@ circuit_list_add=one_file_design.v
 arch_list_add=k6_frac_N10_mem32K_40nm.xml
 arch_list_add=k6_frac_N10_4add_2chains_tie_off_depop50_mem20K_22nm.xml
 arch_list_add=EArch.xml
-arch_list_add=k4_N4_90nm.xml
+#arch_list_add=k4_N4_90nm.xml #removing because this doesn't have BRAMs
 
 # Parse info and how to parse
 parse_file=vpr_standard.txt
