@@ -63,6 +63,8 @@ wire [`AWIDTH-1:0] address_mat_a;
 wire [`AWIDTH-1:0] address_mat_b;
 wire [`AWIDTH-1:0] address_mat_c;
 wire [`MASK_WIDTH-1:0] validity_mask;
+wire save_output_to_accum;
+wire add_accum_to_output;
 
 //Connections for bram a (activation/input matrix)
 //bram_addr_a -> connected to u_matmul_4x4
@@ -128,6 +130,7 @@ control u_control(
   .done_norm(done_norm),
   .done_pool(done_pool), 
   .done_activation(done_activation),
+  .save_output_to_accum(save_output_to_accum),
   .done_tpu(done_tpu)
 );
 
@@ -155,6 +158,8 @@ cfg u_cfg(
   .address_mat_b(address_mat_b),
   .address_mat_c(address_mat_c),
   .validity_mask(validity_mask),
+  .save_output_to_accum(save_output_to_accum),
+  .add_accum_to_output(add_accum_to_output),
   .done_tpu(done_tpu)
 );
 
@@ -188,6 +193,8 @@ matmul_4x4 u_matmul_4x4(
   .b_addr(bram_addr_b),
   .c_addr(bram_addr_c_NC),
   .c_data_available(matmul_c_data_available),
+  .save_output_to_accum(save_output_to_accum),
+  .add_accum_to_output(add_accum_to_output),
   .final_mat_mul_size(8'd4),
   .a_loc(8'd0),
   .b_loc(8'd0)

@@ -80,3 +80,10 @@
 //---------------------------------------
 `define REG_VALID_MASK_ADDR 32'h20
 //Bit `MASK_WIDTH-1:0 mask for a row or column of both matrices
+
+//---------------------------------------
+//Addr 24: Register that controls the accumulation logic
+//---------------------------------------
+`define REG_ACCUM_ACTIONS_ADDR 32'h16
+//Bit 0 save_output_to_accumulator
+//Bit 1 add_accumulator_to_output

@@ -27,16 +27,19 @@ compile_one_file_design:
 	-sverilog \
 
 run:
-	./simv
+	./simv +basic_test
 
 run_norm_disabled:
-	./simv +norm_disabled
+	./simv +basic_test +norm_disabled
 
 run_pool_disabled:
-	./simv +pool_disabled
+	./simv +basic_test +pool_disabled
 
 run_activation_disabled:
-	./simv +activation_disabled
+	./simv +basic_test +activation_disabled
+
+run_accumulator:
+	./simv +accumulator_test
 
 waves:
 	$(VCS_HOME)/bin/dve -vpd vcdplus.vpd

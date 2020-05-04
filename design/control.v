@@ -12,6 +12,7 @@ module control(
     input done_norm,
     input done_pool,
     input done_activation,
+    input save_output_to_accum,
     output reg done_tpu
 );
 
@@ -52,7 +53,10 @@ always @( posedge clk) begin
       `STATE_MATMUL: begin
         if (done_mat_mul == 1'b1) begin
             start_mat_mul <= 1'b0;
-            if (enable_norm) begin
+            if(save_output_to_accum) begin
+              state <= `STATE_DONE;
+            end
+            else if (enable_norm) begin
               state <= `STATE_NORM;
             end 
             else if (enable_pool) begin

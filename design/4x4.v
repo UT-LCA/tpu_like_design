@@ -40,6 +40,8 @@ module matmul_4x4(
  b_addr,
  c_addr,
  c_data_available,
+ save_output_to_accum,
+ add_accum_to_output,
  final_mat_mul_size,
  a_loc,
  b_loc
@@ -64,6 +66,8 @@ module matmul_4x4(
  output [`AWIDTH-1:0] b_addr;
  output [`AWIDTH-1:0] c_addr;
  output c_data_available;
+ input save_output_to_accum;
+ input add_accum_to_output;
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
 //In fact, these will get optimized out by the synthesis tool, because
 //we hardcode them at the instantiation level.
@@ -78,15 +82,30 @@ reg done_mat_mul;
 //of the matmul and P is the number of pipleine stages in the MAC block.
 reg [6:0] clk_cnt;
 
+//Finding out number of cycles to assert matmul done.
+//When we have to save the outputs to accumulators, then we don't need to
+//shift out data. So, we can assert done_mat_mul early.
+//In the normal case, we have to include the time to shift out the results. 
+//When we have to add the values in accumulators into the output, then
+//one extra cycle is required, in addition to the normal time.
+//Note: the count expression used to contain "4*final_mat_mul_size", but 
+//to avoid multiplication, we now use "final_mat_mul_size<<2"
+wire [6:0] clk_cnt_for_done;
+assign clk_cnt_for_done = 
+                          (save_output_to_accum && add_accum_to_output) ?
+                          ((final_mat_mul_size<<2)+2+2 - final_mat_mul_size) : (
+                          (save_output_to_accum) ?
+                          ((final_mat_mul_size<<2)+2+1 - final_mat_mul_size) : (
+                          (add_accum_to_output) ? 
+                          ((final_mat_mul_size<<2)+2+2) :  
+                          ((final_mat_mul_size<<2)+2+1) ));  
 
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
     clk_cnt <= 0;
     done_mat_mul <= 0;
   end
-  //else if (clk_cnt == 4*final_mat_mul_size-2+4) begin
-  //Writing the line above to avoid multiplication:
-  else if (clk_cnt == (final_mat_mul_size<<2)+2+1) begin
+  else if (clk_cnt == clk_cnt_for_done) begin
     done_mat_mul <= 1;
     clk_cnt <= clk_cnt + 1;
   end
@@ -332,6 +351,158 @@ wire [`DWIDTH-1:0] matrixC31;
 wire [`DWIDTH-1:0] matrixC32;
 wire [`DWIDTH-1:0] matrixC33;
 
+wire [`DWIDTH-1:0] matrixC00_added;
+wire [`DWIDTH-1:0] matrixC01_added;
+wire [`DWIDTH-1:0] matrixC02_added;
+wire [`DWIDTH-1:0] matrixC03_added;
+wire [`DWIDTH-1:0] matrixC10_added;
+wire [`DWIDTH-1:0] matrixC11_added;
+wire [`DWIDTH-1:0] matrixC12_added;
+wire [`DWIDTH-1:0] matrixC13_added;
+wire [`DWIDTH-1:0] matrixC20_added;
+wire [`DWIDTH-1:0] matrixC21_added;
+wire [`DWIDTH-1:0] matrixC22_added;
+wire [`DWIDTH-1:0] matrixC23_added;
+wire [`DWIDTH-1:0] matrixC30_added;
+wire [`DWIDTH-1:0] matrixC31_added;
+wire [`DWIDTH-1:0] matrixC32_added;
+wire [`DWIDTH-1:0] matrixC33_added;
+
+reg [`DWIDTH-1:0] matrixC00_accum;
+reg [`DWIDTH-1:0] matrixC01_accum;
+reg [`DWIDTH-1:0] matrixC02_accum;
+reg [`DWIDTH-1:0] matrixC03_accum;
+reg [`DWIDTH-1:0] matrixC10_accum;
+reg [`DWIDTH-1:0] matrixC11_accum;
+reg [`DWIDTH-1:0] matrixC12_accum;
+reg [`DWIDTH-1:0] matrixC13_accum;
+reg [`DWIDTH-1:0] matrixC20_accum;
+reg [`DWIDTH-1:0] matrixC21_accum;
+reg [`DWIDTH-1:0] matrixC22_accum;
+reg [`DWIDTH-1:0] matrixC23_accum;
+reg [`DWIDTH-1:0] matrixC30_accum;
+reg [`DWIDTH-1:0] matrixC31_accum;
+reg [`DWIDTH-1:0] matrixC32_accum;
+reg [`DWIDTH-1:0] matrixC33_accum;
+
+reg outputs_saved_to_accum;
+reg outputs_added_to_accum;
+
+always @(posedge clk) begin
+  if (reset || ~(save_output_to_accum && add_accum_to_output) ) begin
+    matrixC00_accum <= 0;
+    matrixC01_accum <= 0;
+    matrixC02_accum <= 0;
+    matrixC03_accum <= 0;
+    matrixC10_accum <= 0;
+    matrixC11_accum <= 0;
+    matrixC12_accum <= 0;
+    matrixC13_accum <= 0;
+    matrixC20_accum <= 0;
+    matrixC21_accum <= 0;
+    matrixC22_accum <= 0;
+    matrixC23_accum <= 0;
+    matrixC30_accum <= 0;
+    matrixC31_accum <= 0;
+    matrixC32_accum <= 0;
+    matrixC33_accum <= 0;
+    outputs_saved_to_accum <= 0;
+    outputs_added_to_accum <= 0;
+  end
+  else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
+    //matrixC00 <= matrixC00_accum + matrixC00;
+    //matrixC01 <= matrixC01_accum + matrixC01;
+    //matrixC02 <= matrixC02_accum + matrixC02;
+    //matrixC03 <= matrixC03_accum + matrixC03;
+    //matrixC10 <= matrixC10_accum + matrixC10;
+    //matrixC11 <= matrixC11_accum + matrixC11;
+    //matrixC12 <= matrixC12_accum + matrixC12;
+    //matrixC13 <= matrixC13_accum + matrixC13;
+    //matrixC20 <= matrixC20_accum + matrixC20;
+    //matrixC21 <= matrixC21_accum + matrixC21;
+    //matrixC22 <= matrixC22_accum + matrixC22;
+    //matrixC23 <= matrixC23_accum + matrixC23;
+    //matrixC30 <= matrixC30_accum + matrixC30;
+    //matrixC31 <= matrixC31_accum + matrixC31;
+    //matrixC32 <= matrixC32_accum + matrixC32;
+    //matrixC33 <= matrixC33_accum + matrixC33;
+    matrixC00_accum <= matrixC00;
+    matrixC01_accum <= matrixC01;
+    matrixC02_accum <= matrixC02;
+    matrixC03_accum <= matrixC03;
+    matrixC10_accum <= matrixC10;
+    matrixC11_accum <= matrixC11;
+    matrixC12_accum <= matrixC12;
+    matrixC13_accum <= matrixC13;
+    matrixC20_accum <= matrixC20;
+    matrixC21_accum <= matrixC21;
+    matrixC22_accum <= matrixC22;
+    matrixC23_accum <= matrixC23;
+    matrixC30_accum <= matrixC30;
+    matrixC31_accum <= matrixC31;
+    matrixC32_accum <= matrixC32;
+    matrixC33_accum <= matrixC33;
+    outputs_saved_to_accum <= 1;
+    outputs_added_to_accum <= 1;
+  end
+  else if (row_latch_en && save_output_to_accum) begin
+    matrixC00_accum <= matrixC00;
+    matrixC01_accum <= matrixC01;
+    matrixC02_accum <= matrixC02;
+    matrixC03_accum <= matrixC03;
+    matrixC10_accum <= matrixC10;
+    matrixC11_accum <= matrixC11;
+    matrixC12_accum <= matrixC12;
+    matrixC13_accum <= matrixC13;
+    matrixC20_accum <= matrixC20;
+    matrixC21_accum <= matrixC21;
+    matrixC22_accum <= matrixC22;
+    matrixC23_accum <= matrixC23;
+    matrixC30_accum <= matrixC30;
+    matrixC31_accum <= matrixC31;
+    matrixC32_accum <= matrixC32;
+    matrixC33_accum <= matrixC33;
+    outputs_saved_to_accum <= 1;
+  end
+  else if (row_latch_en && add_accum_to_output) begin
+    //matrixC00 <= matrixC00_accum + matrixC00;
+    //matrixC01 <= matrixC01_accum + matrixC01;
+    //matrixC02 <= matrixC02_accum + matrixC02;
+    //matrixC03 <= matrixC03_accum + matrixC03;
+    //matrixC10 <= matrixC10_accum + matrixC10;
+    //matrixC11 <= matrixC11_accum + matrixC11;
+    //matrixC12 <= matrixC12_accum + matrixC12;
+    //matrixC13 <= matrixC13_accum + matrixC13;
+    //matrixC20 <= matrixC20_accum + matrixC20;
+    //matrixC21 <= matrixC21_accum + matrixC21;
+    //matrixC22 <= matrixC22_accum + matrixC22;
+    //matrixC23 <= matrixC23_accum + matrixC23;
+    //matrixC30 <= matrixC30_accum + matrixC30;
+    //matrixC31 <= matrixC31_accum + matrixC31;
+    //matrixC32 <= matrixC32_accum + matrixC32;
+    //matrixC33 <= matrixC33_accum + matrixC33;
+    outputs_added_to_accum <= 1;
+  end
+end
+
+assign matrixC00_added = (add_accum_to_output) ? matrixC00 : matrixC00 + matrixC00_accum;
+assign matrixC01_added = (add_accum_to_output) ? matrixC01 : matrixC01 + matrixC01_accum;
+assign matrixC02_added = (add_accum_to_output) ? matrixC02 : matrixC02 + matrixC02_accum;
+assign matrixC03_added = (add_accum_to_output) ? matrixC03 : matrixC03 + matrixC03_accum;
+assign matrixC10_added = (add_accum_to_output) ? matrixC10 : matrixC10 + matrixC10_accum;
+assign matrixC11_added = (add_accum_to_output) ? matrixC11 : matrixC11 + matrixC11_accum;
+assign matrixC12_added = (add_accum_to_output) ? matrixC12 : matrixC12 + matrixC12_accum;
+assign matrixC13_added = (add_accum_to_output) ? matrixC13 : matrixC13 + matrixC13_accum;
+assign matrixC20_added = (add_accum_to_output) ? matrixC20 : matrixC20 + matrixC20_accum;
+assign matrixC21_added = (add_accum_to_output) ? matrixC21 : matrixC21 + matrixC21_accum;
+assign matrixC22_added = (add_accum_to_output) ? matrixC22 : matrixC22 + matrixC22_accum;
+assign matrixC23_added = (add_accum_to_output) ? matrixC23 : matrixC23 + matrixC23_accum;
+assign matrixC30_added = (add_accum_to_output) ? matrixC30 : matrixC30 + matrixC30_accum;
+assign matrixC31_added = (add_accum_to_output) ? matrixC31 : matrixC31 + matrixC31_accum;
+assign matrixC32_added = (add_accum_to_output) ? matrixC32 : matrixC32 + matrixC32_accum;
+assign matrixC33_added = (add_accum_to_output) ? matrixC33 : matrixC33 + matrixC33_accum;
+
+//TODO: The following are not used anymore. Remove them
 assign cin_row0 = c_data_in[`DWIDTH-1:0];
 assign cin_row1 = c_data_in[2*`DWIDTH-1:`DWIDTH];
 assign cin_row2 = c_data_in[3*`DWIDTH-1:2*`DWIDTH];
@@ -347,6 +518,18 @@ reg start_capturing_c_data;
 integer counter;
 reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
 
+//If save_output_to_accum is asserted, that means we are not intending to shift
+//out the outputs, because the outputs are still partial sums. 
+wire condition_to_start_shifting_output;
+assign condition_to_start_shifting_output = 
+                          (save_output_to_accum && add_accum_to_output) ?
+                          1'b0 : (
+                          (save_output_to_accum) ?
+                          1'b0 : (
+                          (add_accum_to_output) ? 
+                          outputs_added_to_accum :  
+                          row_latch_en ));  
+
 //For larger matmuls, this logic will have more entries in the case statement
 always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
@@ -355,7 +538,7 @@ always @(posedge clk) begin
     c_addr <= address_mat_c-`MAT_MUL_SIZE;
     c_data_out <= 0;
     counter <= 0;
-  end else if (row_latch_en) begin
+  end else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
     c_addr <= c_addr + `MAT_MUL_SIZE;
