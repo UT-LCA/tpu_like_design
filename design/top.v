@@ -65,6 +65,9 @@ wire [`AWIDTH-1:0] address_mat_c;
 wire [`MASK_WIDTH-1:0] validity_mask;
 wire save_output_to_accum;
 wire add_accum_to_output;
+wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
+wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
+wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
 
 //Connections for bram a (activation/input matrix)
 //bram_addr_a -> connected to u_matmul_4x4
@@ -160,6 +163,9 @@ cfg u_cfg(
   .validity_mask(validity_mask),
   .save_output_to_accum(save_output_to_accum),
   .add_accum_to_output(add_accum_to_output),
+  .address_stride_a(address_stride_a),
+  .address_stride_b(address_stride_b),
+  .address_stride_c(address_stride_c),
   .done_tpu(done_tpu)
 );
 
@@ -181,6 +187,9 @@ matmul_4x4 u_matmul_4x4(
   .address_mat_a(address_mat_a),
   .address_mat_b(address_mat_b),
   .address_mat_c(address_mat_c),
+  .address_stride_a(address_stride_a),
+  .address_stride_b(address_stride_b),
+  .address_stride_c(address_stride_c),
   .a_data(bram_rdata_a),
   .b_data(bram_rdata_b),
   .a_data_in(a_data_in_NC),
@@ -254,17 +263,17 @@ activation u_activation(
 always @(posedge clk) begin
   if (reset) begin
     bram_wdata_a <= 0;
-    bram_addr_a_for_writing <= address_mat_c-`MAT_MUL_SIZE;
+    bram_addr_a_for_writing <= address_mat_c-address_stride_c;
     bram_a_wdata_available <= 0;
   end
   else if (activation_out_data_available) begin
     bram_wdata_a <= activation_data_out;
-    bram_addr_a_for_writing <= bram_addr_a_for_writing + `BB_MAT_MUL_SIZE;
+    bram_addr_a_for_writing <= bram_addr_a_for_writing + address_stride_c;
     bram_a_wdata_available <= activation_out_data_available;
   end
   else begin
     bram_wdata_a <= 0;
-    bram_addr_a_for_writing <= address_mat_c-`MAT_MUL_SIZE;
+    bram_addr_a_for_writing <= address_mat_c-address_stride_c;
     bram_a_wdata_available <= 0;
   end
 end  

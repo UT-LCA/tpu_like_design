@@ -9,10 +9,10 @@ begin
   if ($test$plusargs("norm_disabled")) begin
     write(`REG_ENABLES_ADDR, 32'h0000_000d);
   end 
-  if ($test$plusargs("pool_disabled")) begin
+  else if ($test$plusargs("pool_disabled")) begin
     write(`REG_ENABLES_ADDR, 32'h0000_000b);
   end 
-  if ($test$plusargs("activation_disabled")) begin
+  else if ($test$plusargs("activation_disabled")) begin
     write(`REG_ENABLES_ADDR, 32'h0000_0007);
   end 
   else begin//all blocks enabled

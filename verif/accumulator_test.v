@@ -1,3 +1,8 @@
+integer a_start_addr = 0;
+integer b_start_addr = 0;
+integer c_start_addr = 200;
+integer problem_size = 12;
+
 task accumulator_test();
 begin
   //Start the actual test
@@ -9,10 +14,10 @@ begin
   if ($test$plusargs("norm_disabled")) begin
     write(`REG_ENABLES_ADDR, 32'h0000_000d);
   end 
-  if ($test$plusargs("pool_disabled")) begin
+  else if ($test$plusargs("pool_disabled")) begin
     write(`REG_ENABLES_ADDR, 32'h0000_000b);
   end 
-  if ($test$plusargs("activation_disabled")) begin
+  else if ($test$plusargs("activation_disabled")) begin
     write(`REG_ENABLES_ADDR, 32'h0000_0007);
   end 
   else begin//all blocks enabled
@@ -29,15 +34,93 @@ begin
   $display("-------------------------------------------");
   $display("Layer 0");
   $display("-------------------------------------------");
-  $display("Configure the addresses of matrix A, B and C");
-  //matrix A -> starts at address 0x8 in BRAM A
-  //matrix B -> starts at address 0x0 in BRAM B
-  //matrix C -> will start at address 0x20 in BRAM A
-  write(`REG_MATRIX_A_ADDR, 32'h0000_0008);
-  write(`REG_MATRIX_B_ADDR, 32'h0000_0000);
-  write(`REG_MATRIX_C_ADDR, 32'h0000_0020);
 
-  $display("Start the TPU");
+  //Configure strides to 12 (because we have 3 tiles in each direction)
+  write(`REG_MATRIX_A_STRIDE_ADDR, problem_size);
+  write(`REG_MATRIX_B_STRIDE_ADDR, problem_size);
+  write(`REG_MATRIX_C_STRIDE_ADDR, problem_size);
+
+  //We have 12x12 matrices as inputs. Let's divide them into 9 tiles, each is 4x4.
+  //For calculating each tile, we will invoke the matmul 3 times (3 passes).
+  //Example: For calculating the tile 00 of matrix C, we will perform:
+  //A00 * B00 -> First pass
+  //A01 * B10 -> Second pass
+  //A01 * B20 -> Third pass
+  //Example: For calculating the tile 21 of matrix C, we will perform:
+  //A10 * B01 -> First pass
+  //A21 * B11 -> Second pass
+  //A22 * B21 -> Third pass
+
+  
+  for (int tile_x = 0; tile_x < problem_size/`MAT_MUL_SIZE; tile_x++) begin
+  for (int tile_y = 0; tile_y < problem_size/`MAT_MUL_SIZE; tile_y++) begin
+  /////////////////////////////////////////////////////////////////
+  //First pass
+  /////////////////////////////////////////////////////////////////
+  //Set save_output_to_accum = 1 and set add_accum_to_output = 1 (even though we don't need to add)
+  write(`REG_ACCUM_ACTIONS_ADDR, 32'h0000_0003);
+  //Configure addresses
+  //We don't need to configure C addr right now actually because output won't be written to bram
+  //But it's okay. Let's do it now anyway.
+  write(`REG_MATRIX_A_ADDR, a_start_addr + tile_x*`MAT_MUL_SIZE);
+  write(`REG_MATRIX_B_ADDR, b_start_addr + tile_y*`MAT_MUL_SIZE);
+  write(`REG_MATRIX_C_ADDR, c_start_addr + tile_x*`MAT_MUL_SIZE + tile_y*`MAT_MUL_SIZE*problem_size);
+
+  $display("Start the TPU for first pass");
+  //start = 1;
+  write(`REG_STDN_TPU_ADDR, 32'h0000_0001);
+  
+  $display("Wait until TPU is done");
+  do 
+  begin
+      read(`REG_STDN_TPU_ADDR, rdata);
+      done = rdata[31];
+  end 
+  while (done == 0);
+
+  $display("Stop the TPU");
+  //start = 0;
+  write(`REG_STDN_TPU_ADDR, 32'h0000_0000);
+
+  /////////////////////////////////////////////////////////////////
+  //Second pass
+  /////////////////////////////////////////////////////////////////
+  //Set save_output_to_accum = 1 and set add_accum_to_output = 1 
+  //Already configured in step 1
+  //Configure strides to 12 (because we have 3 tiles in each direction)
+  //Already configured in step 1
+  //Configure addresses. Matrix C address is already configured.
+  write(`REG_MATRIX_A_ADDR, a_start_addr + problem_size * `MAT_MUL_SIZE + tile_x*`MAT_MUL_SIZE);
+  write(`REG_MATRIX_B_ADDR, b_start_addr + problem_size * `MAT_MUL_SIZE + tile_y*`MAT_MUL_SIZE);
+
+  $display("Start the TPU for second pass");
+  //start = 1;
+  write(`REG_STDN_TPU_ADDR, 32'h0000_0001);
+  
+  $display("Wait until TPU is done");
+  do 
+  begin
+      read(`REG_STDN_TPU_ADDR, rdata);
+      done = rdata[31];
+  end 
+  while (done == 0);
+
+  $display("Stop the TPU");
+  //start = 0;
+  write(`REG_STDN_TPU_ADDR, 32'h0000_0000);
+
+  /////////////////////////////////////////////////////////////////
+  //Third pass
+  /////////////////////////////////////////////////////////////////
+  //Set save_output_to_accum = 0 and set add_accum_to_output = 1 
+  write(`REG_ACCUM_ACTIONS_ADDR, 32'h0000_0002);
+  //Configure strides to 12 (because we have 3 tiles in each direction)
+  //Already configured in step 1
+  //Configure addresses. Matrix C address is already configured.
+  write(`REG_MATRIX_A_ADDR, a_start_addr + problem_size * `MAT_MUL_SIZE * 2 + tile_x*`MAT_MUL_SIZE);
+  write(`REG_MATRIX_B_ADDR, b_start_addr + problem_size * `MAT_MUL_SIZE * 2 + tile_y*`MAT_MUL_SIZE);
+
+  $display("Start the TPU for third pass");
   //start = 1;
   write(`REG_STDN_TPU_ADDR, 32'h0000_0001);
   
@@ -55,6 +138,10 @@ begin
   //start = 0;
   write(`REG_STDN_TPU_ADDR, 32'h0000_0000);
 
+end
+end
+
+/*
   $display("-------------------------------------------");
   $display("Layer 1");
   $display("-------------------------------------------");
@@ -83,9 +170,9 @@ begin
   $display("Stop the TPU");
   //start = 0;
   write(`REG_STDN_TPU_ADDR, 32'h0000_0000);
+*/
 end
 endtask
-
 
 //////////////////////////////////////////////
 //Initialize BRAMs A and B
@@ -144,7 +231,6 @@ endtask
 // [0x1 0x2 0x2 0xa 0x3 0xa 0xa 0x6 0xb 0x5 0x8 0x7]
 // [0x4 0x6 0x4 0xd 0x8 0xd 0x8 0x9 0xf 0xb 0xb 0x8]]
 //
-integer a_start_addr = 8;
 reg [`DWIDTH-1:0] a[12][12] = 
 '{{8'd2,8'd2,8'd1,8'd0,8'd2,8'd0,8'd1,8'd0,8'd2,8'd1,8'd2,8'd2},
   {8'd0,8'd1,8'd1,8'd2,8'd0,8'd2,8'd0,8'd1,8'd2,8'd2,8'd1,8'd2},
@@ -159,7 +245,6 @@ reg [`DWIDTH-1:0] a[12][12] =
   {8'd2,8'd1,8'd2,8'd0,8'd1,8'd1,8'd0,8'd0,8'd0,8'd0,8'd0,8'd1},
   {8'd1,8'd2,8'd1,8'd0,8'd2,8'd2,8'd0,8'd1,8'd0,8'd0,8'd0,8'd1}};
 
-integer b_start_addr = 0;
 reg [`DWIDTH-1:0] b[12][12] =   
 '{{8'd0,8'd0,8'd0,8'd2,8'd0,8'd1,8'd2,8'd1,8'd2,8'd0,8'd0,8'd2},
   {8'd1,8'd1,8'd1,8'd2,8'd2,8'd2,8'd1,8'd2,8'd2,8'd2,8'd0,8'd0},
@@ -174,7 +259,19 @@ reg [`DWIDTH-1:0] b[12][12] =
   {8'd1,8'd0,8'd1,8'd1,8'd0,8'd1,8'd2,8'd2,8'd1,8'd1,8'd0,8'd2},
   {8'd0,8'd0,8'd1,8'd1,8'd0,8'd2,8'd1,8'd0,8'd1,8'd0,8'd2,8'd1}};
 
-integer problem_size = 12;
+reg [`DWIDTH-1:0] c[12][12] =   
+'{{8'd6,8'd3,8'd8,8'd18,8'd9,8'd19,8'd16,8'd18,8'd20,8'd10,8'd12,8'd17},
+  {8'd4,8'd9,8'd11,8'd13,8'd10,8'd19,8'd12,8'd12,8'd13,8'd12,8'd15,8'd11},
+  {8'd11,8'd8,8'd10,8'd20,8'd14,8'd18,8'd17,8'd17,8'd19,8'd18,8'd18,8'd16},
+  {8'd4,8'd4,8'd8,8'd12,8'd6,8'd10,8'd10,8'd13,8'd10,8'd10,8'd9,8'd11},
+  {8'd10,8'd7,8'd10,8'd20,8'd14,8'd19,8'd16,8'd16,8'd22,8'd15,8'd14,8'd17},
+  {8'd7,8'd3,8'd6,8'd11,8'd9,8'd8,8'd9,8'd7,8'd10,8'd9,8'd5,8'd5},
+  {8'd7,8'd8,8'd12,8'd15,8'd9,8'd16,8'd12,8'd12,8'd14,8'd16,8'd17,8'd12},
+  {8'd5,8'd6,8'd9,8'd11,8'd8,8'd15,8'd9,8'd10,8'd13,8'd10,8'd16,8'd13},
+  {8'd5,8'd6,8'd7,8'd13,8'd9,8'd13,8'd11,8'd12,8'd14,8'd9,8'd10,8'd14},
+  {8'd2,8'd4,8'd6,8'd16,8'd6,8'd14,8'd9,8'd10,8'd17,8'd10,8'd17,8'd13},
+  {8'd1,8'd2,8'd2,8'd10,8'd3,8'd10,8'd10,8'd6,8'd11,8'd5,8'd8,8'd7},
+  {8'd4,8'd6,8'd4,8'd13,8'd8,8'd13,8'd8,8'd9,8'd15,8'd11,8'd11,8'd8}};
 
 task initialize_brams_for_8x8();
 begin
@@ -189,10 +286,33 @@ begin
    for (int i=0; i<problem_size; i++) begin
        for (int j=0; j<problem_size; j++) begin
            u_top.matrix_B.ram[b_start_addr+problem_size*i+j] = b[i][j];
-           #1;
        end
     end
 
+end
+endtask
+
+task compare_output_with_golden();
+begin
+   integer fail = 0;
+   integer address, observed, expected;
+   //C is stored like A
+   for (int i=0; i<problem_size; i++) begin
+       for (int j=0; j<problem_size; j++) begin
+           address = c_start_addr+problem_size*i+j;
+           observed = u_top.matrix_A.ram[address];
+           expected = c[j][i];
+           if (expected != observed) begin
+             $display("Mismatch found. Address = %0d, Expected = %0d, Observed = %0d", address, expected, observed);
+             fail = 1;
+           end
+       end
+   end
+   if (fail == 0) begin
+     $display("===============================");
+     $display("Test passed");
+     $display("===============================");
+   end
 end
 endtask
 

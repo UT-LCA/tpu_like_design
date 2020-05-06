@@ -24,6 +24,9 @@ module cfg(
     output reg [`MASK_WIDTH-1:0] validity_mask,
     output reg save_output_to_accum,
     output reg add_accum_to_output,
+    output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_a,
+    output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_b,
+    output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_c,
     input done_tpu
 );
 
@@ -59,6 +62,9 @@ always @(posedge PCLK) begin
     validity_mask <= {`MASK_WIDTH{1'b1}};
     save_output_to_accum <= 0;
     add_accum_to_output <= 0;
+    address_stride_a <= `MAT_MUL_SIZE;
+    address_stride_b <= `MAT_MUL_SIZE;
+    address_stride_c <= `MAT_MUL_SIZE;
   end
 
   else begin
@@ -96,6 +102,9 @@ always @(posedge PCLK) begin
                                    add_accum_to_output <= PWDATA[1];
                                    save_output_to_accum <= PWDATA[0];
                                    end
+          `REG_MATRIX_A_STRIDE_ADDR : address_stride_a <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
+          `REG_MATRIX_B_STRIDE_ADDR : address_stride_b <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
+          `REG_MATRIX_C_STRIDE_ADDR : address_stride_c <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
           default: reg_dummy <= PWDATA; //sink writes to a dummy register
           endcase
           PREADY <=1;          
@@ -116,6 +125,9 @@ always @(posedge PCLK) begin
           `REG_MATRIX_C_ADDR  : PRDATA <= address_mat_c;
           `REG_VALID_MASK_ADDR: PRDATA <= validity_mask;
           `REG_ACCUM_ACTIONS_ADDR: PRDATA <= {30'b0, add_accum_to_output, save_output_to_accum};
+          `REG_MATRIX_A_STRIDE_ADDR : PRDATA <= address_stride_a;
+          `REG_MATRIX_B_STRIDE_ADDR : PRDATA <= address_stride_b;
+          `REG_MATRIX_C_STRIDE_ADDR : PRDATA <= address_stride_c;
           default             : PRDATA <= reg_dummy; //read the dummy register for undefined addresses
           endcase
         end

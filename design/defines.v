@@ -9,6 +9,7 @@
 `define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
+`define ADDR_STRIDE_WIDTH 8
 
 /////////////////////////////////////////////////
 //Register specification
@@ -84,6 +85,36 @@
 //---------------------------------------
 //Addr 24: Register that controls the accumulation logic
 //---------------------------------------
-`define REG_ACCUM_ACTIONS_ADDR 32'h16
+`define REG_ACCUM_ACTIONS_ADDR 32'h24
 //Bit 0 save_output_to_accumulator
 //Bit 1 add_accumulator_to_output
+
+//---------------------------------------
+//Addr 28: Register that stores the stride that should be taken to address
+//elements in matrix A, after every MAT_MUL_SIZE worth of data has been fetched.
+//See the diagram in "Meeting-16" notes in the EE382V project Onenote notebook.
+//This stride is applied when incrementing addresses for matrix A in the vertical
+//direction.
+//---------------------------------------
+`define REG_MATRIX_A_STRIDE_ADDR 32'h28
+//Bit `ADDR_STRIDE_WIDTH-1:0 address_stride_a
+
+//---------------------------------------
+//Addr 32: Register that stores the stride that should be taken to address
+//elements in matrix B, after every MAT_MUL_SIZE worth of data has been fetched.
+//See the diagram in "Meeting-16" notes in the EE382V project Onenote notebook.
+//This stride is applied when incrementing addresses for matrix B in the horizontal
+//direction.
+//---------------------------------------
+`define REG_MATRIX_B_STRIDE_ADDR 32'h32
+//Bit `ADDR_STRIDE_WIDTH-1:0 address_stride_b
+
+//---------------------------------------
+//Addr 36: Register that stores the stride that should be taken to address
+//elements in matrix C, after every MAT_MUL_SIZE worth of data has been fetched.
+//See the diagram in "Meeting-16" notes in the EE382V project Onenote notebook.
+//This stride is applied when incrementing addresses for matrix C in the vertical
+//direction (this is generally same as address_stride_a).
+//---------------------------------------
+`define REG_MATRIX_C_STRIDE_ADDR 32'h36
+//Bit `ADDR_STRIDE_WIDTH-1:0 address_stride_c

@@ -39,7 +39,7 @@ run_activation_disabled:
 	./simv +basic_test +activation_disabled
 
 run_accumulator:
-	./simv +accumulator_test
+	./simv +accumulator_test +norm_disabled
 
 waves:
 	$(VCS_HOME)/bin/dve -vpd vcdplus.vpd
