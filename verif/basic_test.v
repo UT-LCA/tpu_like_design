@@ -86,7 +86,7 @@ begin
 end
 endtask
 
-task initialize_brams_for_4x4();
+task initialize_brams_basic_test();
 begin
 //////////////////////////////////////////////
 //Initialize BRAMs A and B

@@ -126,10 +126,10 @@ initial begin
 
   //Call the respective task
   if ($test$plusargs("basic_test")) begin
-    initialize_brams_for_4x4();
+    initialize_brams_basic_test();
     basic_test();
   end else if ($test$plusargs("accumulator_test")) begin
-    initialize_brams_for_8x8();
+    initialize_brams_accum_test();
     accumulator_test();
     compare_output_with_golden();
   end
