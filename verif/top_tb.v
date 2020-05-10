@@ -96,12 +96,11 @@ begin
 end
 endtask
 
-//Temporary variables required in the test
-reg [`REG_DATAWIDTH-1:0] rdata;
-reg done;
-
-`include "basic_test.v"
-`include "accumulator_test.v"
+////////////////////////////////////////////
+// Instantiate the test modules
+////////////////////////////////////////////
+layer_test u_layer_test();
+accumulator_test u_accum_test();
 
 ////////////////////////////////////////////
 // Main routine. Calls the appropriate task
@@ -114,7 +113,6 @@ initial begin
   PADDR = 0;
   PWDATA = 0;
   PENABLE = 0;
-  done = 0;
 
   $display("Starting simulation");
 
@@ -125,13 +123,10 @@ initial begin
   #30;
 
   //Call the respective task
-  if ($test$plusargs("basic_test")) begin
-    initialize_brams_for_4x4();
-    basic_test();
+  if ($test$plusargs("layer_test")) begin
+    u_layer_test.run();
   end else if ($test$plusargs("accumulator_test")) begin
-    initialize_brams_for_8x8();
-    accumulator_test();
-    compare_output_with_golden();
+	  u_accum_test.run();
   end
  
   $display("Finishing simulation");

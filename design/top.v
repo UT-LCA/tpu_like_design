@@ -180,7 +180,7 @@ cfg u_cfg(
 //Note: the ports on this module to write data to bram c
 //are not used in this top module. 
 ////////////////////////////////////////////////////////////////
-matmul_4x4 u_matmul_4x4(
+matmul u_matmul(
   .clk(clk),
   .reset(reset),
   .start_mat_mul(start_mat_mul),
@@ -205,7 +205,7 @@ matmul_4x4 u_matmul_4x4(
   .c_data_available(matmul_c_data_available),
   .save_output_to_accum(save_output_to_accum),
   .add_accum_to_output(add_accum_to_output),
-  .final_mat_mul_size(8'd4),
+  .final_mat_mul_size(8'd`MAT_MUL_SIZE),
   .a_loc(8'd0),
   .b_loc(8'd0)
 );
