@@ -133,8 +133,5 @@
 //Register defining pooling window size
 //---------------------------------------
 `define REG_POOL_KERNEL_SIZE 2
+//Bit `MAX_BITS_POOL-1:0 pool window size
 
-//---------------------------------------
-//Register defining mask of valid data in input 
-//---------------------------------------
-`define REG_POOL_VALID_MASK 8'hFF

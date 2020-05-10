@@ -19,7 +19,6 @@ module cfg(
     output reg [`DWIDTH-1:0] mean,
     output reg [`DWIDTH-1:0] inv_var,
 		output reg [`MAX_BITS_POOL-1:0] kernel_size,
-		output reg [`MAT_MUL_SIZE-1:0] valid_mask,
 		output reg [`AWIDTH-1:0] address_mat_a,
     output reg [`AWIDTH-1:0] address_mat_b,
     output reg [`AWIDTH-1:0] address_mat_c,
@@ -58,7 +57,6 @@ always @(posedge PCLK) begin
     mean <= 0;
     inv_var <= 0;
     kernel_size <= 1;
-		valid_mask <= 0;
 		reg_dummy <= 0;
     address_mat_a <= 0;
     address_mat_b <= 0;
@@ -102,7 +100,8 @@ always @(posedge PCLK) begin
           `REG_MATRIX_B_ADDR  : address_mat_b <= PWDATA[`AWIDTH-1:0];
           `REG_MATRIX_C_ADDR  : address_mat_c <= PWDATA[`AWIDTH-1:0];
           `REG_VALID_MASK_ADDR: validity_mask <= PWDATA[`MASK_WIDTH-1:0];
-          `REG_ACCUM_ACTIONS_ADDR: begin
+          `REG_POOL_KERNEL_SIZE: kernel_size <= PWDATA[`MAX_BITS_POOL-1:0];
+					`REG_ACCUM_ACTIONS_ADDR: begin
                                    add_accum_to_output <= PWDATA[1];
                                    save_output_to_accum <= PWDATA[0];
                                    end
@@ -128,7 +127,8 @@ always @(posedge PCLK) begin
           `REG_MATRIX_B_ADDR  : PRDATA <= address_mat_b;
           `REG_MATRIX_C_ADDR  : PRDATA <= address_mat_c;
           `REG_VALID_MASK_ADDR: PRDATA <= validity_mask;
-          `REG_ACCUM_ACTIONS_ADDR: PRDATA <= {30'b0, add_accum_to_output, save_output_to_accum};
+          `REG_POOL_KERNEL_SIZE : PRDATA <= kernel_size;
+					`REG_ACCUM_ACTIONS_ADDR: PRDATA <= {30'b0, add_accum_to_output, save_output_to_accum};
           `REG_MATRIX_A_STRIDE_ADDR : PRDATA <= address_stride_a;
           `REG_MATRIX_B_STRIDE_ADDR : PRDATA <= address_stride_b;
           `REG_MATRIX_C_STRIDE_ADDR : PRDATA <= address_stride_c;
