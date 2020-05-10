@@ -12,6 +12,9 @@ begin
 end
 endtask
 
+integer mean = 1;
+integer inv_var = 1;
+
 `ifdef MATMUL_SIZE_4
 integer a_start_addr = 0;
 integer b_start_addr = 0;
@@ -391,10 +394,8 @@ begin
   read(`REG_ENABLES_ADDR, rdata);
 
   $display("Configure the value of mean and inv_variance");
-  //mean = 8'h01;
-  //inv_var = 8'h01;
-  write(`REG_MEAN_ADDR, 32'h0000_0001);
-  write(`REG_INV_VAR_ADDR, 32'h0000_0001);
+  write(`REG_MEAN_ADDR, mean);
+  write(`REG_INV_VAR_ADDR, inv_var);
 
   //Configure strides to 12 (because we have 3 tiles in each direction)
   write(`REG_MATRIX_A_STRIDE_ADDR, problem_size);

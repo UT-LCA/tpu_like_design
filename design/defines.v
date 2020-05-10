@@ -1,6 +1,6 @@
 `define DWIDTH 8
-`define AWIDTH 10
-`define MEM_SIZE 8192
+`define AWIDTH 11
+`define MEM_SIZE 2048
 
 `ifdef MATMUL_SIZE_4
 `define MAT_MUL_SIZE 4

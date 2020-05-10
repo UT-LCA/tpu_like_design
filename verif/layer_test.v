@@ -37,6 +37,12 @@ reg [`DWIDTH-1:0] c[4][4] =
   {75,63,51,26},
   {62,48,44,19},
   {54,40,46,13}};
+
+// c in hex  
+//62 5a 52 22 
+//4b 3f 33 1a
+//3e 30 2c 13
+//36 28 2e 0d
 `endif
 
 `ifdef MATMUL_SIZE_8
@@ -151,6 +157,7 @@ begin
    integer fail = 0;
    integer address, observed, expected;
    //C is stored like A
+   ////////Note that this is only testing first layer
    for (int i=0; i<problem_size; i++) begin
        for (int j=0; j<problem_size; j++) begin
            address = c_start_addr+problem_size*i+j;
@@ -164,7 +171,7 @@ begin
    end
    if (fail == 0) begin
      $display("===============================");
-     $display("Test passed");
+     $display("Test passed (only first layer's output was compared)");
      $display("===============================");
    end
 end
@@ -204,12 +211,9 @@ begin
   $display("Layer 0");
   $display("-------------------------------------------");
   $display("Configure the addresses of matrix A, B and C");
-  //matrix A -> starts at address 0x8 in BRAM A
-  //matrix B -> starts at address 0x0 in BRAM B
-  //matrix C -> will start at address 0x20 in BRAM A
-  write(`REG_MATRIX_A_ADDR, 32'h0000_0008);
-  write(`REG_MATRIX_B_ADDR, 32'h0000_0000);
-  write(`REG_MATRIX_C_ADDR, 32'h0000_0020);
+  write(`REG_MATRIX_A_ADDR, a_start_addr);
+  write(`REG_MATRIX_B_ADDR, b_start_addr);
+  write(`REG_MATRIX_C_ADDR, c_start_addr);
 
   $display("Start the TPU");
   //start = 1;
@@ -233,12 +237,10 @@ begin
   $display("Layer 1");
   $display("-------------------------------------------");
   $display("Configure the addresses of matrix A, B and C");
-  //matrix A -> 0x20 in BRAM A (the last layer wrote output here)
-  //matrix B -> starts at address 0x0 in BRAM B
-  //matrix C -> will start at address 0x40 in BRAM A
-  write(`REG_MATRIX_A_ADDR, 32'h0000_0020); //
-  write(`REG_MATRIX_B_ADDR, 32'h0000_0000);
-  write(`REG_MATRIX_C_ADDR, 32'h0000_0040);
+  //matrix A -> addr_mat_c (the last layer wrote output here)
+  write(`REG_MATRIX_A_ADDR, c_start_addr); //
+  write(`REG_MATRIX_B_ADDR, b_start_addr);
+  write(`REG_MATRIX_C_ADDR, c_start_addr+500);
 
   $display("Restart the TPU");
   //start = 1;

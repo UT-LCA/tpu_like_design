@@ -13,6 +13,22 @@ Then, to compile and run the simple testbench, you can use:
 cd verif
 make -f Makefile.tpu
 ```
+
+To run the TPU design with a specific size of the matrix multiplication unit, use:
+```
+make -f Makefile.tpu size=N
+```
+where N is the size of the matmul (only square matmuls are supported. So, this is really NxNxN matmul). Currently only 4 and 8 are supported.
+
+There are 2 tests currently in the testbench:
+1. Layer test: This test runs 2 layers back to back. Each layer's size matches the size of the matmul. 
+2. Accumulator test: This test runs 1 layer, but the layer is larger in size than the matmul. So, this test uses accumulators.
+
+By default, the layer test is run. To run the accumulator test, use:
+```
+make -f Makefile.tpu run_accumulator
+```
+
 This will also dump waveforms. To view waves using DVE, use:
 ```
 make -f Makefile.tpu waves

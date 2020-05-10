@@ -2,7 +2,7 @@ export VCS_HOME /usr/local/packages/synopsys_2018/vcs-mx/O-2018.09-SP1
 
 all: compile run
 
-size?=8
+size?=4
 
 ifeq ($(size),4)
 	FILES="../design/4x4.v"

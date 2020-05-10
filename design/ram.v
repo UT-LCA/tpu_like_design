@@ -25,23 +25,26 @@ input clk;
 `ifdef SIMULATION
 
 reg [7:0] ram[((1<<`AWIDTH)-1):0];
+integer i;
 
 always @(posedge clk)  
 begin 
-        if (we0[0]) ram[addr0+0] <= d0[7:0]; 
-        if (we0[1]) ram[addr0+1] <= d0[15:8]; 
-        if (we0[2]) ram[addr0+2] <= d0[23:16]; 
-        if (we0[3]) ram[addr0+3] <= d0[31:24]; 
-        q0 <= {ram[addr0+3], ram[addr0+2], ram[addr0+1], ram[addr0]};
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        if (we0[i]) ram[addr0+i] <= d0[i*`DWIDTH +: `DWIDTH]; 
+    end    
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        q0[i*`DWIDTH +: `DWIDTH] <= ram[addr0+i];
+    end    
 end
 
 always @(posedge clk)  
 begin 
-        if (we1[0]) ram[addr1+0] <= d1[7:0]; 
-        if (we1[1]) ram[addr1+1] <= d1[15:8]; 
-        if (we1[2]) ram[addr1+2] <= d1[23:16]; 
-        if (we1[3]) ram[addr1+3] <= d1[31:24]; 
-        q1 <= {ram[addr1+3], ram[addr1+2], ram[addr1+1], ram[addr1]};
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        if (we1[i]) ram[addr0+i] <= d1[i*`DWIDTH +: `DWIDTH]; 
+    end    
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        q1[i*`DWIDTH +: `DWIDTH] <= ram[addr1+i];
+    end    
 end
 
 `else

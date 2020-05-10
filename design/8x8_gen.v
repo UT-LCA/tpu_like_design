@@ -4,7 +4,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020-05-09 22:07:39.522126
+// Create Date: 2020-05-10 00:56:48.227838
 // Design Name: 
 // Module Name: matmul_8x8
 // Project Name: 
@@ -97,12 +97,12 @@ reg [6:0] clk_cnt;
 wire [6:0] clk_cnt_for_done;
 assign clk_cnt_for_done = 
                           (save_output_to_accum && add_accum_to_output) ?
-                          ((final_mat_mul_size<<2)+2+1 - final_mat_mul_size) : (
+                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC - final_mat_mul_size) : (
                           (save_output_to_accum) ?
-                          ((final_mat_mul_size<<2)+2+1 - final_mat_mul_size) : (
+                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC - final_mat_mul_size) : (
                           (add_accum_to_output) ? 
-                          ((final_mat_mul_size<<2)+2+1) :  
-                          ((final_mat_mul_size<<2)+2+1) ));  
+                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) :  
+                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) ));  
 
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
@@ -1011,7 +1011,10 @@ assign matrixC77_added = (add_accum_to_output) ? (matrixC77 + matrixC77_accum) :
 
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 +  `NUM_CYCLES_IN_MAC - 1));
 //Writing the line above to avoid multiplication:
-assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
+//assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
+assign row_latch_en =  (save_output_to_accum) ?
+                       ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -1 +`NUM_CYCLES_IN_MAC))) :
+                       ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -2 +`NUM_CYCLES_IN_MAC)));
 
 reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
