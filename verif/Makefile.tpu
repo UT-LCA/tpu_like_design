@@ -24,6 +24,8 @@ compile:
 	../design/pool.v \
 	../design/activation.v \
 	../design/top.v \
+  ../verif/basic_test.v \
+  ../verif/accumulator_test.v \
 	../verif/top_tb.v \
 	-sverilog \
 	-debug_access+all \

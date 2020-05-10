@@ -1,5 +1,181 @@
+module basic_test();
+
+reg done;
+reg [`REG_DATAWIDTH-1:0] rdata;
+
+task run();
+begin
+    initialize_brams();
+    basic_test();
+    compare_outputs();
+end
+endtask
+
+integer mean = 1;
+integer inv_var = 1;
+
+`ifdef MATMUL_SIZE_4
+integer a_start_addr = 0;
+integer b_start_addr = 0;
+integer c_start_addr = 200;
+integer problem_size = 4;
+
+reg [`DWIDTH-1:0] a[4][4] = 
+'{{8,4,6,8},
+  {3,3,3,7},
+  {5,2,1,6},
+  {9,1,0,5}};
+
+reg [`DWIDTH-1:0] b[4][4] = 
+'{{1,1,3,0},
+  {0,1,4,3},
+  {3,5,3,1},
+  {9,6,3,2}};
+
+reg [`DWIDTH-1:0] c[4][4] = 
+'{{98,90,82,34},
+  {75,63,51,26},
+  {62,48,44,19},
+  {54,40,46,13}};
+`endif
+
+`ifdef MATMUL_SIZE_8
+/*
+>>> a = np.random.randint(low=0, high=5,size=(8,8), dtype=np.uint8)
+>>> print(a)
+[[4 0 2 0 3 2 2 0]
+ [1 2 3 4 1 1 1 3]
+ [0 2 2 1 0 3 2 2]
+ [1 0 2 3 2 0 1 0]
+ [4 2 1 1 3 2 1 4]
+ [2 0 2 2 0 1 0 1]
+ [0 1 1 3 2 4 4 4]
+ [2 2 3 0 0 4 2 3]]
+>>> b = np.random.randint(low=0, high=5,size=(8,8), dtype=np.uint8)
+>>> print(b)
+[[1 2 3 3 3 2 2 1]
+ [0 0 3 2 1 3 4 2]
+ [1 0 2 2 2 4 3 3]
+ [2 4 3 2 0 0 3 3]
+ [2 1 4 0 3 4 2 0]
+ [0 2 2 3 1 2 1 0]
+ [0 1 0 4 0 1 0 2]
+ [3 2 1 0 3 4 2 2]]
+>>> c=np.matmul(a,b)
+>>> print(c)
+[[12 17 32 30 27 34 22 14]
+ [23 28 36 28 24 39 40 34]
+ [10 16 21 27 15 30 24 21]
+ [13 17 24 17 13 19 21 18]
+ [25 28 43 30 39 51 38 24]
+ [11 16 19 17 14 18 19 16]
+ [23 34 34 38 25 43 32 30]
+ [14 20 29 36 27 44 31 25]]
+>>> np.set_printoptions(formatter={'int':hex})
+>>> print(c)
+[[0xc 0x11 0x20 0x1e 0x1b 0x22 0x16 0xe]
+ [0x17 0x1c 0x24 0x1c 0x18 0x27 0x28 0x22]
+ [0xa 0x10 0x15 0x1b 0xf 0x1e 0x18 0x15]
+ [0xd 0x11 0x18 0x11 0xd 0x13 0x15 0x12]
+ [0x19 0x1c 0x2b 0x1e 0x27 0x33 0x26 0x18]
+ [0xb 0x10 0x13 0x11 0xe 0x12 0x13 0x10]
+ [0x17 0x22 0x22 0x26 0x19 0x2b 0x20 0x1e]
+ [0xe 0x14 0x1d 0x24 0x1b 0x2c 0x1f 0x19]]
+*/
+
+integer a_start_addr = 0;
+integer b_start_addr = 150;
+integer c_start_addr = 400;
+integer problem_size = 8;
+
+reg [`DWIDTH-1:0] a[8][8] = 
+'{{8'd4,8'd0,8'd2,8'd0,8'd3,8'd2,8'd2,8'd0},
+  {8'd1,8'd2,8'd3,8'd4,8'd1,8'd1,8'd1,8'd3},
+  {8'd0,8'd2,8'd2,8'd1,8'd0,8'd3,8'd2,8'd2},
+  {8'd1,8'd0,8'd2,8'd3,8'd2,8'd0,8'd1,8'd0},
+  {8'd4,8'd2,8'd1,8'd1,8'd3,8'd2,8'd1,8'd4},
+  {8'd2,8'd0,8'd2,8'd2,8'd0,8'd1,8'd0,8'd1},
+  {8'd0,8'd1,8'd1,8'd3,8'd2,8'd4,8'd4,8'd4},
+  {8'd2,8'd2,8'd3,8'd0,8'd0,8'd4,8'd2,8'd3}};
+
+reg [`DWIDTH-1:0] b[8][8] = 
+'{{8'd1,8'd2,8'd3,8'd3,8'd3,8'd2,8'd2,8'd1},
+  {8'd0,8'd0,8'd3,8'd2,8'd1,8'd3,8'd4,8'd2},
+  {8'd1,8'd0,8'd2,8'd2,8'd2,8'd4,8'd3,8'd3},
+  {8'd2,8'd4,8'd3,8'd2,8'd0,8'd0,8'd3,8'd3},
+  {8'd2,8'd1,8'd4,8'd0,8'd3,8'd4,8'd2,8'd0},
+  {8'd0,8'd2,8'd2,8'd3,8'd1,8'd2,8'd1,8'd0},
+  {8'd0,8'd1,8'd0,8'd4,8'd0,8'd1,8'd0,8'd2},
+  {8'd3,8'd2,8'd1,8'd0,8'd3,8'd4,8'd2,8'd2}};
+
+reg [`DWIDTH-1:0] c[8][8] = 
+'{{8'd12,8'd17,8'd32,8'd30,8'd27,8'd34,8'd22,8'd14},
+  {8'd23,8'd28,8'd36,8'd28,8'd24,8'd39,8'd40,8'd34},
+  {8'd10,8'd16,8'd21,8'd27,8'd15,8'd30,8'd24,8'd21},
+  {8'd13,8'd17,8'd24,8'd17,8'd13,8'd19,8'd21,8'd18},
+  {8'd25,8'd28,8'd43,8'd30,8'd39,8'd51,8'd38,8'd24},
+  {8'd11,8'd16,8'd19,8'd17,8'd14,8'd18,8'd19,8'd16},
+  {8'd23,8'd34,8'd34,8'd38,8'd25,8'd43,8'd32,8'd30},
+  {8'd14,8'd20,8'd29,8'd36,8'd27,8'd44,8'd31,8'd25}};
+
+`endif
+
+////////////////////////////////////////////
+//Task to initialize BRAMs
+////////////////////////////////////////////
+task initialize_brams();
+begin
+   //A is stored in col major format
+   for (int i=0; i<problem_size; i++) begin
+       for (int j=0; j<problem_size; j++) begin
+           u_top.matrix_A.ram[a_start_addr+problem_size*i+j] = a[j][i];
+       end
+   end
+
+  //B is stored in row major format
+   for (int i=0; i<problem_size; i++) begin
+       for (int j=0; j<problem_size; j++) begin
+           u_top.matrix_B.ram[b_start_addr+problem_size*i+j] = b[i][j];
+       end
+    end
+
+end
+endtask
+
+
+////////////////////////////////////////////
+//Task to compare outputs with expected values
+////////////////////////////////////////////
+task compare_outputs();
+begin
+   integer fail = 0;
+   integer address, observed, expected;
+   //C is stored like A
+   for (int i=0; i<problem_size; i++) begin
+       for (int j=0; j<problem_size; j++) begin
+           address = c_start_addr+problem_size*i+j;
+           observed = u_top.matrix_A.ram[address];
+           expected = (c[j][i] - mean) * inv_var;
+           if (expected != observed) begin
+             $display("Mismatch found. Address = %0d, Expected = %0d, Observed = %0d", address, expected, observed);
+             fail = 1;
+           end
+       end
+   end
+   if (fail == 0) begin
+     $display("===============================");
+     $display("Test passed");
+     $display("===============================");
+   end
+end
+endtask
+
+////////////////////////////////////////////
+//The actual test
+////////////////////////////////////////////
 task basic_test();
 begin
+  done = 0;
   //Start the actual test
   $display("Set enables to 1");
   //enable_matmul = 1;
@@ -21,10 +197,8 @@ begin
   read(`REG_ENABLES_ADDR, rdata);
 
   $display("Configure the value of mean and inv_variance");
-  //mean = 8'h01;
-  //inv_var = 8'h01;
-  write(`REG_MEAN_ADDR, 32'h0000_0001);
-  write(`REG_INV_VAR_ADDR, 32'h0000_0001);
+  write(`REG_MEAN_ADDR, mean);
+  write(`REG_INV_VAR_ADDR, inv_var);
 
   $display("-------------------------------------------");
   $display("Layer 0");
@@ -86,62 +260,4 @@ begin
 end
 endtask
 
-task initialize_brams_basic_test();
-begin
-//////////////////////////////////////////////
-//Initialize BRAMs A and B
-//////////////////////////////////////////////
-//  A           B        Output       Output in hex
-// 8 4 6 8   1 1 3 0   98 90 82 34    62 5A 52 22
-// 3 3 3 7   0 1 4 3   75 63 51 26    4B 3F 33 1A
-// 5 2 1 6   3 5 3 1   62 48 44 19    3E 30 2C 13
-// 9 1 0 5   9 6 3 2   54 40 46 13    36 28 2E 0D
-
-  //A is stored in row major format
-  force u_top.matrix_A.ram[8]  = 8'h08;
-  force u_top.matrix_A.ram[9]  = 8'h03;
-  force u_top.matrix_A.ram[10]  = 8'h05;
-  force u_top.matrix_A.ram[11]  = 8'h09;
-  force u_top.matrix_A.ram[12]  = 8'h04;
-  force u_top.matrix_A.ram[13]  = 8'h03;
-  force u_top.matrix_A.ram[14]  = 8'h02;
-  force u_top.matrix_A.ram[15]  = 8'h01;
-  force u_top.matrix_A.ram[16]  = 8'h06;
-  force u_top.matrix_A.ram[17]  = 8'h03;
-  force u_top.matrix_A.ram[18] = 8'h01;
-  force u_top.matrix_A.ram[19] = 8'h00;
-  force u_top.matrix_A.ram[20] = 8'h08;
-  force u_top.matrix_A.ram[21] = 8'h07;
-  force u_top.matrix_A.ram[22] = 8'h06;
-  force u_top.matrix_A.ram[23] = 8'h05;
-  //force u_top.matrix_A.ram[3:0] = '{32'h0506_0708, 32'h0001_0306, 32'h0102_0304, 32'h0905_0308};
-  //bram_a.write(0, int('0x09050308',16))
-  //bram_a.write(4, int('0x01020304',16))
-  //bram_a.write(8, int('0x00010306',16))
-  //bram_a.write(12, int('0x05060708',16))
-  
-  //B is stored in col major format
-  force u_top.matrix_B.ram[0]  = 8'h01;
-  force u_top.matrix_B.ram[1]  = 8'h01;
-  force u_top.matrix_B.ram[2]  = 8'h03;
-  force u_top.matrix_B.ram[3]  = 8'h00;
-  force u_top.matrix_B.ram[4]  = 8'h00;
-  force u_top.matrix_B.ram[5]  = 8'h01;
-  force u_top.matrix_B.ram[6]  = 8'h04;
-  force u_top.matrix_B.ram[7]  = 8'h03;
-  force u_top.matrix_B.ram[8]  = 8'h03;
-  force u_top.matrix_B.ram[9]  = 8'h05;
-  force u_top.matrix_B.ram[10] = 8'h03;
-  force u_top.matrix_B.ram[11] = 8'h01;
-  force u_top.matrix_B.ram[12] = 8'h09;
-  force u_top.matrix_B.ram[13] = 8'h06;
-  force u_top.matrix_B.ram[14] = 8'h03;
-  force u_top.matrix_B.ram[15] = 8'h02;
-  //force u_top.matrix_B.ram[3:0] = '{32'h0203_0609, 32'h0103_0503, 32'h0304_0100, 32'h0003_0101};
-  //bram_b.write(0, int('0x00030101',16))
-  //bram_b.write(4, int('0x03040100',16))
-  //bram_b.write(8, int('0x01030503',16))
-  //bram_b.write(12, int('0x02030609',16))
-end
-endtask
-
+endmodule

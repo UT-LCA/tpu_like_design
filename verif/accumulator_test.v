@@ -1,8 +1,22 @@
+module accumulator_test();
+
+reg done;
+reg [`REG_DATAWIDTH-1:0] rdata;
+
+
+task run();
+begin
+  initialize_brams();
+  accumulator_test();
+  compare_outputs();
+end
+endtask
+
 `ifdef MATMUL_SIZE_4
 integer a_start_addr = 0;
 integer b_start_addr = 0;
 integer c_start_addr = 200;
-`define PROBLEM_SIZE 12
+integer problem_size = 12;
 
 //////////////////////////////////////////////
 //Initialize BRAMs A and B
@@ -108,7 +122,7 @@ reg [`DWIDTH-1:0] c[12][12] =
 integer a_start_addr = 0;
 integer b_start_addr = 0;
 integer c_start_addr = 600;
-`define PROBLEM_SIZE 24
+integer problem_size = 24;
 
 //////////////////////////////////////////////
 //Initialize BRAMs A and B
@@ -301,33 +315,39 @@ reg [`DWIDTH-1:0] c[24][24] =
 
 `endif
 
-task initialize_brams_accum_test();
+////////////////////////////////////////////
+//Task to initialize BRAMs
+////////////////////////////////////////////
+task initialize_brams();
 begin
-   //A is stored in row major format
-   for (int i=0; i<`PROBLEM_SIZE; i++) begin
-       for (int j=0; j<`PROBLEM_SIZE; j++) begin
-           u_top.matrix_A.ram[a_start_addr+`PROBLEM_SIZE*i+j] = a[j][i];
+   //A is stored in col major format
+   for (int i=0; i<problem_size; i++) begin
+       for (int j=0; j<problem_size; j++) begin
+           u_top.matrix_A.ram[a_start_addr+problem_size*i+j] = a[j][i];
        end
    end
 
-  //B is stored in col major format
-   for (int i=0; i<`PROBLEM_SIZE; i++) begin
-       for (int j=0; j<`PROBLEM_SIZE; j++) begin
-           u_top.matrix_B.ram[b_start_addr+`PROBLEM_SIZE*i+j] = b[i][j];
+  //B is stored in row major format
+   for (int i=0; i<problem_size; i++) begin
+       for (int j=0; j<problem_size; j++) begin
+           u_top.matrix_B.ram[b_start_addr+problem_size*i+j] = b[i][j];
        end
     end
 
 end
 endtask
 
-task compare_output_with_golden();
+////////////////////////////////////////////
+//Task to compare outputs with expected values
+////////////////////////////////////////////
+task compare_outputs();
 begin
    integer fail = 0;
    integer address, observed, expected;
    //C is stored like A
-   for (int i=0; i<`PROBLEM_SIZE; i++) begin
-       for (int j=0; j<`PROBLEM_SIZE; j++) begin
-           address = c_start_addr+`PROBLEM_SIZE*i+j;
+   for (int i=0; i<problem_size; i++) begin
+       for (int j=0; j<problem_size; j++) begin
+           address = c_start_addr+problem_size*i+j;
            observed = u_top.matrix_A.ram[address];
            expected = c[j][i];
            if (expected != observed) begin
@@ -344,8 +364,12 @@ begin
 end
 endtask
 
+////////////////////////////////////////////
+//The actual test
+////////////////////////////////////////////
 task accumulator_test();
 begin
+  done = 0;
   //Start the actual test
   $display("Set enables to 1");
   //enable_matmul = 1;
@@ -373,9 +397,9 @@ begin
   write(`REG_INV_VAR_ADDR, 32'h0000_0001);
 
   //Configure strides to 12 (because we have 3 tiles in each direction)
-  write(`REG_MATRIX_A_STRIDE_ADDR, `PROBLEM_SIZE);
-  write(`REG_MATRIX_B_STRIDE_ADDR, `PROBLEM_SIZE);
-  write(`REG_MATRIX_C_STRIDE_ADDR, `PROBLEM_SIZE);
+  write(`REG_MATRIX_A_STRIDE_ADDR, problem_size);
+  write(`REG_MATRIX_B_STRIDE_ADDR, problem_size);
+  write(`REG_MATRIX_C_STRIDE_ADDR, problem_size);
 
   //We have 12x12 matrices as inputs. Let's divide them into 9 tiles, each is 4x4.
   //For calculating each tile, we will invoke the matmul 3 times (3 passes).
@@ -389,8 +413,8 @@ begin
   //A22 * B21 -> Third pass
 
   
-  for (int tile_x = 0; tile_x < `PROBLEM_SIZE/`MAT_MUL_SIZE; tile_x++) begin
-  for (int tile_y = 0; tile_y < `PROBLEM_SIZE/`MAT_MUL_SIZE; tile_y++) begin
+  for (int tile_x = 0; tile_x < problem_size/`MAT_MUL_SIZE; tile_x++) begin
+  for (int tile_y = 0; tile_y < problem_size/`MAT_MUL_SIZE; tile_y++) begin
   /////////////////////////////////////////////////////////////////
   //First pass
   /////////////////////////////////////////////////////////////////
@@ -401,7 +425,7 @@ begin
   //But it's okay. Let's do it now anyway.
   write(`REG_MATRIX_A_ADDR, a_start_addr + tile_x*`MAT_MUL_SIZE);
   write(`REG_MATRIX_B_ADDR, b_start_addr + tile_y*`MAT_MUL_SIZE);
-  write(`REG_MATRIX_C_ADDR, c_start_addr + tile_x*`MAT_MUL_SIZE + tile_y*`MAT_MUL_SIZE*`PROBLEM_SIZE);
+  write(`REG_MATRIX_C_ADDR, c_start_addr + tile_x*`MAT_MUL_SIZE + tile_y*`MAT_MUL_SIZE*problem_size);
 
   $display("Start the TPU for first pass");
   //start = 1;
@@ -427,8 +451,8 @@ begin
   //Configure strides to 12 (because we have 3 tiles in each direction)
   //Already configured in step 1
   //Configure addresses. Matrix C address is already configured.
-  write(`REG_MATRIX_A_ADDR, a_start_addr + `PROBLEM_SIZE * `MAT_MUL_SIZE + tile_x*`MAT_MUL_SIZE);
-  write(`REG_MATRIX_B_ADDR, b_start_addr + `PROBLEM_SIZE * `MAT_MUL_SIZE + tile_y*`MAT_MUL_SIZE);
+  write(`REG_MATRIX_A_ADDR, a_start_addr + problem_size * `MAT_MUL_SIZE + tile_x*`MAT_MUL_SIZE);
+  write(`REG_MATRIX_B_ADDR, b_start_addr + problem_size * `MAT_MUL_SIZE + tile_y*`MAT_MUL_SIZE);
 
   $display("Start the TPU for second pass");
   //start = 1;
@@ -454,8 +478,8 @@ begin
   //Configure strides to 12 (because we have 3 tiles in each direction)
   //Already configured in step 1
   //Configure addresses. Matrix C address is already configured.
-  write(`REG_MATRIX_A_ADDR, a_start_addr + `PROBLEM_SIZE * `MAT_MUL_SIZE * 2 + tile_x*`MAT_MUL_SIZE);
-  write(`REG_MATRIX_B_ADDR, b_start_addr + `PROBLEM_SIZE * `MAT_MUL_SIZE * 2 + tile_y*`MAT_MUL_SIZE);
+  write(`REG_MATRIX_A_ADDR, a_start_addr + problem_size * `MAT_MUL_SIZE * 2 + tile_x*`MAT_MUL_SIZE);
+  write(`REG_MATRIX_B_ADDR, b_start_addr + problem_size * `MAT_MUL_SIZE * 2 + tile_y*`MAT_MUL_SIZE);
 
   $display("Start the TPU for third pass");
   //start = 1;
@@ -481,3 +505,4 @@ end
 end
 endtask
 
+endmodule
