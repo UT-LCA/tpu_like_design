@@ -4,7 +4,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020-05-01 15:29:27.476318
+// Create Date: 2020-05-09 22:07:39.522126
 // Design Name: 
 // Module Name: matmul_8x8
 // Project Name: 
@@ -20,19 +20,17 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-`define DWIDTH 8
-`define AWIDTH 13
-`define MEM_SIZE 8192
-`define MAT_MUL_SIZE 8
-`define LOG2_MAT_MUL_SIZE 3
-`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
-`define NUM_CYCLES_IN_MAC 3
-
-module matmul_8x8(
+module matmul(
  clk,
  reset,
  start_mat_mul,
  done_mat_mul,
+ address_mat_a,
+ address_mat_b,
+ address_mat_c,
+ address_stride_a,
+ address_stride_b,
+ address_stride_c,
  a_data,
  b_data,
  a_data_in, //Data values coming in from previous matmul - systolic connections
@@ -45,6 +43,8 @@ module matmul_8x8(
  b_addr,
  c_addr,
  c_data_available,
+ save_output_to_accum,
+ add_accum_to_output,
  final_mat_mul_size,
  a_loc,
  b_loc
@@ -54,6 +54,12 @@ module matmul_8x8(
  input reset;
  input start_mat_mul;
  output done_mat_mul;
+ input [`AWIDTH-1:0] address_mat_a;
+ input [`AWIDTH-1:0] address_mat_b;
+ input [`AWIDTH-1:0] address_mat_c;
+ input [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
+ input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
+ input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in;
@@ -66,6 +72,8 @@ module matmul_8x8(
  output [`AWIDTH-1:0] b_addr;
  output [`AWIDTH-1:0] c_addr;
  output c_data_available;
+ input save_output_to_accum;
+ input add_accum_to_output;
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
 //In fact, these will get optimized out by the synthesis tool, because
 //we hardcode them at the instantiation level.
@@ -80,39 +88,82 @@ reg done_mat_mul;
 //of the matmul and P is the number of pipleine stages in the MAC block.
 reg [6:0] clk_cnt;
 
+//Finding out number of cycles to assert matmul done.
+//When we have to save the outputs to accumulators, then we don't need to
+//shift out data. So, we can assert done_mat_mul early.
+//In the normal case, we have to include the time to shift out the results. 
+//Note: the count expression used to contain "4*final_mat_mul_size", but 
+//to avoid multiplication, we now use "final_mat_mul_size<<2"
+wire [6:0] clk_cnt_for_done;
+assign clk_cnt_for_done = 
+                          (save_output_to_accum && add_accum_to_output) ?
+                          ((final_mat_mul_size<<2)+2+1 - final_mat_mul_size) : (
+                          (save_output_to_accum) ?
+                          ((final_mat_mul_size<<2)+2+1 - final_mat_mul_size) : (
+                          (add_accum_to_output) ? 
+                          ((final_mat_mul_size<<2)+2+1) :  
+                          ((final_mat_mul_size<<2)+2+1) ));  
 
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
     clk_cnt <= 0;
     done_mat_mul <= 0;
   end
-  //else if (clk_cnt == 4*final_mat_mul_size-2+4) begin
-  //Writing the line above to avoid multiplication:
-  else if (clk_cnt == (final_mat_mul_size<<2)+2+1) begin
-      done_mat_mul <= 1;
+  else if (clk_cnt == clk_cnt_for_done) begin
+    done_mat_mul <= 1;
+    clk_cnt <= clk_cnt + 1;
+
   end
   else if (done_mat_mul == 0) begin
-      clk_cnt <= clk_cnt + 1;
-      //clk_cnt <= clk_cnt_inc;
+    clk_cnt <= clk_cnt + 1;
+
   end    
+  else begin
+    done_mat_mul <= 0;
+    clk_cnt <= clk_cnt + 1;
+  end
 end
- 
+
+reg a_mem_access;
 reg [`AWIDTH-1:0] a_addr;
+
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    a_addr <= `MEM_SIZE-1-7;//a_loc*16;
+    a_addr <= address_mat_a-address_stride_a;
+    a_mem_access <= 0;
   end
   //else if (clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    a_addr <= `MEM_SIZE-1-7; 
+    a_addr <= address_mat_a-address_stride_a;
+    a_mem_access <= 0;
   end
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    a_addr <= a_addr + 8;
+    a_addr <= a_addr + address_stride_a;
+    a_mem_access <= 1;
   end
-end  
+end
+
+reg a_data_valid; //flag that tells whether the data from memory is valid
+reg [7:0] a_mem_access_counter;
+always @(posedge clk) begin
+  if (reset || ~start_mat_mul) begin
+    a_data_valid <= 0;
+    a_mem_access_counter <= 0;
+  end
+  else if (a_mem_access == 1) begin
+    a_mem_access_counter = a_mem_access_counter + 1;  
+    if (a_mem_access_counter == `MEM_ACCESS_LATENCY) begin
+      a_data_valid <= 1;
+    end
+  end
+  else begin
+    a_data_valid <= 0;
+    a_mem_access_counter <= 0;
+  end
+end
 wire [`DWIDTH-1:0] a0_data;
 wire [`DWIDTH-1:0] a1_data;
 wire [`DWIDTH-1:0] a2_data;
@@ -122,14 +173,14 @@ wire [`DWIDTH-1:0] a5_data;
 wire [`DWIDTH-1:0] a6_data;
 wire [`DWIDTH-1:0] a7_data;
 
-assign a0_data = a_data[1*`DWIDTH-1:0*`DWIDTH];
-assign a1_data = a_data[2*`DWIDTH-1:1*`DWIDTH];
-assign a2_data = a_data[3*`DWIDTH-1:2*`DWIDTH];
-assign a3_data = a_data[4*`DWIDTH-1:3*`DWIDTH];
-assign a4_data = a_data[5*`DWIDTH-1:4*`DWIDTH];
-assign a5_data = a_data[6*`DWIDTH-1:5*`DWIDTH];
-assign a6_data = a_data[7*`DWIDTH-1:6*`DWIDTH];
-assign a7_data = a_data[8*`DWIDTH-1:7*`DWIDTH];
+assign a0_data = a_data[1*`DWIDTH-1:0*`DWIDTH] & {`DWIDTH{a_data_valid}};
+assign a1_data = a_data[2*`DWIDTH-1:1*`DWIDTH] & {`DWIDTH{a_data_valid}};
+assign a2_data = a_data[3*`DWIDTH-1:2*`DWIDTH] & {`DWIDTH{a_data_valid}};
+assign a3_data = a_data[4*`DWIDTH-1:3*`DWIDTH] & {`DWIDTH{a_data_valid}};
+assign a4_data = a_data[5*`DWIDTH-1:4*`DWIDTH] & {`DWIDTH{a_data_valid}};
+assign a5_data = a_data[6*`DWIDTH-1:5*`DWIDTH] & {`DWIDTH{a_data_valid}};
+assign a6_data = a_data[7*`DWIDTH-1:6*`DWIDTH] & {`DWIDTH{a_data_valid}};
+assign a7_data = a_data[8*`DWIDTH-1:7*`DWIDTH] & {`DWIDTH{a_data_valid}};
 
 wire [`DWIDTH-1:0] a0_data_in;
 wire [`DWIDTH-1:0] a1_data_in;
@@ -245,19 +296,42 @@ always @(posedge clk) begin
 end
 
 reg [`AWIDTH-1:0] b_addr;
+reg b_mem_access; //flag that tells whether the matmul is trying to access memory or not
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    b_addr <= `MEM_SIZE-1-7;//b_loc*16;
+    b_addr <= address_mat_b-address_stride_b;
+    b_mem_access <= 0;
   end
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    b_addr <= `MEM_SIZE-1-7;
+    b_addr <= address_mat_b-address_stride_b;
+    b_mem_access <= 0;
   end
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    b_addr <= b_addr + 8;
+    b_addr <= b_addr + address_stride_b;
+    b_mem_access <= 1;
+  end
+end  
+
+reg b_data_valid; //flag that tells whether the data from memory is valid
+reg [7:0] b_mem_access_counter;
+always @(posedge clk) begin
+  if (reset || ~start_mat_mul) begin
+    b_data_valid <= 0;
+    b_mem_access_counter <= 0;
+  end
+  else if (b_mem_access == 1) begin
+    b_mem_access_counter = b_mem_access_counter + 1;  
+    if (b_mem_access_counter == `MEM_ACCESS_LATENCY) begin
+      b_data_valid <= 1;
+    end
+  end
+  else begin
+    b_data_valid <= 0;
+    b_mem_access_counter <= 0;
   end
 end
 
@@ -270,14 +344,14 @@ wire [`DWIDTH-1:0] b5_data;
 wire [`DWIDTH-1:0] b6_data;
 wire [`DWIDTH-1:0] b7_data;
 
-assign b0_data = b_data[1*`DWIDTH-1:0*`DWIDTH];
-assign b1_data = b_data[2*`DWIDTH-1:1*`DWIDTH];
-assign b2_data = b_data[3*`DWIDTH-1:2*`DWIDTH];
-assign b3_data = b_data[4*`DWIDTH-1:3*`DWIDTH];
-assign b4_data = b_data[5*`DWIDTH-1:4*`DWIDTH];
-assign b5_data = b_data[6*`DWIDTH-1:5*`DWIDTH];
-assign b6_data = b_data[7*`DWIDTH-1:6*`DWIDTH];
-assign b7_data = b_data[8*`DWIDTH-1:7*`DWIDTH];
+assign b0_data = b_data[1*`DWIDTH-1:0*`DWIDTH] & {`DWIDTH{b_data_valid}};
+assign b1_data = b_data[2*`DWIDTH-1:1*`DWIDTH] & {`DWIDTH{b_data_valid}};
+assign b2_data = b_data[3*`DWIDTH-1:2*`DWIDTH] & {`DWIDTH{b_data_valid}};
+assign b3_data = b_data[4*`DWIDTH-1:3*`DWIDTH] & {`DWIDTH{b_data_valid}};
+assign b4_data = b_data[5*`DWIDTH-1:4*`DWIDTH] & {`DWIDTH{b_data_valid}};
+assign b5_data = b_data[6*`DWIDTH-1:5*`DWIDTH] & {`DWIDTH{b_data_valid}};
+assign b6_data = b_data[7*`DWIDTH-1:6*`DWIDTH] & {`DWIDTH{b_data_valid}};
+assign b7_data = b_data[8*`DWIDTH-1:7*`DWIDTH] & {`DWIDTH{b_data_valid}};
 
 wire [`DWIDTH-1:0] b0_data_in;
 wire [`DWIDTH-1:0] b1_data_in;
@@ -525,6 +599,415 @@ assign cin_row4 = c_data_in[5*`DWIDTH-1:4*`DWIDTH];
 assign cin_row5 = c_data_in[6*`DWIDTH-1:5*`DWIDTH];
 assign cin_row6 = c_data_in[7*`DWIDTH-1:6*`DWIDTH];
 assign cin_row7 = c_data_in[8*`DWIDTH-1:7*`DWIDTH];
+wire [`DWIDTH-1:0] matrixC00_added;
+wire [`DWIDTH-1:0] matrixC01_added;
+wire [`DWIDTH-1:0] matrixC02_added;
+wire [`DWIDTH-1:0] matrixC03_added;
+wire [`DWIDTH-1:0] matrixC04_added;
+wire [`DWIDTH-1:0] matrixC05_added;
+wire [`DWIDTH-1:0] matrixC06_added;
+wire [`DWIDTH-1:0] matrixC07_added;
+wire [`DWIDTH-1:0] matrixC10_added;
+wire [`DWIDTH-1:0] matrixC11_added;
+wire [`DWIDTH-1:0] matrixC12_added;
+wire [`DWIDTH-1:0] matrixC13_added;
+wire [`DWIDTH-1:0] matrixC14_added;
+wire [`DWIDTH-1:0] matrixC15_added;
+wire [`DWIDTH-1:0] matrixC16_added;
+wire [`DWIDTH-1:0] matrixC17_added;
+wire [`DWIDTH-1:0] matrixC20_added;
+wire [`DWIDTH-1:0] matrixC21_added;
+wire [`DWIDTH-1:0] matrixC22_added;
+wire [`DWIDTH-1:0] matrixC23_added;
+wire [`DWIDTH-1:0] matrixC24_added;
+wire [`DWIDTH-1:0] matrixC25_added;
+wire [`DWIDTH-1:0] matrixC26_added;
+wire [`DWIDTH-1:0] matrixC27_added;
+wire [`DWIDTH-1:0] matrixC30_added;
+wire [`DWIDTH-1:0] matrixC31_added;
+wire [`DWIDTH-1:0] matrixC32_added;
+wire [`DWIDTH-1:0] matrixC33_added;
+wire [`DWIDTH-1:0] matrixC34_added;
+wire [`DWIDTH-1:0] matrixC35_added;
+wire [`DWIDTH-1:0] matrixC36_added;
+wire [`DWIDTH-1:0] matrixC37_added;
+wire [`DWIDTH-1:0] matrixC40_added;
+wire [`DWIDTH-1:0] matrixC41_added;
+wire [`DWIDTH-1:0] matrixC42_added;
+wire [`DWIDTH-1:0] matrixC43_added;
+wire [`DWIDTH-1:0] matrixC44_added;
+wire [`DWIDTH-1:0] matrixC45_added;
+wire [`DWIDTH-1:0] matrixC46_added;
+wire [`DWIDTH-1:0] matrixC47_added;
+wire [`DWIDTH-1:0] matrixC50_added;
+wire [`DWIDTH-1:0] matrixC51_added;
+wire [`DWIDTH-1:0] matrixC52_added;
+wire [`DWIDTH-1:0] matrixC53_added;
+wire [`DWIDTH-1:0] matrixC54_added;
+wire [`DWIDTH-1:0] matrixC55_added;
+wire [`DWIDTH-1:0] matrixC56_added;
+wire [`DWIDTH-1:0] matrixC57_added;
+wire [`DWIDTH-1:0] matrixC60_added;
+wire [`DWIDTH-1:0] matrixC61_added;
+wire [`DWIDTH-1:0] matrixC62_added;
+wire [`DWIDTH-1:0] matrixC63_added;
+wire [`DWIDTH-1:0] matrixC64_added;
+wire [`DWIDTH-1:0] matrixC65_added;
+wire [`DWIDTH-1:0] matrixC66_added;
+wire [`DWIDTH-1:0] matrixC67_added;
+wire [`DWIDTH-1:0] matrixC70_added;
+wire [`DWIDTH-1:0] matrixC71_added;
+wire [`DWIDTH-1:0] matrixC72_added;
+wire [`DWIDTH-1:0] matrixC73_added;
+wire [`DWIDTH-1:0] matrixC74_added;
+wire [`DWIDTH-1:0] matrixC75_added;
+wire [`DWIDTH-1:0] matrixC76_added;
+wire [`DWIDTH-1:0] matrixC77_added;
+
+
+reg [`DWIDTH-1:0] matrixC00_accum;
+reg [`DWIDTH-1:0] matrixC01_accum;
+reg [`DWIDTH-1:0] matrixC02_accum;
+reg [`DWIDTH-1:0] matrixC03_accum;
+reg [`DWIDTH-1:0] matrixC04_accum;
+reg [`DWIDTH-1:0] matrixC05_accum;
+reg [`DWIDTH-1:0] matrixC06_accum;
+reg [`DWIDTH-1:0] matrixC07_accum;
+reg [`DWIDTH-1:0] matrixC10_accum;
+reg [`DWIDTH-1:0] matrixC11_accum;
+reg [`DWIDTH-1:0] matrixC12_accum;
+reg [`DWIDTH-1:0] matrixC13_accum;
+reg [`DWIDTH-1:0] matrixC14_accum;
+reg [`DWIDTH-1:0] matrixC15_accum;
+reg [`DWIDTH-1:0] matrixC16_accum;
+reg [`DWIDTH-1:0] matrixC17_accum;
+reg [`DWIDTH-1:0] matrixC20_accum;
+reg [`DWIDTH-1:0] matrixC21_accum;
+reg [`DWIDTH-1:0] matrixC22_accum;
+reg [`DWIDTH-1:0] matrixC23_accum;
+reg [`DWIDTH-1:0] matrixC24_accum;
+reg [`DWIDTH-1:0] matrixC25_accum;
+reg [`DWIDTH-1:0] matrixC26_accum;
+reg [`DWIDTH-1:0] matrixC27_accum;
+reg [`DWIDTH-1:0] matrixC30_accum;
+reg [`DWIDTH-1:0] matrixC31_accum;
+reg [`DWIDTH-1:0] matrixC32_accum;
+reg [`DWIDTH-1:0] matrixC33_accum;
+reg [`DWIDTH-1:0] matrixC34_accum;
+reg [`DWIDTH-1:0] matrixC35_accum;
+reg [`DWIDTH-1:0] matrixC36_accum;
+reg [`DWIDTH-1:0] matrixC37_accum;
+reg [`DWIDTH-1:0] matrixC40_accum;
+reg [`DWIDTH-1:0] matrixC41_accum;
+reg [`DWIDTH-1:0] matrixC42_accum;
+reg [`DWIDTH-1:0] matrixC43_accum;
+reg [`DWIDTH-1:0] matrixC44_accum;
+reg [`DWIDTH-1:0] matrixC45_accum;
+reg [`DWIDTH-1:0] matrixC46_accum;
+reg [`DWIDTH-1:0] matrixC47_accum;
+reg [`DWIDTH-1:0] matrixC50_accum;
+reg [`DWIDTH-1:0] matrixC51_accum;
+reg [`DWIDTH-1:0] matrixC52_accum;
+reg [`DWIDTH-1:0] matrixC53_accum;
+reg [`DWIDTH-1:0] matrixC54_accum;
+reg [`DWIDTH-1:0] matrixC55_accum;
+reg [`DWIDTH-1:0] matrixC56_accum;
+reg [`DWIDTH-1:0] matrixC57_accum;
+reg [`DWIDTH-1:0] matrixC60_accum;
+reg [`DWIDTH-1:0] matrixC61_accum;
+reg [`DWIDTH-1:0] matrixC62_accum;
+reg [`DWIDTH-1:0] matrixC63_accum;
+reg [`DWIDTH-1:0] matrixC64_accum;
+reg [`DWIDTH-1:0] matrixC65_accum;
+reg [`DWIDTH-1:0] matrixC66_accum;
+reg [`DWIDTH-1:0] matrixC67_accum;
+reg [`DWIDTH-1:0] matrixC70_accum;
+reg [`DWIDTH-1:0] matrixC71_accum;
+reg [`DWIDTH-1:0] matrixC72_accum;
+reg [`DWIDTH-1:0] matrixC73_accum;
+reg [`DWIDTH-1:0] matrixC74_accum;
+reg [`DWIDTH-1:0] matrixC75_accum;
+reg [`DWIDTH-1:0] matrixC76_accum;
+reg [`DWIDTH-1:0] matrixC77_accum;
+
+reg outputs_saved_to_accum;
+reg outputs_added_to_accum;
+wire reset_accum;
+
+always @(posedge clk) begin
+  if (reset || ~(save_output_to_accum || add_accum_to_output) || (reset_accum)) begin
+matrixC00_accum <= 0;
+matrixC01_accum <= 0;
+matrixC02_accum <= 0;
+matrixC03_accum <= 0;
+matrixC04_accum <= 0;
+matrixC05_accum <= 0;
+matrixC06_accum <= 0;
+matrixC07_accum <= 0;
+matrixC10_accum <= 0;
+matrixC11_accum <= 0;
+matrixC12_accum <= 0;
+matrixC13_accum <= 0;
+matrixC14_accum <= 0;
+matrixC15_accum <= 0;
+matrixC16_accum <= 0;
+matrixC17_accum <= 0;
+matrixC20_accum <= 0;
+matrixC21_accum <= 0;
+matrixC22_accum <= 0;
+matrixC23_accum <= 0;
+matrixC24_accum <= 0;
+matrixC25_accum <= 0;
+matrixC26_accum <= 0;
+matrixC27_accum <= 0;
+matrixC30_accum <= 0;
+matrixC31_accum <= 0;
+matrixC32_accum <= 0;
+matrixC33_accum <= 0;
+matrixC34_accum <= 0;
+matrixC35_accum <= 0;
+matrixC36_accum <= 0;
+matrixC37_accum <= 0;
+matrixC40_accum <= 0;
+matrixC41_accum <= 0;
+matrixC42_accum <= 0;
+matrixC43_accum <= 0;
+matrixC44_accum <= 0;
+matrixC45_accum <= 0;
+matrixC46_accum <= 0;
+matrixC47_accum <= 0;
+matrixC50_accum <= 0;
+matrixC51_accum <= 0;
+matrixC52_accum <= 0;
+matrixC53_accum <= 0;
+matrixC54_accum <= 0;
+matrixC55_accum <= 0;
+matrixC56_accum <= 0;
+matrixC57_accum <= 0;
+matrixC60_accum <= 0;
+matrixC61_accum <= 0;
+matrixC62_accum <= 0;
+matrixC63_accum <= 0;
+matrixC64_accum <= 0;
+matrixC65_accum <= 0;
+matrixC66_accum <= 0;
+matrixC67_accum <= 0;
+matrixC70_accum <= 0;
+matrixC71_accum <= 0;
+matrixC72_accum <= 0;
+matrixC73_accum <= 0;
+matrixC74_accum <= 0;
+matrixC75_accum <= 0;
+matrixC76_accum <= 0;
+matrixC77_accum <= 0;
+ outputs_saved_to_accum <= 0;
+    outputs_added_to_accum <= 0;
+  end
+  else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
+	matrixC00_accum <= matrixC00_added;
+	matrixC01_accum <= matrixC01_added;
+	matrixC02_accum <= matrixC02_added;
+	matrixC03_accum <= matrixC03_added;
+	matrixC04_accum <= matrixC04_added;
+	matrixC05_accum <= matrixC05_added;
+	matrixC06_accum <= matrixC06_added;
+	matrixC07_accum <= matrixC07_added;
+	matrixC10_accum <= matrixC10_added;
+	matrixC11_accum <= matrixC11_added;
+	matrixC12_accum <= matrixC12_added;
+	matrixC13_accum <= matrixC13_added;
+	matrixC14_accum <= matrixC14_added;
+	matrixC15_accum <= matrixC15_added;
+	matrixC16_accum <= matrixC16_added;
+	matrixC17_accum <= matrixC17_added;
+	matrixC20_accum <= matrixC20_added;
+	matrixC21_accum <= matrixC21_added;
+	matrixC22_accum <= matrixC22_added;
+	matrixC23_accum <= matrixC23_added;
+	matrixC24_accum <= matrixC24_added;
+	matrixC25_accum <= matrixC25_added;
+	matrixC26_accum <= matrixC26_added;
+	matrixC27_accum <= matrixC27_added;
+	matrixC30_accum <= matrixC30_added;
+	matrixC31_accum <= matrixC31_added;
+	matrixC32_accum <= matrixC32_added;
+	matrixC33_accum <= matrixC33_added;
+	matrixC34_accum <= matrixC34_added;
+	matrixC35_accum <= matrixC35_added;
+	matrixC36_accum <= matrixC36_added;
+	matrixC37_accum <= matrixC37_added;
+	matrixC40_accum <= matrixC40_added;
+	matrixC41_accum <= matrixC41_added;
+	matrixC42_accum <= matrixC42_added;
+	matrixC43_accum <= matrixC43_added;
+	matrixC44_accum <= matrixC44_added;
+	matrixC45_accum <= matrixC45_added;
+	matrixC46_accum <= matrixC46_added;
+	matrixC47_accum <= matrixC47_added;
+	matrixC50_accum <= matrixC50_added;
+	matrixC51_accum <= matrixC51_added;
+	matrixC52_accum <= matrixC52_added;
+	matrixC53_accum <= matrixC53_added;
+	matrixC54_accum <= matrixC54_added;
+	matrixC55_accum <= matrixC55_added;
+	matrixC56_accum <= matrixC56_added;
+	matrixC57_accum <= matrixC57_added;
+	matrixC60_accum <= matrixC60_added;
+	matrixC61_accum <= matrixC61_added;
+	matrixC62_accum <= matrixC62_added;
+	matrixC63_accum <= matrixC63_added;
+	matrixC64_accum <= matrixC64_added;
+	matrixC65_accum <= matrixC65_added;
+	matrixC66_accum <= matrixC66_added;
+	matrixC67_accum <= matrixC67_added;
+	matrixC70_accum <= matrixC70_added;
+	matrixC71_accum <= matrixC71_added;
+	matrixC72_accum <= matrixC72_added;
+	matrixC73_accum <= matrixC73_added;
+	matrixC74_accum <= matrixC74_added;
+	matrixC75_accum <= matrixC75_added;
+	matrixC76_accum <= matrixC76_added;
+	matrixC77_accum <= matrixC77_added;
+
+    outputs_saved_to_accum <= 1;
+    outputs_added_to_accum <= 1;
+  end
+  else if (row_latch_en && save_output_to_accum) begin
+	matrixC00_accum <= matrixC00;
+	matrixC01_accum <= matrixC01;
+	matrixC02_accum <= matrixC02;
+	matrixC03_accum <= matrixC03;
+	matrixC04_accum <= matrixC04;
+	matrixC05_accum <= matrixC05;
+	matrixC06_accum <= matrixC06;
+	matrixC07_accum <= matrixC07;
+	matrixC10_accum <= matrixC10;
+	matrixC11_accum <= matrixC11;
+	matrixC12_accum <= matrixC12;
+	matrixC13_accum <= matrixC13;
+	matrixC14_accum <= matrixC14;
+	matrixC15_accum <= matrixC15;
+	matrixC16_accum <= matrixC16;
+	matrixC17_accum <= matrixC17;
+	matrixC20_accum <= matrixC20;
+	matrixC21_accum <= matrixC21;
+	matrixC22_accum <= matrixC22;
+	matrixC23_accum <= matrixC23;
+	matrixC24_accum <= matrixC24;
+	matrixC25_accum <= matrixC25;
+	matrixC26_accum <= matrixC26;
+	matrixC27_accum <= matrixC27;
+	matrixC30_accum <= matrixC30;
+	matrixC31_accum <= matrixC31;
+	matrixC32_accum <= matrixC32;
+	matrixC33_accum <= matrixC33;
+	matrixC34_accum <= matrixC34;
+	matrixC35_accum <= matrixC35;
+	matrixC36_accum <= matrixC36;
+	matrixC37_accum <= matrixC37;
+	matrixC40_accum <= matrixC40;
+	matrixC41_accum <= matrixC41;
+	matrixC42_accum <= matrixC42;
+	matrixC43_accum <= matrixC43;
+	matrixC44_accum <= matrixC44;
+	matrixC45_accum <= matrixC45;
+	matrixC46_accum <= matrixC46;
+	matrixC47_accum <= matrixC47;
+	matrixC50_accum <= matrixC50;
+	matrixC51_accum <= matrixC51;
+	matrixC52_accum <= matrixC52;
+	matrixC53_accum <= matrixC53;
+	matrixC54_accum <= matrixC54;
+	matrixC55_accum <= matrixC55;
+	matrixC56_accum <= matrixC56;
+	matrixC57_accum <= matrixC57;
+	matrixC60_accum <= matrixC60;
+	matrixC61_accum <= matrixC61;
+	matrixC62_accum <= matrixC62;
+	matrixC63_accum <= matrixC63;
+	matrixC64_accum <= matrixC64;
+	matrixC65_accum <= matrixC65;
+	matrixC66_accum <= matrixC66;
+	matrixC67_accum <= matrixC67;
+	matrixC70_accum <= matrixC70;
+	matrixC71_accum <= matrixC71;
+	matrixC72_accum <= matrixC72;
+	matrixC73_accum <= matrixC73;
+	matrixC74_accum <= matrixC74;
+	matrixC75_accum <= matrixC75;
+	matrixC76_accum <= matrixC76;
+	matrixC77_accum <= matrixC77;
+
+    outputs_saved_to_accum <= 1;
+  end
+  else if (row_latch_en && add_accum_to_output) begin
+    outputs_added_to_accum <= 1;
+  end
+end
+assign matrixC00_added <= (add_accum_to_output) ? (matrixC00 + matrixC00_accum) : matrixC00;
+assign matrixC01_added <= (add_accum_to_output) ? (matrixC01 + matrixC01_accum) : matrixC01;
+assign matrixC02_added <= (add_accum_to_output) ? (matrixC02 + matrixC02_accum) : matrixC02;
+assign matrixC03_added <= (add_accum_to_output) ? (matrixC03 + matrixC03_accum) : matrixC03;
+assign matrixC04_added <= (add_accum_to_output) ? (matrixC04 + matrixC04_accum) : matrixC04;
+assign matrixC05_added <= (add_accum_to_output) ? (matrixC05 + matrixC05_accum) : matrixC05;
+assign matrixC06_added <= (add_accum_to_output) ? (matrixC06 + matrixC06_accum) : matrixC06;
+assign matrixC07_added <= (add_accum_to_output) ? (matrixC07 + matrixC07_accum) : matrixC07;
+assign matrixC10_added <= (add_accum_to_output) ? (matrixC10 + matrixC10_accum) : matrixC10;
+assign matrixC11_added <= (add_accum_to_output) ? (matrixC11 + matrixC11_accum) : matrixC11;
+assign matrixC12_added <= (add_accum_to_output) ? (matrixC12 + matrixC12_accum) : matrixC12;
+assign matrixC13_added <= (add_accum_to_output) ? (matrixC13 + matrixC13_accum) : matrixC13;
+assign matrixC14_added <= (add_accum_to_output) ? (matrixC14 + matrixC14_accum) : matrixC14;
+assign matrixC15_added <= (add_accum_to_output) ? (matrixC15 + matrixC15_accum) : matrixC15;
+assign matrixC16_added <= (add_accum_to_output) ? (matrixC16 + matrixC16_accum) : matrixC16;
+assign matrixC17_added <= (add_accum_to_output) ? (matrixC17 + matrixC17_accum) : matrixC17;
+assign matrixC20_added <= (add_accum_to_output) ? (matrixC20 + matrixC20_accum) : matrixC20;
+assign matrixC21_added <= (add_accum_to_output) ? (matrixC21 + matrixC21_accum) : matrixC21;
+assign matrixC22_added <= (add_accum_to_output) ? (matrixC22 + matrixC22_accum) : matrixC22;
+assign matrixC23_added <= (add_accum_to_output) ? (matrixC23 + matrixC23_accum) : matrixC23;
+assign matrixC24_added <= (add_accum_to_output) ? (matrixC24 + matrixC24_accum) : matrixC24;
+assign matrixC25_added <= (add_accum_to_output) ? (matrixC25 + matrixC25_accum) : matrixC25;
+assign matrixC26_added <= (add_accum_to_output) ? (matrixC26 + matrixC26_accum) : matrixC26;
+assign matrixC27_added <= (add_accum_to_output) ? (matrixC27 + matrixC27_accum) : matrixC27;
+assign matrixC30_added <= (add_accum_to_output) ? (matrixC30 + matrixC30_accum) : matrixC30;
+assign matrixC31_added <= (add_accum_to_output) ? (matrixC31 + matrixC31_accum) : matrixC31;
+assign matrixC32_added <= (add_accum_to_output) ? (matrixC32 + matrixC32_accum) : matrixC32;
+assign matrixC33_added <= (add_accum_to_output) ? (matrixC33 + matrixC33_accum) : matrixC33;
+assign matrixC34_added <= (add_accum_to_output) ? (matrixC34 + matrixC34_accum) : matrixC34;
+assign matrixC35_added <= (add_accum_to_output) ? (matrixC35 + matrixC35_accum) : matrixC35;
+assign matrixC36_added <= (add_accum_to_output) ? (matrixC36 + matrixC36_accum) : matrixC36;
+assign matrixC37_added <= (add_accum_to_output) ? (matrixC37 + matrixC37_accum) : matrixC37;
+assign matrixC40_added <= (add_accum_to_output) ? (matrixC40 + matrixC40_accum) : matrixC40;
+assign matrixC41_added <= (add_accum_to_output) ? (matrixC41 + matrixC41_accum) : matrixC41;
+assign matrixC42_added <= (add_accum_to_output) ? (matrixC42 + matrixC42_accum) : matrixC42;
+assign matrixC43_added <= (add_accum_to_output) ? (matrixC43 + matrixC43_accum) : matrixC43;
+assign matrixC44_added <= (add_accum_to_output) ? (matrixC44 + matrixC44_accum) : matrixC44;
+assign matrixC45_added <= (add_accum_to_output) ? (matrixC45 + matrixC45_accum) : matrixC45;
+assign matrixC46_added <= (add_accum_to_output) ? (matrixC46 + matrixC46_accum) : matrixC46;
+assign matrixC47_added <= (add_accum_to_output) ? (matrixC47 + matrixC47_accum) : matrixC47;
+assign matrixC50_added <= (add_accum_to_output) ? (matrixC50 + matrixC50_accum) : matrixC50;
+assign matrixC51_added <= (add_accum_to_output) ? (matrixC51 + matrixC51_accum) : matrixC51;
+assign matrixC52_added <= (add_accum_to_output) ? (matrixC52 + matrixC52_accum) : matrixC52;
+assign matrixC53_added <= (add_accum_to_output) ? (matrixC53 + matrixC53_accum) : matrixC53;
+assign matrixC54_added <= (add_accum_to_output) ? (matrixC54 + matrixC54_accum) : matrixC54;
+assign matrixC55_added <= (add_accum_to_output) ? (matrixC55 + matrixC55_accum) : matrixC55;
+assign matrixC56_added <= (add_accum_to_output) ? (matrixC56 + matrixC56_accum) : matrixC56;
+assign matrixC57_added <= (add_accum_to_output) ? (matrixC57 + matrixC57_accum) : matrixC57;
+assign matrixC60_added <= (add_accum_to_output) ? (matrixC60 + matrixC60_accum) : matrixC60;
+assign matrixC61_added <= (add_accum_to_output) ? (matrixC61 + matrixC61_accum) : matrixC61;
+assign matrixC62_added <= (add_accum_to_output) ? (matrixC62 + matrixC62_accum) : matrixC62;
+assign matrixC63_added <= (add_accum_to_output) ? (matrixC63 + matrixC63_accum) : matrixC63;
+assign matrixC64_added <= (add_accum_to_output) ? (matrixC64 + matrixC64_accum) : matrixC64;
+assign matrixC65_added <= (add_accum_to_output) ? (matrixC65 + matrixC65_accum) : matrixC65;
+assign matrixC66_added <= (add_accum_to_output) ? (matrixC66 + matrixC66_accum) : matrixC66;
+assign matrixC67_added <= (add_accum_to_output) ? (matrixC67 + matrixC67_accum) : matrixC67;
+assign matrixC70_added <= (add_accum_to_output) ? (matrixC70 + matrixC70_accum) : matrixC70;
+assign matrixC71_added <= (add_accum_to_output) ? (matrixC71 + matrixC71_accum) : matrixC71;
+assign matrixC72_added <= (add_accum_to_output) ? (matrixC72 + matrixC72_accum) : matrixC72;
+assign matrixC73_added <= (add_accum_to_output) ? (matrixC73 + matrixC73_accum) : matrixC73;
+assign matrixC74_added <= (add_accum_to_output) ? (matrixC74 + matrixC74_accum) : matrixC74;
+assign matrixC75_added <= (add_accum_to_output) ? (matrixC75 + matrixC75_accum) : matrixC75;
+assign matrixC76_added <= (add_accum_to_output) ? (matrixC76 + matrixC76_accum) : matrixC76;
+assign matrixC77_added <= (add_accum_to_output) ? (matrixC77 + matrixC77_accum) : matrixC77;
 
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 +  `NUM_CYCLES_IN_MAC - 1));
 //Writing the line above to avoid multiplication:
@@ -536,39 +1019,56 @@ reg start_capturing_c_data;
 integer counter;
 reg [8*`DWIDTH-1:0] c_data_out;
 
+//We need to reset the accumulators when the mat mul is done and when we are 
+//done with final reduction to generated a tile's output.
+assign reset_accum = done_mat_mul & start_capturing_c_data;
+
+//If save_output_to_accum is asserted, that means we are not intending to shift
+//out the outputs, because the outputs are still partial sums. 
+wire condition_to_start_shifting_output;
+assign condition_to_start_shifting_output = 
+                          (save_output_to_accum && add_accum_to_output) ?
+                          1'b0 : (
+                          (save_output_to_accum) ?
+                          1'b0 : (
+                          (add_accum_to_output) ? 
+                          row_latch_en:  
+                          row_latch_en ));  
+
+
 //For larger matmuls, this logic will have more entries in the case statement
 always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= `MEM_SIZE-1-7;
+    c_addr <= address_mat_c-address_stride_c;
     c_data_out <= 0;
     counter <= 0;
-  end else if (row_latch_en) begin
+  end else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
-    c_addr <= c_addr + 8;
-    c_data_out <= {matrixC70, matrixC60, matrixC50, matrixC40, matrixC30, matrixC20, matrixC10, matrixC00};
+    c_addr <= c_addr + address_stride_c ;
+    c_data_out <= {matrixC70_added, matrixC60_added, matrixC50_added, matrixC40_added, matrixC30_added, matrixC20_added, matrixC10_added, matrixC00_added};
 
     counter <= counter + 1;
   end else if (done_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= `MEM_SIZE-1-7;
+    c_addr <= address_mat_c - address_stride_c;
     c_data_out <= 0;
   end 
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
-    c_addr <= c_addr + 8; 
+    c_addr <= c_addr + address_stride_c; 
     counter <= counter + 1;
     case (counter)  //rest of the elements are captured here
-    		1: c_data_out <= {matrixC71, matrixC61, matrixC51, matrixC41, matrixC31, matrixC21, matrixC11, matrixC01};
-		2: c_data_out <= {matrixC72, matrixC62, matrixC52, matrixC42, matrixC32, matrixC22, matrixC12, matrixC02};
-		3: c_data_out <= {matrixC73, matrixC63, matrixC53, matrixC43, matrixC33, matrixC23, matrixC13, matrixC03};
-		4: c_data_out <= {matrixC74, matrixC64, matrixC54, matrixC44, matrixC34, matrixC24, matrixC14, matrixC04};
-		5: c_data_out <= {matrixC75, matrixC65, matrixC55, matrixC45, matrixC35, matrixC25, matrixC15, matrixC05};
-		6: c_data_out <= {matrixC76, matrixC66, matrixC56, matrixC46, matrixC36, matrixC26, matrixC16, matrixC06};
-		7: c_data_out <= {matrixC77, matrixC67, matrixC57, matrixC47, matrixC37, matrixC27, matrixC17, matrixC07};
+    		1: c_data_out <= {matrixC71_added, matrixC61_added, matrixC51_added, matrixC41_added, matrixC31_added, matrixC21_added, matrixC11_added, matrixC01_added};
+		2: c_data_out <= {matrixC72_added, matrixC62_added, matrixC52_added, matrixC42_added, matrixC32_added, matrixC22_added, matrixC12_added, matrixC02_added};
+		3: c_data_out <= {matrixC73_added, matrixC63_added, matrixC53_added, matrixC43_added, matrixC33_added, matrixC23_added, matrixC13_added, matrixC03_added};
+		4: c_data_out <= {matrixC74_added, matrixC64_added, matrixC54_added, matrixC44_added, matrixC34_added, matrixC24_added, matrixC14_added, matrixC04_added};
+		5: c_data_out <= {matrixC75_added, matrixC65_added, matrixC55_added, matrixC45_added, matrixC35_added, matrixC25_added, matrixC15_added, matrixC05_added};
+		6: c_data_out <= {matrixC76_added, matrixC66_added, matrixC56_added, matrixC46_added, matrixC36_added, matrixC26_added, matrixC16_added, matrixC06_added};
+		7: c_data_out <= {matrixC77_added, matrixC67_added, matrixC57_added, matrixC47_added, matrixC37_added, matrixC27_added, matrixC17_added, matrixC07_added};
 
         default: c_data_out <= 0;
     endcase
