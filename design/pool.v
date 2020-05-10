@@ -56,4 +56,8 @@ assign out_data = enable_pool ? out_data_temp : inp_data;
 assign out_data_available = enable_pool ? out_data_available_temp : in_data_available;
 assign done_pool = enable_pool ? done_pool_temp : 1'b1;
 
+//Adding a dummy signal to use validity_mask input, to make ODIN happy
+wire [`MASK_WIDTH-1:0] dummy;
+assign dummy = validity_mask;
+
 endmodule

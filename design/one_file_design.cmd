@@ -12,6 +12,7 @@ echo "//$i \n" >> $output_file
 echo "//////////////////////////\n" >> $output_file
 cat $i >> $output_file
 echo "\n" >> $output_file
+perl -i -pe 's/d`MAT_MUL_SIZE/d4/g;' $output_file
 end
 
 set output_file = "one_file_design_8x8.v"
@@ -26,6 +27,7 @@ echo "//$i \n" >> $output_file
 echo "//////////////////////////\n" >> $output_file
 cat $i >> $output_file
 echo "\n" >> $output_file
+perl -i -pe 's/d`MAT_MUL_SIZE/d8/g;' $output_file
 end
 
 
