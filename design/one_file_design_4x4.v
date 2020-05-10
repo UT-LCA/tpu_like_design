@@ -1,3 +1,6 @@
+`define MATMUL_SIZE_4
+
+
 //////////////////////////
 
 //defines.v 
@@ -5,16 +8,28 @@
 //////////////////////////
 
 `define DWIDTH 8
-`define AWIDTH 13
-`define MEM_SIZE 8192
+`define AWIDTH 11
+`define MEM_SIZE 2048
+
+`ifdef MATMUL_SIZE_4
 `define MAT_MUL_SIZE 4
 `define MASK_WIDTH 4
 `define LOG2_MAT_MUL_SIZE 2
+`endif
+
+`ifdef MATMUL_SIZE_8
+`define MAT_MUL_SIZE 8
+`define MASK_WIDTH 8
+`define LOG2_MAT_MUL_SIZE 3
+`endif
+
 `define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
 `define NUM_CYCLES_IN_MAC 3
 `define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
+`define ADDR_STRIDE_WIDTH 8
+`define MAX_BITS_POOL 3
 
 /////////////////////////////////////////////////
 //Register specification
@@ -36,37 +51,37 @@
 //Bit 31: done_tpu
 
 //---------------------------------------
-//Register that stores the mean of the values
+//Addr 8: Register that stores the mean of the values
 //---------------------------------------
 `define REG_MEAN_ADDR 32'h8
 //Bit 7:0: mean
 
 //---------------------------------------
-//Register that stores the inverse variance of the values
+//Addr A: Register that stores the inverse variance of the values
 //---------------------------------------
 `define REG_INV_VAR_ADDR 32'hA
 //Bit 7:0: inv_var
 
 //---------------------------------------
-//Register that stores the starting address of matrix A in BRAM A
+//Addr E: Register that stores the starting address of matrix A in BRAM A
 //---------------------------------------
 `define REG_MATRIX_A_ADDR 32'he
 //Bit `AWIDTH-1:0 address_mat_a
 
 //---------------------------------------
-//Register that stores the starting address of matrix B in BRAM B
+//Addr 12: Register that stores the starting address of matrix B in BRAM B
 //---------------------------------------
 `define REG_MATRIX_B_ADDR 32'h12
 //Bit `AWIDTH-1:0 address_mat_b
 
 //---------------------------------------
-//Register that stores the starting address of matrix C in BRAM C
+//Addr 16: Register that stores the starting address of matrix C in BRAM C
 //---------------------------------------
 `define REG_MATRIX_C_ADDR 32'h16
 //Bit `AWIDTH-1:0 address_mat_c
 
 //---------------------------------------
-//Register that stores the mask of which parts of the matrices are valid.
+//Addr 20: Register that stores the mask of which parts of the matrices are valid.
 //
 //Some examples where this is useful:
 //1. Input matrix is smaller than the matmul. 
@@ -86,6 +101,50 @@
 //---------------------------------------
 `define REG_VALID_MASK_ADDR 32'h20
 //Bit `MASK_WIDTH-1:0 mask for a row or column of both matrices
+
+//---------------------------------------
+//Addr 24: Register that controls the accumulation logic
+//---------------------------------------
+`define REG_ACCUM_ACTIONS_ADDR 32'h24
+//Bit 0 save_output_to_accumulator
+//Bit 1 add_accumulator_to_output
+
+//---------------------------------------
+//Addr 28: Register that stores the stride that should be taken to address
+//elements in matrix A, after every MAT_MUL_SIZE worth of data has been fetched.
+//See the diagram in "Meeting-16" notes in the EE382V project Onenote notebook.
+//This stride is applied when incrementing addresses for matrix A in the vertical
+//direction.
+//---------------------------------------
+`define REG_MATRIX_A_STRIDE_ADDR 32'h28
+//Bit `ADDR_STRIDE_WIDTH-1:0 address_stride_a
+
+//---------------------------------------
+//Addr 32: Register that stores the stride that should be taken to address
+//elements in matrix B, after every MAT_MUL_SIZE worth of data has been fetched.
+//See the diagram in "Meeting-16" notes in the EE382V project Onenote notebook.
+//This stride is applied when incrementing addresses for matrix B in the horizontal
+//direction.
+//---------------------------------------
+`define REG_MATRIX_B_STRIDE_ADDR 32'h32
+//Bit `ADDR_STRIDE_WIDTH-1:0 address_stride_b
+
+//---------------------------------------
+//Addr 36: Register that stores the stride that should be taken to address
+//elements in matrix C, after every MAT_MUL_SIZE worth of data has been fetched.
+//See the diagram in "Meeting-16" notes in the EE382V project Onenote notebook.
+//This stride is applied when incrementing addresses for matrix C in the vertical
+//direction (this is generally same as address_stride_a).
+//---------------------------------------
+`define REG_MATRIX_C_STRIDE_ADDR 32'h36
+//Bit `ADDR_STRIDE_WIDTH-1:0 address_stride_c
+
+//Register defining pooling window size
+//---------------------------------------
+`define REG_POOL_KERNEL_SIZE 2
+//Bit `MAX_BITS_POOL-1:0 pool window size
+
+
 
 //////////////////////////
 
@@ -115,7 +174,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module matmul_4x4(
+module matmul(
  clk,
  reset,
  start_mat_mul,
@@ -123,6 +182,9 @@ module matmul_4x4(
  address_mat_a,
  address_mat_b,
  address_mat_c,
+ address_stride_a,
+ address_stride_b,
+ address_stride_c,
  a_data,
  b_data,
  a_data_in, //Data values coming in from previous matmul - systolic connections
@@ -135,6 +197,8 @@ module matmul_4x4(
  b_addr,
  c_addr,
  c_data_available,
+ save_output_to_accum,
+ add_accum_to_output,
  final_mat_mul_size,
  a_loc,
  b_loc
@@ -147,6 +211,9 @@ module matmul_4x4(
  input [`AWIDTH-1:0] address_mat_a;
  input [`AWIDTH-1:0] address_mat_b;
  input [`AWIDTH-1:0] address_mat_c;
+ input [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
+ input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
+ input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in;
@@ -159,6 +226,8 @@ module matmul_4x4(
  output [`AWIDTH-1:0] b_addr;
  output [`AWIDTH-1:0] c_addr;
  output c_data_available;
+ input save_output_to_accum;
+ input add_accum_to_output;
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
 //In fact, these will get optimized out by the synthesis tool, because
 //we hardcode them at the instantiation level.
@@ -173,15 +242,28 @@ reg done_mat_mul;
 //of the matmul and P is the number of pipleine stages in the MAC block.
 reg [6:0] clk_cnt;
 
+//Finding out number of cycles to assert matmul done.
+//When we have to save the outputs to accumulators, then we don't need to
+//shift out data. So, we can assert done_mat_mul early.
+//In the normal case, we have to include the time to shift out the results. 
+//Note: the count expression used to contain "4*final_mat_mul_size", but 
+//to avoid multiplication, we now use "final_mat_mul_size<<2"
+wire [6:0] clk_cnt_for_done;
+assign clk_cnt_for_done = 
+                          (save_output_to_accum && add_accum_to_output) ?
+                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC - final_mat_mul_size) : (
+                          (save_output_to_accum) ?
+                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC - final_mat_mul_size) : (
+                          (add_accum_to_output) ? 
+                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) :  
+                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) ));  
 
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
     clk_cnt <= 0;
     done_mat_mul <= 0;
   end
-  //else if (clk_cnt == 4*final_mat_mul_size-2+4) begin
-  //Writing the line above to avoid multiplication:
-  else if (clk_cnt == (final_mat_mul_size<<2)+2+1) begin
+  else if (clk_cnt == clk_cnt_for_done) begin
     done_mat_mul <= 1;
     clk_cnt <= clk_cnt + 1;
   end
@@ -198,19 +280,19 @@ reg [`AWIDTH-1:0] a_addr;
 reg a_mem_access; //flag that tells whether the matmul is trying to access memory or not
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    a_addr <= address_mat_a-`MAT_MUL_SIZE;
+    a_addr <= address_mat_a-address_stride_a;
     a_mem_access <= 0;
   end
   //else if (clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    a_addr <= address_mat_a-`MAT_MUL_SIZE;
+    a_addr <= address_mat_a-address_stride_a;
     a_mem_access <= 0;
   end
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    a_addr <= a_addr + `MAT_MUL_SIZE;
+    a_addr <= a_addr + address_stride_a;
     a_mem_access <= 1;
   end
 end  
@@ -283,19 +365,19 @@ reg [`AWIDTH-1:0] b_addr;
 reg b_mem_access; //flag that tells whether the matmul is trying to access memory or not
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    b_addr <= address_mat_b-`MAT_MUL_SIZE;
+    b_addr <= address_mat_b-address_stride_b;
     b_mem_access <= 0;
   end
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    b_addr <= address_mat_b-`MAT_MUL_SIZE;
+    b_addr <= address_mat_b-address_stride_b;
     b_mem_access <= 0;
   end
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    b_addr <= b_addr + `MAT_MUL_SIZE;
+    b_addr <= b_addr + address_stride_b;
     b_mem_access <= 1;
   end
 end  
@@ -427,6 +509,127 @@ wire [`DWIDTH-1:0] matrixC31;
 wire [`DWIDTH-1:0] matrixC32;
 wire [`DWIDTH-1:0] matrixC33;
 
+wire [`DWIDTH-1:0] matrixC00_added;
+wire [`DWIDTH-1:0] matrixC01_added;
+wire [`DWIDTH-1:0] matrixC02_added;
+wire [`DWIDTH-1:0] matrixC03_added;
+wire [`DWIDTH-1:0] matrixC10_added;
+wire [`DWIDTH-1:0] matrixC11_added;
+wire [`DWIDTH-1:0] matrixC12_added;
+wire [`DWIDTH-1:0] matrixC13_added;
+wire [`DWIDTH-1:0] matrixC20_added;
+wire [`DWIDTH-1:0] matrixC21_added;
+wire [`DWIDTH-1:0] matrixC22_added;
+wire [`DWIDTH-1:0] matrixC23_added;
+wire [`DWIDTH-1:0] matrixC30_added;
+wire [`DWIDTH-1:0] matrixC31_added;
+wire [`DWIDTH-1:0] matrixC32_added;
+wire [`DWIDTH-1:0] matrixC33_added;
+
+reg [`DWIDTH-1:0] matrixC00_accum;
+reg [`DWIDTH-1:0] matrixC01_accum;
+reg [`DWIDTH-1:0] matrixC02_accum;
+reg [`DWIDTH-1:0] matrixC03_accum;
+reg [`DWIDTH-1:0] matrixC10_accum;
+reg [`DWIDTH-1:0] matrixC11_accum;
+reg [`DWIDTH-1:0] matrixC12_accum;
+reg [`DWIDTH-1:0] matrixC13_accum;
+reg [`DWIDTH-1:0] matrixC20_accum;
+reg [`DWIDTH-1:0] matrixC21_accum;
+reg [`DWIDTH-1:0] matrixC22_accum;
+reg [`DWIDTH-1:0] matrixC23_accum;
+reg [`DWIDTH-1:0] matrixC30_accum;
+reg [`DWIDTH-1:0] matrixC31_accum;
+reg [`DWIDTH-1:0] matrixC32_accum;
+reg [`DWIDTH-1:0] matrixC33_accum;
+
+reg outputs_saved_to_accum;
+reg outputs_added_to_accum;
+wire reset_accum;
+
+always @(posedge clk) begin
+  if (reset || ~(save_output_to_accum || add_accum_to_output) || (reset_accum)) begin
+    matrixC00_accum <= 0;
+    matrixC01_accum <= 0;
+    matrixC02_accum <= 0;
+    matrixC03_accum <= 0;
+    matrixC10_accum <= 0;
+    matrixC11_accum <= 0;
+    matrixC12_accum <= 0;
+    matrixC13_accum <= 0;
+    matrixC20_accum <= 0;
+    matrixC21_accum <= 0;
+    matrixC22_accum <= 0;
+    matrixC23_accum <= 0;
+    matrixC30_accum <= 0;
+    matrixC31_accum <= 0;
+    matrixC32_accum <= 0;
+    matrixC33_accum <= 0;
+    outputs_saved_to_accum <= 0;
+    outputs_added_to_accum <= 0;
+  end
+  else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
+    matrixC00_accum <= matrixC00_added;
+    matrixC01_accum <= matrixC01_added;
+    matrixC02_accum <= matrixC02_added;
+    matrixC03_accum <= matrixC03_added;
+    matrixC10_accum <= matrixC10_added;
+    matrixC11_accum <= matrixC11_added;
+    matrixC12_accum <= matrixC12_added;
+    matrixC13_accum <= matrixC13_added;
+    matrixC20_accum <= matrixC20_added;
+    matrixC21_accum <= matrixC21_added;
+    matrixC22_accum <= matrixC22_added;
+    matrixC23_accum <= matrixC23_added;
+    matrixC30_accum <= matrixC30_added;
+    matrixC31_accum <= matrixC31_added;
+    matrixC32_accum <= matrixC32_added;
+    matrixC33_accum <= matrixC33_added;
+    outputs_saved_to_accum <= 1;
+    outputs_added_to_accum <= 1;
+  end
+  else if (row_latch_en && save_output_to_accum) begin
+    matrixC00_accum <= matrixC00;
+    matrixC01_accum <= matrixC01;
+    matrixC02_accum <= matrixC02;
+    matrixC03_accum <= matrixC03;
+    matrixC10_accum <= matrixC10;
+    matrixC11_accum <= matrixC11;
+    matrixC12_accum <= matrixC12;
+    matrixC13_accum <= matrixC13;
+    matrixC20_accum <= matrixC20;
+    matrixC21_accum <= matrixC21;
+    matrixC22_accum <= matrixC22;
+    matrixC23_accum <= matrixC23;
+    matrixC30_accum <= matrixC30;
+    matrixC31_accum <= matrixC31;
+    matrixC32_accum <= matrixC32;
+    matrixC33_accum <= matrixC33;
+    outputs_saved_to_accum <= 1;
+  end
+  else if (row_latch_en && add_accum_to_output) begin
+    outputs_added_to_accum <= 1;
+  end
+end
+
+assign matrixC00_added = (add_accum_to_output) ? (matrixC00 + matrixC00_accum) : matrixC00 ; 
+assign matrixC01_added = (add_accum_to_output) ? (matrixC01 + matrixC01_accum) : matrixC01 ; 
+assign matrixC02_added = (add_accum_to_output) ? (matrixC02 + matrixC02_accum) : matrixC02 ; 
+assign matrixC03_added = (add_accum_to_output) ? (matrixC03 + matrixC03_accum) : matrixC03 ; 
+assign matrixC10_added = (add_accum_to_output) ? (matrixC10 + matrixC10_accum) : matrixC10 ; 
+assign matrixC11_added = (add_accum_to_output) ? (matrixC11 + matrixC11_accum) : matrixC11 ; 
+assign matrixC12_added = (add_accum_to_output) ? (matrixC12 + matrixC12_accum) : matrixC12 ; 
+assign matrixC13_added = (add_accum_to_output) ? (matrixC13 + matrixC13_accum) : matrixC13 ; 
+assign matrixC20_added = (add_accum_to_output) ? (matrixC20 + matrixC20_accum) : matrixC20 ; 
+assign matrixC21_added = (add_accum_to_output) ? (matrixC21 + matrixC21_accum) : matrixC21 ; 
+assign matrixC22_added = (add_accum_to_output) ? (matrixC22 + matrixC22_accum) : matrixC22 ; 
+assign matrixC23_added = (add_accum_to_output) ? (matrixC23 + matrixC23_accum) : matrixC23 ; 
+assign matrixC30_added = (add_accum_to_output) ? (matrixC30 + matrixC30_accum) : matrixC30 ; 
+assign matrixC31_added = (add_accum_to_output) ? (matrixC31 + matrixC31_accum) : matrixC31 ; 
+assign matrixC32_added = (add_accum_to_output) ? (matrixC32 + matrixC32_accum) : matrixC32 ; 
+assign matrixC33_added = (add_accum_to_output) ? (matrixC33 + matrixC33_accum) : matrixC33 ; 
+
+//TODO: The following are not used anymore. Remove them
 assign cin_row0 = c_data_in[`DWIDTH-1:0];
 assign cin_row1 = c_data_in[2*`DWIDTH-1:`DWIDTH];
 assign cin_row2 = c_data_in[3*`DWIDTH-1:2*`DWIDTH];
@@ -434,7 +637,12 @@ assign cin_row3 = c_data_in[4*`DWIDTH-1:3*`DWIDTH];
 
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 +  `NUM_CYCLES_IN_MAC - 1));
 //Writing the line above to avoid multiplication:
-assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
+//assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
+//Fixing bug. The line above is inaccurate. Using the line below. 
+//TODO: This line needs to be fixed to include a_loc and b_loc ie. when final_mat_mul_size is different from `MAT_MUL_SIZE
+assign row_latch_en =  (save_output_to_accum) ?
+                       ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -1 +`NUM_CYCLES_IN_MAC))) :
+                       ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -2 +`NUM_CYCLES_IN_MAC)));
 
 reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
@@ -442,34 +650,50 @@ reg start_capturing_c_data;
 integer counter;
 reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
 
+//We need to reset the accumulators when the mat mul is done and when we are 
+//done with final reduction to generated a tile's output.
+assign reset_accum = done_mat_mul & start_capturing_c_data;
+
+//If save_output_to_accum is asserted, that means we are not intending to shift
+//out the outputs, because the outputs are still partial sums. 
+wire condition_to_start_shifting_output;
+assign condition_to_start_shifting_output = 
+                          (save_output_to_accum && add_accum_to_output) ?
+                          1'b0 : (
+                          (save_output_to_accum) ?
+                          1'b0 : (
+                          (add_accum_to_output) ? 
+                          row_latch_en:  
+                          row_latch_en ));  
+
 //For larger matmuls, this logic will have more entries in the case statement
 always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= address_mat_c-`MAT_MUL_SIZE;
+    c_addr <= address_mat_c-address_stride_c;
     c_data_out <= 0;
     counter <= 0;
-  end else if (row_latch_en) begin
+  end else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
-    c_addr <= c_addr + `MAT_MUL_SIZE;
-    c_data_out <= {matrixC30, matrixC20, matrixC10, matrixC00};  //first set of elements is captured here
+    c_addr <= c_addr + address_stride_c;
+    c_data_out <= {matrixC30_added, matrixC20_added, matrixC10_added, matrixC00_added};  //first set of elements is captured here
     counter <= counter + 1;
   end else if (done_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= address_mat_c-`MAT_MUL_SIZE;
+    c_addr <= address_mat_c-address_stride_c;
     c_data_out <= 0;
   end 
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
-    c_addr <= c_addr + `MAT_MUL_SIZE;
+    c_addr <= c_addr + address_stride_c;
     counter <= counter + 1;
     case (counter)  //rest of the elements are captured here
-        1: c_data_out <= {matrixC31, matrixC21, matrixC11, matrixC01};
-        2: c_data_out <= {matrixC32, matrixC22, matrixC12, matrixC02};
-        3: c_data_out <= {matrixC33, matrixC23, matrixC13, matrixC03};
+        1: c_data_out <= {matrixC31_added, matrixC21_added, matrixC11_added, matrixC01_added};
+        2: c_data_out <= {matrixC32_added, matrixC22_added, matrixC12_added, matrixC02_added};
+        3: c_data_out <= {matrixC33_added, matrixC23_added, matrixC13_added, matrixC03_added};
         default: c_data_out <= 0;
     endcase
   end
@@ -660,10 +884,16 @@ module cfg(
     //HIGH_PRECISION_DWIDTH kind of thing
     output reg [`DWIDTH-1:0] mean,
     output reg [`DWIDTH-1:0] inv_var,
-    output reg [`AWIDTH-1:0] address_mat_a,
+		output reg [`MAX_BITS_POOL-1:0] kernel_size,
+		output reg [`AWIDTH-1:0] address_mat_a,
     output reg [`AWIDTH-1:0] address_mat_b,
     output reg [`AWIDTH-1:0] address_mat_c,
     output reg [`MASK_WIDTH-1:0] validity_mask,
+    output reg save_output_to_accum,
+    output reg add_accum_to_output,
+    output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_a,
+    output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_b,
+    output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_c,
     input done_tpu
 );
 
@@ -692,11 +922,17 @@ always @(posedge PCLK) begin
     enable_activation <= 0;
     mean <= 0;
     inv_var <= 0;
-    reg_dummy <= 0;
+    kernel_size <= 1;
+		reg_dummy <= 0;
     address_mat_a <= 0;
     address_mat_b <= 0;
     address_mat_c <= 0;
     validity_mask <= {`MASK_WIDTH{1'b1}};
+    save_output_to_accum <= 0;
+    add_accum_to_output <= 0;
+    address_stride_a <= `MAT_MUL_SIZE;
+    address_stride_b <= `MAT_MUL_SIZE;
+    address_stride_c <= `MAT_MUL_SIZE;
   end
 
   else begin
@@ -730,6 +966,14 @@ always @(posedge PCLK) begin
           `REG_MATRIX_B_ADDR  : address_mat_b <= PWDATA[`AWIDTH-1:0];
           `REG_MATRIX_C_ADDR  : address_mat_c <= PWDATA[`AWIDTH-1:0];
           `REG_VALID_MASK_ADDR: validity_mask <= PWDATA[`MASK_WIDTH-1:0];
+          `REG_POOL_KERNEL_SIZE: kernel_size <= PWDATA[`MAX_BITS_POOL-1:0];
+					`REG_ACCUM_ACTIONS_ADDR: begin
+                                   add_accum_to_output <= PWDATA[1];
+                                   save_output_to_accum <= PWDATA[0];
+                                   end
+          `REG_MATRIX_A_STRIDE_ADDR : address_stride_a <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
+          `REG_MATRIX_B_STRIDE_ADDR : address_stride_b <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
+          `REG_MATRIX_C_STRIDE_ADDR : address_stride_c <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
           default: reg_dummy <= PWDATA; //sink writes to a dummy register
           endcase
           PREADY <=1;          
@@ -749,6 +993,11 @@ always @(posedge PCLK) begin
           `REG_MATRIX_B_ADDR  : PRDATA <= address_mat_b;
           `REG_MATRIX_C_ADDR  : PRDATA <= address_mat_c;
           `REG_VALID_MASK_ADDR: PRDATA <= validity_mask;
+          `REG_POOL_KERNEL_SIZE : PRDATA <= kernel_size;
+					`REG_ACCUM_ACTIONS_ADDR: PRDATA <= {30'b0, add_accum_to_output, save_output_to_accum};
+          `REG_MATRIX_A_STRIDE_ADDR : PRDATA <= address_stride_a;
+          `REG_MATRIX_B_STRIDE_ADDR : PRDATA <= address_stride_b;
+          `REG_MATRIX_C_STRIDE_ADDR : PRDATA <= address_stride_c;
           default             : PRDATA <= reg_dummy; //read the dummy register for undefined addresses
           endcase
         end
@@ -761,8 +1010,8 @@ always @(posedge PCLK) begin
   end
 end 
 
-
 endmodule
+
 
 //////////////////////////
 
@@ -903,34 +1152,44 @@ input clk;
 `ifdef SIMULATION
 
 reg [7:0] ram[((1<<`AWIDTH)-1):0];
+integer i;
 
 always @(posedge clk)  
 begin 
-        if (we0[0]) ram[addr0+0] <= d0[7:0]; 
-        if (we0[1]) ram[addr0+1] <= d0[15:8]; 
-        if (we0[2]) ram[addr0+2] <= d0[23:16]; 
-        if (we0[3]) ram[addr0+3] <= d0[31:24]; 
-        q0 <= {ram[addr0+3], ram[addr0+2], ram[addr0+1], ram[addr0]};
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        if (we0[i]) ram[addr0+i] <= d0[i*`DWIDTH +: `DWIDTH]; 
+    end    
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        q0[i*`DWIDTH +: `DWIDTH] <= ram[addr0+i];
+    end    
 end
 
 always @(posedge clk)  
 begin 
-        if (we1[0]) ram[addr1+0] <= d1[7:0]; 
-        if (we1[1]) ram[addr1+1] <= d1[15:8]; 
-        if (we1[2]) ram[addr1+2] <= d1[23:16]; 
-        if (we1[3]) ram[addr1+3] <= d1[31:24]; 
-        q1 <= {ram[addr1+3], ram[addr1+2], ram[addr1+1], ram[addr1]};
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        if (we1[i]) ram[addr0+i] <= d1[i*`DWIDTH +: `DWIDTH]; 
+    end    
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        q1[i*`DWIDTH +: `DWIDTH] <= ram[addr1+i];
+    end    
 end
 
 `else
+//BRAMs available in VTR FPGA architectures have one bit write-enables.
+//So let's combine multiple bits into 1. We don't have a usecase of
+//writing/not-writing only parts of the word anyway.
+wire we0_coalesced;
+assign we0_coalesced = |we0;
+wire we1_coalesced;
+assign we1_coalesced = |we1;
 
 dual_port_ram u_dual_port_ram(
 .addr1(addr0),
-.we1(we0),
+.we1(we0_coalesced),
 .data1(d0),
 .out1(q0),
 .addr2(addr1),
-.we2(we1),
+.we2(we1_coalesced),
 .data2(d1),
 .out2(q1),
 .clk(clk)
@@ -961,6 +1220,7 @@ module control(
     input done_norm,
     input done_pool,
     input done_activation,
+    input save_output_to_accum,
     output reg done_tpu
 );
 
@@ -1001,7 +1261,10 @@ always @( posedge clk) begin
       `STATE_MATMUL: begin
         if (done_mat_mul == 1'b1) begin
             start_mat_mul <= 1'b0;
-            if (enable_norm) begin
+            if(save_output_to_accum) begin
+              state <= `STATE_DONE;
+            end
+            else if (enable_norm) begin
               state <= `STATE_NORM;
             end 
             else if (enable_pool) begin
@@ -1074,6 +1337,7 @@ endmodule
 module pool(
     input enable_pool,
     input in_data_available,
+		input [`MAX_BITS_POOL-1:0] kernel_size,
     input [`MAT_MUL_SIZE*`DWIDTH-1:0] inp_data,
     output [`MAT_MUL_SIZE*`DWIDTH-1:0] out_data,
     output out_data_available,
@@ -1083,21 +1347,50 @@ module pool(
     input reset
 );
 
-//This is a stub for now, until we get real logic here
-assign out_data = inp_data;
-assign out_data_available = in_data_available;
-assign done_pool = 1;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] out_data_temp;
+reg done_pool_temp;
+reg out_data_available_temp;
+integer i,j;
+integer cycle_count;
 
-//Dummy logic to make ODIN happy, until we get real logic here
-reg [`MASK_WIDTH-1:0] temp;
 always @(posedge clk) begin
-    if (reset) begin
-      temp <= 0;
-    end
-    else if (enable_pool) begin
-      temp <= validity_mask;
-    end
+	if (reset || ~enable_pool || ~in_data_available) begin
+		out_data_temp <= 0;
+		done_pool_temp <= 0;
+		out_data_available_temp <= 0;
+		cycle_count <= 0;
+	end
+
+	else if (in_data_available) begin
+        cycle_count = cycle_count + 1;
+		out_data_available_temp <= 1;
+
+		case (kernel_size)
+			1: begin
+				out_data_temp <= inp_data;
+			end
+			2: begin
+				for (i = 0; i < `MAT_MUL_SIZE/2; i = i + 8) begin
+					out_data_temp[ i +: 8] <= (inp_data[i*2 +: 8]  + inp_data[i*2 + 8 +: 8]) >> 1; 
+				end
+			end
+			4: begin	
+				for (i = 0; i < `MAT_MUL_SIZE/4; i = i + 8) begin
+					//TODO: If 3 adders are the critical path, break into 2 cycles
+					out_data_temp[ i +: 8] <= (inp_data[i*4 +: 8]  + inp_data[i*4 + 8 +: 8] + inp_data[i*4 + 16 +: 8]  + inp_data[i*4 + 24 +: 8]) >> 2; 
+				end
+			end
+		endcase			
+
+        if(cycle_count==`MAT_MUL_SIZE) begin	 
+            done_pool_temp <= 1'b1;	      
+        end	  
+	end
 end
+
+assign out_data = enable_pool ? out_data_temp : inp_data; 
+assign out_data_available = enable_pool ? out_data_available_temp : in_data_available;
+assign done_pool = enable_pool ? done_pool_temp : 1'b1;
 
 endmodule
 
@@ -1209,6 +1502,12 @@ wire [`AWIDTH-1:0] address_mat_a;
 wire [`AWIDTH-1:0] address_mat_b;
 wire [`AWIDTH-1:0] address_mat_c;
 wire [`MASK_WIDTH-1:0] validity_mask;
+wire save_output_to_accum;
+wire add_accum_to_output;
+wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
+wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
+wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
+wire [`MAX_BITS_POOL-1:0] kernel_size;
 
 //Connections for bram a (activation/input matrix)
 //bram_addr_a -> connected to u_matmul_4x4
@@ -1274,6 +1573,7 @@ control u_control(
   .done_norm(done_norm),
   .done_pool(done_pool), 
   .done_activation(done_activation),
+  .save_output_to_accum(save_output_to_accum),
   .done_tpu(done_tpu)
 );
 
@@ -1297,10 +1597,16 @@ cfg u_cfg(
   .enable_activation(enable_activation),
   .mean(mean),
   .inv_var(inv_var),
-  .address_mat_a(address_mat_a),
+  .kernel_size(kernel_size),
+	.address_mat_a(address_mat_a),
   .address_mat_b(address_mat_b),
   .address_mat_c(address_mat_c),
   .validity_mask(validity_mask),
+  .save_output_to_accum(save_output_to_accum),
+  .add_accum_to_output(add_accum_to_output),
+  .address_stride_a(address_stride_a),
+  .address_stride_b(address_stride_b),
+  .address_stride_c(address_stride_c),
   .done_tpu(done_tpu)
 );
 
@@ -1314,7 +1620,7 @@ cfg u_cfg(
 //Note: the ports on this module to write data to bram c
 //are not used in this top module. 
 ////////////////////////////////////////////////////////////////
-matmul_4x4 u_matmul_4x4(
+matmul u_matmul(
   .clk(clk),
   .reset(reset),
   .start_mat_mul(start_mat_mul),
@@ -1322,6 +1628,9 @@ matmul_4x4 u_matmul_4x4(
   .address_mat_a(address_mat_a),
   .address_mat_b(address_mat_b),
   .address_mat_c(address_mat_c),
+  .address_stride_a(address_stride_a),
+  .address_stride_b(address_stride_b),
+  .address_stride_c(address_stride_c),
   .a_data(bram_rdata_a),
   .b_data(bram_rdata_b),
   .a_data_in(a_data_in_NC),
@@ -1334,7 +1643,9 @@ matmul_4x4 u_matmul_4x4(
   .b_addr(bram_addr_b),
   .c_addr(bram_addr_c_NC),
   .c_data_available(matmul_c_data_available),
-  .final_mat_mul_size(8'd4),
+  .save_output_to_accum(save_output_to_accum),
+  .add_accum_to_output(add_accum_to_output),
+  .final_mat_mul_size(8'd`MAT_MUL_SIZE),
   .a_loc(8'd0),
   .b_loc(8'd0)
 );
@@ -1362,7 +1673,8 @@ norm u_norm(
 pool u_pool(
   .enable_pool(enable_pool),
   .in_data_available(norm_out_data_available),
-  .inp_data(norm_data_out),
+  .kernel_size(kernel_size),
+	.inp_data(norm_data_out),
   .out_data(pool_data_out),
   .out_data_available(pool_out_data_available),
   .validity_mask(validity_mask),
@@ -1393,17 +1705,17 @@ activation u_activation(
 always @(posedge clk) begin
   if (reset) begin
     bram_wdata_a <= 0;
-    bram_addr_a_for_writing <= address_mat_c-`MAT_MUL_SIZE;
+    bram_addr_a_for_writing <= address_mat_c-address_stride_c;
     bram_a_wdata_available <= 0;
   end
   else if (activation_out_data_available) begin
     bram_wdata_a <= activation_data_out;
-    bram_addr_a_for_writing <= bram_addr_a_for_writing + `BB_MAT_MUL_SIZE;
+    bram_addr_a_for_writing <= bram_addr_a_for_writing + address_stride_c;
     bram_a_wdata_available <= activation_out_data_available;
   end
   else begin
     bram_wdata_a <= 0;
-    bram_addr_a_for_writing <= address_mat_c-`MAT_MUL_SIZE;
+    bram_addr_a_for_writing <= address_mat_c-address_stride_c;
     bram_a_wdata_available <= 0;
   end
 end  
