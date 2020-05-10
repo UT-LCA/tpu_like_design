@@ -19,11 +19,8 @@
 `define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
-<<<<<<< Updated upstream
 `define ADDR_STRIDE_WIDTH 8
-=======
 `define MAX_BITS_POOL 3
->>>>>>> Stashed changes
 
 /////////////////////////////////////////////////
 //Register specification
@@ -75,7 +72,6 @@
 //Bit `AWIDTH-1:0 address_mat_c
 
 //---------------------------------------
-<<<<<<< Updated upstream
 //Addr 20: Register that stores the mask of which parts of the matrices are valid.
 //
 //Some examples where this is useful:

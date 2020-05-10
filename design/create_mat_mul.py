@@ -464,7 +464,7 @@ end
 
 for i in range(int(sys.argv[1])):
 	for j in range(int(sys.argv[1])):
-		f.write("assign matrixC" + str(i) + str(j) + "_added <= (add_accum_to_output) ? (matrixC" + str(i) + str(j) + " + matrixC" + str(i) + str(j) + "_accum) : matrixC" + str(i) + str(j) + ";\n")
+		f.write("assign matrixC" + str(i) + str(j) + "_added = (add_accum_to_output) ? (matrixC" + str(i) + str(j) + " + matrixC" + str(i) + str(j) + "_accum) : matrixC" + str(i) + str(j) + ";\n")
 
 
 f.write(
