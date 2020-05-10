@@ -1,4 +1,4 @@
-module basic_test();
+module layer_test();
 
 reg done;
 reg [`REG_DATAWIDTH-1:0] rdata;
@@ -6,7 +6,7 @@ reg [`REG_DATAWIDTH-1:0] rdata;
 task run();
 begin
     initialize_brams();
-    basic_test();
+    layer_test();
     compare_outputs();
 end
 endtask
@@ -173,7 +173,7 @@ endtask
 ////////////////////////////////////////////
 //The actual test
 ////////////////////////////////////////////
-task basic_test();
+task layer_test();
 begin
   done = 0;
   //Start the actual test

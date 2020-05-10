@@ -24,7 +24,7 @@ compile:
 	../design/pool.v \
 	../design/activation.v \
 	../design/top.v \
-  ../verif/basic_test.v \
+  ../verif/layer_test.v \
   ../verif/accumulator_test.v \
 	../verif/top_tb.v \
 	-sverilog \
@@ -40,16 +40,16 @@ compile_one_file_design:
 	-sverilog \
 
 run:
-	./simv +basic_test
+	./simv +layer_test
 
 run_norm_disabled:
-	./simv +basic_test +norm_disabled
+	./simv +layer_test +norm_disabled
 
 run_pool_disabled:
-	./simv +basic_test +pool_disabled
+	./simv +layer_test +pool_disabled
 
 run_activation_disabled:
-	./simv +basic_test +activation_disabled
+	./simv +layer_test +activation_disabled
 
 run_accumulator:
 	./simv +accumulator_test +norm_disabled

@@ -99,7 +99,7 @@ endtask
 ////////////////////////////////////////////
 // Instantiate the test modules
 ////////////////////////////////////////////
-basic_test u_basic_test();
+layer_test u_layer_test();
 accumulator_test u_accum_test();
 
 ////////////////////////////////////////////
@@ -123,8 +123,8 @@ initial begin
   #30;
 
   //Call the respective task
-  if ($test$plusargs("basic_test")) begin
-    u_basic_test.run();
+  if ($test$plusargs("layer_test")) begin
+    u_layer_test.run();
   end else if ($test$plusargs("accumulator_test")) begin
 	  u_accum_test.run();
   end
