@@ -34,21 +34,17 @@ f.write("""
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-`define DWIDTH 8
-`define AWIDTH 13
-`define MEM_SIZE 8192
-`define MAT_MUL_SIZE """ + sys.argv[1] +
-"""
-`define LOG2_MAT_MUL_SIZE """ + str(int(math.log2(int(sys.argv[1])))) + 
-"""
-`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
-`define NUM_CYCLES_IN_MAC 3
-
-module matmul_""" + sys.argv[1] + """x""" + sys.argv[1] + """(
+module matmul(
  clk,
  reset,
  start_mat_mul,
  done_mat_mul,
+ address_mat_a,
+ address_mat_b,
+ address_mat_c,
+ address_stride_a,
+ address_stride_b,
+ address_stride_c,
  a_data,
  b_data,
  a_data_in, //Data values coming in from previous matmul - systolic connections
@@ -61,6 +57,8 @@ module matmul_""" + sys.argv[1] + """x""" + sys.argv[1] + """(
  b_addr,
  c_addr,
  c_data_available,
+ save_output_to_accum,
+ add_accum_to_output,
  final_mat_mul_size,
  a_loc,
  b_loc
@@ -70,6 +68,12 @@ module matmul_""" + sys.argv[1] + """x""" + sys.argv[1] + """(
  input reset;
  input start_mat_mul;
  output done_mat_mul;
+ input [`AWIDTH-1:0] address_mat_a;
+ input [`AWIDTH-1:0] address_mat_b;
+ input [`AWIDTH-1:0] address_mat_c;
+ input [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
+ input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
+ input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in;
@@ -82,6 +86,8 @@ module matmul_""" + sys.argv[1] + """x""" + sys.argv[1] + """(
  output [`AWIDTH-1:0] b_addr;
  output [`AWIDTH-1:0] c_addr;
  output c_data_available;
+ input save_output_to_accum;
+ input add_accum_to_output;
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
 //In fact, these will get optimized out by the synthesis tool, because
 //we hardcode them at the instantiation level.
@@ -96,39 +102,82 @@ reg done_mat_mul;
 //of the matmul and P is the number of pipleine stages in the MAC block.
 reg [6:0] clk_cnt;
 
+//Finding out number of cycles to assert matmul done.
+//When we have to save the outputs to accumulators, then we don't need to
+//shift out data. So, we can assert done_mat_mul early.
+//In the normal case, we have to include the time to shift out the results. 
+//Note: the count expression used to contain "4*final_mat_mul_size", but 
+//to avoid multiplication, we now use "final_mat_mul_size<<2"
+wire [6:0] clk_cnt_for_done;
+assign clk_cnt_for_done = 
+                          (save_output_to_accum && add_accum_to_output) ?
+                          ((final_mat_mul_size<<2)+2+1 - final_mat_mul_size) : (
+                          (save_output_to_accum) ?
+                          ((final_mat_mul_size<<2)+2+1 - final_mat_mul_size) : (
+                          (add_accum_to_output) ? 
+                          ((final_mat_mul_size<<2)+2+1) :  
+                          ((final_mat_mul_size<<2)+2+1) ));  
 
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
     clk_cnt <= 0;
     done_mat_mul <= 0;
   end
-  //else if (clk_cnt == 4*final_mat_mul_size-2+4) begin
-  //Writing the line above to avoid multiplication:
-  else if (clk_cnt == (final_mat_mul_size<<2)+2+1) begin
-      done_mat_mul <= 1;
+  else if (clk_cnt == clk_cnt_for_done) begin
+    done_mat_mul <= 1;
+    clk_cnt <= clk_cnt + 1;
+
   end
   else if (done_mat_mul == 0) begin
-      clk_cnt <= clk_cnt + 1;
-      //clk_cnt <= clk_cnt_inc;
+    clk_cnt <= clk_cnt + 1;
+
   end    
+  else begin
+    done_mat_mul <= 0;
+    clk_cnt <= clk_cnt + 1;
+  end
 end
- 
+
+reg a_mem_access;
 reg [`AWIDTH-1:0] a_addr;
+
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    a_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1]) - 1) + """;//a_loc*16;
+    a_addr <= address_mat_a-address_stride_a;
+    a_mem_access <= 0;
   end
   //else if (clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    a_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1]) - 1) + """; 
+    a_addr <= address_mat_a-address_stride_a;
+    a_mem_access <= 0;
   end
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    a_addr <= a_addr + """ + sys.argv[1] + """;
+    a_addr <= a_addr + address_stride_a;
+    a_mem_access <= 1;
   end
-end  
+end
+
+reg a_data_valid; //flag that tells whether the data from memory is valid
+reg [7:0] a_mem_access_counter;
+always @(posedge clk) begin
+  if (reset || ~start_mat_mul) begin
+    a_data_valid <= 0;
+    a_mem_access_counter <= 0;
+  end
+  else if (a_mem_access == 1) begin
+    a_mem_access_counter = a_mem_access_counter + 1;  
+    if (a_mem_access_counter == `MEM_ACCESS_LATENCY) begin
+      a_data_valid <= 1;
+    end
+  end
+  else begin
+    a_data_valid <= 0;
+    a_mem_access_counter <= 0;
+  end
+end
 """)
 
 for i in range(int(sys.argv[1])):
@@ -137,7 +186,7 @@ for i in range(int(sys.argv[1])):
 f.write("\n")
 
 for i in range(int(sys.argv[1])):
-	f.write("assign a"+ str(i) + "_data = a_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH];\n")
+	f.write("assign a"+ str(i) + "_data = a_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{a_data_valid}};\n")
 
 f.write("\n")	
 
@@ -186,19 +235,42 @@ f.write(
 end
 
 reg [`AWIDTH-1:0] b_addr;
+reg b_mem_access; //flag that tells whether the matmul is trying to access memory or not
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    b_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1])-1) + """;//b_loc*16;
+    b_addr <= address_mat_b-address_stride_b;
+    b_mem_access <= 0;
   end
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   else if (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    b_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1])-1) + """;
+    b_addr <= address_mat_b-address_stride_b;
+    b_mem_access <= 0;
   end
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    b_addr <= b_addr + """ + sys.argv[1] + """;
+    b_addr <= b_addr + address_stride_b;
+    b_mem_access <= 1;
+  end
+end  
+
+reg b_data_valid; //flag that tells whether the data from memory is valid
+reg [7:0] b_mem_access_counter;
+always @(posedge clk) begin
+  if (reset || ~start_mat_mul) begin
+    b_data_valid <= 0;
+    b_mem_access_counter <= 0;
+  end
+  else if (b_mem_access == 1) begin
+    b_mem_access_counter = b_mem_access_counter + 1;  
+    if (b_mem_access_counter == `MEM_ACCESS_LATENCY) begin
+      b_data_valid <= 1;
+    end
+  end
+  else begin
+    b_data_valid <= 0;
+    b_mem_access_counter <= 0;
   end
 end
 
@@ -210,7 +282,7 @@ for i in range(int(sys.argv[1])):
 f.write("\n")
 
 for i in range(int(sys.argv[1])):
-	f.write("assign b"+ str(i) + "_data = b_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH];\n")
+	f.write("assign b"+ str(i) + "_data = b_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{b_data_valid}};\n")
 
 f.write("\n")	
 
@@ -329,6 +401,72 @@ for i in range(int(sys.argv[1])):
 for i in range(int(sys.argv[1])):
 	f.write("assign cin_row" + str(i) + " = " + "c_data_in" + "[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH];\n")
 
+
+for i in range(int(sys.argv[1])):
+	for j in range(int(sys.argv[1])):
+		f.write("wire [`DWIDTH-1:0] matrixC" + str(i) + str(j) + "_added;\n")
+
+f.write("\n\n")
+
+for i in range(int(sys.argv[1])):
+	for j in range(int(sys.argv[1])):
+		f.write("reg [`DWIDTH-1:0] matrixC" + str(i) + str(j) + "_accum;\n")
+
+
+f.write(
+"""
+reg outputs_saved_to_accum;
+reg outputs_added_to_accum;
+wire reset_accum;
+
+always @(posedge clk) begin
+  if (reset || ~(save_output_to_accum || add_accum_to_output) || (reset_accum)) begin
+""")
+
+
+for i in range(int(sys.argv[1])):
+	for j in range(int(sys.argv[1])):
+		f.write("matrixC" + str(i) + str(j) + "_accum <= 0;\n")
+
+f.write(
+""" outputs_saved_to_accum <= 0;
+    outputs_added_to_accum <= 0;
+  end
+  else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
+"""
+)
+
+for i in range(int(sys.argv[1])):
+	for j in range(int(sys.argv[1])):
+		f.write("\tmatrixC" + str(i) + str(j) + "_accum <= matrixC" + str(i) + str(j) + "_added;\n")
+
+f.write(
+"""
+    outputs_saved_to_accum <= 1;
+    outputs_added_to_accum <= 1;
+  end
+  else if (row_latch_en && save_output_to_accum) begin
+""")
+
+for i in range(int(sys.argv[1])):
+	for j in range(int(sys.argv[1])):
+		f.write("\tmatrixC" + str(i) + str(j) + "_accum <= matrixC" + str(i) + str(j) + ";\n")
+
+f.write("""
+    outputs_saved_to_accum <= 1;
+  end
+  else if (row_latch_en && add_accum_to_output) begin
+    outputs_added_to_accum <= 1;
+  end
+end
+""")
+
+
+for i in range(int(sys.argv[1])):
+	for j in range(int(sys.argv[1])):
+		f.write("assign matrixC" + str(i) + str(j) + "_added <= (add_accum_to_output) ? (matrixC" + str(i) + str(j) + " + matrixC" + str(i) + str(j) + "_accum) : matrixC" + str(i) + str(j) + ";\n")
+
+
 f.write(
 """
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 +  `NUM_CYCLES_IN_MAC - 1));
@@ -340,6 +478,23 @@ reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
 integer counter;
 reg [""" + sys.argv[1] + """*`DWIDTH-1:0] c_data_out;
+
+//We need to reset the accumulators when the mat mul is done and when we are 
+//done with final reduction to generated a tile's output.
+assign reset_accum = done_mat_mul & start_capturing_c_data;
+
+//If save_output_to_accum is asserted, that means we are not intending to shift
+//out the outputs, because the outputs are still partial sums. 
+wire condition_to_start_shifting_output;
+assign condition_to_start_shifting_output = 
+                          (save_output_to_accum && add_accum_to_output) ?
+                          1'b0 : (
+                          (save_output_to_accum) ?
+                          1'b0 : (
+                          (add_accum_to_output) ? 
+                          row_latch_en:  
+                          row_latch_en ));  
+
 """
 )
 
@@ -350,17 +505,17 @@ always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1])-1) + """;
+    c_addr <= address_mat_c-address_stride_c;
     c_data_out <= 0;
     counter <= 0;
-  end else if (row_latch_en) begin
+  end else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
-    c_addr <= c_addr + """ + sys.argv[1] + """;
+    c_addr <= c_addr + address_stride_c ;
     c_data_out <= {""")
 
 for i in range(int(sys.argv[1])-1,-1,-1):
-    f.write("matrixC" + str(i) + "0")
+    f.write("matrixC" + str(i) + "0_added")
 
     if i == 0:
     	f.write("};\n")
@@ -374,12 +529,12 @@ f.write(
   end else if (done_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= `MEM_SIZE-1-""" + str(int(sys.argv[1])-1) + """;
+    c_addr <= address_mat_c - address_stride_c;
     c_data_out <= 0;
   end 
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
-    c_addr <= c_addr + """ + sys.argv[1] + """; 
+    c_addr <= c_addr + address_stride_c; 
     counter <= counter + 1;
     case (counter)  //rest of the elements are captured here
     """)
@@ -387,7 +542,7 @@ f.write(
 for i in range(1,int(sys.argv[1])):
 	f.write("		"+str(i) + ": c_data_out <= {")
 	for j in range(int(sys.argv[1])-1,-1,-1):
-		f.write("matrixC" + str(j) + str(i))
+		f.write("matrixC" + str(j) + str(i) + "_added")
 
 		if j == 0:
 			f.write("};\n")

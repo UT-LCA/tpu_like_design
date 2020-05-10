@@ -18,7 +18,9 @@ module cfg(
     //HIGH_PRECISION_DWIDTH kind of thing
     output reg [`DWIDTH-1:0] mean,
     output reg [`DWIDTH-1:0] inv_var,
-    output reg [`AWIDTH-1:0] address_mat_a,
+		output reg [`MAX_BITS_POOL-1:0] kernel_size,
+		output reg [`MAT_MUL_SIZE-1:0] valid_mask,
+		output reg [`AWIDTH-1:0] address_mat_a,
     output reg [`AWIDTH-1:0] address_mat_b,
     output reg [`AWIDTH-1:0] address_mat_c,
     output reg [`MASK_WIDTH-1:0] validity_mask,
@@ -55,7 +57,9 @@ always @(posedge PCLK) begin
     enable_activation <= 0;
     mean <= 0;
     inv_var <= 0;
-    reg_dummy <= 0;
+    kernel_size <= 1;
+		valid_mask <= 0;
+		reg_dummy <= 0;
     address_mat_a <= 0;
     address_mat_b <= 0;
     address_mat_c <= 0;

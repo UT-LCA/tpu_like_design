@@ -68,6 +68,7 @@ wire add_accum_to_output;
 wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
 wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
 wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
+wire [`MAX_BITS_POOL-1:0] kernel_size;
 
 //Connections for bram a (activation/input matrix)
 //bram_addr_a -> connected to u_matmul_4x4
@@ -232,7 +233,9 @@ norm u_norm(
 pool u_pool(
   .enable_pool(enable_pool),
   .in_data_available(norm_out_data_available),
-  .inp_data(norm_data_out),
+  .kernel_size(kernel_size),
+	.valid_mask(valid_mask),
+	.inp_data(norm_data_out),
   .out_data(pool_data_out),
   .out_data_available(pool_out_data_available),
   .validity_mask(validity_mask),
