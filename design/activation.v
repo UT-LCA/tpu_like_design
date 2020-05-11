@@ -13,7 +13,7 @@ module activation(
 reg  finish_activation;
 reg  out_data_valid;
 reg  [`MAT_MUL_SIZE*`DWIDTH-1:0] out_activation;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] temp;
+integer i;
 
 // If the activation block is not enabled, just forward the input data
 assign out_data             = enable_activation ? out_activation    : inp_data;
@@ -28,7 +28,9 @@ always @(posedge clk) begin
     end
     else begin
        if(in_data_available) begin
-           out_activation   <= temp;
+           for (i = 1; i <= `MAT_MUL_SIZE; i=i+1) begin
+               out_activation[i*`DWIDTH-1 -:`DWIDTH] <= inp_data[i*`DWIDTH-1] ? {`DWIDTH{1'b0}} : inp_data[i*`DWIDTH-1 -:`DWIDTH];
+           end 
            finish_activation<= 1'b1;
            out_data_valid   <= 1'b1;
        end
@@ -41,20 +43,20 @@ always @(posedge clk) begin
 end
 
 // generate multiple ReLU block based on the MAT_MUL_SIZE
-genvar i;
-generate 
-  for (i = 1; i <= `MAT_MUL_SIZE; i = i + 1) begin : loop_gen_ReLU
-        ReLU ReLUinst (.inp_data(inp_data[i*`DWIDTH-1 -:`DWIDTH]), .out_data(temp[i*`DWIDTH-1 -:`DWIDTH]));
-  end
-endgenerate
+//genvar i;
+//generate 
+//  for (i = 1; i <= `MAT_MUL_SIZE; i = i + 1) begin : loop_gen_ReLU
+//        ReLU ReLUinst (.inp_data(inp_data[i*`DWIDTH-1 -:`DWIDTH]), .out_data(temp[i*`DWIDTH-1 -:`DWIDTH]));
+//  end
+//endgenerate
 
 endmodule
 
-module ReLU(
-    input [`DWIDTH-1:0] inp_data,
-    output[`DWIDTH-1:0] out_data
-);
-
-assign out_data = inp_data[`DWIDTH-1] ? {`DWIDTH{1'b0}} : inp_data;
-
-endmodule
+//module ReLU(
+//    input [`DWIDTH-1:0] inp_data,
+//    output[`DWIDTH-1:0] out_data
+//);
+//
+//assign out_data = inp_data[`DWIDTH-1] ? {`DWIDTH{1'b0}} : inp_data;
+//
+//endmodule
