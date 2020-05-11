@@ -10,15 +10,15 @@ module activation(
     input reset
 );
 
-// If the activation block is not enabled, just forward the input data
-assign out_data             = enable_activation ? out_activation    : inp_data;
-assign done_activation      = enable_activation ? finish_activation : 1'b1;
-assign out_data_available   = enable_activation ? out_data_valid    : in_data_available;
-
 reg  finish_activation;
 reg  out_data_valid;
 reg  [`MAT_MUL_SIZE*`DWIDTH-1:0] out_activation;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] temp;
+
+// If the activation block is not enabled, just forward the input data
+assign out_data             = enable_activation ? out_activation    : inp_data;
+assign done_activation      = enable_activation ? finish_activation : 1'b1;
+assign out_data_available   = enable_activation ? out_data_valid    : in_data_available;
 
 always @(posedge clk) begin
     if (reset) begin
