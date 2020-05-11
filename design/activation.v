@@ -10,20 +10,51 @@ module activation(
     input reset
 );
 
-//This is a stub for now, until we get real logic here
-assign out_data = inp_data;
-assign out_data_available = in_data_available;
-assign done_activation = 1;
+// If the activation block is not enabled, just forward the input data
+assign out_data             = enable_activation ? out_activation    : inp_data;
+assign done_activation      = enable_activation ? finish_activation : 1'b1;
+assign out_data_available   = enable_activation ? out_data_valid    : in_data_available;
 
-//Dummy logic to make ODIN happy, until we get real logic here
-reg [`MASK_WIDTH-1:0] temp;
+reg  finish_activation;
+reg  out_data_valid;
+reg  [`MAT_MUL_SIZE*`DWIDTH-1:0] out_activation;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] temp;
+
 always @(posedge clk) begin
     if (reset) begin
-      temp <= 0;
+      out_activation   <= {`MAT_MUL_SIZE*`DWIDTH-1{1'b0}};
+      finish_activation<= 1'b0;
+      out_data_valid   <= 1'b0;
     end
-    else if (enable_activation) begin
-      temp <= validity_mask;
+    else begin
+       if(in_data_available) begin
+           out_activation   <= temp;
+           finish_activation<= 1'b1;
+           out_data_valid   <= 1'b1;
+       end
+       else begin
+           out_activation   <= {`MAT_MUL_SIZE*`DWIDTH-1{1'b0}};
+           finish_activation<= 1'b0;
+           out_data_valid   <= 1'b0;
+       end
     end
 end
+
+// generate multiple ReLU block based on the MAT_MUL_SIZE
+genvar i;
+generate 
+  for (i = 1; i <= `MAT_MUL_SIZE; i = i + 1) begin : loop_gen_ReLU
+        ReLU ReLUinst (.inp_data(inp_data[i*`DWIDTH-1 -:`DWIDTH]), .out_data(temp[i*`DWIDTH-1 -:`DWIDTH]));
+  end
+endgenerate
+
+endmodule
+
+module ReLU(
+    input [`DWIDTH-1:0] inp_data,
+    output[`DWIDTH-1:0] out_data
+);
+
+assign out_data = inp_data[`DWIDTH-1] ? {`DWIDTH{1'b0}} : inp_data;
 
 endmodule
