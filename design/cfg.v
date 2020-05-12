@@ -28,6 +28,7 @@ module cfg(
     output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_a,
     output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_b,
     output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_c,
+    output reg activation_type,
     input done_tpu
 );
 
@@ -108,6 +109,7 @@ always @(posedge PCLK) begin
           `REG_MATRIX_A_STRIDE_ADDR : address_stride_a <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
           `REG_MATRIX_B_STRIDE_ADDR : address_stride_b <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
           `REG_MATRIX_C_STRIDE_ADDR : address_stride_c <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
+          `REG_ACTIVATION_CSR_ADDR  : activation_type  <= PWDATA[0];
           default: reg_dummy <= PWDATA; //sink writes to a dummy register
           endcase
           PREADY <=1;          
@@ -132,6 +134,7 @@ always @(posedge PCLK) begin
           `REG_MATRIX_A_STRIDE_ADDR : PRDATA <= address_stride_a;
           `REG_MATRIX_B_STRIDE_ADDR : PRDATA <= address_stride_b;
           `REG_MATRIX_C_STRIDE_ADDR : PRDATA <= address_stride_c;
+          `REG_ACTIVATION_CSR_ADDR  : PRDATA <= {31'b0, activation_type};
           default             : PRDATA <= reg_dummy; //read the dummy register for undefined addresses
           endcase
         end

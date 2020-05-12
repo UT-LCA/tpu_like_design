@@ -1,4 +1,5 @@
 module activation(
+    input activation_type,
     input enable_activation,
     input in_data_available,
     input [`MAT_MUL_SIZE*`DWIDTH-1:0] inp_data,
@@ -10,7 +11,6 @@ module activation(
     input reset
 );
 
-wire  activation_type;
 reg  finish_activation;
 reg  out_data_valid;
 reg  [`MAT_MUL_SIZE*`DWIDTH-1:0] out_activation;
@@ -20,7 +20,6 @@ integer i;
 assign out_data             = enable_activation ? out_activation    : inp_data;
 assign done_activation      = enable_activation ? finish_activation : 1'b1;
 assign out_data_available   = enable_activation ? out_data_valid    : in_data_available;
-assign activation_type      = 1'b1; // select between ReLU (0) or tanH (1)
 
 always @(posedge clk) begin
     if (reset) begin
