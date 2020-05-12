@@ -69,6 +69,7 @@ wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
 wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
 wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
 wire [`MAX_BITS_POOL-1:0] kernel_size;
+wire activation_type;
 
 //Connections for bram a (activation/input matrix)
 //bram_addr_a -> connected to u_matmul_4x4
@@ -168,6 +169,7 @@ cfg u_cfg(
   .address_stride_a(address_stride_a),
   .address_stride_b(address_stride_b),
   .address_stride_c(address_stride_c),
+  .activation_type(activation_type),
   .done_tpu(done_tpu)
 );
 
@@ -248,6 +250,7 @@ pool u_pool(
 // Activation module
 ////////////////////////////////////////////////////////////////
 activation u_activation(
+  .activation_type(activation_type),
   .enable_activation(enable_activation),
   .in_data_available(pool_out_data_available),
   .inp_data(pool_data_out),

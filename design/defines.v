@@ -130,6 +130,14 @@
 `define REG_MATRIX_C_STRIDE_ADDR 32'h36
 //Bit `ADDR_STRIDE_WIDTH-1:0 address_stride_c
 
+//---------------------------------------
+//Addr 3A: Register that controls the activation block. Currently, the available 
+//settings are the selector of activation function that will be used. There are
+//two options: ReLU and TanH. To use ReLU, clear the LSB of this register. To
+//use TanH, set the LSB of this register.
+//---------------------------------------
+`define REG_ACTIVATION_CSR_ADDR 32'h3A
+
 //Register defining pooling window size
 //---------------------------------------
 `define REG_POOL_KERNEL_SIZE 2
