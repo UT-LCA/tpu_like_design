@@ -139,6 +139,14 @@
 `define REG_MATRIX_C_STRIDE_ADDR 32'h36
 //Bit `ADDR_STRIDE_WIDTH-1:0 address_stride_c
 
+//---------------------------------------
+//Addr 3A: Register that controls the activation block. Currently, the available 
+//settings are the selector of activation function that will be used. There are
+//two options: ReLU and TanH. To use ReLU, clear the LSB of this register. To
+//use TanH, set the LSB of this register.
+//---------------------------------------
+`define REG_ACTIVATION_CSR_ADDR 32'h3A
+
 //Register defining pooling window size
 //---------------------------------------
 `define REG_POOL_KERNEL_SIZE 2
@@ -1471,6 +1479,7 @@ module cfg(
     output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_a,
     output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_b,
     output reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_c,
+    output reg activation_type,
     input done_tpu
 );
 
@@ -1510,6 +1519,7 @@ always @(posedge PCLK) begin
     address_stride_a <= `MAT_MUL_SIZE;
     address_stride_b <= `MAT_MUL_SIZE;
     address_stride_c <= `MAT_MUL_SIZE;
+    activation_type <= 1;
   end
 
   else begin
@@ -1551,6 +1561,7 @@ always @(posedge PCLK) begin
           `REG_MATRIX_A_STRIDE_ADDR : address_stride_a <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
           `REG_MATRIX_B_STRIDE_ADDR : address_stride_b <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
           `REG_MATRIX_C_STRIDE_ADDR : address_stride_c <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
+          `REG_ACTIVATION_CSR_ADDR  : activation_type  <= PWDATA[0];
           default: reg_dummy <= PWDATA; //sink writes to a dummy register
           endcase
           PREADY <=1;          
@@ -1575,6 +1586,7 @@ always @(posedge PCLK) begin
           `REG_MATRIX_A_STRIDE_ADDR : PRDATA <= address_stride_a;
           `REG_MATRIX_B_STRIDE_ADDR : PRDATA <= address_stride_b;
           `REG_MATRIX_C_STRIDE_ADDR : PRDATA <= address_stride_c;
+          `REG_ACTIVATION_CSR_ADDR  : PRDATA <= {31'b0, activation_type};
           default             : PRDATA <= reg_dummy; //read the dummy register for undefined addresses
           endcase
         end
@@ -1983,6 +1995,7 @@ endmodule
 //////////////////////////
 
 module activation(
+    input activation_type,
     input enable_activation,
     input in_data_available,
     input [`MAT_MUL_SIZE*`DWIDTH-1:0] inp_data,
@@ -1994,17 +2007,19 @@ module activation(
     input reset
 );
 
-wire  activation_type;
 reg  finish_activation;
 reg  out_data_valid;
 reg  [`MAT_MUL_SIZE*`DWIDTH-1:0] out_activation;
 integer i;
 
+reg [3:0] address[`MAT_MUL_SIZE-1:0];
+reg [7:0] data_slope[`MAT_MUL_SIZE-1:0];
+reg [7:0] data_intercept[`MAT_MUL_SIZE-1:0];
+
 // If the activation block is not enabled, just forward the input data
 assign out_data             = enable_activation ? out_activation    : inp_data;
 assign done_activation      = enable_activation ? finish_activation : 1'b1;
 assign out_data_available   = enable_activation ? out_data_valid    : in_data_available;
-assign activation_type      = 1'b1; // select between ReLU (0) or tanH (1)
 
 always @(posedge clk) begin
     if (reset) begin
@@ -2014,44 +2029,12 @@ always @(posedge clk) begin
     end
     else begin
        if(in_data_available) begin
-           for (i = 1; i <= `MAT_MUL_SIZE; i=i+1) begin
+           for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
                if(activation_type==1'b1) begin // tanH
-                   if($signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])>=90) begin
-                       out_activation[i*`DWIDTH-1 -:`DWIDTH] = 0 * inp_data[i*`DWIDTH-1 -:`DWIDTH] + 127;
-                   end
-                   else if ($signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])>=39 && $signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])<90) begin
-                       out_activation[i*`DWIDTH-1 -:`DWIDTH] = 0 * inp_data[i*`DWIDTH-1 -:`DWIDTH] + 99;
-                   end
-                   else if ($signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])>=28 && $signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])<39) begin
-                       out_activation[i*`DWIDTH-1 -:`DWIDTH] = 2 * inp_data[i*`DWIDTH-1 -:`DWIDTH] + 46;
-                   end
-                   else if ($signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])>=16 && $signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])<28) begin
-                       out_activation[i*`DWIDTH-1 -:`DWIDTH] = 3 * inp_data[i*`DWIDTH-1 -:`DWIDTH] + 18;
-                   end
-                   else if ($signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])>=1 && $signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])<16) begin
-                       out_activation[i*`DWIDTH-1 -:`DWIDTH] = 4 * inp_data[i*`DWIDTH-1 -:`DWIDTH] + 0;
-                   end
-                   else if ($signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])==0) begin
-                       out_activation[i*`DWIDTH-1 -:`DWIDTH] = 0 * inp_data[i*`DWIDTH-1 -:`DWIDTH] + 0;
-                   end
-                   else if ($signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])>-16 && $signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])<=-1) begin
-                       out_activation[i*`DWIDTH-1 -:`DWIDTH] = 4 * inp_data[i*`DWIDTH-1 -:`DWIDTH] - 0;
-                   end
-                   else if ($signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])>-28 && $signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])<=-16) begin
-                       out_activation[i*`DWIDTH-1 -:`DWIDTH] = 3 * inp_data[i*`DWIDTH-1 -:`DWIDTH] - 18;
-                   end
-                   else if ($signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])>-39 && $signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])<=-28) begin
-                       out_activation[i*`DWIDTH-1 -:`DWIDTH] = 2 * inp_data[i*`DWIDTH-1 -:`DWIDTH] - 46;
-                   end
-                   else if ($signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])>-90 && $signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])<=-39) begin
-                       out_activation[i*`DWIDTH-1 -:`DWIDTH] = 0 * inp_data[i*`DWIDTH-1 -:`DWIDTH] - 99;
-                   end
-                   else if ($signed(inp_data[i*`DWIDTH-1 -:`DWIDTH])<=-90) begin
-                       out_activation[i*`DWIDTH-1 -:`DWIDTH] = 0 * inp_data[i*`DWIDTH-1 -:`DWIDTH] - 127;
-                   end
+                    out_activation[i*`DWIDTH +:`DWIDTH] <= data_slope[i] * inp_data[i*`DWIDTH +:`DWIDTH] + data_intercept[i];
                end
                else begin // ReLU
-                    out_activation[i*`DWIDTH-1 -:`DWIDTH] <= inp_data[i*`DWIDTH-1] ? {`DWIDTH{1'b0}} : inp_data[i*`DWIDTH-1 -:`DWIDTH];
+                    out_activation[i*`DWIDTH +:`DWIDTH] <= inp_data[i*`DWIDTH-1] ? {`DWIDTH{1'b0}} : inp_data[i*`DWIDTH +:`DWIDTH];
                end
            end 
            finish_activation<= 1'b1;
@@ -2064,6 +2047,96 @@ always @(posedge clk) begin
        end
     end
 end
+
+//Our equation of tanh is Y=AX+B
+//A is the slope and B is the intercept.
+//We store A in one LUT and B in another.
+//LUT for the slope
+always @(address) begin
+    for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
+    case (address[i])
+      4'b0000: data_slope[i] <= 8'd0;
+      4'b0001: data_slope[i] <= 8'd0;
+      4'b0010: data_slope[i] <= 8'd2;
+      4'b0011: data_slope[i] <= 8'd3;
+      4'b0100: data_slope[i] <= 8'd4;
+      4'b0101: data_slope[i] <= 8'd0;
+      4'b0110: data_slope[i] <= 8'd4;
+      4'b0111: data_slope[i] <= 8'd3;
+      4'b1000: data_slope[i] <= 8'd2;
+      4'b1001: data_slope[i] <= 8'd0;
+      4'b1010: data_slope[i] <= 8'd0;
+      default: data_slope[i] <= 8'd0;
+    endcase  
+    end
+end
+
+//LUT for the intercept
+always @(address) begin
+    for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
+    case (address[i])
+      4'b0000: data_intercept[i] <= 8'd127;
+      4'b0001: data_intercept[i] <= 8'd99;
+      4'b0010: data_intercept[i] <= 8'd46;
+      4'b0011: data_intercept[i] <= 8'd18;
+      4'b0100: data_intercept[i] <= 8'd0;
+      4'b0101: data_intercept[i] <= 8'd0;
+      4'b0110: data_intercept[i] <= 8'd0;
+      4'b0111: data_intercept[i] <= -8'd18;
+      4'b1000: data_intercept[i] <= -8'd46;
+      4'b1001: data_intercept[i] <= -8'd99;
+      4'b1010: data_intercept[i] <= -8'd127;
+      default: data_intercept[i] <= 8'd0;
+    endcase  
+    end
+end
+
+//Logic to find address
+always @(inp_data) begin
+    for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
+        if((inp_data[i*`DWIDTH +:`DWIDTH])>=90) begin
+           address[i] <= 4'b0000;
+        end
+        else if ((inp_data[i*`DWIDTH +:`DWIDTH])>=39 && (inp_data[i*`DWIDTH +:`DWIDTH])<90) begin
+           address[i] <= 4'b0001;
+        end
+        else if ((inp_data[i*`DWIDTH +:`DWIDTH])>=28 && (inp_data[i*`DWIDTH +:`DWIDTH])<39) begin
+           address[i] <= 4'b0010;
+        end
+        else if ((inp_data[i*`DWIDTH +:`DWIDTH])>=16 && (inp_data[i*`DWIDTH +:`DWIDTH])<28) begin
+           address[i] <= 4'b0011;
+        end
+        else if ((inp_data[i*`DWIDTH +:`DWIDTH])>=1 && (inp_data[i*`DWIDTH +:`DWIDTH])<16) begin
+           address[i] <= 4'b0100;
+        end
+        else if ((inp_data[i*`DWIDTH +:`DWIDTH])==0) begin
+           address[i] <= 4'b0101;
+        end
+        else if ((inp_data[i*`DWIDTH +:`DWIDTH])>-16 && (inp_data[i*`DWIDTH +:`DWIDTH])<=-1) begin
+           address[i] <= 4'b0110;
+        end
+        else if ((inp_data[i*`DWIDTH +:`DWIDTH])>-28 && (inp_data[i*`DWIDTH +:`DWIDTH])<=-16) begin
+           address[i] <= 4'b0111;
+        end
+        else if ((inp_data[i*`DWIDTH +:`DWIDTH])>-39 && (inp_data[i*`DWIDTH +:`DWIDTH])<=-28) begin
+           address[i] <= 4'b1000;
+        end
+        else if ((inp_data[i*`DWIDTH +:`DWIDTH])>-90 && (inp_data[i*`DWIDTH +:`DWIDTH])<=-39) begin
+           address[i] <= 4'b1001;
+        end
+        else if ((inp_data[i*`DWIDTH +:`DWIDTH])<=-90) begin
+           address[i] <= 4'b1010;
+        end
+        else begin
+            address[i] <= 4'b0101;
+        end
+    end
+end
+
+//Adding a dummy signal to use validity_mask input, to make ODIN happy
+//TODO: Need to correctly use validity_mask
+wire [`MASK_WIDTH-1:0] dummy;
+assign dummy = validity_mask;
 
 // generate multiple ReLU block based on the MAT_MUL_SIZE
 //genvar i;
@@ -2083,6 +2156,7 @@ endmodule
 //assign out_data = inp_data[`DWIDTH-1] ? {`DWIDTH{1'b0}} : inp_data;
 //
 //endmodule
+
 
 //////////////////////////
 
@@ -2161,6 +2235,7 @@ wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
 wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
 wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
 wire [`MAX_BITS_POOL-1:0] kernel_size;
+wire activation_type;
 
 //Connections for bram a (activation/input matrix)
 //bram_addr_a -> connected to u_matmul_4x4
@@ -2260,6 +2335,7 @@ cfg u_cfg(
   .address_stride_a(address_stride_a),
   .address_stride_b(address_stride_b),
   .address_stride_c(address_stride_c),
+  .activation_type(activation_type),
   .done_tpu(done_tpu)
 );
 
@@ -2340,6 +2416,7 @@ pool u_pool(
 // Activation module
 ////////////////////////////////////////////////////////////////
 activation u_activation(
+  .activation_type(activation_type),
   .enable_activation(enable_activation),
   .in_data_available(pool_out_data_available),
   .inp_data(pool_data_out),
