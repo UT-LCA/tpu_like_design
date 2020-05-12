@@ -68,6 +68,7 @@ always @(posedge PCLK) begin
     address_stride_a <= `MAT_MUL_SIZE;
     address_stride_b <= `MAT_MUL_SIZE;
     address_stride_c <= `MAT_MUL_SIZE;
+    activation_type <= 1;
   end
 
   else begin
