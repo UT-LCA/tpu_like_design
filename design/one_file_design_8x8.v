@@ -1519,7 +1519,7 @@ always @(posedge PCLK) begin
     address_stride_a <= `MAT_MUL_SIZE;
     address_stride_b <= `MAT_MUL_SIZE;
     address_stride_c <= `MAT_MUL_SIZE;
-    activation_type <= 1;
+    activation_type <= 0;
   end
 
   else begin
@@ -2007,46 +2007,92 @@ module activation(
     input reset
 );
 
-reg  finish_activation;
-reg  out_data_valid;
-reg  [`MAT_MUL_SIZE*`DWIDTH-1:0] out_activation;
+reg  done_activation_internal;
+reg  out_data_available_internal;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] out_data_internal;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] slope_applied_data_internal;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] intercept_applied_data_internal;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] relu_applied_data_internal;
 integer i;
+integer cycle_count;
+reg activation_in_progress;
 
 reg [(`MAT_MUL_SIZE*4)-1:0] address;
 reg [(`MAT_MUL_SIZE*8)-1:0] data_slope;
 reg [(`MAT_MUL_SIZE*8)-1:0] data_intercept;
+reg [(`MAT_MUL_SIZE*8)-1:0] data_intercept_delayed;
 
 // If the activation block is not enabled, just forward the input data
-assign out_data             = enable_activation ? out_activation    : inp_data;
-assign done_activation      = enable_activation ? finish_activation : 1'b1;
-assign out_data_available   = enable_activation ? out_data_valid    : in_data_available;
+assign out_data             = enable_activation ? out_data_internal : inp_data;
+assign done_activation      = enable_activation ? done_activation_internal : 1'b1;
+assign out_data_available   = enable_activation ? out_data_available_internal : in_data_available;
 
 always @(posedge clk) begin
-    if (reset) begin
-      out_activation   <= {`MAT_MUL_SIZE*`DWIDTH-1{1'b0}};
-      finish_activation<= 1'b0;
-      out_data_valid   <= 1'b0;
-    end
-    else begin
-       if(in_data_available) begin
-           for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
-               if(activation_type==1'b1) begin // tanH
-                    out_activation[i*`DWIDTH +:`DWIDTH] <= data_slope[i*8 +: 8] * inp_data[i*`DWIDTH +:`DWIDTH] + data_intercept[i*8 +: 8];
-               end
-               else begin // ReLU
-                    out_activation[i*`DWIDTH +:`DWIDTH] <= inp_data[i*`DWIDTH-1] ? {`DWIDTH{1'b0}} : inp_data[i*`DWIDTH +:`DWIDTH];
-               end
-           end 
-           finish_activation<= 1'b1;
-           out_data_valid   <= 1'b1;
-       end
-       else begin
-           out_activation   <= {`MAT_MUL_SIZE*`DWIDTH-1{1'b0}};
-           finish_activation<= 1'b0;
-           out_data_valid   <= 1'b0;
-       end
-    end
+   if (reset || ~enable_activation) begin
+      slope_applied_data_internal     <= 0;
+      intercept_applied_data_internal <= 0; 
+      relu_applied_data_internal      <= 0; 
+      data_intercept_delayed      <= 0;
+      done_activation_internal    <= 0;
+      out_data_available_internal <= 0;
+      cycle_count                 <= 0;
+      activation_in_progress      <= 0;
+   end else if(in_data_available || activation_in_progress) begin
+      cycle_count = cycle_count + 1;
+
+      for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
+         if(activation_type==1'b1) begin // tanH
+            slope_applied_data_internal[i*`DWIDTH +:`DWIDTH] <= data_slope[i*8 +: 8] * inp_data[i*`DWIDTH +:`DWIDTH];
+            data_intercept_delayed[i*8 +: 8] <= data_intercept[i*8 +: 8];
+            intercept_applied_data_internal[i*`DWIDTH +:`DWIDTH] <= slope_applied_data_internal[i*`DWIDTH +:`DWIDTH] + data_intercept_delayed[i*8 +: 8];
+         end else begin // ReLU
+            relu_applied_data_internal[i*`DWIDTH +:`DWIDTH] <= inp_data[i*`DWIDTH] ? {`DWIDTH{1'b0}} : inp_data[i*`DWIDTH +:`DWIDTH];
+         end
+      end   
+
+      //TANH needs 1 extra cycle
+      if (activation_type==1'b1) begin
+         if (cycle_count==2) begin
+            out_data_available_internal <= 1;
+         end
+      end else begin
+         if (cycle_count==1) begin
+           out_data_available_internal <= 1;
+         end
+      end
+
+      //TANH needs 1 extra cycle
+      if (activation_type==1'b1) begin
+        if(cycle_count==(`MAT_MUL_SIZE+1)) begin
+           done_activation_internal <= 1'b1;
+           activation_in_progress <= 0;
+        end
+        else begin
+           activation_in_progress <= 1;
+        end
+      end else begin
+        if(cycle_count==(`MAT_MUL_SIZE)) begin
+           done_activation_internal <= 1'b1;
+           activation_in_progress <= 0;
+        end
+        else begin
+           activation_in_progress <= 1;
+        end
+      end
+   end
+   else begin
+      slope_applied_data_internal     <= 0;
+      intercept_applied_data_internal <= 0; 
+      relu_applied_data_internal      <= 0; 
+      data_intercept_delayed      <= 0;
+      done_activation_internal    <= 0;
+      out_data_available_internal <= 0;
+      cycle_count                 <= 0;
+      activation_in_progress      <= 0;
+   end
 end
+
+assign out_data_internal = (activation_type) ? intercept_applied_data_internal : relu_applied_data_internal;
 
 //Our equation of tanh is Y=AX+B
 //A is the slope and B is the intercept.
