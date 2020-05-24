@@ -26,13 +26,15 @@
 //Register specification
 /////////////////////////////////////////////////
 //---------------------------------------
-//Addr 0 : Register with enables for various blocks
+//Addr 0 : Register with enables for various blocks. 
+//Includes mode of operation (convolution or fully_connected)
 //---------------------------------------
 `define REG_ENABLES_ADDR 32'h0
 //Bit 0: enable_matmul
 //Bit 1: enable_norm
 //Bit 2: enable_pool
 //Bit 3: enable_activation
+//Bit 31: enable_conv_mode
 
 //---------------------------------------
 //Addr 4: Register that triggers the whole TPU
@@ -138,8 +140,48 @@
 //---------------------------------------
 `define REG_ACTIVATION_CSR_ADDR 32'h3A
 
-//Register defining pooling window size
 //---------------------------------------
-`define REG_POOL_KERNEL_SIZE 2
+//Addr 3E: Register defining pooling window size
+//---------------------------------------
+`define REG_POOL_WINDOW_ADDR 32'h3E
 //Bit `MAX_BITS_POOL-1:0 pool window size
 
+//---------------------------------------
+//Addr 40: Register defining convolution parameters - 1
+//----------------------------------------
+`define REG_CONV_PARAMS_1_ADDR 32'h40
+//Bits filter_height (R) 3:0
+//Bits filter width (S)  7:4
+//Bits stride_horizontal 11:8
+//Bits stride_vertical 15:12
+//Bits pad_left 19:16
+//Bits pad_right 23:20
+//Bits pad_top 27:24
+//Bits pad_bottom 31:28
+
+//---------------------------------------
+//Addr 44: Register defining convolution parameters - 2
+//----------------------------------------
+`define REG_CONV_PARAMS_2_ADDR 32'h44
+//Bits num_channels_input (C) 15:0
+//Bits num_channels_output (K) 31:16
+
+//---------------------------------------
+//Addr 48: Register defining convolution parameters - 3
+//----------------------------------------
+`define REG_CONV_PARAMS_3_ADDR 32'h48
+//Bits input_image_height (H) 15:0
+//Bits input_image_width (W) 31:16
+
+//---------------------------------------
+//Addr 4C: Register defining convolution parameters - 4
+//----------------------------------------
+`define REG_CONV_PARAMS_4_ADDR 32'h4C
+//Bits output_image_height (P) 15:0
+//Bits output_image_width (Q) 31:16
+
+//---------------------------------------
+//Addr 50: Register defining batch size
+//----------------------------------------
+`define REG_BATCH_SIZE_ADDR 32'h50
+//Bits 31:0 batch_size (number of images, N)

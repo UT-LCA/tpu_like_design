@@ -68,8 +68,23 @@ wire add_accum_to_output;
 wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
 wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
 wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
-wire [`MAX_BITS_POOL-1:0] kernel_size;
+wire [`MAX_BITS_POOL-1:0] pool_window_size;
 wire activation_type;
+wire [3:0] conv_filter_height;
+wire [3:0] conv_filter_width;
+wire [3:0] conv_stride_horiz;
+wire [3:0] conv_stride_verti;
+wire [3:0] conv_padding_left;
+wire [3:0] conv_padding_right;
+wire [3:0] conv_padding_top;
+wire [3:0] conv_padding_bottom;
+wire [15:0] num_channels_inp;
+wire [15:0] num_channels_out;
+wire [15:0] inp_img_height;
+wire [15:0] inp_img_width;
+wire [15:0] out_img_height;
+wire [15:0] out_img_width;
+wire [31:0] batch_size;
 
 //Connections for bram a (activation/input matrix)
 //bram_addr_a -> connected to u_matmul_4x4
@@ -159,7 +174,7 @@ cfg u_cfg(
   .enable_activation(enable_activation),
   .mean(mean),
   .inv_var(inv_var),
-  .kernel_size(kernel_size),
+  .pool_window_size(pool_window_size),
 	.address_mat_a(address_mat_a),
   .address_mat_b(address_mat_b),
   .address_mat_c(address_mat_c),
@@ -170,6 +185,21 @@ cfg u_cfg(
   .address_stride_b(address_stride_b),
   .address_stride_c(address_stride_c),
   .activation_type(activation_type),
+  .conv_filter_height(conv_filter_height),
+  .conv_filter_width(conv_filter_width),
+  .conv_stride_horiz(conv_stride_horiz),
+  .conv_stride_verti(conv_stride_verti),
+  .conv_padding_left(conv_padding_left),
+  .conv_padding_right(conv_padding_right),
+  .conv_padding_top(conv_padding_top),
+  .conv_padding_bottom(conv_padding_bottom),
+  .num_channels_inp(num_channels_inp),
+  .num_channels_out(num_channels_out),
+  .inp_img_height(inp_img_height),
+  .inp_img_width(inp_img_width),
+  .out_img_height(out_img_height),
+  .out_img_width(out_img_width),
+  .batch_size(batch_size),
   .done_tpu(done_tpu)
 );
 
@@ -236,7 +266,7 @@ norm u_norm(
 pool u_pool(
   .enable_pool(enable_pool),
   .in_data_available(norm_out_data_available),
-  .kernel_size(kernel_size),
+  .pool_window_size(pool_window_size),
 	.inp_data(norm_data_out),
   .out_data(pool_data_out),
   .out_data_available(pool_out_data_available),

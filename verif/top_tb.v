@@ -100,7 +100,8 @@ endtask
 // Instantiate the test modules
 ////////////////////////////////////////////
 layer_test u_layer_test();
-accumulator_test u_accum_test();
+accum_test u_accum_test();
+conv_test u_conv_test();
 
 ////////////////////////////////////////////
 // Main routine. Calls the appropriate task
@@ -125,8 +126,10 @@ initial begin
   //Call the respective task
   if ($test$plusargs("layer_test")) begin
     u_layer_test.run();
-  end else if ($test$plusargs("accumulator_test")) begin
+  end else if ($test$plusargs("accum_test")) begin
 	  u_accum_test.run();
+  end else if ($test$plusargs("conv_test")) begin
+	  u_conv_test.run();
   end
  
   $display("Finishing simulation");

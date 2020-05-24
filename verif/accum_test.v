@@ -1,4 +1,4 @@
-module accumulator_test();
+module accum_test();
 
 reg done;
 reg [`REG_DATAWIDTH-1:0] rdata;

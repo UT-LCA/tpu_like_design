@@ -1,7 +1,7 @@
 module pool(
     input enable_pool,
     input in_data_available,
-		input [`MAX_BITS_POOL-1:0] kernel_size,
+	input [`MAX_BITS_POOL-1:0] pool_window_size,
     input [`MAT_MUL_SIZE*`DWIDTH-1:0] inp_data,
     output [`MAT_MUL_SIZE*`DWIDTH-1:0] out_data,
     output out_data_available,
@@ -29,7 +29,7 @@ always @(posedge clk) begin
         cycle_count = cycle_count + 1;
 		out_data_available_temp <= 1;
 
-		case (kernel_size)
+		case (pool_window_size)
 			1: begin
 				out_data_temp <= inp_data;
 			end

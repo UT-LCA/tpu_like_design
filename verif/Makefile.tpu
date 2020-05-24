@@ -5,17 +5,17 @@ all: compile run
 size?=4
 
 ifeq ($(size),4)
-	FILES="../design/4x4.v"
-	DEFINES="+define+MATMUL_SIZE_4"
+	FILES=../design/4x4.v
+	DEFINES=+define+MATMUL_SIZE_4
 else
-	FILES="../design/8x8_gen.v"
-	DEFINES="+define+MATMUL_SIZE_8"
+	FILES=../design/8x8_gen.v
+	DEFINES=+define+MATMUL_SIZE_8
 endif
 
 compile:
 	$(VCS_HOME)/bin/vcs -full64 \
 	$(DEFINES) \
-  ../design/defines.v \
+	../design/defines.v \
 	$(FILES) \
 	../design/cfg.v \
 	../design/norm.v \
@@ -24,14 +24,15 @@ compile:
 	../design/pool.v \
 	../design/activation.v \
 	../design/top.v \
-  ../verif/layer_test.v \
-  ../verif/accumulator_test.v \
+	../verif/layer_test.v \
+	../verif/accum_test.v \
+	../verif/conv_test.v \
 	../verif/top_tb.v \
 	-sverilog \
 	-debug_access+all \
-  -y /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
-  -v /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
-  +define+SIMULATION \
+	-y /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
+	-v /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
+	+define+SIMULATION \
 	+libext+.v
 
 compile_one_file_design:
@@ -52,7 +53,10 @@ run_activation_disabled:
 	./simv +layer_test +activation_disabled
 
 run_accumulator:
-	./simv +accumulator_test +norm_disabled
+	./simv +accum_test +norm_disabled
+
+run_conv:
+	./simv +conv_test +norm_disabled +pool_disabled +activation_disabled
 
 waves:
 	$(VCS_HOME)/bin/dve -vpd vcdplus.vpd
