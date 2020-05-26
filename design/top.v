@@ -62,7 +62,9 @@ wire [`DWIDTH-1:0] inv_var;
 wire [`AWIDTH-1:0] address_mat_a;
 wire [`AWIDTH-1:0] address_mat_b;
 wire [`AWIDTH-1:0] address_mat_c;
-wire [`MASK_WIDTH-1:0] validity_mask;
+wire [`MASK_WIDTH-1:0] validity_mask_a_rows;
+wire [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+wire [`MASK_WIDTH-1:0] validity_mask_b_cols;
 wire save_output_to_accum;
 wire add_accum_to_output;
 wire [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
@@ -183,7 +185,9 @@ cfg u_cfg(
 	.address_mat_a(address_mat_a),
   .address_mat_b(address_mat_b),
   .address_mat_c(address_mat_c),
-  .validity_mask(validity_mask),
+  .validity_mask_a_rows(validity_mask_a_rows),
+  .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+  .validity_mask_b_cols(validity_mask_b_cols),
   .save_output_to_accum(save_output_to_accum),
   .add_accum_to_output(add_accum_to_output),
   .address_stride_a(address_stride_a),
@@ -262,6 +266,9 @@ matmul u_matmul(
   .out_img_height(out_img_height),
   .out_img_width(out_img_width),
   .batch_size(batch_size),
+  .validity_mask_a_rows(validity_mask_a_rows),
+  .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+  .validity_mask_b_cols(validity_mask_b_cols),
 //  .cur_c(cur_c),
 //  .cur_r(cur_r),
 //  .cur_s(cur_s),
@@ -281,7 +288,7 @@ norm u_norm(
   .inp_data(matmul_c_data_out),
   .out_data(norm_data_out),
   .out_data_available(norm_out_data_available),
-  .validity_mask(validity_mask),
+  .validity_mask(validity_mask_a_rows),
   .done_norm(done_norm),
   .clk(clk),
   .reset(reset)
@@ -297,7 +304,7 @@ pool u_pool(
 	.inp_data(norm_data_out),
   .out_data(pool_data_out),
   .out_data_available(pool_out_data_available),
-  .validity_mask(validity_mask),
+  .validity_mask(validity_mask_a_rows),
   .done_pool(done_pool),
   .clk(clk),
   .reset(reset)
@@ -313,7 +320,7 @@ activation u_activation(
   .inp_data(pool_data_out),
   .out_data(activation_data_out),
   .out_data_available(activation_out_data_available),
-  .validity_mask(validity_mask),
+  .validity_mask(validity_mask_a_rows),
   .done_activation(done_activation),
   .clk(clk),
   .reset(reset)

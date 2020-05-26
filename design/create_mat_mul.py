@@ -75,6 +75,9 @@ module matmul(
  out_img_height,
  out_img_width,
  batch_size,
+ validity_mask_a_rows,
+ validity_mask_a_cols_b_rows,
+ validity_mask_b_cols,
  final_mat_mul_size,
  a_loc,
  b_loc
@@ -120,12 +123,19 @@ module matmul(
  input [15:0] out_img_height;
  input [15:0] out_img_width;
  input [31:0] batch_size;
+ input [`MASK_WIDTH-1:0] validity_mask_a_rows;
+ input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+ input [`MASK_WIDTH-1:0] validity_mask_b_cols;
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
 //In fact, these will get optimized out by the synthesis tool, because
 //we hardcode them at the instantiation level.
  input [7:0] final_mat_mul_size;
  input [7:0] a_loc;
  input [7:0] b_loc;
+
+//////////////////////////////////////////////////////////////////////////
+// Logic for clock counting and when to assert done
+//////////////////////////////////////////////////////////////////////////
 
 reg done_mat_mul;
 //This is 7 bits because the expectation is that clock count will be pretty
@@ -170,7 +180,9 @@ always @(posedge clk) begin
   end
 end
 
-reg [`AWIDTH-1:0] a_addr;
+//////////////////////////////////////////////////////////////////////////
+// Logic to keep track of c,r,s values during convolution
+//////////////////////////////////////////////////////////////////////////
 reg [3:0] r; //iterator for filter height
 reg [3:0] s; //iterator for filter width
 reg [15:0] c; //iterator for input channels
@@ -178,28 +190,19 @@ reg [15:0] cur_c_saved;
 reg [3:0] cur_r_saved;
 reg [3:0] cur_s_saved;
 
-reg a_mem_access; //flag that tells whether the matmul is trying to access memory or not
-
 always @(posedge clk) begin
-  //(clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
-  //Writing the line above to avoid multiplication:
-  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    if (enable_conv_mode) begin
-      a_addr <= address_mat_a;
-      c <= cur_c_saved;
-      r <= cur_r_saved;
-      s <= cur_s_saved;
-    end 
-    else begin
-      a_addr <= address_mat_a-address_stride_a;
-    end
-    a_mem_access <= 0;
+  if (reset || (add_accum_to_output && ~save_output_to_accum && done_mat_mul)) begin
+    c <= 0;
+    r <= 0;
+    s <= 0;
   end
+  else if (~start_mat_mul) begin
+  end
+  //Note than a_loc or b_loc doesn't matter in the code below. A and B are always synchronized.
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
     if (enable_conv_mode) begin
-      a_addr <= address_mat_a + s + r * (inp_img_width+conv_padding_left+conv_padding_right) + c * (inp_img_width+conv_padding_left+conv_padding_right) * (inp_img_height+conv_padding_top+conv_padding_bottom);
       if (s < (conv_filter_width-1)) begin
           s <= s + 1;
       end else begin
@@ -222,6 +225,33 @@ always @(posedge clk) begin
           end
       end
     end
+  end
+end  
+
+//////////////////////////////////////////////////////////////////////////
+// Logic to generate addresses to BRAM A
+//////////////////////////////////////////////////////////////////////////
+reg [`AWIDTH-1:0] a_addr;
+reg a_mem_access; //flag that tells whether the matmul is trying to access memory or not
+
+always @(posedge clk) begin
+  //(clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
+  //Writing the line above to avoid multiplication:
+  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+    if (enable_conv_mode) begin
+      a_addr <= address_mat_a;
+    end 
+    else begin
+      a_addr <= address_mat_a-address_stride_a;
+    end
+    a_mem_access <= 0;
+  end
+  //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
+  //Writing the line above to avoid multiplication:
+  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+    if (enable_conv_mode) begin
+      a_addr <= address_mat_a + s + r * (inp_img_width+conv_padding_left+conv_padding_right) + c * (inp_img_width+conv_padding_left+conv_padding_right) * (inp_img_height+conv_padding_top+conv_padding_bottom);
+    end
     else begin
       a_addr <= a_addr + address_stride_a;
     end
@@ -229,6 +259,9 @@ always @(posedge clk) begin
   end
 end
 
+//////////////////////////////////////////////////////////////////////////
+// Logic to generate valid signals for data coming from BRAM A
+//////////////////////////////////////////////////////////////////////////
 reg a_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] a_mem_access_counter;
 always @(posedge clk) begin
@@ -238,7 +271,18 @@ always @(posedge clk) begin
   end
   else if (a_mem_access == 1) begin
     a_mem_access_counter = a_mem_access_counter + 1;  
-    if (a_mem_access_counter == `MEM_ACCESS_LATENCY) begin
+""")
+for i in range(int(sys.argv[1])):
+  if i==0:
+    f.write("    if ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
+  elif i==(int(sys.argv[1])-1):
+    f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ")) begin\n")
+  else:
+    f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
+f.write("""    
+      a_data_valid <= 0;
+    end
+    else if (a_mem_access_counter == `MEM_ACCESS_LATENCY) begin
       a_data_valid <= 1;
     end
   end
@@ -247,6 +291,10 @@ always @(posedge clk) begin
     a_mem_access_counter <= 0;
   end
 end
+
+//////////////////////////////////////////////////////////////////////////
+// Logic to delay certain parts of the data received from BRAM A (systolic data setup)
+//////////////////////////////////////////////////////////////////////////
 """)
 
 for i in range(int(sys.argv[1])):
@@ -255,7 +303,7 @@ for i in range(int(sys.argv[1])):
 f.write("\n")
 
 for i in range(int(sys.argv[1])):
-	f.write("assign a"+ str(i) + "_data = a_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{a_data_valid}};\n")
+	f.write("assign a"+ str(i) + "_data = a_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{a_data_valid}} & {`DWIDTH{validity_mask_a_rows[" + str(i) + "]}};\n")
 
 f.write("\n")	
 
@@ -303,6 +351,9 @@ f.write(
   end
 end
 
+//////////////////////////////////////////////////////////////////////////
+// Logic to generate addresses to BRAM B
+//////////////////////////////////////////////////////////////////////////
 reg [`AWIDTH-1:0] b_addr;
 reg b_mem_access; //flag that tells whether the matmul is trying to access memory or not
 always @(posedge clk) begin
@@ -330,6 +381,9 @@ always @(posedge clk) begin
   end
 end 
 
+//////////////////////////////////////////////////////////////////////////
+// Logic to generate valid signals for data coming from BRAM B
+//////////////////////////////////////////////////////////////////////////
 reg b_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] b_mem_access_counter;
 always @(posedge clk) begin
@@ -339,7 +393,18 @@ always @(posedge clk) begin
   end
   else if (b_mem_access == 1) begin
     b_mem_access_counter = b_mem_access_counter + 1;  
-    if (b_mem_access_counter == `MEM_ACCESS_LATENCY) begin
+""")
+for i in range(int(sys.argv[1])):
+  if i==0:
+    f.write("    if ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
+  elif i==(int(sys.argv[1])-1):
+    f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ")) begin\n")
+  else:
+    f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
+f.write("""    
+      b_data_valid <= 0;
+    end
+    else if (b_mem_access_counter == `MEM_ACCESS_LATENCY) begin
       b_data_valid <= 1;
     end
   end
@@ -349,6 +414,9 @@ always @(posedge clk) begin
   end
 end
 
+//////////////////////////////////////////////////////////////////////////
+// Logic to delay certain parts of the data received from BRAM B (systolic data setup)
+//////////////////////////////////////////////////////////////////////////
 """)
 
 for i in range(int(sys.argv[1])):
@@ -357,7 +425,7 @@ for i in range(int(sys.argv[1])):
 f.write("\n")
 
 for i in range(int(sys.argv[1])):
-	f.write("assign b"+ str(i) + "_data = b_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{b_data_valid}};\n")
+	f.write("assign b"+ str(i) + "_data = b_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{b_data_valid}} & {`DWIDTH{validity_mask_b_cols[" + str(i) + "]}};\n")
 
 f.write("\n")	
 
@@ -404,6 +472,10 @@ f.write(
 """ 
   end
 end
+
+//////////////////////////////////////////////////////////////////////////
+// Logic to mux data_in coming from neighboring matmuls
+//////////////////////////////////////////////////////////////////////////
 """)
 
 for i in range(int(sys.argv[1])):
@@ -441,6 +513,12 @@ for i in range(1,int(sys.argv[1])):
 	f.write("assign b" + str(i) + " = (a_loc==0) ? b" + str(i) + "_data_delayed_"+ str(i) + " : b"+ str(i) + "_data_in;\n")
 
 f.write("\n")
+
+f.write("""\n
+//////////////////////////////////////////////////////////////////////////
+// Logic to handle accumulation of partial sums (accumulators)
+//////////////////////////////////////////////////////////////////////////
+\n""")
 for i in range(int(sys.argv[1])):
 	f.write("wire [`DWIDTH-1:0] ")
 
@@ -553,6 +631,9 @@ for i in range(int(sys.argv[1])):
 
 f.write(
 """
+//////////////////////////////////////////////////////////////////////////
+// Logic to capture matrix C data from the PEs and shift it out
+//////////////////////////////////////////////////////////////////////////
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 +  `NUM_CYCLES_IN_MAC - 1));
 //Writing the line above to avoid multiplication:
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
@@ -643,6 +724,9 @@ f.write("""
 end""")
 
 f.write("""
+//////////////////////////////////////////////////////////////////////////
+// Instantiations of the actual PEs
+//////////////////////////////////////////////////////////////////////////
 //For larger matmul, more PEs will be needed
 wire effective_rst;
 assign effective_rst = reset | ~start_mat_mul;

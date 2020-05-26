@@ -17,6 +17,8 @@ integer inv_var = 1;
 integer a_start_addr = 0;
 integer b_start_addr = 0;
 integer c_start_addr = 800;
+reg [`AWIDTH-1:0] a_start_arr[7] = '{0, 8, 16, 24, 32, 40, 48};
+reg [`AWIDTH-1:0] c_start_arr[7] = '{0, 7, 14, 21, 28, 35, 42};
 
 reg [31:0] batch_size = 1;
 reg [15:0] inp_channels = 3;
@@ -244,11 +246,6 @@ begin
   write(`REG_MEAN_ADDR, mean);
   write(`REG_INV_VAR_ADDR, inv_var);
 
-  $display("Configure the addresses of matrix A, B and C");
-  write(`REG_MATRIX_A_ADDR, a_start_addr);
-  write(`REG_MATRIX_B_ADDR, b_start_addr);
-  write(`REG_MATRIX_C_ADDR, c_start_addr);
-
   $display("Configure the convolution parameters");
   write(`REG_CONV_PARAMS_1_ADDR, {
     pad_bottom,
@@ -278,7 +275,26 @@ begin
 
   write(`REG_BATCH_SIZE_ADDR, batch_size);
 
-  $display("Start the TPU");
+ //There are 7 matmuls to be formed along the NPQ dimension of matrix A
+ for (int iter=0; iter < 7; iter++) begin
+
+  $display("Configure the addresses of matrix A, B and C");
+  write(`REG_MATRIX_A_ADDR, a_start_addr + a_start_arr[iter]);
+  write(`REG_MATRIX_B_ADDR, b_start_addr);
+  write(`REG_MATRIX_C_ADDR, c_start_addr + c_start_arr[iter]);
+
+  //There are 2 matmuls (2 accumulation passes) to be done 
+  //along the CRS dimension of matrix A.
+
+  /////////////////////////////////////////////////////////////////
+  //First pass
+  /////////////////////////////////////////////////////////////////
+  //Set save_output_to_accum = 1 and set add_accum_to_output = 0 
+  write(`REG_ACCUM_ACTIONS_ADDR, 32'h0000_0001);
+  //Set row=7 A as invalid. Set cols2-7 of B as invalid.
+  write(`REG_VALID_MASK_ADDR, 32'hff03_ff7f);
+
+  $display("Start the TPU for first pass");
   //start = 1;
   write(`REG_STDN_TPU_ADDR, 32'h0000_0001);
   
@@ -296,6 +312,34 @@ begin
   //start = 0;
   write(`REG_STDN_TPU_ADDR, 32'h0000_0000);
 
+  /////////////////////////////////////////////////////////////////
+  //Second pass
+  /////////////////////////////////////////////////////////////////
+  //Set save_output_to_accum = 0 and set add_accum_to_output = 1 
+  write(`REG_ACCUM_ACTIONS_ADDR, 32'h0000_0002);
+  //Set row=7 A as invalid. Set cols2-7 of B as invalid.
+  //Also set cols 4-7 of A (and corresponding rows of B) as invalid.
+  write(`REG_VALID_MASK_ADDR, 32'hff03_0f7f);
+
+  $display("Start the TPU for third pass");
+  //start = 1;
+  write(`REG_STDN_TPU_ADDR, 32'h0000_0001);
+  
+  $display("Wait until TPU is done");
+  do 
+  begin
+      read(`REG_STDN_TPU_ADDR, rdata);
+      done = rdata[31];
+  end 
+  while (done == 0);
+  
+  $display("TPU operation is done now.");
+
+  $display("Stop the TPU");
+  //start = 0;
+  write(`REG_STDN_TPU_ADDR, 32'h0000_0000);
+
+  end 
 end
 endtask
 

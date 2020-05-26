@@ -164,7 +164,9 @@
 //applied to both input matrices - A and B.
 //---------------------------------------
 `define REG_VALID_MASK_ADDR 32'h20
-//Bit `MASK_WIDTH-1:0 mask for a row or column of both matrices
+//Bit `MASK_WIDTH-1:0 validity_mask_a_rows
+//Bit 2*`MASK_WIDTH-1:`MASK_WIDTH validity_mask_a_cols_b_rows
+//Bit 3*`MASK_WIDTH-1:2*`MASK_WIDTH validity_mask_b_cols
 
 //---------------------------------------
 //Addr 24: Register that controls the accumulation logic
