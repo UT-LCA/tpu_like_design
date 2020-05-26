@@ -85,6 +85,10 @@ wire [15:0] inp_img_width;
 wire [15:0] out_img_height;
 wire [15:0] out_img_width;
 wire [31:0] batch_size;
+wire enable_conv_mode;
+//wire [15:0] cur_c;
+//wire [3:0]  cur_r;
+//wire [3:0]  cur_s;
 
 //Connections for bram a (activation/input matrix)
 //bram_addr_a -> connected to u_matmul_4x4
@@ -172,6 +176,7 @@ cfg u_cfg(
   .enable_norm(enable_norm),
   .enable_pool(enable_pool),
   .enable_activation(enable_activation),
+  .enable_conv_mode(enable_conv_mode),
   .mean(mean),
   .inv_var(inv_var),
   .pool_window_size(pool_window_size),
@@ -200,6 +205,9 @@ cfg u_cfg(
   .out_img_height(out_img_height),
   .out_img_width(out_img_width),
   .batch_size(batch_size),
+//  .cur_c(cur_c),
+//  .cur_r(cur_r),
+//  .cur_s(cur_s),
   .done_tpu(done_tpu)
 );
 
@@ -238,6 +246,25 @@ matmul u_matmul(
   .c_data_available(matmul_c_data_available),
   .save_output_to_accum(save_output_to_accum),
   .add_accum_to_output(add_accum_to_output),
+  .enable_conv_mode(enable_conv_mode),
+  .conv_filter_height(conv_filter_height),
+  .conv_filter_width(conv_filter_width),
+  .conv_stride_horiz(conv_stride_horiz),
+  .conv_stride_verti(conv_stride_verti),
+  .conv_padding_left(conv_padding_left),
+  .conv_padding_right(conv_padding_right),
+  .conv_padding_top(conv_padding_top),
+  .conv_padding_bottom(conv_padding_bottom),
+  .num_channels_inp(num_channels_inp),
+  .num_channels_out(num_channels_out),
+  .inp_img_height(inp_img_height),
+  .inp_img_width(inp_img_width),
+  .out_img_height(out_img_height),
+  .out_img_width(out_img_width),
+  .batch_size(batch_size),
+//  .cur_c(cur_c),
+//  .cur_r(cur_r),
+//  .cur_s(cur_s),
   .final_mat_mul_size(8'd`MAT_MUL_SIZE),
   .a_loc(8'd0),
   .b_loc(8'd0)
@@ -298,19 +325,40 @@ activation u_activation(
 //block that could potentially write the output.
 always @(posedge clk) begin
   if (reset) begin
-    bram_wdata_a <= 0;
-    bram_addr_a_for_writing <= address_mat_c-address_stride_c;
-    bram_a_wdata_available <= 0;
+    if (enable_conv_mode) begin
+      bram_wdata_a <= 0;
+      bram_addr_a_for_writing <= address_mat_c - (out_img_height*out_img_width);
+      bram_a_wdata_available <= 0;
+    end
+    else begin
+      bram_wdata_a <= 0;
+      bram_addr_a_for_writing <= address_mat_c-address_stride_c;
+      bram_a_wdata_available <= 0;
+    end
   end
   else if (activation_out_data_available) begin
-    bram_wdata_a <= activation_data_out;
-    bram_addr_a_for_writing <= bram_addr_a_for_writing + address_stride_c;
-    bram_a_wdata_available <= activation_out_data_available;
+    if (enable_conv_mode) begin
+      bram_wdata_a <= activation_data_out;
+      bram_addr_a_for_writing <= bram_addr_a_for_writing + (out_img_height*out_img_width);
+      bram_a_wdata_available <= activation_out_data_available;
+    end
+    else begin
+      bram_wdata_a <= activation_data_out;
+      bram_addr_a_for_writing <= bram_addr_a_for_writing + address_stride_c;
+      bram_a_wdata_available <= activation_out_data_available;
+    end
   end
   else begin
-    bram_wdata_a <= 0;
-    bram_addr_a_for_writing <= address_mat_c-address_stride_c;
-    bram_a_wdata_available <= 0;
+    if (enable_conv_mode) begin
+      bram_wdata_a <= 0;
+      bram_addr_a_for_writing <= address_mat_c - (out_img_height*out_img_width);
+      bram_a_wdata_available <= 0;
+    end
+    else begin
+      bram_wdata_a <= 0;
+      bram_addr_a_for_writing <= address_mat_c-address_stride_c;
+      bram_a_wdata_available <= 0;
+    end
   end
 end  
 

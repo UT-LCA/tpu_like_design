@@ -23,6 +23,66 @@
 `define MAX_BITS_POOL 3
 
 /////////////////////////////////////////////////
+//How to use fully-connected mode?
+/////////////////////////////////////////////////
+//TODO: See layer test and accum test and write documentation
+
+/////////////////////////////////////////////////
+//How to use convolution mode?
+/////////////////////////////////////////////////
+
+//Matrix A (input activation matrix)
+//----------------------------------
+//* This matrix is the non-expanded matrix (ie. this contains 
+//  the same number of elements as the input activation tensor).
+//  It doesn't contain the expanded GEMM M matrix corresponding
+//  to this convolution.
+//* This matrix is expected to have been padded though. That is,
+//  if there are any padding rows/columns to be added, the software
+//  should do that and store the padded matrix in the BRAM. 
+//* Initial address of matrix A is to be programmed once in the
+//  beginning of calculation of each output tile. We don't have 
+//  to reprogram the address of A every time during accumulation.
+//* The register containing stride of the matrix A is not used 
+//  in convolution mode. Address strides for each read are determined
+//  on the basis of C,R,S values internally in the RTL. This is because
+//  strides are not fixed. They vary for every read.
+//* This matrix is laid out in NCHW format. 
+
+//Matrix B (weight matrix)
+//----------------------------------
+//* This matrix is the non-expanded matrix (ie. this contains 
+//  the same number of elements as the weight tensor).
+//  It doesn't contain the expanded GEMM N matrix corresponding
+//  to this convolution.
+//* There is no concept of padding for this matrix.
+//* Initial address of matrix B is to be programmed once in the
+//  beginning of calculation of each output tile. We don't have 
+//  to reprogram the address of B every time during accumulation.
+//* The register containing stride of the matrix B is not used
+//  in the RTL. Address strides for each read are determined
+//  on the basis of C,R,S values internally in the RTL. 
+//* This matrix is laid out in NCHW format, but it is transposed.
+//  So technically, the format is WHCN. 
+
+//Matrix C (output activation matrix)
+//----------------------------------
+//* This matrix is the non-expanded matrix (ie. this contains 
+//  the same number of elements as the output activation tensor).
+//  It contains the GEMM matrix corresponding
+//  to this convolution.
+//* There is no concept of padding for this matrix.
+//* Initial address of matrix C is to be programmed in the
+//  beginning of calculation of each output tile. 
+//  There is no concept of programming the address of C for 
+//  accumulation. We write the matrix C only after all accumulations
+//  have finished.
+//* The register containing stride of the matrix C is not used
+//  in the RTL. That is because the stride is known and is equal to
+//  out_img_width * out_img_height, and RTL just uses that directly.
+//* This matrix is laid out in NCHW format.
+
+/////////////////////////////////////////////////
 //Register specification
 /////////////////////////////////////////////////
 //---------------------------------------
@@ -56,19 +116,30 @@
 //Bit 7:0: inv_var
 
 //---------------------------------------
-//Addr E: Register that stores the starting address of matrix A in BRAM A
+//Addr E: Register that stores the starting address of matrix A in BRAM A.
+//In fully-connected mode, this register should be programmed with the
+//address of the matrix being currently multiplied. That is, the 
+//address of the matrix of the matmul. So, this register will be
+//programmed every time the matmul is kicked off during accumulation stages.
+//Use the STRIDE registers to tell the matmul to increment addresses.
+//In convolution mode, this register should be programmed with the 
+//address of the input activation matrix. No need to configure
+//this every time the matmul is kicked off for accmulation. Just program it 
+//once it the beginning. Address increments are handled automatically .
 //---------------------------------------
 `define REG_MATRIX_A_ADDR 32'he
 //Bit `AWIDTH-1:0 address_mat_a
 
 //---------------------------------------
-//Addr 12: Register that stores the starting address of matrix B in BRAM B
+//Addr 12: Register that stores the starting address of matrix B in BRAM B.
+//See detailed note on the usage of this register in REG_MATRIX_A_ADDR.
 //---------------------------------------
 `define REG_MATRIX_B_ADDR 32'h12
 //Bit `AWIDTH-1:0 address_mat_b
 
 //---------------------------------------
-//Addr 16: Register that stores the starting address of matrix C in BRAM C
+//Addr 16: Register that stores the starting address of matrix C in BRAM C.
+//See detailed note on the usage of this register in REG_MATRIX_A_ADDR.
 //---------------------------------------
 `define REG_MATRIX_C_ADDR 32'h16
 //Bit `AWIDTH-1:0 address_mat_c
@@ -103,6 +174,7 @@
 //Bit 1 add_accumulator_to_output
 
 //---------------------------------------
+//(Only applicable in fully-connected mode)
 //Addr 28: Register that stores the stride that should be taken to address
 //elements in matrix A, after every MAT_MUL_SIZE worth of data has been fetched.
 //See the diagram in "Meeting-16" notes in the EE382V project Onenote notebook.
@@ -113,6 +185,7 @@
 //Bit `ADDR_STRIDE_WIDTH-1:0 address_stride_a
 
 //---------------------------------------
+//(Only applicable in fully-connected mode)
 //Addr 32: Register that stores the stride that should be taken to address
 //elements in matrix B, after every MAT_MUL_SIZE worth of data has been fetched.
 //See the diagram in "Meeting-16" notes in the EE382V project Onenote notebook.
@@ -123,6 +196,7 @@
 //Bit `ADDR_STRIDE_WIDTH-1:0 address_stride_b
 
 //---------------------------------------
+//(Only applicable in fully-connected mode)
 //Addr 36: Register that stores the stride that should be taken to address
 //elements in matrix C, after every MAT_MUL_SIZE worth of data has been fetched.
 //See the diagram in "Meeting-16" notes in the EE382V project Onenote notebook.

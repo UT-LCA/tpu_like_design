@@ -2,7 +2,7 @@ module accum_test();
 
 reg done;
 reg [`REG_DATAWIDTH-1:0] rdata;
-
+reg [`REG_DATAWIDTH-1:0] wdata;
 
 task run();
 begin
@@ -379,18 +379,19 @@ begin
   //enable_norm = 1;
   //enable_activation = 1;
   //enable_pool = 1;
+
+  //reg value to enable all blocks (non conv mode)
+  wdata = 32'h0000_000f;
   if ($test$plusargs("norm_disabled")) begin
-    write(`REG_ENABLES_ADDR, 32'h0000_000d);
+    wdata &= 32'b1111_1111_1111_1111_1111_1111_1111_1101;
   end 
-  else if ($test$plusargs("pool_disabled")) begin
-    write(`REG_ENABLES_ADDR, 32'h0000_000b);
+  if ($test$plusargs("pool_disabled")) begin
+    wdata &= 32'b1111_1111_1111_1111_1111_1111_1111_1011;
   end 
-  else if ($test$plusargs("activation_disabled")) begin
-    write(`REG_ENABLES_ADDR, 32'h0000_0007);
+  if ($test$plusargs("activation_disabled")) begin
+    wdata &= 32'b1111_1111_1111_1111_1111_1111_1111_0111;
   end 
-  else begin//all blocks enabled
-    write(`REG_ENABLES_ADDR, 32'h0000_000f);
-  end
+  write(`REG_ENABLES_ADDR, wdata);
   read(`REG_ENABLES_ADDR, rdata);
 
   $display("Configure the value of mean and inv_variance");

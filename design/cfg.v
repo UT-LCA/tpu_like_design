@@ -13,6 +13,7 @@ module cfg(
     output reg enable_norm,
     output reg enable_pool,
     output reg enable_activation,
+    output reg enable_conv_mode,
     //TODO: We need to change the precision of compute to a larger 
     //number. For now, using the DWIDTH variable, but we need a 
     //HIGH_PRECISION_DWIDTH kind of thing
@@ -44,6 +45,9 @@ module cfg(
     output reg [15:0] out_img_height,
     output reg [15:0] out_img_width,
     output reg [31:0] batch_size,
+//    output reg [15:0] cur_c,
+//    output reg [3:0]  cur_r,
+//    output reg [3:0]  cur_s,
     input done_tpu
 );
 
@@ -89,16 +93,20 @@ always @(posedge PCLK) begin
     conv_stride_horiz  <= 1;
     conv_stride_verti  <= 1;
     conv_padding_left  <= 0;
-    conv_padding_right <= 1;
+    conv_padding_right <= 0;
     conv_padding_top   <= 0;
-    conv_padding_bottom<= 1;
+    conv_padding_bottom<= 0;
     num_channels_inp <= 4;
     num_channels_out <= 4;
     inp_img_height   <= 8;
     inp_img_width    <= 8;
-    out_img_height   <= 8;
-    out_img_width    <= 8;
-    batch_size <= 1;
+    out_img_height   <= 7;
+    out_img_width    <= 7;
+    batch_size       <= 2;
+    enable_conv_mode <= 0;
+    //cur_c <= 0;
+    //cur_r <= 0;
+    //cur_s <= 0;
   end
 
   else begin
@@ -120,6 +128,7 @@ always @(posedge PCLK) begin
         if (PSEL && PWRITE && PENABLE) begin
           case (PADDR)
           `REG_ENABLES_ADDR   : begin 
+                                enable_conv_mode  <= PWDATA[31];
                                 enable_activation <= PWDATA[3];
                                 enable_pool       <= PWDATA[2];
                                 enable_norm       <= PWDATA[1];
@@ -164,6 +173,11 @@ always @(posedge PCLK) begin
                                       out_img_width    <= PWDATA[31:16];
                                       end
           `REG_BATCH_SIZE_ADDR      : batch_size <= PWDATA[31:0];
+          //`REG_CUR_CRS_ADDR         : begin
+          //                            cur_c <= PWDATA[15:0];
+          //                            cur_r <= PWDATA[19:16];
+          //                            cur_s <= PWDATA[23:20];
+          //                            end
           default: reg_dummy <= PWDATA; //sink writes to a dummy register
           endcase
           PREADY <=1;          
@@ -212,6 +226,7 @@ always @(posedge PCLK) begin
                                       out_img_width
                                       };
           `REG_BATCH_SIZE_ADDR      : PRDATA <= batch_size;
+          //`REG_CUR_CRS_ADDR         : PRDATA <= {8'b0, cur_s, cur_r, cur_c};
           default             : PRDATA <= reg_dummy; //read the dummy register for undefined addresses
           endcase
         end

@@ -45,6 +45,22 @@ module matmul(
  c_data_available,
  save_output_to_accum,
  add_accum_to_output,
+ enable_conv_mode,
+ conv_filter_height,
+ conv_filter_width,
+ conv_stride_horiz,
+ conv_stride_verti,
+ conv_padding_left,
+ conv_padding_right,
+ conv_padding_top,
+ conv_padding_bottom,
+ num_channels_inp,
+ num_channels_out,
+ inp_img_height,
+ inp_img_width,
+ out_img_height,
+ out_img_width,
+ batch_size,
  final_mat_mul_size,
  a_loc,
  b_loc
@@ -74,6 +90,22 @@ module matmul(
  output c_data_available;
  input save_output_to_accum;
  input add_accum_to_output;
+ input enable_conv_mode;
+ input [3:0] conv_filter_height;
+ input [3:0] conv_filter_width;
+ input [3:0] conv_stride_horiz;
+ input [3:0] conv_stride_verti;
+ input [3:0] conv_padding_left;
+ input [3:0] conv_padding_right;
+ input [3:0] conv_padding_top;
+ input [3:0] conv_padding_bottom;
+ input [15:0] num_channels_inp;
+ input [15:0] num_channels_out;
+ input [15:0] inp_img_height;
+ input [15:0] inp_img_width;
+ input [15:0] out_img_height;
+ input [15:0] out_img_width;
+ input [31:0] batch_size;
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
 //In fact, these will get optimized out by the synthesis tool, because
 //we hardcode them at the instantiation level.
@@ -123,22 +155,60 @@ always @(posedge clk) begin
 end
  
 reg [`AWIDTH-1:0] a_addr;
+reg [3:0] r; //iterator for filter height
+reg [3:0] s; //iterator for filter width
+reg [15:0] c; //iterator for input channels
+reg [15:0] cur_c_saved;
+reg [3:0] cur_r_saved;
+reg [3:0] cur_s_saved;
+
 reg a_mem_access; //flag that tells whether the matmul is trying to access memory or not
 always @(posedge clk) begin
-  if (reset || ~start_mat_mul) begin
-    a_addr <= address_mat_a-address_stride_a;
-    a_mem_access <= 0;
-  end
   //else if (clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
-  else if (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    a_addr <= address_mat_a-address_stride_a;
+  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+    if (enable_conv_mode) begin
+      a_addr <= address_mat_a;
+      c <= cur_c_saved;
+      r <= cur_r_saved;
+      s <= cur_s_saved;
+    end 
+    else begin
+      a_addr <= address_mat_a-address_stride_a;
+    end
     a_mem_access <= 0;
   end
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    a_addr <= a_addr + address_stride_a;
+    if (enable_conv_mode) begin
+      a_addr <= address_mat_a + s + r * (inp_img_width+conv_padding_left+conv_padding_right) + c * (inp_img_width+conv_padding_left+conv_padding_right) * (inp_img_height+conv_padding_top+conv_padding_bottom);
+      a_addr_prev <= a_addr;
+      if (s < (conv_filter_width-1)) begin
+          s <= s + 1;
+      end else begin
+          s <= 0;
+      end 
+
+      if (s == (conv_filter_width-1)) begin
+          if (r == (conv_filter_height-1)) begin
+              r <= 0;
+          end else begin
+              r <= r + 1;
+          end
+      end 
+
+      if ((r == (conv_filter_height-1)) && (s == (conv_filter_width-1))) begin
+          if (c == (num_channels_inp-1)) begin
+              c <= 0;
+          end else begin
+              c <= c + 1;
+          end
+      end
+    end
+    else begin
+      a_addr <= a_addr + address_stride_a;
+    end
     a_mem_access <= 1;
   end
 end  
@@ -210,20 +280,26 @@ end
 reg [`AWIDTH-1:0] b_addr;
 reg b_mem_access; //flag that tells whether the matmul is trying to access memory or not
 always @(posedge clk) begin
-  if (reset || ~start_mat_mul) begin
-    b_addr <= address_mat_b-address_stride_b;
-    b_mem_access <= 0;
-  end
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
-  else if (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size) begin
-    b_addr <= address_mat_b-address_stride_b;
+  if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+    if (enable_conv_mode) begin
+      b_addr <= address_mat_b;
+    end 
+    else begin
+      b_addr <= address_mat_b - address_stride_b;
+    end
     b_mem_access <= 0;
   end
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-    b_addr <= b_addr + address_stride_b;
+    if (enable_conv_mode) begin
+      b_addr <= address_mat_b + (s*num_channels_out) + (r*num_channels_out*num_channels_out) + (c*num_channels_out*num_channels_out*num_channels_out);
+    end
+    else begin
+      b_addr <= b_addr + address_stride_b;
+    end
     b_mem_access <= 1;
   end
 end  
@@ -413,6 +489,9 @@ always @(posedge clk) begin
     matrixC33_accum <= 0;
     outputs_saved_to_accum <= 0;
     outputs_added_to_accum <= 0;
+    cur_c_saved <= 0;
+    cur_r_saved <= 0;
+    cur_s_saved <= 0;
   end
   else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
     matrixC00_accum <= matrixC00_added;
@@ -433,6 +512,9 @@ always @(posedge clk) begin
     matrixC33_accum <= matrixC33_added;
     outputs_saved_to_accum <= 1;
     outputs_added_to_accum <= 1;
+    cur_c_saved <= c;
+    cur_r_saved <= r;
+    cur_s_saved <= s;
   end
   else if (row_latch_en && save_output_to_accum) begin
     matrixC00_accum <= matrixC00;
@@ -452,6 +534,9 @@ always @(posedge clk) begin
     matrixC32_accum <= matrixC32;
     matrixC33_accum <= matrixC33;
     outputs_saved_to_accum <= 1;
+    cur_c_saved <= c;
+    cur_r_saved <= r;
+    cur_s_saved <= s;
   end
   else if (row_latch_en && add_accum_to_output) begin
     outputs_added_to_accum <= 1;

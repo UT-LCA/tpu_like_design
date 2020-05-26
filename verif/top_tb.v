@@ -101,7 +101,8 @@ endtask
 ////////////////////////////////////////////
 layer_test u_layer_test();
 accum_test u_accum_test();
-conv_test u_conv_test();
+conv_test_no_padding u_conv_test_no_padding();
+conv_test_with_padding u_conv_test_with_padding();
 
 ////////////////////////////////////////////
 // Main routine. Calls the appropriate task
@@ -128,8 +129,10 @@ initial begin
     u_layer_test.run();
   end else if ($test$plusargs("accum_test")) begin
 	  u_accum_test.run();
-  end else if ($test$plusargs("conv_test")) begin
-	  u_conv_test.run();
+  end else if ($test$plusargs("conv_test_no_padding")) begin
+	  u_conv_test_no_padding.run();
+  end else if ($test$plusargs("conv_test_with_padding")) begin
+	  u_conv_test_with_padding.run();
   end
  
   $display("Finishing simulation");
