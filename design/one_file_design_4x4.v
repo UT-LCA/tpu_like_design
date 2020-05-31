@@ -453,6 +453,7 @@ reg [15:0] c; //iterator for input channels
 reg [15:0] cur_c_saved;
 reg [3:0] cur_r_saved;
 reg [3:0] cur_s_saved;
+reg dummy;
 
 always @(posedge clk) begin
   //We want to reset c,r,s when reset is asserted. And also when we have finished
@@ -463,6 +464,8 @@ always @(posedge clk) begin
     s <= 0;
   end
   else if (~start_mat_mul) begin
+    //Dummy statements to make ODIN happy
+    dummy <= conv_stride_horiz | conv_stride_verti | (|out_img_height) | (|out_img_width) | (|batch_size);
   end
   //Note than a_loc or b_loc doesn't matter in the code below. A and B are always synchronized.
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
