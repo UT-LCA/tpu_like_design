@@ -273,7 +273,7 @@ always @(posedge clk) begin
     a_mem_access_counter <= 0;
   end
   else if (a_mem_access == 1) begin
-    a_mem_access_counter = a_mem_access_counter + 1;  
+    a_mem_access_counter <= a_mem_access_counter + 1;  
 """)
 for i in range(int(sys.argv[1])):
   if i==0:
@@ -395,7 +395,7 @@ always @(posedge clk) begin
     b_mem_access_counter <= 0;
   end
   else if (b_mem_access == 1) begin
-    b_mem_access_counter = b_mem_access_counter + 1;  
+    b_mem_access_counter <= b_mem_access_counter + 1;  
 """)
 for i in range(int(sys.argv[1])):
   if i==0:

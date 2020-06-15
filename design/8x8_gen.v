@@ -259,7 +259,7 @@ always @(posedge clk) begin
     a_mem_access_counter <= 0;
   end
   else if (a_mem_access == 1) begin
-    a_mem_access_counter = a_mem_access_counter + 1;  
+    a_mem_access_counter <= a_mem_access_counter + 1;  
     if ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==0) ||
         (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==1) ||
         (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==2) ||
@@ -456,7 +456,7 @@ always @(posedge clk) begin
     b_mem_access_counter <= 0;
   end
   else if (b_mem_access == 1) begin
-    b_mem_access_counter = b_mem_access_counter + 1;  
+    b_mem_access_counter <= b_mem_access_counter + 1;  
     if ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==0) ||
         (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==1) ||
         (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==2) ||
