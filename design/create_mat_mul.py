@@ -1,14 +1,34 @@
 import sys
 import math
 from datetime import datetime
+import argparse
 
-if len(sys.argv) < 2:
-	print("Expected format : ./create_mat_mul.py <size of square systolic array - should be a power of 2>")
-	exit(-1)
+parser = argparse.ArgumentParser()
+parser.add_argument("-s",
+                    "--size",
+                    action='store',
+                    default=8,
+                    help='size of square systolic array - should be a power of 2')
+parser.add_argument("-n",
+                    "--no_conv_code",
+                    action='store_true',
+                    default=False,
+                    help='do you want to dump code for convolution support')
+parser.add_argument("-f",
+                    "--filename",
+                    action='store',
+                    default=None,
+                    help='name of the output file')
+args = parser.parse_args()
 
-systolic_size = sys.argv[1]
+systolic_size = args.size
+conv_code = (not args.no_conv_code)
+if args.filename is None:
+  filename = systolic_size + "x" + systolic_size + "_gen.v"
+else:
+  filename = args.filename
 
-f = open(sys.argv[1] + "x" + sys.argv[1] + "_gen.v","w")
+f = open(filename,"w")
 
 f.write("""
 `timescale 1ns / 1ps
@@ -19,7 +39,7 @@ f.write("""
 // Create Date: """ + str(datetime.now()) +
 """
 // Design Name: 
-// Module Name: matmul_""" + sys.argv[1] + "x" + sys.argv[1] + 
+// Module Name: matmul_""" + systolic_size + "x" + systolic_size + 
 """
 // Project Name: 
 // Target Devices: 
@@ -59,6 +79,9 @@ module matmul(
  c_data_available,
  save_output_to_accum,
  add_accum_to_output,
+""")
+if conv_code:
+  f.write("""
  enable_conv_mode,
  conv_filter_height,
  conv_filter_width,
@@ -75,6 +98,8 @@ module matmul(
  out_img_height,
  out_img_width,
  batch_size,
+  """)
+f.write("""
  validity_mask_a_rows,
  validity_mask_a_cols_b_rows,
  validity_mask_b_cols,
@@ -107,6 +132,9 @@ module matmul(
  output c_data_available;
  input save_output_to_accum;
  input add_accum_to_output;
+""")
+if conv_code:
+  f.write("""
  input enable_conv_mode;
  input [3:0] conv_filter_height;
  input [3:0] conv_filter_width;
@@ -123,6 +151,8 @@ module matmul(
  input [15:0] out_img_height;
  input [15:0] out_img_width;
  input [31:0] batch_size;
+  """)
+f.write("""
  input [`MASK_WIDTH-1:0] validity_mask_a_rows;
  input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
  input [`MASK_WIDTH-1:0] validity_mask_b_cols;
@@ -179,6 +209,10 @@ always @(posedge clk) begin
     clk_cnt <= clk_cnt + 1;
   end
 end
+""")
+
+if conv_code:
+  f.write("""
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to keep track of c,r,s values during convolution
@@ -230,7 +264,9 @@ always @(posedge clk) begin
     end
   end
 end  
+""")
 
+f.write("""
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate addresses to BRAM A
 //////////////////////////////////////////////////////////////////////////
@@ -241,23 +277,41 @@ always @(posedge clk) begin
   //(clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+""")
+if conv_code:
+  f.write("""
     if (enable_conv_mode) begin
       a_addr <= address_mat_a;
     end 
     else begin
       a_addr <= address_mat_a-address_stride_a;
     end
+  """)
+else:
+  f.write("""
+      a_addr <= address_mat_a-address_stride_a;
+  """)
+f.write("""
     a_mem_access <= 0;
   end
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+""")
+if conv_code:
+  f.write("""
     if (enable_conv_mode) begin
       a_addr <= address_mat_a + s + r * (inp_img_width+conv_padding_left+conv_padding_right) + c * (inp_img_width+conv_padding_left+conv_padding_right) * (inp_img_height+conv_padding_top+conv_padding_bottom);
     end
     else begin
       a_addr <= a_addr + address_stride_a;
     end
+  """)
+else:
+  f.write("""
+      a_addr <= a_addr + address_stride_a;
+  """)
+f.write("""
     a_mem_access <= 1;
   end
 end
@@ -275,10 +329,10 @@ always @(posedge clk) begin
   else if (a_mem_access == 1) begin
     a_mem_access_counter <= a_mem_access_counter + 1;  
 """)
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
   if i==0:
     f.write("    if ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
-  elif i==(int(sys.argv[1])-1):
+  elif i==(int(systolic_size)-1):
     f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ")) begin\n")
   else:
     f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
@@ -300,27 +354,27 @@ end
 //////////////////////////////////////////////////////////////////////////
 """)
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("wire [`DWIDTH-1:0] a" + str(i) + "_data;\n")
 
 f.write("\n")
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("assign a"+ str(i) + "_data = a_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{a_data_valid}} & {`DWIDTH{validity_mask_a_rows[" + str(i) + "]}};\n")
 
 f.write("\n")	
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("wire [`DWIDTH-1:0] a" + str(i) + "_data_in;\n")
 
 f.write("\n")
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("assign a"+ str(i) + "_data_in = a_data_in[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH];\n")
 
 f.write("\n")
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	for j in range(1,i+1):
 		f.write("reg [`DWIDTH-1:0] a" + str(i) + "_data_delayed_" + str(j) + ";\n")
 
@@ -332,7 +386,7 @@ always @(posedge clk) begin
   if (reset || ~start_mat_mul || clk_cnt==0) begin
 """)
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	for j in range(1,i+1):
 		f.write("		a"+ str(i) +"_data_delayed_" + str(j) + " <= 0;\n")
 
@@ -342,10 +396,10 @@ f.write(
   else begin
 """)
 
-for i in range(1,int(sys.argv[1])):
+for i in range(1,int(systolic_size)):
 	f.write("	a" + str(i)+ "_data_delayed_1 <= a" +str(i)+ "_data;\n")
 
-for i in range(1,int(sys.argv[1])):
+for i in range(1,int(systolic_size)):
 	for j in range(2,i+1):
 		f.write("	a"+ str(i) +"_data_delayed_" + str(j) + " <= a"+ str(i) +"_data_delayed_"+ str(j-1) + ";\n")
 
@@ -363,22 +417,40 @@ always @(posedge clk) begin
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
   if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+""")
+if conv_code:
+  f.write("""
     if (enable_conv_mode) begin
       b_addr <= address_mat_b;
     end 
     else begin
       b_addr <= address_mat_b - address_stride_b;
     end
+  """)
+else:
+  f.write("""
+      b_addr <= address_mat_b - address_stride_b;
+  """)
+f.write("""
     b_mem_access <= 0;
   end
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
   else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+""")
+if conv_code:
+  f.write("""
     if (enable_conv_mode) begin
       b_addr <= address_mat_b + (s*num_channels_out) + (r*num_channels_out*num_channels_out) + (c*num_channels_out*num_channels_out*num_channels_out);
     end
     else begin
       b_addr <= b_addr + address_stride_b;
+  """)
+else:
+  f.write("""
+      b_addr <= b_addr + address_stride_b;
+  """)
+f.write("""
     end
     b_mem_access <= 1;
   end
@@ -397,10 +469,10 @@ always @(posedge clk) begin
   else if (b_mem_access == 1) begin
     b_mem_access_counter <= b_mem_access_counter + 1;  
 """)
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
   if i==0:
     f.write("    if ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
-  elif i==(int(sys.argv[1])-1):
+  elif i==(int(systolic_size)-1):
     f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ")) begin\n")
   else:
     f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
@@ -422,27 +494,27 @@ end
 //////////////////////////////////////////////////////////////////////////
 """)
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("wire [`DWIDTH-1:0] b" + str(i) + "_data;\n")
 
 f.write("\n")
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("assign b"+ str(i) + "_data = b_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{b_data_valid}} & {`DWIDTH{validity_mask_b_cols[" + str(i) + "]}};\n")
 
 f.write("\n")	
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("wire [`DWIDTH-1:0] b" + str(i) + "_data_in;\n")
 
 f.write("\n")
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("assign b"+ str(i) + "_data_in = b_data_in[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH];\n")
 
 f.write("\n")
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	for j in range(1,i+1):
 		f.write("reg [`DWIDTH-1:0] b" + str(i) + "_data_delayed_" + str(j) + ";\n")
 
@@ -454,7 +526,7 @@ always @(posedge clk) begin
   if (reset || ~start_mat_mul || clk_cnt==0) begin
 """)
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	for j in range(1,i+1):
 		f.write("		b"+ str(i) +"_data_delayed_" + str(j) + " <= 0;\n")
 
@@ -464,10 +536,10 @@ f.write(
   else begin
 """)
 
-for i in range(1,int(sys.argv[1])):
+for i in range(1,int(systolic_size)):
 	f.write("	b" + str(i)+ "_data_delayed_1 <= b" +str(i)+ "_data;\n")
 
-for i in range(1,int(sys.argv[1])):
+for i in range(1,int(systolic_size)):
 	for j in range(2,i+1):
 		f.write("	b"+ str(i) +"_data_delayed_" + str(j) + " <= b"+ str(i) +"_data_delayed_"+ str(j-1) + ";\n")
 
@@ -481,10 +553,10 @@ end
 //////////////////////////////////////////////////////////////////////////
 """)
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("wire [`DWIDTH-1:0] a" + str(i) + ";\n")
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("wire [`DWIDTH-1:0] b" + str(i) + ";\n")
 
 f.write("\n")
@@ -498,7 +570,7 @@ f.write("\n")
 """
 f.write("assign a0 = (b_loc==0) ? a0_data           : a0_data_in;\n")
 
-for i in range(1,int(sys.argv[1])):
+for i in range(1,int(systolic_size)):
 	f.write("assign a" + str(i) + " = (b_loc==0) ? a" + str(i) + "_data_delayed_"+ str(i) + " : a"+ str(i) + "_data_in;\n")
 
 """
@@ -512,7 +584,7 @@ f.write("\n")
 
 f.write("assign b0 = (a_loc==0) ? b0_data           : b0_data_in;\n")
 
-for i in range(1,int(sys.argv[1])):
+for i in range(1,int(systolic_size)):
 	f.write("assign b" + str(i) + " = (a_loc==0) ? b" + str(i) + "_data_delayed_"+ str(i) + " : b"+ str(i) + "_data_in;\n")
 
 f.write("\n")
@@ -522,50 +594,50 @@ f.write("""\n
 // Logic to handle accumulation of partial sums (accumulators)
 //////////////////////////////////////////////////////////////////////////
 \n""")
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("wire [`DWIDTH-1:0] ")
 
-	for j in range(int(sys.argv[1])):
+	for j in range(int(systolic_size)):
 		f.write("a" + str(i) + str(j) + "to" + str(i) + str(j+1))
 
-		if (j != int(sys.argv[1])-1):
+		if (j != int(systolic_size)-1):
 			f.write(", ")
 		else:
 			f.write(";\n")
 
 f.write("\n")
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("wire [`DWIDTH-1:0] ")
 
-	for j in range(int(sys.argv[1])):
+	for j in range(int(systolic_size)):
 		f.write("b" + str(j) + str(i)  + "to" + str(j+1) + str(i))
 
-		if (j != int(sys.argv[1])-1):
+		if (j != int(systolic_size)-1):
 			f.write(", ")
 		else:
 			f.write(";\n")
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("wire [`DWIDTH-1:0] cin_row" + str(i) + ";\n")
 
 f.write("wire row_latch_en;\n\n")
 
-for i in range(int(sys.argv[1])):
-	for j in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
+	for j in range(int(systolic_size)):
 		f.write("wire [`DWIDTH-1:0] matrixC" + str(i) + str(j) + ";\n")
 
-for i in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
 	f.write("assign cin_row" + str(i) + " = " + "c_data_in" + "[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH];\n")
 
 
-for i in range(int(sys.argv[1])):
-	for j in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
+	for j in range(int(systolic_size)):
 		f.write("wire [`DWIDTH-1:0] matrixC" + str(i) + str(j) + "_added;\n")
 
 f.write("\n\n")
 
-for i in range(int(sys.argv[1])):
-	for j in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
+	for j in range(int(systolic_size)):
 		f.write("reg [`DWIDTH-1:0] matrixC" + str(i) + str(j) + "_accum;\n")
 
 
@@ -580,45 +652,60 @@ always @(posedge clk) begin
 """)
 
 
-for i in range(int(sys.argv[1])):
-	for j in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
+	for j in range(int(systolic_size)):
 		f.write("matrixC" + str(i) + str(j) + "_accum <= 0;\n")
 
 f.write(
 """ outputs_saved_to_accum <= 0;
     outputs_added_to_accum <= 0;
+""")
+if conv_code:
+  f.write("""
     cur_c_saved <= 0;
     cur_r_saved <= 0;
     cur_s_saved <= 0;
+  """)
+f.write("""
   end
   else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
 """
 )
 
-for i in range(int(sys.argv[1])):
-	for j in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
+	for j in range(int(systolic_size)):
 		f.write("\tmatrixC" + str(i) + str(j) + "_accum <= matrixC" + str(i) + str(j) + "_added;\n")
 
 f.write(
 """
     outputs_saved_to_accum <= 1;
     outputs_added_to_accum <= 1;
+""")
+if conv_code:
+  f.write("""
     cur_c_saved <= c;
     cur_r_saved <= r;
     cur_s_saved <= s;
+  """)
+f.write("""
   end
   else if (row_latch_en && save_output_to_accum) begin
 """)
 
-for i in range(int(sys.argv[1])):
-	for j in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
+	for j in range(int(systolic_size)):
 		f.write("\tmatrixC" + str(i) + str(j) + "_accum <= matrixC" + str(i) + str(j) + ";\n")
 
 f.write("""
     outputs_saved_to_accum <= 1;
+""")
+if conv_code:
+  f.write("""
     cur_c_saved <= c;
     cur_r_saved <= r;
     cur_s_saved <= s;
+  """)
+f.write("""
   end
   else if (row_latch_en && add_accum_to_output) begin
     outputs_added_to_accum <= 1;
@@ -627,8 +714,8 @@ end
 """)
 
 
-for i in range(int(sys.argv[1])):
-	for j in range(int(sys.argv[1])):
+for i in range(int(systolic_size)):
+	for j in range(int(systolic_size)):
 		f.write("assign matrixC" + str(i) + str(j) + "_added = (add_accum_to_output) ? (matrixC" + str(i) + str(j) + " + matrixC" + str(i) + str(j) + "_accum) : matrixC" + str(i) + str(j) + ";\n")
 
 
@@ -648,7 +735,7 @@ reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
 integer counter;
-reg [""" + sys.argv[1] + """*`DWIDTH-1:0] c_data_out;
+reg [""" + systolic_size + """*`DWIDTH-1:0] c_data_out;
 
 //We need to reset the accumulators when the mat mul is done and when we are 
 //done with final reduction to generated a tile's output.
@@ -685,7 +772,7 @@ always @(posedge clk) begin
     c_addr <= c_addr + address_stride_c ;
     c_data_out <= {""")
 
-for i in range(int(sys.argv[1])-1,-1,-1):
+for i in range(int(systolic_size)-1,-1,-1):
     f.write("matrixC" + str(i) + "0_added")
 
     if i == 0:
@@ -710,9 +797,9 @@ f.write(
     case (counter)  //rest of the elements are captured here
     """)
 
-for i in range(1,int(sys.argv[1])):
+for i in range(1,int(systolic_size)):
 	f.write("		"+str(i) + ": c_data_out <= {")
-	for j in range(int(sys.argv[1])-1,-1,-1):
+	for j in range(int(systolic_size)-1,-1,-1):
 		f.write("matrixC" + str(j) + str(i) + "_added")
 
 		if j == 0:
@@ -737,7 +824,7 @@ assign effective_rst = reset | ~start_mat_mul;
 processing_element pe00(.reset(effective_rst), .clk(clk),  .in_a(a0),      .in_b(b0),  .out_a(a00to01), .out_b(b00to10), .out_c(matrixC00));
 """)
 
-for i in range(int(sys.argv[1])-1):
+for i in range(int(systolic_size)-1):
 	f.write("processing_element pe0" + str(i+1) + 
 		"(.reset(effective_rst), .clk(clk),  .in_a(a0" + str(i) + "to0" + str(i+1) +
 		"), .in_b(b" + str(i+1) + "),  .out_a(a0" +  str(i+1) + "to0" + str(i+2) + "), .out_b(b0"+
@@ -745,13 +832,13 @@ for i in range(int(sys.argv[1])-1):
 
 f.write("\n")
 
-# for i in range(int(sys.argv[1])-1):
+# for i in range(int(systolic_size)-1):
 # 	f.write("processing_element pe" + str(i+1) + "0" + 
 # 	"(.reset(effective_rst), .clk(clk),  .in_a(a" + str(i+1) +
 # 	"), .in_b(b" + str(i) + "0to" + str(i+1) + "0),  .out_a(a" +  str(i+1) + "0to" + str(i+1) + "1), .out_b(b"+
 # 	 str(i+1) + "0to" + str(i+1) + "0), .out_c(matrixC" + str(i+1) + "0));\n")
 
-for i in range(int(sys.argv[1])-1):
+for i in range(int(systolic_size)-1):
 	f.write("processing_element pe" + str(i+1) + 
 	"0(.reset(effective_rst), .clk(clk),  .in_a(a" + str(i+1) +
 	"), .in_b(b" + str(i) + "0to" + str(i+1) + "0),  .out_a(a" +  str(i+1) + "0to" + str(i+1) + "1), .out_b(b"+
@@ -759,8 +846,8 @@ for i in range(int(sys.argv[1])-1):
 
 f.write("\n")
 
-for i in range(int(sys.argv[1])-1):
-	for j in range(int(sys.argv[1])-1):
+for i in range(int(systolic_size)-1):
+	for j in range(int(systolic_size)-1):
 		f.write("processing_element pe" + str(i+1) + str(j+1) +
 		"(.reset(effective_rst), .clk(clk),  .in_a(a" + str(i+1) + str(j) + "to" + str(i+1) + str(j+1) +
 		"), .in_b(b" + str(i) + str(j+1) + "to" + str(i+1) + str(j+1) +"),  .out_a(a" +  str(i+1) + str(j+1) + 
@@ -788,8 +875,8 @@ processing_element pe33(.reset(effective_rst), .clk(clk),  .in_a(a32to33), .in_b
 
 f.write("assign a_data_out = {")
 
-for i in range(int(sys.argv[1])-1,-1,-1):
-	f.write("a" + str(i) + str(int(sys.argv[1])-1) + "to" +  str(i) + sys.argv[1])
+for i in range(int(systolic_size)-1,-1,-1):
+	f.write("a" + str(i) + str(int(systolic_size)-1) + "to" +  str(i) + systolic_size)
 
 	if i != 0:
 		f.write(",")
@@ -798,8 +885,8 @@ for i in range(int(sys.argv[1])-1,-1,-1):
 
 f.write("assign b_data_out = {")
 
-for i in range(int(sys.argv[1])-1,-1,-1):
-	f.write("b" + str(int(sys.argv[1])-1) + str(i) + "to" +  sys.argv[1] + str(i) )
+for i in range(int(systolic_size)-1,-1,-1):
+	f.write("b" + str(int(systolic_size)-1) + str(i) + "to" +  systolic_size + str(i) )
 
 	if i != 0:
 		f.write(",")
