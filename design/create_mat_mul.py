@@ -598,7 +598,7 @@ for i in range(int(systolic_size)):
 	f.write("wire [`DWIDTH-1:0] ")
 
 	for j in range(int(systolic_size)):
-		f.write("a" + str(i) + str(j) + "to" + str(i) + str(j+1))
+		f.write("a" + str(i) + "_" + str(j) + "to" + str(i) + "_" + str(j+1))
 
 		if (j != int(systolic_size)-1):
 			f.write(", ")
@@ -610,7 +610,7 @@ for i in range(int(systolic_size)):
 	f.write("wire [`DWIDTH-1:0] ")
 
 	for j in range(int(systolic_size)):
-		f.write("b" + str(j) + str(i)  + "to" + str(j+1) + str(i))
+		f.write("b" + str(j) + "_" + str(i)  + "to" + str(j+1) + "_" + str(i))
 
 		if (j != int(systolic_size)-1):
 			f.write(", ")
@@ -624,7 +624,7 @@ f.write("wire row_latch_en;\n\n")
 
 for i in range(int(systolic_size)):
 	for j in range(int(systolic_size)):
-		f.write("wire [`DWIDTH-1:0] matrixC" + str(i) + str(j) + ";\n")
+		f.write("wire [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + ";\n")
 
 for i in range(int(systolic_size)):
 	f.write("assign cin_row" + str(i) + " = " + "c_data_in" + "[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH];\n")
@@ -632,13 +632,13 @@ for i in range(int(systolic_size)):
 
 for i in range(int(systolic_size)):
 	for j in range(int(systolic_size)):
-		f.write("wire [`DWIDTH-1:0] matrixC" + str(i) + str(j) + "_added;\n")
+		f.write("wire [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + "_added;\n")
 
 f.write("\n\n")
 
 for i in range(int(systolic_size)):
 	for j in range(int(systolic_size)):
-		f.write("reg [`DWIDTH-1:0] matrixC" + str(i) + str(j) + "_accum;\n")
+		f.write("reg [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + "_accum;\n")
 
 
 f.write(
@@ -654,7 +654,7 @@ always @(posedge clk) begin
 
 for i in range(int(systolic_size)):
 	for j in range(int(systolic_size)):
-		f.write("matrixC" + str(i) + str(j) + "_accum <= 0;\n")
+		f.write("matrixC" + str(i) + "_" + str(j) + "_accum <= 0;\n")
 
 f.write(
 """ outputs_saved_to_accum <= 0;
@@ -674,7 +674,7 @@ f.write("""
 
 for i in range(int(systolic_size)):
 	for j in range(int(systolic_size)):
-		f.write("\tmatrixC" + str(i) + str(j) + "_accum <= matrixC" + str(i) + str(j) + "_added;\n")
+		f.write("\tmatrixC" + str(i) + "_" + str(j) + "_accum <= matrixC" + str(i) + "_" + str(j) + "_added;\n")
 
 f.write(
 """
@@ -694,7 +694,7 @@ f.write("""
 
 for i in range(int(systolic_size)):
 	for j in range(int(systolic_size)):
-		f.write("\tmatrixC" + str(i) + str(j) + "_accum <= matrixC" + str(i) + str(j) + ";\n")
+		f.write("\tmatrixC" + str(i) + "_" + str(j) + "_accum <= matrixC" + str(i) + "_" + str(j) + ";\n")
 
 f.write("""
     outputs_saved_to_accum <= 1;
@@ -716,7 +716,7 @@ end
 
 for i in range(int(systolic_size)):
 	for j in range(int(systolic_size)):
-		f.write("assign matrixC" + str(i) + str(j) + "_added = (add_accum_to_output) ? (matrixC" + str(i) + str(j) + " + matrixC" + str(i) + str(j) + "_accum) : matrixC" + str(i) + str(j) + ";\n")
+		f.write("assign matrixC" + str(i) + "_" + str(j) + "_added = (add_accum_to_output) ? (matrixC" + str(i) + "_" + str(j) + " + matrixC" + str(i) + "_" + str(j) + "_accum) : matrixC" + str(i) + "_" + str(j) + ";\n")
 
 
 f.write(
@@ -773,7 +773,7 @@ always @(posedge clk) begin
     c_data_out <= {""")
 
 for i in range(int(systolic_size)-1,-1,-1):
-    f.write("matrixC" + str(i) + "0_added")
+    f.write("matrixC" + str(i) + "_" + "0_added")
 
     if i == 0:
     	f.write("};\n")
@@ -800,7 +800,7 @@ f.write(
 for i in range(1,int(systolic_size)):
 	f.write("		"+str(i) + ": c_data_out <= {")
 	for j in range(int(systolic_size)-1,-1,-1):
-		f.write("matrixC" + str(j) + str(i) + "_added")
+		f.write("matrixC" + str(j) + "_" + str(i) + "_added")
 
 		if j == 0:
 			f.write("};\n")
@@ -821,14 +821,14 @@ f.write("""
 wire effective_rst;
 assign effective_rst = reset | ~start_mat_mul;
 
-processing_element pe00(.reset(effective_rst), .clk(clk),  .in_a(a0),      .in_b(b0),  .out_a(a00to01), .out_b(b00to10), .out_c(matrixC00));
+processing_element pe0_0(.reset(effective_rst), .clk(clk),  .in_a(a0),      .in_b(b0),  .out_a(a0_0to0_1), .out_b(b0_0to1_0), .out_c(matrixC0_0));
 """)
 
 for i in range(int(systolic_size)-1):
-	f.write("processing_element pe0" + str(i+1) + 
-		"(.reset(effective_rst), .clk(clk),  .in_a(a0" + str(i) + "to0" + str(i+1) +
-		"), .in_b(b" + str(i+1) + "),  .out_a(a0" +  str(i+1) + "to0" + str(i+2) + "), .out_b(b0"+
-		 str(i+1) + "to1" + str(i+1) + "), .out_c(matrixC0" + str(i+1) + "));\n")
+	f.write("processing_element pe0" + "_" + str(i+1) + 
+		"(.reset(effective_rst), .clk(clk),  .in_a(a0" + "_" + str(i) + "to0" + "_" + str(i+1) +
+		"), .in_b(b" + str(i+1) + "),  .out_a(a0" + "_" +  str(i+1) + "to0" + "_" + str(i+2) + "), .out_b(b0" + "_" +
+		 str(i+1) + "to1" + "_" + str(i+1) + "), .out_c(matrixC0" + "_" + str(i+1) + "));\n")
 
 f.write("\n")
 
@@ -839,19 +839,19 @@ f.write("\n")
 # 	 str(i+1) + "0to" + str(i+1) + "0), .out_c(matrixC" + str(i+1) + "0));\n")
 
 for i in range(int(systolic_size)-1):
-	f.write("processing_element pe" + str(i+1) + 
+	f.write("processing_element pe" + str(i+1) + "_" + 
 	"0(.reset(effective_rst), .clk(clk),  .in_a(a" + str(i+1) +
-	"), .in_b(b" + str(i) + "0to" + str(i+1) + "0),  .out_a(a" +  str(i+1) + "0to" + str(i+1) + "1), .out_b(b"+
-	 str(i+1) + "0to" + str(i+2) + "0), .out_c(matrixC" + str(i+1) + "0));\n")
+	"), .in_b(b" + str(i) + "_" + "0to" + str(i+1) + "_" + "0),  .out_a(a" +  str(i+1) + "_" + "0to" + str(i+1) + "_" + "1), .out_b(b"+
+	 str(i+1) + "_" + "0to" + str(i+2) + "_" + "0), .out_c(matrixC" + str(i+1) + "_" + "0));\n")
 
 f.write("\n")
 
 for i in range(int(systolic_size)-1):
 	for j in range(int(systolic_size)-1):
-		f.write("processing_element pe" + str(i+1) + str(j+1) +
-		"(.reset(effective_rst), .clk(clk),  .in_a(a" + str(i+1) + str(j) + "to" + str(i+1) + str(j+1) +
-		"), .in_b(b" + str(i) + str(j+1) + "to" + str(i+1) + str(j+1) +"),  .out_a(a" +  str(i+1) + str(j+1) + 
-		"to" + str(i+1) + str(j+2) +"), .out_b(b"+str(i+1) + str(j+1) + "to" + str(i+2) + str(j+1) + "), .out_c(matrixC" + str(i+1) + str(j+1) + "));\n")
+		f.write("processing_element pe" + str(i+1) + "_" + str(j+1) +
+		"(.reset(effective_rst), .clk(clk),  .in_a(a" + str(i+1) + "_" + str(j) + "to" + str(i+1) + "_" + str(j+1) +
+		"), .in_b(b" + str(i) + "_" + str(j+1) + "to" + str(i+1) + "_" + str(j+1) +"),  .out_a(a" +  str(i+1) + "_" + str(j+1) + 
+		"to" + str(i+1) + "_" + str(j+2) +"), .out_b(b"+str(i+1) + "_" + str(j+1) + "to" + str(i+2) + "_" + str(j+1) + "), .out_c(matrixC" + str(i+1) + "_" + str(j+1) + "));\n")
 
 """
 
@@ -876,7 +876,7 @@ processing_element pe33(.reset(effective_rst), .clk(clk),  .in_a(a32to33), .in_b
 f.write("assign a_data_out = {")
 
 for i in range(int(systolic_size)-1,-1,-1):
-	f.write("a" + str(i) + str(int(systolic_size)-1) + "to" +  str(i) + systolic_size)
+	f.write("a" + str(i) + "_" + str(int(systolic_size)-1) + "to" +  str(i) + "_" + systolic_size)
 
 	if i != 0:
 		f.write(",")
@@ -886,7 +886,7 @@ for i in range(int(systolic_size)-1,-1,-1):
 f.write("assign b_data_out = {")
 
 for i in range(int(systolic_size)-1,-1,-1):
-	f.write("b" + str(int(systolic_size)-1) + str(i) + "to" +  systolic_size + str(i) )
+	f.write("b" + str(int(systolic_size)-1) + "_" + str(i) + "to" +  systolic_size + "_" + str(i) )
 
 	if i != 0:
 		f.write(",")
