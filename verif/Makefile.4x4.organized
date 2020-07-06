@@ -2,10 +2,10 @@ export VCS_HOME /usr/local/packages/synopsys_2018/vcs-mx/O-2018.09-SP1
 
 all: compile run
 
-size?=8
+size?=4
 
 ifeq ($(size),4)
-	FILES=../design/4x4.v
+	FILES=../design/4x4_organized.v
 	DEFINES=+define+MATMUL_SIZE_4
 else
 	FILES=../design/8x8_gen.v
@@ -17,8 +17,8 @@ compile:
 	$(DEFINES) \
 	../design/defines.v \
 	$(FILES) \
-	../design/8x8_with_ram.v \
-	8x8_with_ram_tb_gen.v \
+	../design/4x4_with_ram.v \
+	4x4_with_ram_tb.v \
 	-sverilog \
 	-debug_access+all \
   -y /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \

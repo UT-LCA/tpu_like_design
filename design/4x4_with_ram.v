@@ -155,7 +155,7 @@ wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_NC;
 wire reset;
 assign reset = ~resetn;
 
-matmul_4x4 u_matmul_4x4(
+matmul u_matmul_4x4(
   .clk(clk),
   .reset(reset),
   .start_mat_mul(start_mat_mul),

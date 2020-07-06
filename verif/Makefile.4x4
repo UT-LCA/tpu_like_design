@@ -2,10 +2,21 @@ export VCS_HOME /usr/local/packages/synopsys_2018/vcs-mx/O-2018.09-SP1
 
 all: compile run
 
+size?=4
+
+ifeq ($(size),4)
+	FILES=../design/4x4.v
+	DEFINES=+define+MATMUL_SIZE_4
+else
+	FILES=../design/8x8_gen.v
+	DEFINES=+define+MATMUL_SIZE_8
+endif
+
 compile:
 	$(VCS_HOME)/bin/vcs -full64 \
+	$(DEFINES) \
 	../design/defines.v \
-	../design/4x4.v \
+	$(FILES) \
 	../design/4x4_with_ram.v \
 	4x4_with_ram_tb.v \
 	-sverilog \
