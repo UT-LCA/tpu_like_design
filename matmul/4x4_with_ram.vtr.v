@@ -1,12 +1,6 @@
 
 `timescale 1ns/1ns
 `define DWIDTH 8
-`define MASK_WIDTH 4
-`define MAT_MUL_SIZE 4
-`define LOG2_MAT_MUL_SIZE 2
-`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
-`define NUM_CYCLES_IN_MAC 3
-`define DWIDTH 8
 `define AWIDTH 11
 `define MEM_SIZE 2048
 
@@ -1050,7 +1044,7 @@ end
 //////////////////////////////////////////////////////////////////////////
 //Slice data into chunks and qualify it with whether it is valid or not
 assign a0_data = a_data[`DWIDTH-1:0] & {`DWIDTH{a_data_valid}} & {`DWIDTH{validity_mask_a_rows[0]}};
-assign a1_data = a_data[2*`DWIDTH-1:`DWIDTH] & {`DWIDTH{a_data_valid}} & {`DWIDTH{validity_mask_a_rows[1]}};;
+assign a1_data = a_data[2*`DWIDTH-1:`DWIDTH] & {`DWIDTH{a_data_valid}} & {`DWIDTH{validity_mask_a_rows[1]}};
 assign a2_data = a_data[3*`DWIDTH-1:2*`DWIDTH] & {`DWIDTH{a_data_valid}} & {`DWIDTH{validity_mask_a_rows[2]}};
 assign a3_data = a_data[4*`DWIDTH-1:3*`DWIDTH] & {`DWIDTH{a_data_valid}} & {`DWIDTH{validity_mask_a_rows[3]}};
 
