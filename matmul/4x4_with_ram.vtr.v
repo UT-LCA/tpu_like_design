@@ -32,6 +32,18 @@ module matrix_multiplication(
   validity_mask_a_rows,
   validity_mask_a_cols_b_rows,
   validity_mask_b_cols,
+  bram_addr_a_ext,
+  bram_rdata_a_ext,
+  bram_wdata_a_ext,
+  bram_we_a_ext,
+  bram_addr_b_ext,
+  bram_rdata_b_ext,
+  bram_wdata_b_ext,
+  bram_we_b_ext,
+  bram_addr_c_ext,
+  bram_rdata_c_ext,
+  bram_wdata_c_ext,
+  bram_we_c_ext,
   start_reg,
   clear_done_reg
 );
@@ -50,52 +62,82 @@ module matrix_multiplication(
   input [`MASK_WIDTH-1:0] validity_mask_a_rows;
   input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
   input [`MASK_WIDTH-1:0] validity_mask_b_cols;
+  input  [`AWIDTH-1:0] bram_addr_a_ext;
+  output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_ext;
+  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_ext;
+  input  [`MASK_WIDTH-1:0] bram_we_a_ext;
+  input  [`AWIDTH-1:0] bram_addr_b_ext;
+  output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_ext;
+  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_ext;
+  input  [`MASK_WIDTH-1:0] bram_we_b_ext;
+  input  [`AWIDTH-1:0] bram_addr_c_ext;
+  output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_ext;
+  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_ext;
+  input  [`MASK_WIDTH-1:0] bram_we_c_ext;
   input start_reg;
   input clear_done_reg;
 
-		 wire [`AWIDTH-1:0] bram_addr_a;
-		 wire [4*`DWIDTH-1:0] bram_rdata_a;
-		 wire [4*`DWIDTH-1:0] bram_wdata_a;
-		 wire [`MASK_WIDTH-1:0] bram_we_a;
-		 wire bram_en_a;
+	wire [`AWIDTH-1:0] bram_addr_a;
+	wire [4*`DWIDTH-1:0] bram_rdata_a;
+	wire [4*`DWIDTH-1:0] bram_wdata_a;
+	wire [`MASK_WIDTH-1:0] bram_we_a;
+	wire bram_en_a;
 
-		 wire [`AWIDTH-1:0] bram_addr_b;
-		 wire [4*`DWIDTH-1:0] bram_rdata_b;
-		 wire [4*`DWIDTH-1:0] bram_wdata_b;
-		 wire [`MASK_WIDTH-1:0] bram_we_b;
-		 wire bram_en_b;
-		
-		 wire [`AWIDTH-1:0] bram_addr_c;
-		 wire [4*`DWIDTH-1:0] bram_rdata_c;
-		 wire [4*`DWIDTH-1:0] bram_wdata_c;
-		 wire [`MASK_WIDTH-1:0] bram_we_c;
-		 wire bram_en_c;
+	wire [`AWIDTH-1:0] bram_addr_b;
+	wire [4*`DWIDTH-1:0] bram_rdata_b;
+	wire [4*`DWIDTH-1:0] bram_wdata_b;
+	wire [`MASK_WIDTH-1:0] bram_we_b;
+	wire bram_en_b;
+	
+	wire [`AWIDTH-1:0] bram_addr_c;
+	wire [4*`DWIDTH-1:0] bram_rdata_c;
+	wire [4*`DWIDTH-1:0] bram_wdata_c;
+	wire [`MASK_WIDTH-1:0] bram_we_c;
+	wire bram_en_c;
 
   reg [3:0] state;
 
-  // BRAM matrix A 
-  ram matrix_A (
-    .addr0(bram_addr_a),
-    .d0(bram_wdata_a), 
-    .we0(bram_we_a), 
-    .q0(bram_rdata_a), 
-    .clk(clk_mem));
+////////////////////////////////////////////////////////////////
+// BRAM matrix A 
+////////////////////////////////////////////////////////////////
+ram matrix_A (
+  .addr0(bram_addr_a),
+  .d0(bram_wdata_a), 
+  .we0(bram_we_a), 
+  .q0(bram_rdata_a), 
+  .addr1(bram_addr_a_ext),
+  .d1(bram_wdata_a_ext), 
+  .we1(bram_we_a_ext), 
+  .q1(bram_rdata_a_ext), 
+  .clk(clk_mem));
 
-  // BRAM matrix B
-  ram matrix_B (
-    .addr0(bram_addr_b),
-    .d0(bram_wdata_b), 
-    .we0(bram_we_b), 
-    .q0(bram_rdata_b), 
-    .clk(clk_mem));
+////////////////////////////////////////////////////////////////
+// BRAM matrix B 
+////////////////////////////////////////////////////////////////
+ram matrix_B (
+  .addr0(bram_addr_b),
+  .d0(bram_wdata_b), 
+  .we0(bram_we_b), 
+  .q0(bram_rdata_b), 
+  .addr1(bram_addr_b_ext),
+  .d1(bram_wdata_b_ext), 
+  .we1(bram_we_b_ext), 
+  .q1(bram_rdata_b_ext), 
+  .clk(clk_mem));
 
-  // BRAM matrix C
-  ram matrix_C (
-    .addr0(bram_addr_c),
-    .d0(bram_wdata_c),
-    .we0(bram_we_c),
-    .q0(bram_rdata_c),
-    .clk(clk_mem));
+////////////////////////////////////////////////////////////////
+// BRAM matrix C 
+////////////////////////////////////////////////////////////////
+ram matrix_C (
+  .addr0(bram_addr_c),
+  .d0(bram_wdata_c), 
+  .we0(bram_we_c), 
+  .q0(bram_rdata_c), 
+  .addr1(bram_addr_c_ext),
+  .d1(bram_wdata_c_ext), 
+  .we1(bram_we_c_ext), 
+  .q1(bram_rdata_c_ext), 
+  .clk(clk_mem));
 
 reg start_mat_mul;
 wire done_mat_mul;
@@ -237,39 +279,78 @@ matmul u_matmul_4x4(
 
 endmodule  
 
-
-module ram (addr0, d0, we0, q0,  clk);
+//////////////////////////////////
+//Dual port RAM
+//////////////////////////////////
+module ram (
+        addr0, 
+        d0, 
+        we0, 
+        q0,  
+        addr1,
+        d1,
+        we1,
+        q1,
+        clk);
 
 input [`AWIDTH-1:0] addr0;
+input [`AWIDTH-1:0] addr1;
 input [`MASK_WIDTH*`DWIDTH-1:0] d0;
+input [`MASK_WIDTH*`DWIDTH-1:0] d1;
 input [`MASK_WIDTH-1:0] we0;
-output [`MASK_WIDTH*`DWIDTH-1:0] q0;
+input [`MASK_WIDTH-1:0] we1;
+output reg [`MASK_WIDTH*`DWIDTH-1:0] q0;
+output reg [`MASK_WIDTH*`DWIDTH-1:0] q1;
 input clk;
 
 `ifdef VCS
-reg [`MASK_WIDTH*`DWIDTH-1:0] q0;
 reg [7:0] ram[((1<<`AWIDTH)-1):0];
+integer i;
 
 always @(posedge clk)  
 begin 
-        if (we0[0]) ram[addr0+0] <= d0[7:0]; 
-        if (we0[1]) ram[addr0+1] <= d0[15:8]; 
-        if (we0[2]) ram[addr0+2] <= d0[23:16]; 
-        if (we0[3]) ram[addr0+3] <= d0[31:24]; 
-        q0 <= {ram[addr0+3], ram[addr0+2], ram[addr0+1], ram[addr0]};
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        if (we0[i]) ram[addr0+i] <= d0[i*`DWIDTH +: `DWIDTH]; 
+    end    
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        q0[i*`DWIDTH +: `DWIDTH] <= ram[addr0+i];
+    end    
 end
-`else
-wire we0_1bit;
-assign we0_1bit = (|we0);
 
-single_port_ram u_single_port_ram(
-  .data(d0),
-  .we(we0_1bit),
-  .addr(addr0),
-  .clk(clk),
-  .out(q0)
+always @(posedge clk)  
+begin 
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        if (we1[i]) ram[addr0+i] <= d1[i*`DWIDTH +: `DWIDTH]; 
+    end    
+    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+        q1[i*`DWIDTH +: `DWIDTH] <= ram[addr1+i];
+    end    
+end
+
+`else
+//BRAMs available in VTR FPGA architectures have one bit write-enables.
+//So let's combine multiple bits into 1. We don't have a usecase of
+//writing/not-writing only parts of the word anyway.
+wire we0_coalesced;
+assign we0_coalesced = |we0;
+wire we1_coalesced;
+assign we1_coalesced = |we1;
+
+dual_port_ram u_dual_port_ram(
+.addr1(addr0),
+.we1(we0_coalesced),
+.data1(d0),
+.out1(q0),
+.addr2(addr1),
+.we2(we1_coalesced),
+.data2(d1),
+.out2(q1),
+.clk(clk)
 );
+
 `endif
+
+
 endmodule
 
 module matmul(
@@ -676,9 +757,6 @@ output_logic u_output_logic(
 .c_data_out(c_data_out),
 .c_addr(c_addr),
 .c_data_available(c_data_available),
-.final_mat_mul_size(final_mat_mul_size),
-.a_loc(a_loc),
-.b_loc(b_loc),
 .clk_cnt(clk_cnt),
 .save_output_to_accum(save_output_to_accum),
 .add_accum_to_output(add_accum_to_output),
@@ -762,9 +840,6 @@ address_stride_c,
 c_data_out, //Data values going out to next matmul - systolic shifting
 c_addr,
 c_data_available,
-final_mat_mul_size,
-a_loc,
-b_loc,
 clk_cnt,
 save_output_to_accum,
 add_accum_to_output,
@@ -797,9 +872,6 @@ input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
 output [`AWIDTH-1:0] c_addr;
 output c_data_available;
-input [7:0] final_mat_mul_size;
-input [7:0] a_loc;
-input [7:0] b_loc;
 input [7:0] clk_cnt;
 input save_output_to_accum;
 input add_accum_to_output;

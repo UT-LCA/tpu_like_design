@@ -424,9 +424,6 @@ output_logic u_output_logic(
 .c_data_out(c_data_out),
 .c_addr(c_addr),
 .c_data_available(c_data_available),
-.final_mat_mul_size(final_mat_mul_size),
-.a_loc(a_loc),
-.b_loc(b_loc),
 .clk_cnt(clk_cnt),
 .save_output_to_accum(save_output_to_accum),
 .add_accum_to_output(add_accum_to_output),
@@ -510,9 +507,6 @@ address_stride_c,
 c_data_out, //Data values going out to next matmul - systolic shifting
 c_addr,
 c_data_available,
-final_mat_mul_size,
-a_loc,
-b_loc,
 clk_cnt,
 save_output_to_accum,
 add_accum_to_output,
@@ -545,9 +539,6 @@ input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
 output [`AWIDTH-1:0] c_addr;
 output c_data_available;
-input [7:0] final_mat_mul_size;
-input [7:0] a_loc;
-input [7:0] b_loc;
 input [7:0] clk_cnt;
 input save_output_to_accum;
 input add_accum_to_output;
