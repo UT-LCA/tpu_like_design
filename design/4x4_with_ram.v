@@ -12,6 +12,17 @@ module matrix_multiplication(
   clk, 
   clk_mem, 
   resetn, 
+  address_mat_a,
+  address_mat_b,
+  address_mat_c,
+  address_stride_a,
+  address_stride_b,
+  address_stride_c,
+  save_output_to_accum,
+  add_accum_to_output,
+  validity_mask_a_rows,
+  validity_mask_a_cols_b_rows,
+  validity_mask_b_cols,
   start_reg,
   clear_done_reg
 );
@@ -19,6 +30,17 @@ module matrix_multiplication(
   input clk;
   input clk_mem;
   input resetn;
+  input [`AWIDTH-1:0] address_mat_a;
+  input [`AWIDTH-1:0] address_mat_b;
+  input [`AWIDTH-1:0] address_mat_c;
+  input [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
+  input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
+  input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
+  input save_output_to_accum;
+  input add_accum_to_output;
+  input [`MASK_WIDTH-1:0] validity_mask_a_rows;
+  input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+  input [`MASK_WIDTH-1:0] validity_mask_b_cols;
   input start_reg;
   input clear_done_reg;
 
@@ -160,6 +182,12 @@ matmul u_matmul_4x4(
   .reset(reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul),
+  .address_mat_a(address_mat_a),
+  .address_mat_b(address_mat_b),
+  .address_mat_c(address_mat_c),
+  .address_stride_a(address_stride_a),
+  .address_stride_b(address_stride_b),
+  .address_stride_c(address_stride_c),
   .a_data(bram_rdata_a),
   .b_data(bram_rdata_b),
   .a_data_in(a_data_in_NC),
@@ -172,6 +200,11 @@ matmul u_matmul_4x4(
   .b_addr(bram_addr_b),
   .c_addr(bram_addr_c),
   .c_data_available(c_data_available),
+  .save_output_to_accum(save_output_to_accum),
+  .add_accum_to_output(add_accum_to_output),
+  .validity_mask_a_rows(validity_mask_a_rows),
+  .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+  .validity_mask_b_cols(validity_mask_b_cols),
   .final_mat_mul_size(8'd4),
   .a_loc(8'd0),
   .b_loc(8'd0)

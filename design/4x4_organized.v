@@ -235,6 +235,9 @@ reg [`DWIDTH-1:0] b3_data_delayed_1;
 reg [`DWIDTH-1:0] b3_data_delayed_2;
 reg [`DWIDTH-1:0] b3_data_delayed_3;
 
+//////////////////////////////////////////////////////////////////////////
+// Instantiation of systolic data setup
+//////////////////////////////////////////////////////////////////////////
 systolic_data_setup u_systolic_data_setup(
 .clk(clk),
 .reset(reset),
@@ -326,17 +329,6 @@ assign b1 = (a_loc==0) ? b1_data_delayed_1 : b1_data_in;
 assign b2 = (a_loc==0) ? b2_data_delayed_2 : b2_data_in;
 assign b3 = (a_loc==0) ? b3_data_delayed_3 : b3_data_in;
 
-//////////////////////////////////////////////////////////////////////////
-// Logic to handle accumulation of partial sums (accumulators)
-//////////////////////////////////////////////////////////////////////////
-
-
-wire [`DWIDTH-1:0] cin_row0;
-wire [`DWIDTH-1:0] cin_row1;
-wire [`DWIDTH-1:0] cin_row2;
-wire [`DWIDTH-1:0] cin_row3;
-wire row_latch_en;
-
 
 wire [`DWIDTH-1:0] matrixC00;
 wire [`DWIDTH-1:0] matrixC01;
@@ -372,6 +364,9 @@ wire [`DWIDTH-1:0] matrixC31_added;
 wire [`DWIDTH-1:0] matrixC32_added;
 wire [`DWIDTH-1:0] matrixC33_added;
 
+//////////////////////////////////////////////////////////////////////////
+// Instantiation of accumulators
+//////////////////////////////////////////////////////////////////////////
 accumulators u_accumulators(
 .reset(reset),
 .clk(clk),
@@ -417,13 +412,172 @@ accumulators u_accumulators(
 );
 
 //////////////////////////////////////////////////////////////////////////
+// Instantiation of the output logic
+//////////////////////////////////////////////////////////////////////////
+output_logic u_output_logic(
+.clk(clk),
+.reset(reset),
+.start_mat_mul(start_mat_mul),
+.done_mat_mul(done_mat_mul),
+.address_mat_c(address_mat_c),
+.address_stride_c(address_stride_c),
+.c_data_in(c_data_in),
+.c_data_out(c_data_out),
+.c_addr(c_addr),
+.c_data_available(c_data_available),
+.final_mat_mul_size(final_mat_mul_size),
+.a_loc(a_loc),
+.b_loc(b_loc),
+.clk_cnt(clk_cnt),
+.save_output_to_accum(save_output_to_accum),
+.add_accum_to_output(add_accum_to_output),
+.reset_accum(reset_accum),
+.row_latch_en(row_latch_en),
+.matrixC00_added(matrixC00_added),
+.matrixC01_added(matrixC01_added),
+.matrixC02_added(matrixC02_added),
+.matrixC03_added(matrixC03_added),
+.matrixC10_added(matrixC10_added),
+.matrixC11_added(matrixC11_added),
+.matrixC12_added(matrixC12_added),
+.matrixC13_added(matrixC13_added),
+.matrixC20_added(matrixC20_added),
+.matrixC21_added(matrixC21_added),
+.matrixC22_added(matrixC22_added),
+.matrixC23_added(matrixC23_added),
+.matrixC30_added(matrixC30_added),
+.matrixC31_added(matrixC31_added),
+.matrixC32_added(matrixC32_added),
+.matrixC33_added(matrixC33_added)
+);
+
+
+wire [`DWIDTH-1:0] cin_col0;
+wire [`DWIDTH-1:0] cin_col1;
+wire [`DWIDTH-1:0] cin_col2;
+wire [`DWIDTH-1:0] cin_col3;
+assign cin_col0 = c_data_in[`DWIDTH-1:0];
+assign cin_col1 = c_data_in[2*`DWIDTH-1:`DWIDTH];
+assign cin_col2 = c_data_in[3*`DWIDTH-1:2*`DWIDTH];
+assign cin_col3 = c_data_in[4*`DWIDTH-1:3*`DWIDTH];
+
+//////////////////////////////////////////////////////////////////////////
+// Instantiations of the actual PEs
+//////////////////////////////////////////////////////////////////////////
+systolic_pe_matrix u_systolic_pe_matrix(
+.reset(reset),
+.clk(clk),
+.start_mat_mul(start_mat_mul),
+.a0(a0), 
+.a1(a1), 
+.a2(a2), 
+.a3(a3),
+.b0(b0), 
+.b1(b1), 
+.b2(b2), 
+.b3(b3),
+.matrixC00(matrixC00),
+.matrixC01(matrixC01),
+.matrixC02(matrixC02),
+.matrixC03(matrixC03),
+.matrixC10(matrixC10),
+.matrixC11(matrixC11),
+.matrixC12(matrixC12),
+.matrixC13(matrixC13),
+.matrixC20(matrixC20),
+.matrixC21(matrixC21),
+.matrixC22(matrixC22),
+.matrixC23(matrixC23),
+.matrixC30(matrixC30),
+.matrixC31(matrixC31),
+.matrixC32(matrixC32),
+.matrixC33(matrixC33),
+.a_data_out(a_data_out),
+.b_data_out(b_data_out)
+);
+
+endmodule
+
+//////////////////////////////////////////////////////////////////////////
+// Output logic
+//////////////////////////////////////////////////////////////////////////
+module output_logic(
+clk,
+reset,
+start_mat_mul,
+done_mat_mul,
+address_mat_c,
+address_stride_c,
+c_data_in, //Data values coming in from previous matmul - systolic shifting
+c_data_out, //Data values going out to next matmul - systolic shifting
+c_addr,
+c_data_available,
+final_mat_mul_size,
+a_loc,
+b_loc,
+clk_cnt,
+save_output_to_accum,
+add_accum_to_output,
+reset_accum,
+row_latch_en,
+matrixC00_added,
+matrixC01_added,
+matrixC02_added,
+matrixC03_added,
+matrixC10_added,
+matrixC11_added,
+matrixC12_added,
+matrixC13_added,
+matrixC20_added,
+matrixC21_added,
+matrixC22_added,
+matrixC23_added,
+matrixC30_added,
+matrixC31_added,
+matrixC32_added,
+matrixC33_added
+);
+
+input clk;
+input reset;
+input start_mat_mul;
+input done_mat_mul;
+input [`AWIDTH-1:0] address_mat_c;
+input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
+input [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
+output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
+output [`AWIDTH-1:0] c_addr;
+output c_data_available;
+input [7:0] final_mat_mul_size;
+input [7:0] a_loc;
+input [7:0] b_loc;
+input [7:0] clk_cnt;
+input save_output_to_accum;
+input add_accum_to_output;
+output reset_accum;
+output row_latch_en;
+input [`DWIDTH-1:0] matrixC00_added;
+input [`DWIDTH-1:0] matrixC01_added;
+input [`DWIDTH-1:0] matrixC02_added;
+input [`DWIDTH-1:0] matrixC03_added;
+input [`DWIDTH-1:0] matrixC10_added;
+input [`DWIDTH-1:0] matrixC11_added;
+input [`DWIDTH-1:0] matrixC12_added;
+input [`DWIDTH-1:0] matrixC13_added;
+input [`DWIDTH-1:0] matrixC20_added;
+input [`DWIDTH-1:0] matrixC21_added;
+input [`DWIDTH-1:0] matrixC22_added;
+input [`DWIDTH-1:0] matrixC23_added;
+input [`DWIDTH-1:0] matrixC30_added;
+input [`DWIDTH-1:0] matrixC31_added;
+input [`DWIDTH-1:0] matrixC32_added;
+input [`DWIDTH-1:0] matrixC33_added;
+
+wire row_latch_en;
+
+//////////////////////////////////////////////////////////////////////////
 // Logic to capture matrix C data from the PEs and shift it out
 //////////////////////////////////////////////////////////////////////////
-//TODO: The following are not used anymore. Remove them
-assign cin_row0 = c_data_in[`DWIDTH-1:0];
-assign cin_row1 = c_data_in[2*`DWIDTH-1:`DWIDTH];
-assign cin_row2 = c_data_in[3*`DWIDTH-1:2*`DWIDTH];
-assign cin_row3 = c_data_in[4*`DWIDTH-1:3*`DWIDTH];
 
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 +  `NUM_CYCLES_IN_MAC - 1));
 //Writing the line above to avoid multiplication:
@@ -439,6 +593,7 @@ reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
 integer counter;
 reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
+wire reset_accum;
 
 //We need to reset the accumulators when the mat mul is done and when we are 
 //done with final reduction to generated a tile's output.
@@ -489,45 +644,11 @@ always @(posedge clk) begin
   end
 end
 
-//////////////////////////////////////////////////////////////////////////
-// Instantiations of the actual PEs
-//////////////////////////////////////////////////////////////////////////
-//For larger matmul, more PEs will be needed
-
-systolic_pe_matrix u_systolic_pe_matrix(
-.reset(reset),
-.clk(clk),
-.start_mat_mul(start_mat_mul),
-.a0(a0), 
-.a1(a1), 
-.a2(a2), 
-.a3(a3),
-.b0(b0), 
-.b1(b1), 
-.b2(b2), 
-.b3(b3),
-.matrixC00(matrixC00),
-.matrixC01(matrixC01),
-.matrixC02(matrixC02),
-.matrixC03(matrixC03),
-.matrixC10(matrixC10),
-.matrixC11(matrixC11),
-.matrixC12(matrixC12),
-.matrixC13(matrixC13),
-.matrixC20(matrixC20),
-.matrixC21(matrixC21),
-.matrixC22(matrixC22),
-.matrixC23(matrixC23),
-.matrixC30(matrixC30),
-.matrixC31(matrixC31),
-.matrixC32(matrixC32),
-.matrixC33(matrixC33),
-.a_data_out(a_data_out),
-.b_data_out(b_data_out)
-);
-
 endmodule
 
+//////////////////////////////////////////////////////////////////////////
+// Systolic data setup
+//////////////////////////////////////////////////////////////////////////
 module systolic_data_setup(
 clk,
 reset,
@@ -798,6 +919,9 @@ end
 
 endmodule
 
+//////////////////////////////////////////////////////////////////////////
+// Accumulators
+//////////////////////////////////////////////////////////////////////////
 module accumulators(
 reset,
 clk,
@@ -1005,6 +1129,9 @@ assign matrixC33_added = (add_accum_to_output) ? (matrixC33 + matrixC33_accum) :
 endmodule
 
 
+//////////////////////////////////////////////////////////////////////////
+// Systolically connected PEs
+//////////////////////////////////////////////////////////////////////////
 module systolic_pe_matrix(
 reset,
 clk,
@@ -1101,6 +1228,9 @@ assign b_data_out = {b33to43,b32to42,b31to41,b30to40};
 endmodule
 
 
+//////////////////////////////////////////////////////////////////////////
+// Processing element (PE)
+//////////////////////////////////////////////////////////////////////////
 module processing_element(
  reset, 
  clk, 
@@ -1142,6 +1272,9 @@ module processing_element(
  
 endmodule
 
+//////////////////////////////////////////////////////////////////////////
+// Multiply-and-accumulate (MAC) block
+//////////////////////////////////////////////////////////////////////////
 module seq_mac(a, b, out, reset, clk);
 input [`DWIDTH-1:0] a;
 input [`DWIDTH-1:0] b;
@@ -1210,6 +1343,10 @@ end
 
 endmodule
 
+
+//////////////////////////////////////////////////////////////////////////
+// Multiplier
+//////////////////////////////////////////////////////////////////////////
 module qmult(i_multiplicand,i_multiplier,o_result);
 input [`DWIDTH-1:0] i_multiplicand;
 input [`DWIDTH-1:0] i_multiplier;
@@ -1220,6 +1357,10 @@ assign o_result = i_multiplicand * i_multiplier;
 
 endmodule
 
+
+//////////////////////////////////////////////////////////////////////////
+// Adder
+//////////////////////////////////////////////////////////////////////////
 module qadd(a,b,c);
 input [`DWIDTH-1:0] a;
 input [`DWIDTH-1:0] b;
