@@ -673,7 +673,6 @@ output_logic u_output_logic(
 .done_mat_mul(done_mat_mul),
 .address_mat_c(address_mat_c),
 .address_stride_c(address_stride_c),
-.c_data_in(c_data_in),
 .c_data_out(c_data_out),
 .c_addr(c_addr),
 .c_data_available(c_data_available),
@@ -760,7 +759,6 @@ start_mat_mul,
 done_mat_mul,
 address_mat_c,
 address_stride_c,
-c_data_in, //Data values coming in from previous matmul - systolic shifting
 c_data_out, //Data values going out to next matmul - systolic shifting
 c_addr,
 c_data_available,
@@ -796,7 +794,6 @@ input start_mat_mul;
 input done_mat_mul;
 input [`AWIDTH-1:0] address_mat_c;
 input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
-input [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
 output [`AWIDTH-1:0] c_addr;
 output c_data_available;
