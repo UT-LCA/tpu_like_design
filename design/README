@@ -1,0 +1,12 @@
+4x4 matmul design here is handcoded. The design include convolution support as well as accumulators.
+The design is monolithic that is the accumulator, data setup etc is all in one module.
+It doesn't support composition to make larger matmuls though.
+
+8x8 matmul design here was generated from the create_mat_mul.py script.
+It has convolution support as well as accumulators. 
+The command used was: create_mat_mul.py -s 8 -f 8x8_gen.v
+The design doesn't support composition to make larger matmuls.
+This was the design we tested in the TPU. All tests in the repo will work with this design.
+
+16x16 matmul design here was generated from create_mat_mul.py script.
+It has not been tested in the TPU design.
