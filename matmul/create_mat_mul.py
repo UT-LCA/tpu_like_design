@@ -19,6 +19,11 @@ parser.add_argument("-a",
                     action='store_true',
                     default=False,
                     help='do you want to dump code for accumulators')
+parser.add_argument("-r",
+                    "--hard_counts",
+                    action='store_true',
+                    default=False,
+                    help='do you want to dump code which uses hard counts instead of calculations based on matmul size')
 parser.add_argument("-f",
                     "--filename",
                     action='store',
@@ -29,10 +34,14 @@ args = parser.parse_args()
 systolic_size = args.size
 conv_code = (not args.no_conv_code)
 accum_code = (not args.no_accum_code)
+hard_counts = (args.hard_counts)
 if args.filename is None:
   filename = systolic_size + "x" + systolic_size + "_gen.v"
 else:
   filename = args.filename
+final_mat_mul_size = int(systolic_size)
+MAT_MUL_SIZE = int(systolic_size)
+NUM_CYCLES_IN_MAC = 3
 
 f = open(filename,"w")
 
@@ -112,7 +121,12 @@ f.write("""
  validity_mask_a_rows,
  validity_mask_a_cols_b_rows,
  validity_mask_b_cols,
- final_mat_mul_size,
+  """)
+if not hard_counts:
+  f.write("""
+final_mat_mul_size,
+  """)
+f.write("""
  a_loc,
  b_loc
 );
@@ -168,10 +182,15 @@ f.write("""
  input [`MASK_WIDTH-1:0] validity_mask_a_rows;
  input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
  input [`MASK_WIDTH-1:0] validity_mask_b_cols;
+""")
+if not hard_counts:
+  f.write("""
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
 //In fact, these will get optimized out by the synthesis tool, because
 //we hardcode them at the instantiation level.
  input [7:0] final_mat_mul_size;
+  """)
+f.write("""
  input [7:0] a_loc;
  input [7:0] b_loc;
 
@@ -184,7 +203,7 @@ reg done_mat_mul;
 //small. For large matmuls, this will need to increased to have more bits.
 //In general, a systolic multiplier takes 4*N-2+P cycles, where N is the size 
 //of the matmul and P is the number of pipleine stages in the MAC block.
-reg [6:0] clk_cnt;
+reg [7:0] clk_cnt;
 
 //Finding out number of cycles to assert matmul done.
 //When we have to save the outputs to accumulators, then we don't need to
@@ -192,10 +211,22 @@ reg [6:0] clk_cnt;
 //In the normal case, we have to include the time to shift out the results. 
 //Note: the count expression used to contain "4*final_mat_mul_size", but 
 //to avoid multiplication, we now use "final_mat_mul_size<<2"
-wire [6:0] clk_cnt_for_done;
+wire [7:0] clk_cnt_for_done;
 """)
 if accum_code:
-  f.write("""
+  if hard_counts:
+    f.write("""
+assign clk_cnt_for_done = 
+                          (save_output_to_accum && add_accum_to_output) ?
+                          (""" + (final_mat_mul_size*3) - 3 + NUM_CYCLES_IN_MAC + """) : (
+                          (save_output_to_accum) ?
+                          (""" + (final_mat_mul_size*3) - 3 + NUM_CYCLES_IN_MAC + """) : (
+                          (add_accum_to_output) ? 
+                          (""" + (final_mat_mul_size*4) - 3 + NUM_CYCLES_IN_MAC + """) :  
+                          (""" + (final_mat_mul_size*4) - 3 + NUM_CYCLES_IN_MAC + """) ));  
+    """)
+  else:
+    f.write("""
 assign clk_cnt_for_done = 
                           (save_output_to_accum && add_accum_to_output) ?
                           ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC - final_mat_mul_size) : (
@@ -204,12 +235,18 @@ assign clk_cnt_for_done =
                           (add_accum_to_output) ? 
                           ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) :  
                           ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) ));  
-  """)
+    """)
 else:
-  f.write("""
+  if hard_counts:
+    f.write("""
+assign clk_cnt_for_done = 
+                          (""" + str(final_mat_mul_size*4 - 3 + NUM_CYCLES_IN_MAC) + """);  
+    """)
+  else:
+    f.write("""
 assign clk_cnt_for_done = 
                           ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC);  
-  """)
+    """)
 
 f.write("""
 always @(posedge clk) begin
@@ -269,7 +306,16 @@ always @(posedge clk) begin
   //Note than a_loc or b_loc doesn't matter in the code below. A and B are always synchronized.
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
+  """)
+  if hard_counts:
+    f.write("""
+  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+"""+final_mat_mul_size+""")) begin
+    """)
+  else:
+    f.write("""
   else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+    """)
+  f.write("""
     if (enable_conv_mode) begin
       if (s < (conv_filter_width-1)) begin
           s <= s + 1;
@@ -307,8 +353,15 @@ reg a_mem_access; //flag that tells whether the matmul is trying to access memor
 always @(posedge clk) begin
   //(clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
-  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 """)
+if hard_counts:
+  f.write("""
+  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
+  """)
+else:
+  f.write("""
+  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  """)
 if conv_code:
   f.write("""
     if (enable_conv_mode) begin
@@ -327,8 +380,15 @@ f.write("""
   end
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
-  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 """)
+if hard_counts:
+  f.write("""
+  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
+  """)
+else:
+  f.write("""
+  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  """)
 if conv_code:
   f.write("""
     if (enable_conv_mode) begin
@@ -447,8 +507,16 @@ reg b_mem_access; //flag that tells whether the matmul is trying to access memor
 always @(posedge clk) begin
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
+""")
+if hard_counts:
+  f.write("""
+  if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
+""")
+else:
+  f.write("""
   if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 """)
+ 
 if conv_code:
   f.write("""
     if (enable_conv_mode) begin
@@ -467,6 +535,13 @@ f.write("""
   end
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
+""")
+if hard_counts:
+  f.write("""
+  else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
+""")
+else:
+  f.write("""
   else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 """)
 if conv_code:
@@ -756,16 +831,29 @@ f.write(
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
 """)
 if accum_code:
-  f.write("""
+  if hard_counts:
+    f.write("""
+assign row_latch_en =  (save_output_to_accum) ?
+                       ((clk_cnt == """+str((MAT_MUL_SIZE*4) - MAT_MUL_SIZE -1 + NUM_CYCLES_IN_MAC) + """)) :
+                       ((clk_cnt == """+str((MAT_MUL_SIZE*4) - MAT_MUL_SIZE -2 + NUM_CYCLES_IN_MAC) + """));
+    """)
+  else:
+    f.write("""
 assign row_latch_en =  (save_output_to_accum) ?
                        ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -1 +`NUM_CYCLES_IN_MAC))) :
                        ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -2 +`NUM_CYCLES_IN_MAC)));
-  """)
+    """)
 else:
-  f.write("""
+  if hard_counts:
+    f.write("""
+assign row_latch_en =  
+                       ((clk_cnt == """+str((MAT_MUL_SIZE*4) - MAT_MUL_SIZE -2 + NUM_CYCLES_IN_MAC) +""" ));
+    """)
+  else:
+    f.write("""
 assign row_latch_en =  
                        ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -2 +`NUM_CYCLES_IN_MAC)));
-  """)
+    """)
 
 f.write("""
 reg c_data_available;
