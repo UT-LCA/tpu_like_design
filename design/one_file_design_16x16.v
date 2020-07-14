@@ -284,7 +284,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020-07-05 15:55:42.126924
+// Create Date: 2020-07-13 23:36:08.461498
 // Design Name: 
 // Module Name: matmul_16x16
 // Project Name: 
@@ -323,9 +323,10 @@ module matmul(
  b_addr,
  c_addr,
  c_data_available,
+
  save_output_to_accum,
  add_accum_to_output,
-
+  
  enable_conv_mode,
  conv_filter_height,
  conv_filter_width,
@@ -346,7 +347,9 @@ module matmul(
  validity_mask_a_rows,
  validity_mask_a_cols_b_rows,
  validity_mask_b_cols,
- final_mat_mul_size,
+  
+final_mat_mul_size,
+  
  a_loc,
  b_loc
 );
@@ -373,9 +376,10 @@ module matmul(
  output [`AWIDTH-1:0] b_addr;
  output [`AWIDTH-1:0] c_addr;
  output c_data_available;
+
  input save_output_to_accum;
  input add_accum_to_output;
-
+  
  input enable_conv_mode;
  input [3:0] conv_filter_height;
  input [3:0] conv_filter_width;
@@ -396,10 +400,12 @@ module matmul(
  input [`MASK_WIDTH-1:0] validity_mask_a_rows;
  input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
  input [`MASK_WIDTH-1:0] validity_mask_b_cols;
+
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
 //In fact, these will get optimized out by the synthesis tool, because
 //we hardcode them at the instantiation level.
  input [7:0] final_mat_mul_size;
+  
  input [7:0] a_loc;
  input [7:0] b_loc;
 
@@ -412,7 +418,7 @@ reg done_mat_mul;
 //small. For large matmuls, this will need to increased to have more bits.
 //In general, a systolic multiplier takes 4*N-2+P cycles, where N is the size 
 //of the matmul and P is the number of pipleine stages in the MAC block.
-reg [6:0] clk_cnt;
+reg [7:0] clk_cnt;
 
 //Finding out number of cycles to assert matmul done.
 //When we have to save the outputs to accumulators, then we don't need to
@@ -420,7 +426,8 @@ reg [6:0] clk_cnt;
 //In the normal case, we have to include the time to shift out the results. 
 //Note: the count expression used to contain "4*final_mat_mul_size", but 
 //to avoid multiplication, we now use "final_mat_mul_size<<2"
-wire [6:0] clk_cnt_for_done;
+wire [7:0] clk_cnt_for_done;
+
 assign clk_cnt_for_done = 
                           (save_output_to_accum && add_accum_to_output) ?
                           ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC - final_mat_mul_size) : (
@@ -429,7 +436,7 @@ assign clk_cnt_for_done =
                           (add_accum_to_output) ? 
                           ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) :  
                           ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) ));  
-
+    
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
     clk_cnt <= 0;
@@ -463,7 +470,9 @@ reg [3:0] cur_s_saved;
 reg dummy;
 
 always @(posedge clk) begin
+  
   if (reset || (add_accum_to_output && ~save_output_to_accum && done_mat_mul)) begin
+    
     c <= 0;
     r <= 0;
     s <= 0;
@@ -475,7 +484,9 @@ always @(posedge clk) begin
   //Note than a_loc or b_loc doesn't matter in the code below. A and B are always synchronized.
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
+  
   else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+    
     if (enable_conv_mode) begin
       if (s < (conv_filter_width-1)) begin
           s <= s + 1;
@@ -511,8 +522,9 @@ reg a_mem_access; //flag that tells whether the matmul is trying to access memor
 always @(posedge clk) begin
   //(clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
-  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 
+  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  
     if (enable_conv_mode) begin
       a_addr <= address_mat_a;
     end 
@@ -524,8 +536,9 @@ always @(posedge clk) begin
   end
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
-  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 
+  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  
     if (enable_conv_mode) begin
       a_addr <= address_mat_a + s + r * (inp_img_width+conv_padding_left+conv_padding_right) + c * (inp_img_width+conv_padding_left+conv_padding_right) * (inp_img_height+conv_padding_top+conv_padding_bottom);
     end
@@ -540,43 +553,39 @@ end
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate valid signals for data coming from BRAM A
 //////////////////////////////////////////////////////////////////////////
-reg a_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] a_mem_access_counter;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    a_data_valid <= 0;
     a_mem_access_counter <= 0;
   end
   else if (a_mem_access == 1) begin
     a_mem_access_counter <= a_mem_access_counter + 1;  
-    if ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==0) ||
-        (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==1) ||
-        (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==2) ||
-        (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==3) ||
-        (validity_mask_a_cols_b_rows[4]==1'b0 && a_mem_access_counter==4) ||
-        (validity_mask_a_cols_b_rows[5]==1'b0 && a_mem_access_counter==5) ||
-        (validity_mask_a_cols_b_rows[6]==1'b0 && a_mem_access_counter==6) ||
-        (validity_mask_a_cols_b_rows[7]==1'b0 && a_mem_access_counter==7) ||
-        (validity_mask_a_cols_b_rows[8]==1'b0 && a_mem_access_counter==8) ||
-        (validity_mask_a_cols_b_rows[9]==1'b0 && a_mem_access_counter==9) ||
-        (validity_mask_a_cols_b_rows[10]==1'b0 && a_mem_access_counter==10) ||
-        (validity_mask_a_cols_b_rows[11]==1'b0 && a_mem_access_counter==11) ||
-        (validity_mask_a_cols_b_rows[12]==1'b0 && a_mem_access_counter==12) ||
-        (validity_mask_a_cols_b_rows[13]==1'b0 && a_mem_access_counter==13) ||
-        (validity_mask_a_cols_b_rows[14]==1'b0 && a_mem_access_counter==14) ||
-        (validity_mask_a_cols_b_rows[15]==1'b0 && a_mem_access_counter==15)) begin
-    
-      a_data_valid <= 0;
-    end
-    else if (a_mem_access_counter == `MEM_ACCESS_LATENCY) begin
-      a_data_valid <= 1;
-    end
   end
   else begin
-    a_data_valid <= 0;
     a_mem_access_counter <= 0;
   end
 end
+
+wire a_data_valid; //flag that tells whether the data from memory is valid
+assign a_data_valid = 
+     ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==0) ||
+      (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==1) ||
+      (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==2) ||
+      (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==3) ||
+      (validity_mask_a_cols_b_rows[4]==1'b0 && a_mem_access_counter==4) ||
+      (validity_mask_a_cols_b_rows[5]==1'b0 && a_mem_access_counter==5) ||
+      (validity_mask_a_cols_b_rows[6]==1'b0 && a_mem_access_counter==6) ||
+      (validity_mask_a_cols_b_rows[7]==1'b0 && a_mem_access_counter==7) ||
+      (validity_mask_a_cols_b_rows[8]==1'b0 && a_mem_access_counter==8) ||
+      (validity_mask_a_cols_b_rows[9]==1'b0 && a_mem_access_counter==9) ||
+      (validity_mask_a_cols_b_rows[10]==1'b0 && a_mem_access_counter==10) ||
+      (validity_mask_a_cols_b_rows[11]==1'b0 && a_mem_access_counter==11) ||
+      (validity_mask_a_cols_b_rows[12]==1'b0 && a_mem_access_counter==12) ||
+      (validity_mask_a_cols_b_rows[13]==1'b0 && a_mem_access_counter==13) ||
+      (validity_mask_a_cols_b_rows[14]==1'b0 && a_mem_access_counter==14) ||
+      (validity_mask_a_cols_b_rows[15]==1'b0 && a_mem_access_counter==15)) ?
+    
+    1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM A (systolic data setup)
@@ -773,249 +782,249 @@ reg [`DWIDTH-1:0] a15_data_delayed_15;
 
 always @(posedge clk) begin
   if (reset || ~start_mat_mul || clk_cnt==0) begin
-		a1_data_delayed_1 <= 0;
-		a2_data_delayed_1 <= 0;
-		a2_data_delayed_2 <= 0;
-		a3_data_delayed_1 <= 0;
-		a3_data_delayed_2 <= 0;
-		a3_data_delayed_3 <= 0;
-		a4_data_delayed_1 <= 0;
-		a4_data_delayed_2 <= 0;
-		a4_data_delayed_3 <= 0;
-		a4_data_delayed_4 <= 0;
-		a5_data_delayed_1 <= 0;
-		a5_data_delayed_2 <= 0;
-		a5_data_delayed_3 <= 0;
-		a5_data_delayed_4 <= 0;
-		a5_data_delayed_5 <= 0;
-		a6_data_delayed_1 <= 0;
-		a6_data_delayed_2 <= 0;
-		a6_data_delayed_3 <= 0;
-		a6_data_delayed_4 <= 0;
-		a6_data_delayed_5 <= 0;
-		a6_data_delayed_6 <= 0;
-		a7_data_delayed_1 <= 0;
-		a7_data_delayed_2 <= 0;
-		a7_data_delayed_3 <= 0;
-		a7_data_delayed_4 <= 0;
-		a7_data_delayed_5 <= 0;
-		a7_data_delayed_6 <= 0;
-		a7_data_delayed_7 <= 0;
-		a8_data_delayed_1 <= 0;
-		a8_data_delayed_2 <= 0;
-		a8_data_delayed_3 <= 0;
-		a8_data_delayed_4 <= 0;
-		a8_data_delayed_5 <= 0;
-		a8_data_delayed_6 <= 0;
-		a8_data_delayed_7 <= 0;
-		a8_data_delayed_8 <= 0;
-		a9_data_delayed_1 <= 0;
-		a9_data_delayed_2 <= 0;
-		a9_data_delayed_3 <= 0;
-		a9_data_delayed_4 <= 0;
-		a9_data_delayed_5 <= 0;
-		a9_data_delayed_6 <= 0;
-		a9_data_delayed_7 <= 0;
-		a9_data_delayed_8 <= 0;
-		a9_data_delayed_9 <= 0;
-		a10_data_delayed_1 <= 0;
-		a10_data_delayed_2 <= 0;
-		a10_data_delayed_3 <= 0;
-		a10_data_delayed_4 <= 0;
-		a10_data_delayed_5 <= 0;
-		a10_data_delayed_6 <= 0;
-		a10_data_delayed_7 <= 0;
-		a10_data_delayed_8 <= 0;
-		a10_data_delayed_9 <= 0;
-		a10_data_delayed_10 <= 0;
-		a11_data_delayed_1 <= 0;
-		a11_data_delayed_2 <= 0;
-		a11_data_delayed_3 <= 0;
-		a11_data_delayed_4 <= 0;
-		a11_data_delayed_5 <= 0;
-		a11_data_delayed_6 <= 0;
-		a11_data_delayed_7 <= 0;
-		a11_data_delayed_8 <= 0;
-		a11_data_delayed_9 <= 0;
-		a11_data_delayed_10 <= 0;
-		a11_data_delayed_11 <= 0;
-		a12_data_delayed_1 <= 0;
-		a12_data_delayed_2 <= 0;
-		a12_data_delayed_3 <= 0;
-		a12_data_delayed_4 <= 0;
-		a12_data_delayed_5 <= 0;
-		a12_data_delayed_6 <= 0;
-		a12_data_delayed_7 <= 0;
-		a12_data_delayed_8 <= 0;
-		a12_data_delayed_9 <= 0;
-		a12_data_delayed_10 <= 0;
-		a12_data_delayed_11 <= 0;
-		a12_data_delayed_12 <= 0;
-		a13_data_delayed_1 <= 0;
-		a13_data_delayed_2 <= 0;
-		a13_data_delayed_3 <= 0;
-		a13_data_delayed_4 <= 0;
-		a13_data_delayed_5 <= 0;
-		a13_data_delayed_6 <= 0;
-		a13_data_delayed_7 <= 0;
-		a13_data_delayed_8 <= 0;
-		a13_data_delayed_9 <= 0;
-		a13_data_delayed_10 <= 0;
-		a13_data_delayed_11 <= 0;
-		a13_data_delayed_12 <= 0;
-		a13_data_delayed_13 <= 0;
-		a14_data_delayed_1 <= 0;
-		a14_data_delayed_2 <= 0;
-		a14_data_delayed_3 <= 0;
-		a14_data_delayed_4 <= 0;
-		a14_data_delayed_5 <= 0;
-		a14_data_delayed_6 <= 0;
-		a14_data_delayed_7 <= 0;
-		a14_data_delayed_8 <= 0;
-		a14_data_delayed_9 <= 0;
-		a14_data_delayed_10 <= 0;
-		a14_data_delayed_11 <= 0;
-		a14_data_delayed_12 <= 0;
-		a14_data_delayed_13 <= 0;
-		a14_data_delayed_14 <= 0;
-		a15_data_delayed_1 <= 0;
-		a15_data_delayed_2 <= 0;
-		a15_data_delayed_3 <= 0;
-		a15_data_delayed_4 <= 0;
-		a15_data_delayed_5 <= 0;
-		a15_data_delayed_6 <= 0;
-		a15_data_delayed_7 <= 0;
-		a15_data_delayed_8 <= 0;
-		a15_data_delayed_9 <= 0;
-		a15_data_delayed_10 <= 0;
-		a15_data_delayed_11 <= 0;
-		a15_data_delayed_12 <= 0;
-		a15_data_delayed_13 <= 0;
-		a15_data_delayed_14 <= 0;
-		a15_data_delayed_15 <= 0;
+    a1_data_delayed_1 <= 0;
+    a2_data_delayed_1 <= 0;
+    a2_data_delayed_2 <= 0;
+    a3_data_delayed_1 <= 0;
+    a3_data_delayed_2 <= 0;
+    a3_data_delayed_3 <= 0;
+    a4_data_delayed_1 <= 0;
+    a4_data_delayed_2 <= 0;
+    a4_data_delayed_3 <= 0;
+    a4_data_delayed_4 <= 0;
+    a5_data_delayed_1 <= 0;
+    a5_data_delayed_2 <= 0;
+    a5_data_delayed_3 <= 0;
+    a5_data_delayed_4 <= 0;
+    a5_data_delayed_5 <= 0;
+    a6_data_delayed_1 <= 0;
+    a6_data_delayed_2 <= 0;
+    a6_data_delayed_3 <= 0;
+    a6_data_delayed_4 <= 0;
+    a6_data_delayed_5 <= 0;
+    a6_data_delayed_6 <= 0;
+    a7_data_delayed_1 <= 0;
+    a7_data_delayed_2 <= 0;
+    a7_data_delayed_3 <= 0;
+    a7_data_delayed_4 <= 0;
+    a7_data_delayed_5 <= 0;
+    a7_data_delayed_6 <= 0;
+    a7_data_delayed_7 <= 0;
+    a8_data_delayed_1 <= 0;
+    a8_data_delayed_2 <= 0;
+    a8_data_delayed_3 <= 0;
+    a8_data_delayed_4 <= 0;
+    a8_data_delayed_5 <= 0;
+    a8_data_delayed_6 <= 0;
+    a8_data_delayed_7 <= 0;
+    a8_data_delayed_8 <= 0;
+    a9_data_delayed_1 <= 0;
+    a9_data_delayed_2 <= 0;
+    a9_data_delayed_3 <= 0;
+    a9_data_delayed_4 <= 0;
+    a9_data_delayed_5 <= 0;
+    a9_data_delayed_6 <= 0;
+    a9_data_delayed_7 <= 0;
+    a9_data_delayed_8 <= 0;
+    a9_data_delayed_9 <= 0;
+    a10_data_delayed_1 <= 0;
+    a10_data_delayed_2 <= 0;
+    a10_data_delayed_3 <= 0;
+    a10_data_delayed_4 <= 0;
+    a10_data_delayed_5 <= 0;
+    a10_data_delayed_6 <= 0;
+    a10_data_delayed_7 <= 0;
+    a10_data_delayed_8 <= 0;
+    a10_data_delayed_9 <= 0;
+    a10_data_delayed_10 <= 0;
+    a11_data_delayed_1 <= 0;
+    a11_data_delayed_2 <= 0;
+    a11_data_delayed_3 <= 0;
+    a11_data_delayed_4 <= 0;
+    a11_data_delayed_5 <= 0;
+    a11_data_delayed_6 <= 0;
+    a11_data_delayed_7 <= 0;
+    a11_data_delayed_8 <= 0;
+    a11_data_delayed_9 <= 0;
+    a11_data_delayed_10 <= 0;
+    a11_data_delayed_11 <= 0;
+    a12_data_delayed_1 <= 0;
+    a12_data_delayed_2 <= 0;
+    a12_data_delayed_3 <= 0;
+    a12_data_delayed_4 <= 0;
+    a12_data_delayed_5 <= 0;
+    a12_data_delayed_6 <= 0;
+    a12_data_delayed_7 <= 0;
+    a12_data_delayed_8 <= 0;
+    a12_data_delayed_9 <= 0;
+    a12_data_delayed_10 <= 0;
+    a12_data_delayed_11 <= 0;
+    a12_data_delayed_12 <= 0;
+    a13_data_delayed_1 <= 0;
+    a13_data_delayed_2 <= 0;
+    a13_data_delayed_3 <= 0;
+    a13_data_delayed_4 <= 0;
+    a13_data_delayed_5 <= 0;
+    a13_data_delayed_6 <= 0;
+    a13_data_delayed_7 <= 0;
+    a13_data_delayed_8 <= 0;
+    a13_data_delayed_9 <= 0;
+    a13_data_delayed_10 <= 0;
+    a13_data_delayed_11 <= 0;
+    a13_data_delayed_12 <= 0;
+    a13_data_delayed_13 <= 0;
+    a14_data_delayed_1 <= 0;
+    a14_data_delayed_2 <= 0;
+    a14_data_delayed_3 <= 0;
+    a14_data_delayed_4 <= 0;
+    a14_data_delayed_5 <= 0;
+    a14_data_delayed_6 <= 0;
+    a14_data_delayed_7 <= 0;
+    a14_data_delayed_8 <= 0;
+    a14_data_delayed_9 <= 0;
+    a14_data_delayed_10 <= 0;
+    a14_data_delayed_11 <= 0;
+    a14_data_delayed_12 <= 0;
+    a14_data_delayed_13 <= 0;
+    a14_data_delayed_14 <= 0;
+    a15_data_delayed_1 <= 0;
+    a15_data_delayed_2 <= 0;
+    a15_data_delayed_3 <= 0;
+    a15_data_delayed_4 <= 0;
+    a15_data_delayed_5 <= 0;
+    a15_data_delayed_6 <= 0;
+    a15_data_delayed_7 <= 0;
+    a15_data_delayed_8 <= 0;
+    a15_data_delayed_9 <= 0;
+    a15_data_delayed_10 <= 0;
+    a15_data_delayed_11 <= 0;
+    a15_data_delayed_12 <= 0;
+    a15_data_delayed_13 <= 0;
+    a15_data_delayed_14 <= 0;
+    a15_data_delayed_15 <= 0;
 
   end
   else begin
-	a1_data_delayed_1 <= a1_data;
-	a2_data_delayed_1 <= a2_data;
-	a3_data_delayed_1 <= a3_data;
-	a4_data_delayed_1 <= a4_data;
-	a5_data_delayed_1 <= a5_data;
-	a6_data_delayed_1 <= a6_data;
-	a7_data_delayed_1 <= a7_data;
-	a8_data_delayed_1 <= a8_data;
-	a9_data_delayed_1 <= a9_data;
-	a10_data_delayed_1 <= a10_data;
-	a11_data_delayed_1 <= a11_data;
-	a12_data_delayed_1 <= a12_data;
-	a13_data_delayed_1 <= a13_data;
-	a14_data_delayed_1 <= a14_data;
-	a15_data_delayed_1 <= a15_data;
-	a2_data_delayed_2 <= a2_data_delayed_1;
-	a3_data_delayed_2 <= a3_data_delayed_1;
-	a3_data_delayed_3 <= a3_data_delayed_2;
-	a4_data_delayed_2 <= a4_data_delayed_1;
-	a4_data_delayed_3 <= a4_data_delayed_2;
-	a4_data_delayed_4 <= a4_data_delayed_3;
-	a5_data_delayed_2 <= a5_data_delayed_1;
-	a5_data_delayed_3 <= a5_data_delayed_2;
-	a5_data_delayed_4 <= a5_data_delayed_3;
-	a5_data_delayed_5 <= a5_data_delayed_4;
-	a6_data_delayed_2 <= a6_data_delayed_1;
-	a6_data_delayed_3 <= a6_data_delayed_2;
-	a6_data_delayed_4 <= a6_data_delayed_3;
-	a6_data_delayed_5 <= a6_data_delayed_4;
-	a6_data_delayed_6 <= a6_data_delayed_5;
-	a7_data_delayed_2 <= a7_data_delayed_1;
-	a7_data_delayed_3 <= a7_data_delayed_2;
-	a7_data_delayed_4 <= a7_data_delayed_3;
-	a7_data_delayed_5 <= a7_data_delayed_4;
-	a7_data_delayed_6 <= a7_data_delayed_5;
-	a7_data_delayed_7 <= a7_data_delayed_6;
-	a8_data_delayed_2 <= a8_data_delayed_1;
-	a8_data_delayed_3 <= a8_data_delayed_2;
-	a8_data_delayed_4 <= a8_data_delayed_3;
-	a8_data_delayed_5 <= a8_data_delayed_4;
-	a8_data_delayed_6 <= a8_data_delayed_5;
-	a8_data_delayed_7 <= a8_data_delayed_6;
-	a8_data_delayed_8 <= a8_data_delayed_7;
-	a9_data_delayed_2 <= a9_data_delayed_1;
-	a9_data_delayed_3 <= a9_data_delayed_2;
-	a9_data_delayed_4 <= a9_data_delayed_3;
-	a9_data_delayed_5 <= a9_data_delayed_4;
-	a9_data_delayed_6 <= a9_data_delayed_5;
-	a9_data_delayed_7 <= a9_data_delayed_6;
-	a9_data_delayed_8 <= a9_data_delayed_7;
-	a9_data_delayed_9 <= a9_data_delayed_8;
-	a10_data_delayed_2 <= a10_data_delayed_1;
-	a10_data_delayed_3 <= a10_data_delayed_2;
-	a10_data_delayed_4 <= a10_data_delayed_3;
-	a10_data_delayed_5 <= a10_data_delayed_4;
-	a10_data_delayed_6 <= a10_data_delayed_5;
-	a10_data_delayed_7 <= a10_data_delayed_6;
-	a10_data_delayed_8 <= a10_data_delayed_7;
-	a10_data_delayed_9 <= a10_data_delayed_8;
-	a10_data_delayed_10 <= a10_data_delayed_9;
-	a11_data_delayed_2 <= a11_data_delayed_1;
-	a11_data_delayed_3 <= a11_data_delayed_2;
-	a11_data_delayed_4 <= a11_data_delayed_3;
-	a11_data_delayed_5 <= a11_data_delayed_4;
-	a11_data_delayed_6 <= a11_data_delayed_5;
-	a11_data_delayed_7 <= a11_data_delayed_6;
-	a11_data_delayed_8 <= a11_data_delayed_7;
-	a11_data_delayed_9 <= a11_data_delayed_8;
-	a11_data_delayed_10 <= a11_data_delayed_9;
-	a11_data_delayed_11 <= a11_data_delayed_10;
-	a12_data_delayed_2 <= a12_data_delayed_1;
-	a12_data_delayed_3 <= a12_data_delayed_2;
-	a12_data_delayed_4 <= a12_data_delayed_3;
-	a12_data_delayed_5 <= a12_data_delayed_4;
-	a12_data_delayed_6 <= a12_data_delayed_5;
-	a12_data_delayed_7 <= a12_data_delayed_6;
-	a12_data_delayed_8 <= a12_data_delayed_7;
-	a12_data_delayed_9 <= a12_data_delayed_8;
-	a12_data_delayed_10 <= a12_data_delayed_9;
-	a12_data_delayed_11 <= a12_data_delayed_10;
-	a12_data_delayed_12 <= a12_data_delayed_11;
-	a13_data_delayed_2 <= a13_data_delayed_1;
-	a13_data_delayed_3 <= a13_data_delayed_2;
-	a13_data_delayed_4 <= a13_data_delayed_3;
-	a13_data_delayed_5 <= a13_data_delayed_4;
-	a13_data_delayed_6 <= a13_data_delayed_5;
-	a13_data_delayed_7 <= a13_data_delayed_6;
-	a13_data_delayed_8 <= a13_data_delayed_7;
-	a13_data_delayed_9 <= a13_data_delayed_8;
-	a13_data_delayed_10 <= a13_data_delayed_9;
-	a13_data_delayed_11 <= a13_data_delayed_10;
-	a13_data_delayed_12 <= a13_data_delayed_11;
-	a13_data_delayed_13 <= a13_data_delayed_12;
-	a14_data_delayed_2 <= a14_data_delayed_1;
-	a14_data_delayed_3 <= a14_data_delayed_2;
-	a14_data_delayed_4 <= a14_data_delayed_3;
-	a14_data_delayed_5 <= a14_data_delayed_4;
-	a14_data_delayed_6 <= a14_data_delayed_5;
-	a14_data_delayed_7 <= a14_data_delayed_6;
-	a14_data_delayed_8 <= a14_data_delayed_7;
-	a14_data_delayed_9 <= a14_data_delayed_8;
-	a14_data_delayed_10 <= a14_data_delayed_9;
-	a14_data_delayed_11 <= a14_data_delayed_10;
-	a14_data_delayed_12 <= a14_data_delayed_11;
-	a14_data_delayed_13 <= a14_data_delayed_12;
-	a14_data_delayed_14 <= a14_data_delayed_13;
-	a15_data_delayed_2 <= a15_data_delayed_1;
-	a15_data_delayed_3 <= a15_data_delayed_2;
-	a15_data_delayed_4 <= a15_data_delayed_3;
-	a15_data_delayed_5 <= a15_data_delayed_4;
-	a15_data_delayed_6 <= a15_data_delayed_5;
-	a15_data_delayed_7 <= a15_data_delayed_6;
-	a15_data_delayed_8 <= a15_data_delayed_7;
-	a15_data_delayed_9 <= a15_data_delayed_8;
-	a15_data_delayed_10 <= a15_data_delayed_9;
-	a15_data_delayed_11 <= a15_data_delayed_10;
-	a15_data_delayed_12 <= a15_data_delayed_11;
-	a15_data_delayed_13 <= a15_data_delayed_12;
-	a15_data_delayed_14 <= a15_data_delayed_13;
-	a15_data_delayed_15 <= a15_data_delayed_14;
+  a1_data_delayed_1 <= a1_data;
+  a2_data_delayed_1 <= a2_data;
+  a3_data_delayed_1 <= a3_data;
+  a4_data_delayed_1 <= a4_data;
+  a5_data_delayed_1 <= a5_data;
+  a6_data_delayed_1 <= a6_data;
+  a7_data_delayed_1 <= a7_data;
+  a8_data_delayed_1 <= a8_data;
+  a9_data_delayed_1 <= a9_data;
+  a10_data_delayed_1 <= a10_data;
+  a11_data_delayed_1 <= a11_data;
+  a12_data_delayed_1 <= a12_data;
+  a13_data_delayed_1 <= a13_data;
+  a14_data_delayed_1 <= a14_data;
+  a15_data_delayed_1 <= a15_data;
+  a2_data_delayed_2 <= a2_data_delayed_1;
+  a3_data_delayed_2 <= a3_data_delayed_1;
+  a3_data_delayed_3 <= a3_data_delayed_2;
+  a4_data_delayed_2 <= a4_data_delayed_1;
+  a4_data_delayed_3 <= a4_data_delayed_2;
+  a4_data_delayed_4 <= a4_data_delayed_3;
+  a5_data_delayed_2 <= a5_data_delayed_1;
+  a5_data_delayed_3 <= a5_data_delayed_2;
+  a5_data_delayed_4 <= a5_data_delayed_3;
+  a5_data_delayed_5 <= a5_data_delayed_4;
+  a6_data_delayed_2 <= a6_data_delayed_1;
+  a6_data_delayed_3 <= a6_data_delayed_2;
+  a6_data_delayed_4 <= a6_data_delayed_3;
+  a6_data_delayed_5 <= a6_data_delayed_4;
+  a6_data_delayed_6 <= a6_data_delayed_5;
+  a7_data_delayed_2 <= a7_data_delayed_1;
+  a7_data_delayed_3 <= a7_data_delayed_2;
+  a7_data_delayed_4 <= a7_data_delayed_3;
+  a7_data_delayed_5 <= a7_data_delayed_4;
+  a7_data_delayed_6 <= a7_data_delayed_5;
+  a7_data_delayed_7 <= a7_data_delayed_6;
+  a8_data_delayed_2 <= a8_data_delayed_1;
+  a8_data_delayed_3 <= a8_data_delayed_2;
+  a8_data_delayed_4 <= a8_data_delayed_3;
+  a8_data_delayed_5 <= a8_data_delayed_4;
+  a8_data_delayed_6 <= a8_data_delayed_5;
+  a8_data_delayed_7 <= a8_data_delayed_6;
+  a8_data_delayed_8 <= a8_data_delayed_7;
+  a9_data_delayed_2 <= a9_data_delayed_1;
+  a9_data_delayed_3 <= a9_data_delayed_2;
+  a9_data_delayed_4 <= a9_data_delayed_3;
+  a9_data_delayed_5 <= a9_data_delayed_4;
+  a9_data_delayed_6 <= a9_data_delayed_5;
+  a9_data_delayed_7 <= a9_data_delayed_6;
+  a9_data_delayed_8 <= a9_data_delayed_7;
+  a9_data_delayed_9 <= a9_data_delayed_8;
+  a10_data_delayed_2 <= a10_data_delayed_1;
+  a10_data_delayed_3 <= a10_data_delayed_2;
+  a10_data_delayed_4 <= a10_data_delayed_3;
+  a10_data_delayed_5 <= a10_data_delayed_4;
+  a10_data_delayed_6 <= a10_data_delayed_5;
+  a10_data_delayed_7 <= a10_data_delayed_6;
+  a10_data_delayed_8 <= a10_data_delayed_7;
+  a10_data_delayed_9 <= a10_data_delayed_8;
+  a10_data_delayed_10 <= a10_data_delayed_9;
+  a11_data_delayed_2 <= a11_data_delayed_1;
+  a11_data_delayed_3 <= a11_data_delayed_2;
+  a11_data_delayed_4 <= a11_data_delayed_3;
+  a11_data_delayed_5 <= a11_data_delayed_4;
+  a11_data_delayed_6 <= a11_data_delayed_5;
+  a11_data_delayed_7 <= a11_data_delayed_6;
+  a11_data_delayed_8 <= a11_data_delayed_7;
+  a11_data_delayed_9 <= a11_data_delayed_8;
+  a11_data_delayed_10 <= a11_data_delayed_9;
+  a11_data_delayed_11 <= a11_data_delayed_10;
+  a12_data_delayed_2 <= a12_data_delayed_1;
+  a12_data_delayed_3 <= a12_data_delayed_2;
+  a12_data_delayed_4 <= a12_data_delayed_3;
+  a12_data_delayed_5 <= a12_data_delayed_4;
+  a12_data_delayed_6 <= a12_data_delayed_5;
+  a12_data_delayed_7 <= a12_data_delayed_6;
+  a12_data_delayed_8 <= a12_data_delayed_7;
+  a12_data_delayed_9 <= a12_data_delayed_8;
+  a12_data_delayed_10 <= a12_data_delayed_9;
+  a12_data_delayed_11 <= a12_data_delayed_10;
+  a12_data_delayed_12 <= a12_data_delayed_11;
+  a13_data_delayed_2 <= a13_data_delayed_1;
+  a13_data_delayed_3 <= a13_data_delayed_2;
+  a13_data_delayed_4 <= a13_data_delayed_3;
+  a13_data_delayed_5 <= a13_data_delayed_4;
+  a13_data_delayed_6 <= a13_data_delayed_5;
+  a13_data_delayed_7 <= a13_data_delayed_6;
+  a13_data_delayed_8 <= a13_data_delayed_7;
+  a13_data_delayed_9 <= a13_data_delayed_8;
+  a13_data_delayed_10 <= a13_data_delayed_9;
+  a13_data_delayed_11 <= a13_data_delayed_10;
+  a13_data_delayed_12 <= a13_data_delayed_11;
+  a13_data_delayed_13 <= a13_data_delayed_12;
+  a14_data_delayed_2 <= a14_data_delayed_1;
+  a14_data_delayed_3 <= a14_data_delayed_2;
+  a14_data_delayed_4 <= a14_data_delayed_3;
+  a14_data_delayed_5 <= a14_data_delayed_4;
+  a14_data_delayed_6 <= a14_data_delayed_5;
+  a14_data_delayed_7 <= a14_data_delayed_6;
+  a14_data_delayed_8 <= a14_data_delayed_7;
+  a14_data_delayed_9 <= a14_data_delayed_8;
+  a14_data_delayed_10 <= a14_data_delayed_9;
+  a14_data_delayed_11 <= a14_data_delayed_10;
+  a14_data_delayed_12 <= a14_data_delayed_11;
+  a14_data_delayed_13 <= a14_data_delayed_12;
+  a14_data_delayed_14 <= a14_data_delayed_13;
+  a15_data_delayed_2 <= a15_data_delayed_1;
+  a15_data_delayed_3 <= a15_data_delayed_2;
+  a15_data_delayed_4 <= a15_data_delayed_3;
+  a15_data_delayed_5 <= a15_data_delayed_4;
+  a15_data_delayed_6 <= a15_data_delayed_5;
+  a15_data_delayed_7 <= a15_data_delayed_6;
+  a15_data_delayed_8 <= a15_data_delayed_7;
+  a15_data_delayed_9 <= a15_data_delayed_8;
+  a15_data_delayed_10 <= a15_data_delayed_9;
+  a15_data_delayed_11 <= a15_data_delayed_10;
+  a15_data_delayed_12 <= a15_data_delayed_11;
+  a15_data_delayed_13 <= a15_data_delayed_12;
+  a15_data_delayed_14 <= a15_data_delayed_13;
+  a15_data_delayed_15 <= a15_data_delayed_14;
  
   end
 end
@@ -1028,6 +1037,7 @@ reg b_mem_access; //flag that tells whether the matmul is trying to access memor
 always @(posedge clk) begin
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
+
   if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 
     if (enable_conv_mode) begin
@@ -1041,6 +1051,7 @@ always @(posedge clk) begin
   end
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
+
   else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 
     if (enable_conv_mode) begin
@@ -1057,43 +1068,39 @@ end
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate valid signals for data coming from BRAM B
 //////////////////////////////////////////////////////////////////////////
-reg b_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] b_mem_access_counter;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    b_data_valid <= 0;
     b_mem_access_counter <= 0;
   end
   else if (b_mem_access == 1) begin
     b_mem_access_counter <= b_mem_access_counter + 1;  
-    if ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==0) ||
-        (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==1) ||
-        (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==2) ||
-        (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==3) ||
-        (validity_mask_a_cols_b_rows[4]==1'b0 && b_mem_access_counter==4) ||
-        (validity_mask_a_cols_b_rows[5]==1'b0 && b_mem_access_counter==5) ||
-        (validity_mask_a_cols_b_rows[6]==1'b0 && b_mem_access_counter==6) ||
-        (validity_mask_a_cols_b_rows[7]==1'b0 && b_mem_access_counter==7) ||
-        (validity_mask_a_cols_b_rows[8]==1'b0 && b_mem_access_counter==8) ||
-        (validity_mask_a_cols_b_rows[9]==1'b0 && b_mem_access_counter==9) ||
-        (validity_mask_a_cols_b_rows[10]==1'b0 && b_mem_access_counter==10) ||
-        (validity_mask_a_cols_b_rows[11]==1'b0 && b_mem_access_counter==11) ||
-        (validity_mask_a_cols_b_rows[12]==1'b0 && b_mem_access_counter==12) ||
-        (validity_mask_a_cols_b_rows[13]==1'b0 && b_mem_access_counter==13) ||
-        (validity_mask_a_cols_b_rows[14]==1'b0 && b_mem_access_counter==14) ||
-        (validity_mask_a_cols_b_rows[15]==1'b0 && b_mem_access_counter==15)) begin
-    
-      b_data_valid <= 0;
-    end
-    else if (b_mem_access_counter == `MEM_ACCESS_LATENCY) begin
-      b_data_valid <= 1;
-    end
   end
   else begin
-    b_data_valid <= 0;
     b_mem_access_counter <= 0;
   end
 end
+
+wire b_data_valid; //flag that tells whether the data from memory is valid
+assign b_data_valid = 
+     ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==0) ||
+      (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==1) ||
+      (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==2) ||
+      (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==3) ||
+      (validity_mask_a_cols_b_rows[4]==1'b0 && b_mem_access_counter==4) ||
+      (validity_mask_a_cols_b_rows[5]==1'b0 && b_mem_access_counter==5) ||
+      (validity_mask_a_cols_b_rows[6]==1'b0 && b_mem_access_counter==6) ||
+      (validity_mask_a_cols_b_rows[7]==1'b0 && b_mem_access_counter==7) ||
+      (validity_mask_a_cols_b_rows[8]==1'b0 && b_mem_access_counter==8) ||
+      (validity_mask_a_cols_b_rows[9]==1'b0 && b_mem_access_counter==9) ||
+      (validity_mask_a_cols_b_rows[10]==1'b0 && b_mem_access_counter==10) ||
+      (validity_mask_a_cols_b_rows[11]==1'b0 && b_mem_access_counter==11) ||
+      (validity_mask_a_cols_b_rows[12]==1'b0 && b_mem_access_counter==12) ||
+      (validity_mask_a_cols_b_rows[13]==1'b0 && b_mem_access_counter==13) ||
+      (validity_mask_a_cols_b_rows[14]==1'b0 && b_mem_access_counter==14) ||
+      (validity_mask_a_cols_b_rows[15]==1'b0 && b_mem_access_counter==15)) ?
+    
+        1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM B (systolic data setup)
@@ -1290,249 +1297,249 @@ reg [`DWIDTH-1:0] b15_data_delayed_15;
 
 always @(posedge clk) begin
   if (reset || ~start_mat_mul || clk_cnt==0) begin
-		b1_data_delayed_1 <= 0;
-		b2_data_delayed_1 <= 0;
-		b2_data_delayed_2 <= 0;
-		b3_data_delayed_1 <= 0;
-		b3_data_delayed_2 <= 0;
-		b3_data_delayed_3 <= 0;
-		b4_data_delayed_1 <= 0;
-		b4_data_delayed_2 <= 0;
-		b4_data_delayed_3 <= 0;
-		b4_data_delayed_4 <= 0;
-		b5_data_delayed_1 <= 0;
-		b5_data_delayed_2 <= 0;
-		b5_data_delayed_3 <= 0;
-		b5_data_delayed_4 <= 0;
-		b5_data_delayed_5 <= 0;
-		b6_data_delayed_1 <= 0;
-		b6_data_delayed_2 <= 0;
-		b6_data_delayed_3 <= 0;
-		b6_data_delayed_4 <= 0;
-		b6_data_delayed_5 <= 0;
-		b6_data_delayed_6 <= 0;
-		b7_data_delayed_1 <= 0;
-		b7_data_delayed_2 <= 0;
-		b7_data_delayed_3 <= 0;
-		b7_data_delayed_4 <= 0;
-		b7_data_delayed_5 <= 0;
-		b7_data_delayed_6 <= 0;
-		b7_data_delayed_7 <= 0;
-		b8_data_delayed_1 <= 0;
-		b8_data_delayed_2 <= 0;
-		b8_data_delayed_3 <= 0;
-		b8_data_delayed_4 <= 0;
-		b8_data_delayed_5 <= 0;
-		b8_data_delayed_6 <= 0;
-		b8_data_delayed_7 <= 0;
-		b8_data_delayed_8 <= 0;
-		b9_data_delayed_1 <= 0;
-		b9_data_delayed_2 <= 0;
-		b9_data_delayed_3 <= 0;
-		b9_data_delayed_4 <= 0;
-		b9_data_delayed_5 <= 0;
-		b9_data_delayed_6 <= 0;
-		b9_data_delayed_7 <= 0;
-		b9_data_delayed_8 <= 0;
-		b9_data_delayed_9 <= 0;
-		b10_data_delayed_1 <= 0;
-		b10_data_delayed_2 <= 0;
-		b10_data_delayed_3 <= 0;
-		b10_data_delayed_4 <= 0;
-		b10_data_delayed_5 <= 0;
-		b10_data_delayed_6 <= 0;
-		b10_data_delayed_7 <= 0;
-		b10_data_delayed_8 <= 0;
-		b10_data_delayed_9 <= 0;
-		b10_data_delayed_10 <= 0;
-		b11_data_delayed_1 <= 0;
-		b11_data_delayed_2 <= 0;
-		b11_data_delayed_3 <= 0;
-		b11_data_delayed_4 <= 0;
-		b11_data_delayed_5 <= 0;
-		b11_data_delayed_6 <= 0;
-		b11_data_delayed_7 <= 0;
-		b11_data_delayed_8 <= 0;
-		b11_data_delayed_9 <= 0;
-		b11_data_delayed_10 <= 0;
-		b11_data_delayed_11 <= 0;
-		b12_data_delayed_1 <= 0;
-		b12_data_delayed_2 <= 0;
-		b12_data_delayed_3 <= 0;
-		b12_data_delayed_4 <= 0;
-		b12_data_delayed_5 <= 0;
-		b12_data_delayed_6 <= 0;
-		b12_data_delayed_7 <= 0;
-		b12_data_delayed_8 <= 0;
-		b12_data_delayed_9 <= 0;
-		b12_data_delayed_10 <= 0;
-		b12_data_delayed_11 <= 0;
-		b12_data_delayed_12 <= 0;
-		b13_data_delayed_1 <= 0;
-		b13_data_delayed_2 <= 0;
-		b13_data_delayed_3 <= 0;
-		b13_data_delayed_4 <= 0;
-		b13_data_delayed_5 <= 0;
-		b13_data_delayed_6 <= 0;
-		b13_data_delayed_7 <= 0;
-		b13_data_delayed_8 <= 0;
-		b13_data_delayed_9 <= 0;
-		b13_data_delayed_10 <= 0;
-		b13_data_delayed_11 <= 0;
-		b13_data_delayed_12 <= 0;
-		b13_data_delayed_13 <= 0;
-		b14_data_delayed_1 <= 0;
-		b14_data_delayed_2 <= 0;
-		b14_data_delayed_3 <= 0;
-		b14_data_delayed_4 <= 0;
-		b14_data_delayed_5 <= 0;
-		b14_data_delayed_6 <= 0;
-		b14_data_delayed_7 <= 0;
-		b14_data_delayed_8 <= 0;
-		b14_data_delayed_9 <= 0;
-		b14_data_delayed_10 <= 0;
-		b14_data_delayed_11 <= 0;
-		b14_data_delayed_12 <= 0;
-		b14_data_delayed_13 <= 0;
-		b14_data_delayed_14 <= 0;
-		b15_data_delayed_1 <= 0;
-		b15_data_delayed_2 <= 0;
-		b15_data_delayed_3 <= 0;
-		b15_data_delayed_4 <= 0;
-		b15_data_delayed_5 <= 0;
-		b15_data_delayed_6 <= 0;
-		b15_data_delayed_7 <= 0;
-		b15_data_delayed_8 <= 0;
-		b15_data_delayed_9 <= 0;
-		b15_data_delayed_10 <= 0;
-		b15_data_delayed_11 <= 0;
-		b15_data_delayed_12 <= 0;
-		b15_data_delayed_13 <= 0;
-		b15_data_delayed_14 <= 0;
-		b15_data_delayed_15 <= 0;
+    b1_data_delayed_1 <= 0;
+    b2_data_delayed_1 <= 0;
+    b2_data_delayed_2 <= 0;
+    b3_data_delayed_1 <= 0;
+    b3_data_delayed_2 <= 0;
+    b3_data_delayed_3 <= 0;
+    b4_data_delayed_1 <= 0;
+    b4_data_delayed_2 <= 0;
+    b4_data_delayed_3 <= 0;
+    b4_data_delayed_4 <= 0;
+    b5_data_delayed_1 <= 0;
+    b5_data_delayed_2 <= 0;
+    b5_data_delayed_3 <= 0;
+    b5_data_delayed_4 <= 0;
+    b5_data_delayed_5 <= 0;
+    b6_data_delayed_1 <= 0;
+    b6_data_delayed_2 <= 0;
+    b6_data_delayed_3 <= 0;
+    b6_data_delayed_4 <= 0;
+    b6_data_delayed_5 <= 0;
+    b6_data_delayed_6 <= 0;
+    b7_data_delayed_1 <= 0;
+    b7_data_delayed_2 <= 0;
+    b7_data_delayed_3 <= 0;
+    b7_data_delayed_4 <= 0;
+    b7_data_delayed_5 <= 0;
+    b7_data_delayed_6 <= 0;
+    b7_data_delayed_7 <= 0;
+    b8_data_delayed_1 <= 0;
+    b8_data_delayed_2 <= 0;
+    b8_data_delayed_3 <= 0;
+    b8_data_delayed_4 <= 0;
+    b8_data_delayed_5 <= 0;
+    b8_data_delayed_6 <= 0;
+    b8_data_delayed_7 <= 0;
+    b8_data_delayed_8 <= 0;
+    b9_data_delayed_1 <= 0;
+    b9_data_delayed_2 <= 0;
+    b9_data_delayed_3 <= 0;
+    b9_data_delayed_4 <= 0;
+    b9_data_delayed_5 <= 0;
+    b9_data_delayed_6 <= 0;
+    b9_data_delayed_7 <= 0;
+    b9_data_delayed_8 <= 0;
+    b9_data_delayed_9 <= 0;
+    b10_data_delayed_1 <= 0;
+    b10_data_delayed_2 <= 0;
+    b10_data_delayed_3 <= 0;
+    b10_data_delayed_4 <= 0;
+    b10_data_delayed_5 <= 0;
+    b10_data_delayed_6 <= 0;
+    b10_data_delayed_7 <= 0;
+    b10_data_delayed_8 <= 0;
+    b10_data_delayed_9 <= 0;
+    b10_data_delayed_10 <= 0;
+    b11_data_delayed_1 <= 0;
+    b11_data_delayed_2 <= 0;
+    b11_data_delayed_3 <= 0;
+    b11_data_delayed_4 <= 0;
+    b11_data_delayed_5 <= 0;
+    b11_data_delayed_6 <= 0;
+    b11_data_delayed_7 <= 0;
+    b11_data_delayed_8 <= 0;
+    b11_data_delayed_9 <= 0;
+    b11_data_delayed_10 <= 0;
+    b11_data_delayed_11 <= 0;
+    b12_data_delayed_1 <= 0;
+    b12_data_delayed_2 <= 0;
+    b12_data_delayed_3 <= 0;
+    b12_data_delayed_4 <= 0;
+    b12_data_delayed_5 <= 0;
+    b12_data_delayed_6 <= 0;
+    b12_data_delayed_7 <= 0;
+    b12_data_delayed_8 <= 0;
+    b12_data_delayed_9 <= 0;
+    b12_data_delayed_10 <= 0;
+    b12_data_delayed_11 <= 0;
+    b12_data_delayed_12 <= 0;
+    b13_data_delayed_1 <= 0;
+    b13_data_delayed_2 <= 0;
+    b13_data_delayed_3 <= 0;
+    b13_data_delayed_4 <= 0;
+    b13_data_delayed_5 <= 0;
+    b13_data_delayed_6 <= 0;
+    b13_data_delayed_7 <= 0;
+    b13_data_delayed_8 <= 0;
+    b13_data_delayed_9 <= 0;
+    b13_data_delayed_10 <= 0;
+    b13_data_delayed_11 <= 0;
+    b13_data_delayed_12 <= 0;
+    b13_data_delayed_13 <= 0;
+    b14_data_delayed_1 <= 0;
+    b14_data_delayed_2 <= 0;
+    b14_data_delayed_3 <= 0;
+    b14_data_delayed_4 <= 0;
+    b14_data_delayed_5 <= 0;
+    b14_data_delayed_6 <= 0;
+    b14_data_delayed_7 <= 0;
+    b14_data_delayed_8 <= 0;
+    b14_data_delayed_9 <= 0;
+    b14_data_delayed_10 <= 0;
+    b14_data_delayed_11 <= 0;
+    b14_data_delayed_12 <= 0;
+    b14_data_delayed_13 <= 0;
+    b14_data_delayed_14 <= 0;
+    b15_data_delayed_1 <= 0;
+    b15_data_delayed_2 <= 0;
+    b15_data_delayed_3 <= 0;
+    b15_data_delayed_4 <= 0;
+    b15_data_delayed_5 <= 0;
+    b15_data_delayed_6 <= 0;
+    b15_data_delayed_7 <= 0;
+    b15_data_delayed_8 <= 0;
+    b15_data_delayed_9 <= 0;
+    b15_data_delayed_10 <= 0;
+    b15_data_delayed_11 <= 0;
+    b15_data_delayed_12 <= 0;
+    b15_data_delayed_13 <= 0;
+    b15_data_delayed_14 <= 0;
+    b15_data_delayed_15 <= 0;
 
   end
   else begin
-	b1_data_delayed_1 <= b1_data;
-	b2_data_delayed_1 <= b2_data;
-	b3_data_delayed_1 <= b3_data;
-	b4_data_delayed_1 <= b4_data;
-	b5_data_delayed_1 <= b5_data;
-	b6_data_delayed_1 <= b6_data;
-	b7_data_delayed_1 <= b7_data;
-	b8_data_delayed_1 <= b8_data;
-	b9_data_delayed_1 <= b9_data;
-	b10_data_delayed_1 <= b10_data;
-	b11_data_delayed_1 <= b11_data;
-	b12_data_delayed_1 <= b12_data;
-	b13_data_delayed_1 <= b13_data;
-	b14_data_delayed_1 <= b14_data;
-	b15_data_delayed_1 <= b15_data;
-	b2_data_delayed_2 <= b2_data_delayed_1;
-	b3_data_delayed_2 <= b3_data_delayed_1;
-	b3_data_delayed_3 <= b3_data_delayed_2;
-	b4_data_delayed_2 <= b4_data_delayed_1;
-	b4_data_delayed_3 <= b4_data_delayed_2;
-	b4_data_delayed_4 <= b4_data_delayed_3;
-	b5_data_delayed_2 <= b5_data_delayed_1;
-	b5_data_delayed_3 <= b5_data_delayed_2;
-	b5_data_delayed_4 <= b5_data_delayed_3;
-	b5_data_delayed_5 <= b5_data_delayed_4;
-	b6_data_delayed_2 <= b6_data_delayed_1;
-	b6_data_delayed_3 <= b6_data_delayed_2;
-	b6_data_delayed_4 <= b6_data_delayed_3;
-	b6_data_delayed_5 <= b6_data_delayed_4;
-	b6_data_delayed_6 <= b6_data_delayed_5;
-	b7_data_delayed_2 <= b7_data_delayed_1;
-	b7_data_delayed_3 <= b7_data_delayed_2;
-	b7_data_delayed_4 <= b7_data_delayed_3;
-	b7_data_delayed_5 <= b7_data_delayed_4;
-	b7_data_delayed_6 <= b7_data_delayed_5;
-	b7_data_delayed_7 <= b7_data_delayed_6;
-	b8_data_delayed_2 <= b8_data_delayed_1;
-	b8_data_delayed_3 <= b8_data_delayed_2;
-	b8_data_delayed_4 <= b8_data_delayed_3;
-	b8_data_delayed_5 <= b8_data_delayed_4;
-	b8_data_delayed_6 <= b8_data_delayed_5;
-	b8_data_delayed_7 <= b8_data_delayed_6;
-	b8_data_delayed_8 <= b8_data_delayed_7;
-	b9_data_delayed_2 <= b9_data_delayed_1;
-	b9_data_delayed_3 <= b9_data_delayed_2;
-	b9_data_delayed_4 <= b9_data_delayed_3;
-	b9_data_delayed_5 <= b9_data_delayed_4;
-	b9_data_delayed_6 <= b9_data_delayed_5;
-	b9_data_delayed_7 <= b9_data_delayed_6;
-	b9_data_delayed_8 <= b9_data_delayed_7;
-	b9_data_delayed_9 <= b9_data_delayed_8;
-	b10_data_delayed_2 <= b10_data_delayed_1;
-	b10_data_delayed_3 <= b10_data_delayed_2;
-	b10_data_delayed_4 <= b10_data_delayed_3;
-	b10_data_delayed_5 <= b10_data_delayed_4;
-	b10_data_delayed_6 <= b10_data_delayed_5;
-	b10_data_delayed_7 <= b10_data_delayed_6;
-	b10_data_delayed_8 <= b10_data_delayed_7;
-	b10_data_delayed_9 <= b10_data_delayed_8;
-	b10_data_delayed_10 <= b10_data_delayed_9;
-	b11_data_delayed_2 <= b11_data_delayed_1;
-	b11_data_delayed_3 <= b11_data_delayed_2;
-	b11_data_delayed_4 <= b11_data_delayed_3;
-	b11_data_delayed_5 <= b11_data_delayed_4;
-	b11_data_delayed_6 <= b11_data_delayed_5;
-	b11_data_delayed_7 <= b11_data_delayed_6;
-	b11_data_delayed_8 <= b11_data_delayed_7;
-	b11_data_delayed_9 <= b11_data_delayed_8;
-	b11_data_delayed_10 <= b11_data_delayed_9;
-	b11_data_delayed_11 <= b11_data_delayed_10;
-	b12_data_delayed_2 <= b12_data_delayed_1;
-	b12_data_delayed_3 <= b12_data_delayed_2;
-	b12_data_delayed_4 <= b12_data_delayed_3;
-	b12_data_delayed_5 <= b12_data_delayed_4;
-	b12_data_delayed_6 <= b12_data_delayed_5;
-	b12_data_delayed_7 <= b12_data_delayed_6;
-	b12_data_delayed_8 <= b12_data_delayed_7;
-	b12_data_delayed_9 <= b12_data_delayed_8;
-	b12_data_delayed_10 <= b12_data_delayed_9;
-	b12_data_delayed_11 <= b12_data_delayed_10;
-	b12_data_delayed_12 <= b12_data_delayed_11;
-	b13_data_delayed_2 <= b13_data_delayed_1;
-	b13_data_delayed_3 <= b13_data_delayed_2;
-	b13_data_delayed_4 <= b13_data_delayed_3;
-	b13_data_delayed_5 <= b13_data_delayed_4;
-	b13_data_delayed_6 <= b13_data_delayed_5;
-	b13_data_delayed_7 <= b13_data_delayed_6;
-	b13_data_delayed_8 <= b13_data_delayed_7;
-	b13_data_delayed_9 <= b13_data_delayed_8;
-	b13_data_delayed_10 <= b13_data_delayed_9;
-	b13_data_delayed_11 <= b13_data_delayed_10;
-	b13_data_delayed_12 <= b13_data_delayed_11;
-	b13_data_delayed_13 <= b13_data_delayed_12;
-	b14_data_delayed_2 <= b14_data_delayed_1;
-	b14_data_delayed_3 <= b14_data_delayed_2;
-	b14_data_delayed_4 <= b14_data_delayed_3;
-	b14_data_delayed_5 <= b14_data_delayed_4;
-	b14_data_delayed_6 <= b14_data_delayed_5;
-	b14_data_delayed_7 <= b14_data_delayed_6;
-	b14_data_delayed_8 <= b14_data_delayed_7;
-	b14_data_delayed_9 <= b14_data_delayed_8;
-	b14_data_delayed_10 <= b14_data_delayed_9;
-	b14_data_delayed_11 <= b14_data_delayed_10;
-	b14_data_delayed_12 <= b14_data_delayed_11;
-	b14_data_delayed_13 <= b14_data_delayed_12;
-	b14_data_delayed_14 <= b14_data_delayed_13;
-	b15_data_delayed_2 <= b15_data_delayed_1;
-	b15_data_delayed_3 <= b15_data_delayed_2;
-	b15_data_delayed_4 <= b15_data_delayed_3;
-	b15_data_delayed_5 <= b15_data_delayed_4;
-	b15_data_delayed_6 <= b15_data_delayed_5;
-	b15_data_delayed_7 <= b15_data_delayed_6;
-	b15_data_delayed_8 <= b15_data_delayed_7;
-	b15_data_delayed_9 <= b15_data_delayed_8;
-	b15_data_delayed_10 <= b15_data_delayed_9;
-	b15_data_delayed_11 <= b15_data_delayed_10;
-	b15_data_delayed_12 <= b15_data_delayed_11;
-	b15_data_delayed_13 <= b15_data_delayed_12;
-	b15_data_delayed_14 <= b15_data_delayed_13;
-	b15_data_delayed_15 <= b15_data_delayed_14;
+  b1_data_delayed_1 <= b1_data;
+  b2_data_delayed_1 <= b2_data;
+  b3_data_delayed_1 <= b3_data;
+  b4_data_delayed_1 <= b4_data;
+  b5_data_delayed_1 <= b5_data;
+  b6_data_delayed_1 <= b6_data;
+  b7_data_delayed_1 <= b7_data;
+  b8_data_delayed_1 <= b8_data;
+  b9_data_delayed_1 <= b9_data;
+  b10_data_delayed_1 <= b10_data;
+  b11_data_delayed_1 <= b11_data;
+  b12_data_delayed_1 <= b12_data;
+  b13_data_delayed_1 <= b13_data;
+  b14_data_delayed_1 <= b14_data;
+  b15_data_delayed_1 <= b15_data;
+  b2_data_delayed_2 <= b2_data_delayed_1;
+  b3_data_delayed_2 <= b3_data_delayed_1;
+  b3_data_delayed_3 <= b3_data_delayed_2;
+  b4_data_delayed_2 <= b4_data_delayed_1;
+  b4_data_delayed_3 <= b4_data_delayed_2;
+  b4_data_delayed_4 <= b4_data_delayed_3;
+  b5_data_delayed_2 <= b5_data_delayed_1;
+  b5_data_delayed_3 <= b5_data_delayed_2;
+  b5_data_delayed_4 <= b5_data_delayed_3;
+  b5_data_delayed_5 <= b5_data_delayed_4;
+  b6_data_delayed_2 <= b6_data_delayed_1;
+  b6_data_delayed_3 <= b6_data_delayed_2;
+  b6_data_delayed_4 <= b6_data_delayed_3;
+  b6_data_delayed_5 <= b6_data_delayed_4;
+  b6_data_delayed_6 <= b6_data_delayed_5;
+  b7_data_delayed_2 <= b7_data_delayed_1;
+  b7_data_delayed_3 <= b7_data_delayed_2;
+  b7_data_delayed_4 <= b7_data_delayed_3;
+  b7_data_delayed_5 <= b7_data_delayed_4;
+  b7_data_delayed_6 <= b7_data_delayed_5;
+  b7_data_delayed_7 <= b7_data_delayed_6;
+  b8_data_delayed_2 <= b8_data_delayed_1;
+  b8_data_delayed_3 <= b8_data_delayed_2;
+  b8_data_delayed_4 <= b8_data_delayed_3;
+  b8_data_delayed_5 <= b8_data_delayed_4;
+  b8_data_delayed_6 <= b8_data_delayed_5;
+  b8_data_delayed_7 <= b8_data_delayed_6;
+  b8_data_delayed_8 <= b8_data_delayed_7;
+  b9_data_delayed_2 <= b9_data_delayed_1;
+  b9_data_delayed_3 <= b9_data_delayed_2;
+  b9_data_delayed_4 <= b9_data_delayed_3;
+  b9_data_delayed_5 <= b9_data_delayed_4;
+  b9_data_delayed_6 <= b9_data_delayed_5;
+  b9_data_delayed_7 <= b9_data_delayed_6;
+  b9_data_delayed_8 <= b9_data_delayed_7;
+  b9_data_delayed_9 <= b9_data_delayed_8;
+  b10_data_delayed_2 <= b10_data_delayed_1;
+  b10_data_delayed_3 <= b10_data_delayed_2;
+  b10_data_delayed_4 <= b10_data_delayed_3;
+  b10_data_delayed_5 <= b10_data_delayed_4;
+  b10_data_delayed_6 <= b10_data_delayed_5;
+  b10_data_delayed_7 <= b10_data_delayed_6;
+  b10_data_delayed_8 <= b10_data_delayed_7;
+  b10_data_delayed_9 <= b10_data_delayed_8;
+  b10_data_delayed_10 <= b10_data_delayed_9;
+  b11_data_delayed_2 <= b11_data_delayed_1;
+  b11_data_delayed_3 <= b11_data_delayed_2;
+  b11_data_delayed_4 <= b11_data_delayed_3;
+  b11_data_delayed_5 <= b11_data_delayed_4;
+  b11_data_delayed_6 <= b11_data_delayed_5;
+  b11_data_delayed_7 <= b11_data_delayed_6;
+  b11_data_delayed_8 <= b11_data_delayed_7;
+  b11_data_delayed_9 <= b11_data_delayed_8;
+  b11_data_delayed_10 <= b11_data_delayed_9;
+  b11_data_delayed_11 <= b11_data_delayed_10;
+  b12_data_delayed_2 <= b12_data_delayed_1;
+  b12_data_delayed_3 <= b12_data_delayed_2;
+  b12_data_delayed_4 <= b12_data_delayed_3;
+  b12_data_delayed_5 <= b12_data_delayed_4;
+  b12_data_delayed_6 <= b12_data_delayed_5;
+  b12_data_delayed_7 <= b12_data_delayed_6;
+  b12_data_delayed_8 <= b12_data_delayed_7;
+  b12_data_delayed_9 <= b12_data_delayed_8;
+  b12_data_delayed_10 <= b12_data_delayed_9;
+  b12_data_delayed_11 <= b12_data_delayed_10;
+  b12_data_delayed_12 <= b12_data_delayed_11;
+  b13_data_delayed_2 <= b13_data_delayed_1;
+  b13_data_delayed_3 <= b13_data_delayed_2;
+  b13_data_delayed_4 <= b13_data_delayed_3;
+  b13_data_delayed_5 <= b13_data_delayed_4;
+  b13_data_delayed_6 <= b13_data_delayed_5;
+  b13_data_delayed_7 <= b13_data_delayed_6;
+  b13_data_delayed_8 <= b13_data_delayed_7;
+  b13_data_delayed_9 <= b13_data_delayed_8;
+  b13_data_delayed_10 <= b13_data_delayed_9;
+  b13_data_delayed_11 <= b13_data_delayed_10;
+  b13_data_delayed_12 <= b13_data_delayed_11;
+  b13_data_delayed_13 <= b13_data_delayed_12;
+  b14_data_delayed_2 <= b14_data_delayed_1;
+  b14_data_delayed_3 <= b14_data_delayed_2;
+  b14_data_delayed_4 <= b14_data_delayed_3;
+  b14_data_delayed_5 <= b14_data_delayed_4;
+  b14_data_delayed_6 <= b14_data_delayed_5;
+  b14_data_delayed_7 <= b14_data_delayed_6;
+  b14_data_delayed_8 <= b14_data_delayed_7;
+  b14_data_delayed_9 <= b14_data_delayed_8;
+  b14_data_delayed_10 <= b14_data_delayed_9;
+  b14_data_delayed_11 <= b14_data_delayed_10;
+  b14_data_delayed_12 <= b14_data_delayed_11;
+  b14_data_delayed_13 <= b14_data_delayed_12;
+  b14_data_delayed_14 <= b14_data_delayed_13;
+  b15_data_delayed_2 <= b15_data_delayed_1;
+  b15_data_delayed_3 <= b15_data_delayed_2;
+  b15_data_delayed_4 <= b15_data_delayed_3;
+  b15_data_delayed_5 <= b15_data_delayed_4;
+  b15_data_delayed_6 <= b15_data_delayed_5;
+  b15_data_delayed_7 <= b15_data_delayed_6;
+  b15_data_delayed_8 <= b15_data_delayed_7;
+  b15_data_delayed_9 <= b15_data_delayed_8;
+  b15_data_delayed_10 <= b15_data_delayed_9;
+  b15_data_delayed_11 <= b15_data_delayed_10;
+  b15_data_delayed_12 <= b15_data_delayed_11;
+  b15_data_delayed_13 <= b15_data_delayed_12;
+  b15_data_delayed_14 <= b15_data_delayed_13;
+  b15_data_delayed_15 <= b15_data_delayed_14;
  
   end
 end
@@ -1606,12 +1613,6 @@ assign b12 = (a_loc==0) ? b12_data_delayed_12 : b12_data_in;
 assign b13 = (a_loc==0) ? b13_data_delayed_13 : b13_data_in;
 assign b14 = (a_loc==0) ? b14_data_delayed_14 : b14_data_in;
 assign b15 = (a_loc==0) ? b15_data_delayed_15 : b15_data_in;
-
-
-
-//////////////////////////////////////////////////////////////////////////
-// Logic to handle accumulation of partial sums (accumulators)
-//////////////////////////////////////////////////////////////////////////
 
 wire [`DWIDTH-1:0] a0_0to0_1, a0_1to0_2, a0_2to0_3, a0_3to0_4, a0_4to0_5, a0_5to0_6, a0_6to0_7, a0_7to0_8, a0_8to0_9, a0_9to0_10, a0_10to0_11, a0_11to0_12, a0_12to0_13, a0_13to0_14, a0_14to0_15, a0_15to0_16;
 wire [`DWIDTH-1:0] a1_0to1_1, a1_1to1_2, a1_2to1_3, a1_3to1_4, a1_4to1_5, a1_5to1_6, a1_6to1_7, a1_7to1_8, a1_8to1_9, a1_9to1_10, a1_10to1_11, a1_11to1_12, a1_12to1_13, a1_13to1_14, a1_14to1_15, a1_15to1_16;
@@ -2451,13 +2452,13 @@ reg [`DWIDTH-1:0] matrixC15_13_accum;
 reg [`DWIDTH-1:0] matrixC15_14_accum;
 reg [`DWIDTH-1:0] matrixC15_15_accum;
 
-reg outputs_saved_to_accum;
-reg outputs_added_to_accum;
-wire reset_accum;
-
-always @(posedge clk) begin
-  if (reset || ~(save_output_to_accum || add_accum_to_output) || (reset_accum)) begin
-matrixC0_0_accum <= 0;
+  reg outputs_saved_to_accum;
+  reg outputs_added_to_accum;
+  wire reset_accum;
+  
+  always @(posedge clk) begin
+    if (reset || ~(save_output_to_accum || add_accum_to_output) || (reset_accum)) begin
+  matrixC0_0_accum <= 0;
 matrixC0_1_accum <= 0;
 matrixC0_2_accum <= 0;
 matrixC0_3_accum <= 0;
@@ -2714,15 +2715,15 @@ matrixC15_13_accum <= 0;
 matrixC15_14_accum <= 0;
 matrixC15_15_accum <= 0;
  outputs_saved_to_accum <= 0;
-    outputs_added_to_accum <= 0;
-
-    cur_c_saved <= 0;
-    cur_r_saved <= 0;
-    cur_s_saved <= 0;
+      outputs_added_to_accum <= 0;
   
-  end
-  else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
-	matrixC0_0_accum <= matrixC0_0_added;
+      cur_c_saved <= 0;
+      cur_r_saved <= 0;
+      cur_s_saved <= 0;
+    
+    end
+    else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
+  	matrixC0_0_accum <= matrixC0_0_added;
 	matrixC0_1_accum <= matrixC0_1_added;
 	matrixC0_2_accum <= matrixC0_2_added;
 	matrixC0_3_accum <= matrixC0_3_added;
@@ -2979,16 +2980,16 @@ matrixC15_15_accum <= 0;
 	matrixC15_14_accum <= matrixC15_14_added;
 	matrixC15_15_accum <= matrixC15_15_added;
 
-    outputs_saved_to_accum <= 1;
-    outputs_added_to_accum <= 1;
-
-    cur_c_saved <= c;
-    cur_r_saved <= r;
-    cur_s_saved <= s;
+      outputs_saved_to_accum <= 1;
+      outputs_added_to_accum <= 1;
   
-  end
-  else if (row_latch_en && save_output_to_accum) begin
-	matrixC0_0_accum <= matrixC0_0;
+      cur_c_saved <= c;
+      cur_r_saved <= r;
+      cur_s_saved <= s;
+    
+    end
+    else if (row_latch_en && save_output_to_accum) begin
+  	matrixC0_0_accum <= matrixC0_0;
 	matrixC0_1_accum <= matrixC0_1;
 	matrixC0_2_accum <= matrixC0_2;
 	matrixC0_3_accum <= matrixC0_3;
@@ -3245,18 +3246,18 @@ matrixC15_15_accum <= 0;
 	matrixC15_14_accum <= matrixC15_14;
 	matrixC15_15_accum <= matrixC15_15;
 
-    outputs_saved_to_accum <= 1;
-
-    cur_c_saved <= c;
-    cur_r_saved <= r;
-    cur_s_saved <= s;
+      outputs_saved_to_accum <= 1;
   
+      cur_c_saved <= c;
+      cur_r_saved <= r;
+      cur_s_saved <= s;
+    
+    end
+    else if (row_latch_en && add_accum_to_output) begin
+      outputs_added_to_accum <= 1;
+    end
   end
-  else if (row_latch_en && add_accum_to_output) begin
-    outputs_added_to_accum <= 1;
-  end
-end
-assign matrixC0_0_added = (add_accum_to_output) ? (matrixC0_0 + matrixC0_0_accum) : matrixC0_0;
+  assign matrixC0_0_added = (add_accum_to_output) ? (matrixC0_0 + matrixC0_0_accum) : matrixC0_0;
 assign matrixC0_1_added = (add_accum_to_output) ? (matrixC0_1 + matrixC0_1_accum) : matrixC0_1;
 assign matrixC0_2_added = (add_accum_to_output) ? (matrixC0_2 + matrixC0_2_accum) : matrixC0_2;
 assign matrixC0_3_added = (add_accum_to_output) ? (matrixC0_3 + matrixC0_3_accum) : matrixC0_3;
@@ -3519,10 +3520,11 @@ assign matrixC15_15_added = (add_accum_to_output) ? (matrixC15_15 + matrixC15_15
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 +  `NUM_CYCLES_IN_MAC - 1));
 //Writing the line above to avoid multiplication:
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
+
 assign row_latch_en =  (save_output_to_accum) ?
                        ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -1 +`NUM_CYCLES_IN_MAC))) :
                        ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -2 +`NUM_CYCLES_IN_MAC)));
-
+    
 reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
@@ -3545,7 +3547,7 @@ assign condition_to_start_shifting_output =
                           row_latch_en:  
                           row_latch_en ));  
 
-
+  
 //For larger matmuls, this logic will have more entries in the case statement
 always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
@@ -3572,21 +3574,21 @@ always @(posedge clk) begin
     c_addr <= c_addr + address_stride_c; 
     counter <= counter + 1;
     case (counter)  //rest of the elements are captured here
-    		1: c_data_out <= {matrixC15_1_added, matrixC14_1_added, matrixC13_1_added, matrixC12_1_added, matrixC11_1_added, matrixC10_1_added, matrixC9_1_added, matrixC8_1_added, matrixC7_1_added, matrixC6_1_added, matrixC5_1_added, matrixC4_1_added, matrixC3_1_added, matrixC2_1_added, matrixC1_1_added, matrixC0_1_added};
-		2: c_data_out <= {matrixC15_2_added, matrixC14_2_added, matrixC13_2_added, matrixC12_2_added, matrixC11_2_added, matrixC10_2_added, matrixC9_2_added, matrixC8_2_added, matrixC7_2_added, matrixC6_2_added, matrixC5_2_added, matrixC4_2_added, matrixC3_2_added, matrixC2_2_added, matrixC1_2_added, matrixC0_2_added};
-		3: c_data_out <= {matrixC15_3_added, matrixC14_3_added, matrixC13_3_added, matrixC12_3_added, matrixC11_3_added, matrixC10_3_added, matrixC9_3_added, matrixC8_3_added, matrixC7_3_added, matrixC6_3_added, matrixC5_3_added, matrixC4_3_added, matrixC3_3_added, matrixC2_3_added, matrixC1_3_added, matrixC0_3_added};
-		4: c_data_out <= {matrixC15_4_added, matrixC14_4_added, matrixC13_4_added, matrixC12_4_added, matrixC11_4_added, matrixC10_4_added, matrixC9_4_added, matrixC8_4_added, matrixC7_4_added, matrixC6_4_added, matrixC5_4_added, matrixC4_4_added, matrixC3_4_added, matrixC2_4_added, matrixC1_4_added, matrixC0_4_added};
-		5: c_data_out <= {matrixC15_5_added, matrixC14_5_added, matrixC13_5_added, matrixC12_5_added, matrixC11_5_added, matrixC10_5_added, matrixC9_5_added, matrixC8_5_added, matrixC7_5_added, matrixC6_5_added, matrixC5_5_added, matrixC4_5_added, matrixC3_5_added, matrixC2_5_added, matrixC1_5_added, matrixC0_5_added};
-		6: c_data_out <= {matrixC15_6_added, matrixC14_6_added, matrixC13_6_added, matrixC12_6_added, matrixC11_6_added, matrixC10_6_added, matrixC9_6_added, matrixC8_6_added, matrixC7_6_added, matrixC6_6_added, matrixC5_6_added, matrixC4_6_added, matrixC3_6_added, matrixC2_6_added, matrixC1_6_added, matrixC0_6_added};
-		7: c_data_out <= {matrixC15_7_added, matrixC14_7_added, matrixC13_7_added, matrixC12_7_added, matrixC11_7_added, matrixC10_7_added, matrixC9_7_added, matrixC8_7_added, matrixC7_7_added, matrixC6_7_added, matrixC5_7_added, matrixC4_7_added, matrixC3_7_added, matrixC2_7_added, matrixC1_7_added, matrixC0_7_added};
-		8: c_data_out <= {matrixC15_8_added, matrixC14_8_added, matrixC13_8_added, matrixC12_8_added, matrixC11_8_added, matrixC10_8_added, matrixC9_8_added, matrixC8_8_added, matrixC7_8_added, matrixC6_8_added, matrixC5_8_added, matrixC4_8_added, matrixC3_8_added, matrixC2_8_added, matrixC1_8_added, matrixC0_8_added};
-		9: c_data_out <= {matrixC15_9_added, matrixC14_9_added, matrixC13_9_added, matrixC12_9_added, matrixC11_9_added, matrixC10_9_added, matrixC9_9_added, matrixC8_9_added, matrixC7_9_added, matrixC6_9_added, matrixC5_9_added, matrixC4_9_added, matrixC3_9_added, matrixC2_9_added, matrixC1_9_added, matrixC0_9_added};
-		10: c_data_out <= {matrixC15_10_added, matrixC14_10_added, matrixC13_10_added, matrixC12_10_added, matrixC11_10_added, matrixC10_10_added, matrixC9_10_added, matrixC8_10_added, matrixC7_10_added, matrixC6_10_added, matrixC5_10_added, matrixC4_10_added, matrixC3_10_added, matrixC2_10_added, matrixC1_10_added, matrixC0_10_added};
-		11: c_data_out <= {matrixC15_11_added, matrixC14_11_added, matrixC13_11_added, matrixC12_11_added, matrixC11_11_added, matrixC10_11_added, matrixC9_11_added, matrixC8_11_added, matrixC7_11_added, matrixC6_11_added, matrixC5_11_added, matrixC4_11_added, matrixC3_11_added, matrixC2_11_added, matrixC1_11_added, matrixC0_11_added};
-		12: c_data_out <= {matrixC15_12_added, matrixC14_12_added, matrixC13_12_added, matrixC12_12_added, matrixC11_12_added, matrixC10_12_added, matrixC9_12_added, matrixC8_12_added, matrixC7_12_added, matrixC6_12_added, matrixC5_12_added, matrixC4_12_added, matrixC3_12_added, matrixC2_12_added, matrixC1_12_added, matrixC0_12_added};
-		13: c_data_out <= {matrixC15_13_added, matrixC14_13_added, matrixC13_13_added, matrixC12_13_added, matrixC11_13_added, matrixC10_13_added, matrixC9_13_added, matrixC8_13_added, matrixC7_13_added, matrixC6_13_added, matrixC5_13_added, matrixC4_13_added, matrixC3_13_added, matrixC2_13_added, matrixC1_13_added, matrixC0_13_added};
-		14: c_data_out <= {matrixC15_14_added, matrixC14_14_added, matrixC13_14_added, matrixC12_14_added, matrixC11_14_added, matrixC10_14_added, matrixC9_14_added, matrixC8_14_added, matrixC7_14_added, matrixC6_14_added, matrixC5_14_added, matrixC4_14_added, matrixC3_14_added, matrixC2_14_added, matrixC1_14_added, matrixC0_14_added};
-		15: c_data_out <= {matrixC15_15_added, matrixC14_15_added, matrixC13_15_added, matrixC12_15_added, matrixC11_15_added, matrixC10_15_added, matrixC9_15_added, matrixC8_15_added, matrixC7_15_added, matrixC6_15_added, matrixC5_15_added, matrixC4_15_added, matrixC3_15_added, matrixC2_15_added, matrixC1_15_added, matrixC0_15_added};
+    1: c_data_out <= {matrixC15_1_added, matrixC14_1_added, matrixC13_1_added, matrixC12_1_added, matrixC11_1_added, matrixC10_1_added, matrixC9_1_added, matrixC8_1_added, matrixC7_1_added, matrixC6_1_added, matrixC5_1_added, matrixC4_1_added, matrixC3_1_added, matrixC2_1_added, matrixC1_1_added, matrixC0_1_added};
+    2: c_data_out <= {matrixC15_2_added, matrixC14_2_added, matrixC13_2_added, matrixC12_2_added, matrixC11_2_added, matrixC10_2_added, matrixC9_2_added, matrixC8_2_added, matrixC7_2_added, matrixC6_2_added, matrixC5_2_added, matrixC4_2_added, matrixC3_2_added, matrixC2_2_added, matrixC1_2_added, matrixC0_2_added};
+    3: c_data_out <= {matrixC15_3_added, matrixC14_3_added, matrixC13_3_added, matrixC12_3_added, matrixC11_3_added, matrixC10_3_added, matrixC9_3_added, matrixC8_3_added, matrixC7_3_added, matrixC6_3_added, matrixC5_3_added, matrixC4_3_added, matrixC3_3_added, matrixC2_3_added, matrixC1_3_added, matrixC0_3_added};
+    4: c_data_out <= {matrixC15_4_added, matrixC14_4_added, matrixC13_4_added, matrixC12_4_added, matrixC11_4_added, matrixC10_4_added, matrixC9_4_added, matrixC8_4_added, matrixC7_4_added, matrixC6_4_added, matrixC5_4_added, matrixC4_4_added, matrixC3_4_added, matrixC2_4_added, matrixC1_4_added, matrixC0_4_added};
+    5: c_data_out <= {matrixC15_5_added, matrixC14_5_added, matrixC13_5_added, matrixC12_5_added, matrixC11_5_added, matrixC10_5_added, matrixC9_5_added, matrixC8_5_added, matrixC7_5_added, matrixC6_5_added, matrixC5_5_added, matrixC4_5_added, matrixC3_5_added, matrixC2_5_added, matrixC1_5_added, matrixC0_5_added};
+    6: c_data_out <= {matrixC15_6_added, matrixC14_6_added, matrixC13_6_added, matrixC12_6_added, matrixC11_6_added, matrixC10_6_added, matrixC9_6_added, matrixC8_6_added, matrixC7_6_added, matrixC6_6_added, matrixC5_6_added, matrixC4_6_added, matrixC3_6_added, matrixC2_6_added, matrixC1_6_added, matrixC0_6_added};
+    7: c_data_out <= {matrixC15_7_added, matrixC14_7_added, matrixC13_7_added, matrixC12_7_added, matrixC11_7_added, matrixC10_7_added, matrixC9_7_added, matrixC8_7_added, matrixC7_7_added, matrixC6_7_added, matrixC5_7_added, matrixC4_7_added, matrixC3_7_added, matrixC2_7_added, matrixC1_7_added, matrixC0_7_added};
+    8: c_data_out <= {matrixC15_8_added, matrixC14_8_added, matrixC13_8_added, matrixC12_8_added, matrixC11_8_added, matrixC10_8_added, matrixC9_8_added, matrixC8_8_added, matrixC7_8_added, matrixC6_8_added, matrixC5_8_added, matrixC4_8_added, matrixC3_8_added, matrixC2_8_added, matrixC1_8_added, matrixC0_8_added};
+    9: c_data_out <= {matrixC15_9_added, matrixC14_9_added, matrixC13_9_added, matrixC12_9_added, matrixC11_9_added, matrixC10_9_added, matrixC9_9_added, matrixC8_9_added, matrixC7_9_added, matrixC6_9_added, matrixC5_9_added, matrixC4_9_added, matrixC3_9_added, matrixC2_9_added, matrixC1_9_added, matrixC0_9_added};
+    10: c_data_out <= {matrixC15_10_added, matrixC14_10_added, matrixC13_10_added, matrixC12_10_added, matrixC11_10_added, matrixC10_10_added, matrixC9_10_added, matrixC8_10_added, matrixC7_10_added, matrixC6_10_added, matrixC5_10_added, matrixC4_10_added, matrixC3_10_added, matrixC2_10_added, matrixC1_10_added, matrixC0_10_added};
+    11: c_data_out <= {matrixC15_11_added, matrixC14_11_added, matrixC13_11_added, matrixC12_11_added, matrixC11_11_added, matrixC10_11_added, matrixC9_11_added, matrixC8_11_added, matrixC7_11_added, matrixC6_11_added, matrixC5_11_added, matrixC4_11_added, matrixC3_11_added, matrixC2_11_added, matrixC1_11_added, matrixC0_11_added};
+    12: c_data_out <= {matrixC15_12_added, matrixC14_12_added, matrixC13_12_added, matrixC12_12_added, matrixC11_12_added, matrixC10_12_added, matrixC9_12_added, matrixC8_12_added, matrixC7_12_added, matrixC6_12_added, matrixC5_12_added, matrixC4_12_added, matrixC3_12_added, matrixC2_12_added, matrixC1_12_added, matrixC0_12_added};
+    13: c_data_out <= {matrixC15_13_added, matrixC14_13_added, matrixC13_13_added, matrixC12_13_added, matrixC11_13_added, matrixC10_13_added, matrixC9_13_added, matrixC8_13_added, matrixC7_13_added, matrixC6_13_added, matrixC5_13_added, matrixC4_13_added, matrixC3_13_added, matrixC2_13_added, matrixC1_13_added, matrixC0_13_added};
+    14: c_data_out <= {matrixC15_14_added, matrixC14_14_added, matrixC13_14_added, matrixC12_14_added, matrixC11_14_added, matrixC10_14_added, matrixC9_14_added, matrixC8_14_added, matrixC7_14_added, matrixC6_14_added, matrixC5_14_added, matrixC4_14_added, matrixC3_14_added, matrixC2_14_added, matrixC1_14_added, matrixC0_14_added};
+    15: c_data_out <= {matrixC15_15_added, matrixC14_15_added, matrixC13_15_added, matrixC12_15_added, matrixC11_15_added, matrixC10_15_added, matrixC9_15_added, matrixC8_15_added, matrixC7_15_added, matrixC6_15_added, matrixC5_15_added, matrixC4_15_added, matrixC3_15_added, matrixC2_15_added, matrixC1_15_added, matrixC0_15_added};
 
         default: c_data_out <= 0;
     endcase
