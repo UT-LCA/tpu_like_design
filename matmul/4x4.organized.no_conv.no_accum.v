@@ -522,6 +522,15 @@ input [7:0] final_mat_mul_size;
 input [7:0] a_loc;
 input [7:0] b_loc;
 
+wire [`DWIDTH-1:0] a0_data;
+wire [`DWIDTH-1:0] a1_data;
+wire [`DWIDTH-1:0] a2_data;
+wire [`DWIDTH-1:0] a3_data;
+wire [`DWIDTH-1:0] b0_data;
+wire [`DWIDTH-1:0] b1_data;
+wire [`DWIDTH-1:0] b2_data;
+wire [`DWIDTH-1:0] b3_data;
+
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate addresses to BRAM A
 //////////////////////////////////////////////////////////////////////////
@@ -547,30 +556,27 @@ end
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate valid signals for data coming from BRAM A
 //////////////////////////////////////////////////////////////////////////
-reg a_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] a_mem_access_counter;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    a_data_valid <= 0;
     a_mem_access_counter <= 0;
   end
   else if (a_mem_access == 1) begin
     a_mem_access_counter <= a_mem_access_counter + 1;  
-    if ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==0) ||
-        (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==1) ||
-        (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==2) ||
-        (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==3)) begin
-        a_data_valid <= 0;
-    end
-    else if (a_mem_access_counter == `MEM_ACCESS_LATENCY) begin
-      a_data_valid <= 1;
-    end
+
   end
   else begin
-    a_data_valid <= 0;
     a_mem_access_counter <= 0;
   end
 end
+
+wire a_data_valid; //flag that tells whether the data from memory is valid
+assign a_data_valid = 
+       ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==0) ||
+        (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==1) ||
+        (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==2) ||
+        (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==3)) ?
+        1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM A (systolic data setup)
@@ -631,30 +637,27 @@ end
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate valid signals for data coming from BRAM B
 //////////////////////////////////////////////////////////////////////////
-reg b_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] b_mem_access_counter;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    b_data_valid <= 0;
     b_mem_access_counter <= 0;
   end
   else if (b_mem_access == 1) begin
     b_mem_access_counter <= b_mem_access_counter + 1;  
-    if ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==0) ||
-        (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==1) ||
-        (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==2) ||
-        (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==3)) begin
-        b_data_valid <= 0;
-    end
-    else if (b_mem_access_counter == `MEM_ACCESS_LATENCY) begin
-      b_data_valid <= 1;
-    end
   end
   else begin
-    b_data_valid <= 0;
     b_mem_access_counter <= 0;
   end
 end
+
+wire b_data_valid; //flag that tells whether the data from memory is valid
+assign b_data_valid = 
+       ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==0) ||
+        (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==1) ||
+        (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==2) ||
+        (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==3)) ?
+        1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
+
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM B (systolic data setup)

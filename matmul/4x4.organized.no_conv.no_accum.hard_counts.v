@@ -266,6 +266,7 @@ output_logic u_output_logic(
 .address_mat_c(address_mat_c),
 .address_stride_c(address_stride_c),
 .c_data_out(c_data_out),
+.c_data_in(c_data_in),
 .c_addr(c_addr),
 .c_data_available(c_data_available),
 .clk_cnt(clk_cnt),
@@ -288,15 +289,6 @@ output_logic u_output_logic(
 .matrixC33(matrixC33)
 );
 
-
-wire [`DWIDTH-1:0] cin_col0;
-wire [`DWIDTH-1:0] cin_col1;
-wire [`DWIDTH-1:0] cin_col2;
-wire [`DWIDTH-1:0] cin_col3;
-assign cin_col0 = c_data_in[`DWIDTH-1:0];
-assign cin_col1 = c_data_in[2*`DWIDTH-1:`DWIDTH];
-assign cin_col2 = c_data_in[3*`DWIDTH-1:2*`DWIDTH];
-assign cin_col3 = c_data_in[4*`DWIDTH-1:3*`DWIDTH];
 
 //////////////////////////////////////////////////////////////////////////
 // Instantiations of the actual PEs
@@ -345,6 +337,7 @@ start_mat_mul,
 done_mat_mul,
 address_mat_c,
 address_stride_c,
+c_data_in,
 c_data_out, //Data values going out to next matmul - systolic shifting
 c_addr,
 c_data_available,
@@ -374,6 +367,7 @@ input start_mat_mul;
 input done_mat_mul;
 input [`AWIDTH-1:0] address_mat_c;
 input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
+output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
 output [`AWIDTH-1:0] c_addr;
 output c_data_available;
@@ -422,24 +416,29 @@ always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= address_mat_c-address_stride_c;
+    c_addr <= address_mat_c+address_stride_c;
     c_data_out <= 0;
     counter <= 0;
-  end else if (condition_to_start_shifting_output) begin
+  end 
+  else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
-    c_addr <= c_addr + address_stride_c;
+    c_addr <= c_addr - address_stride_c;
     c_data_out <= {matrixC30, matrixC20, matrixC10, matrixC00};  //first set of elements is captured here
     counter <= counter + 1;
-  end else if (done_mat_mul) begin
+  end 
+  else if (done_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
     c_addr <= address_mat_c-address_stride_c;
     c_data_out <= 0;
   end 
+  else if (counter >= `MAT_MUL_SIZE) begin
+    c_data_out <= c_data_in;
+  end
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
-    c_addr <= c_addr + address_stride_c;
+    c_addr <= c_addr - address_stride_c;
     counter <= counter + 1;
     case (counter)  //rest of the elements are captured here
         1: c_data_out <= {matrixC31, matrixC21, matrixC11, matrixC01};
@@ -509,6 +508,15 @@ input [`MASK_WIDTH-1:0] validity_mask_b_cols;
 input [7:0] a_loc;
 input [7:0] b_loc;
 
+wire [`DWIDTH-1:0] a0_data;
+wire [`DWIDTH-1:0] a1_data;
+wire [`DWIDTH-1:0] a2_data;
+wire [`DWIDTH-1:0] a3_data;
+wire [`DWIDTH-1:0] b0_data;
+wire [`DWIDTH-1:0] b1_data;
+wire [`DWIDTH-1:0] b2_data;
+wire [`DWIDTH-1:0] b3_data;
+
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate addresses to BRAM A
 //////////////////////////////////////////////////////////////////////////
@@ -532,30 +540,28 @@ end
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate valid signals for data coming from BRAM A
 //////////////////////////////////////////////////////////////////////////
-reg a_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] a_mem_access_counter;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    a_data_valid <= 0;
     a_mem_access_counter <= 0;
   end
   else if (a_mem_access == 1) begin
     a_mem_access_counter <= a_mem_access_counter + 1;  
-    if ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==0) ||
-        (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==1) ||
-        (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==2) ||
-        (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==3)) begin
-        a_data_valid <= 0;
-    end
-    else if (a_mem_access_counter == `MEM_ACCESS_LATENCY) begin
-      a_data_valid <= 1;
-    end
+
   end
   else begin
-    a_data_valid <= 0;
     a_mem_access_counter <= 0;
   end
 end
+
+wire a_data_valid; //flag that tells whether the data from memory is valid
+assign a_data_valid = 
+       ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==0) ||
+        (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==1) ||
+        (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==2) ||
+        (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==3)) ?
+        1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
+
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM A (systolic data setup)
@@ -614,30 +620,27 @@ end
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate valid signals for data coming from BRAM B
 //////////////////////////////////////////////////////////////////////////
-reg b_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] b_mem_access_counter;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    b_data_valid <= 0;
     b_mem_access_counter <= 0;
   end
   else if (b_mem_access == 1) begin
     b_mem_access_counter <= b_mem_access_counter + 1;  
-    if ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==0) ||
-        (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==1) ||
-        (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==2) ||
-        (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==3)) begin
-        b_data_valid <= 0;
-    end
-    else if (b_mem_access_counter == `MEM_ACCESS_LATENCY) begin
-      b_data_valid <= 1;
-    end
   end
   else begin
-    b_data_valid <= 0;
     b_mem_access_counter <= 0;
   end
 end
+
+wire b_data_valid; //flag that tells whether the data from memory is valid
+assign b_data_valid = 
+       ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==0) ||
+        (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==1) ||
+        (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==2) ||
+        (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==3)) ?
+        1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
+
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM B (systolic data setup)

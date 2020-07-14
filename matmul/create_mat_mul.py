@@ -410,35 +410,31 @@ end
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate valid signals for data coming from BRAM A
 //////////////////////////////////////////////////////////////////////////
-reg a_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] a_mem_access_counter;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    a_data_valid <= 0;
     a_mem_access_counter <= 0;
   end
   else if (a_mem_access == 1) begin
     a_mem_access_counter <= a_mem_access_counter + 1;  
-""")
-for i in range(int(systolic_size)):
-  if i==0:
-    f.write("    if ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
-  elif i==(int(systolic_size)-1):
-    f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ")) begin\n")
-  else:
-    f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
-f.write("""    
-      a_data_valid <= 0;
-    end
-    else if (a_mem_access_counter == `MEM_ACCESS_LATENCY) begin
-      a_data_valid <= 1;
-    end
   end
   else begin
-    a_data_valid <= 0;
     a_mem_access_counter <= 0;
   end
 end
+
+wire a_data_valid; //flag that tells whether the data from memory is valid
+assign a_data_valid = 
+""")
+for i in range(int(systolic_size)):
+  if i==0:
+    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
+  elif i==(int(systolic_size)-1):
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ")) ?\n")
+  else:
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
+f.write("""    
+    1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM A (systolic data setup)
@@ -565,35 +561,31 @@ end
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate valid signals for data coming from BRAM B
 //////////////////////////////////////////////////////////////////////////
-reg b_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] b_mem_access_counter;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    b_data_valid <= 0;
     b_mem_access_counter <= 0;
   end
   else if (b_mem_access == 1) begin
     b_mem_access_counter <= b_mem_access_counter + 1;  
-""")
-for i in range(int(systolic_size)):
-  if i==0:
-    f.write("    if ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
-  elif i==(int(systolic_size)-1):
-    f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ")) begin\n")
-  else:
-    f.write("        (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
-f.write("""    
-      b_data_valid <= 0;
-    end
-    else if (b_mem_access_counter == `MEM_ACCESS_LATENCY) begin
-      b_data_valid <= 1;
-    end
   end
   else begin
-    b_data_valid <= 0;
     b_mem_access_counter <= 0;
   end
 end
+
+wire b_data_valid; //flag that tells whether the data from memory is valid
+assign b_data_valid = 
+""")
+for i in range(int(systolic_size)):
+  if i==0:
+    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
+  elif i==(int(systolic_size)-1):
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ")) ?\n")
+  else:
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
+f.write("""    
+        1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM B (systolic data setup)

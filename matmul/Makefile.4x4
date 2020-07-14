@@ -17,7 +17,7 @@ compile:
 	$(DEFINES) \
 	../design/defines.v \
 	$(FILES) \
-	../design/4x4_with_ram.v \
+	4x4_with_ram.v \
 	4x4_with_ram_tb.v \
 	-sverilog \
 	-debug_access+all \
