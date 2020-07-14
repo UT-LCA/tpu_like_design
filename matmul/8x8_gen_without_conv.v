@@ -4,7 +4,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020-07-05 15:55:10.234485
+// Create Date: 2020-07-13 23:43:44.204486
 // Design Name: 
 // Module Name: matmul_8x8
 // Project Name: 
@@ -43,13 +43,16 @@ module matmul(
  b_addr,
  c_addr,
  c_data_available,
+
  save_output_to_accum,
  add_accum_to_output,
-
+  
  validity_mask_a_rows,
  validity_mask_a_cols_b_rows,
  validity_mask_b_cols,
- final_mat_mul_size,
+  
+final_mat_mul_size,
+  
  a_loc,
  b_loc
 );
@@ -76,16 +79,19 @@ module matmul(
  output [`AWIDTH-1:0] b_addr;
  output [`AWIDTH-1:0] c_addr;
  output c_data_available;
+
  input save_output_to_accum;
  input add_accum_to_output;
-
+  
  input [`MASK_WIDTH-1:0] validity_mask_a_rows;
  input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
  input [`MASK_WIDTH-1:0] validity_mask_b_cols;
+
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
 //In fact, these will get optimized out by the synthesis tool, because
 //we hardcode them at the instantiation level.
  input [7:0] final_mat_mul_size;
+  
  input [7:0] a_loc;
  input [7:0] b_loc;
 
@@ -98,7 +104,7 @@ reg done_mat_mul;
 //small. For large matmuls, this will need to increased to have more bits.
 //In general, a systolic multiplier takes 4*N-2+P cycles, where N is the size 
 //of the matmul and P is the number of pipleine stages in the MAC block.
-reg [6:0] clk_cnt;
+reg [7:0] clk_cnt;
 
 //Finding out number of cycles to assert matmul done.
 //When we have to save the outputs to accumulators, then we don't need to
@@ -106,7 +112,8 @@ reg [6:0] clk_cnt;
 //In the normal case, we have to include the time to shift out the results. 
 //Note: the count expression used to contain "4*final_mat_mul_size", but 
 //to avoid multiplication, we now use "final_mat_mul_size<<2"
-wire [6:0] clk_cnt_for_done;
+wire [7:0] clk_cnt_for_done;
+
 assign clk_cnt_for_done = 
                           (save_output_to_accum && add_accum_to_output) ?
                           ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC - final_mat_mul_size) : (
@@ -115,7 +122,7 @@ assign clk_cnt_for_done =
                           (add_accum_to_output) ? 
                           ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) :  
                           ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) ));  
-
+    
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
     clk_cnt <= 0;
@@ -145,16 +152,18 @@ reg a_mem_access; //flag that tells whether the matmul is trying to access memor
 always @(posedge clk) begin
   //(clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
-  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 
+  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  
       a_addr <= address_mat_a-address_stride_a;
   
     a_mem_access <= 0;
   end
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
-  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 
+  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  
       a_addr <= a_addr + address_stride_a;
   
     a_mem_access <= 1;
@@ -164,35 +173,31 @@ end
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate valid signals for data coming from BRAM A
 //////////////////////////////////////////////////////////////////////////
-reg a_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] a_mem_access_counter;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    a_data_valid <= 0;
     a_mem_access_counter <= 0;
   end
   else if (a_mem_access == 1) begin
     a_mem_access_counter <= a_mem_access_counter + 1;  
-    if ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==0) ||
-        (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==1) ||
-        (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==2) ||
-        (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==3) ||
-        (validity_mask_a_cols_b_rows[4]==1'b0 && a_mem_access_counter==4) ||
-        (validity_mask_a_cols_b_rows[5]==1'b0 && a_mem_access_counter==5) ||
-        (validity_mask_a_cols_b_rows[6]==1'b0 && a_mem_access_counter==6) ||
-        (validity_mask_a_cols_b_rows[7]==1'b0 && a_mem_access_counter==7)) begin
-    
-      a_data_valid <= 0;
-    end
-    else if (a_mem_access_counter == `MEM_ACCESS_LATENCY) begin
-      a_data_valid <= 1;
-    end
   end
   else begin
-    a_data_valid <= 0;
     a_mem_access_counter <= 0;
   end
 end
+
+wire a_data_valid; //flag that tells whether the data from memory is valid
+assign a_data_valid = 
+     ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==0) ||
+      (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==1) ||
+      (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==2) ||
+      (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==3) ||
+      (validity_mask_a_cols_b_rows[4]==1'b0 && a_mem_access_counter==4) ||
+      (validity_mask_a_cols_b_rows[5]==1'b0 && a_mem_access_counter==5) ||
+      (validity_mask_a_cols_b_rows[6]==1'b0 && a_mem_access_counter==6) ||
+      (validity_mask_a_cols_b_rows[7]==1'b0 && a_mem_access_counter==7)) ?
+    
+    1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM A (systolic data setup)
@@ -265,65 +270,65 @@ reg [`DWIDTH-1:0] a7_data_delayed_7;
 
 always @(posedge clk) begin
   if (reset || ~start_mat_mul || clk_cnt==0) begin
-		a1_data_delayed_1 <= 0;
-		a2_data_delayed_1 <= 0;
-		a2_data_delayed_2 <= 0;
-		a3_data_delayed_1 <= 0;
-		a3_data_delayed_2 <= 0;
-		a3_data_delayed_3 <= 0;
-		a4_data_delayed_1 <= 0;
-		a4_data_delayed_2 <= 0;
-		a4_data_delayed_3 <= 0;
-		a4_data_delayed_4 <= 0;
-		a5_data_delayed_1 <= 0;
-		a5_data_delayed_2 <= 0;
-		a5_data_delayed_3 <= 0;
-		a5_data_delayed_4 <= 0;
-		a5_data_delayed_5 <= 0;
-		a6_data_delayed_1 <= 0;
-		a6_data_delayed_2 <= 0;
-		a6_data_delayed_3 <= 0;
-		a6_data_delayed_4 <= 0;
-		a6_data_delayed_5 <= 0;
-		a6_data_delayed_6 <= 0;
-		a7_data_delayed_1 <= 0;
-		a7_data_delayed_2 <= 0;
-		a7_data_delayed_3 <= 0;
-		a7_data_delayed_4 <= 0;
-		a7_data_delayed_5 <= 0;
-		a7_data_delayed_6 <= 0;
-		a7_data_delayed_7 <= 0;
+    a1_data_delayed_1 <= 0;
+    a2_data_delayed_1 <= 0;
+    a2_data_delayed_2 <= 0;
+    a3_data_delayed_1 <= 0;
+    a3_data_delayed_2 <= 0;
+    a3_data_delayed_3 <= 0;
+    a4_data_delayed_1 <= 0;
+    a4_data_delayed_2 <= 0;
+    a4_data_delayed_3 <= 0;
+    a4_data_delayed_4 <= 0;
+    a5_data_delayed_1 <= 0;
+    a5_data_delayed_2 <= 0;
+    a5_data_delayed_3 <= 0;
+    a5_data_delayed_4 <= 0;
+    a5_data_delayed_5 <= 0;
+    a6_data_delayed_1 <= 0;
+    a6_data_delayed_2 <= 0;
+    a6_data_delayed_3 <= 0;
+    a6_data_delayed_4 <= 0;
+    a6_data_delayed_5 <= 0;
+    a6_data_delayed_6 <= 0;
+    a7_data_delayed_1 <= 0;
+    a7_data_delayed_2 <= 0;
+    a7_data_delayed_3 <= 0;
+    a7_data_delayed_4 <= 0;
+    a7_data_delayed_5 <= 0;
+    a7_data_delayed_6 <= 0;
+    a7_data_delayed_7 <= 0;
 
   end
   else begin
-	a1_data_delayed_1 <= a1_data;
-	a2_data_delayed_1 <= a2_data;
-	a3_data_delayed_1 <= a3_data;
-	a4_data_delayed_1 <= a4_data;
-	a5_data_delayed_1 <= a5_data;
-	a6_data_delayed_1 <= a6_data;
-	a7_data_delayed_1 <= a7_data;
-	a2_data_delayed_2 <= a2_data_delayed_1;
-	a3_data_delayed_2 <= a3_data_delayed_1;
-	a3_data_delayed_3 <= a3_data_delayed_2;
-	a4_data_delayed_2 <= a4_data_delayed_1;
-	a4_data_delayed_3 <= a4_data_delayed_2;
-	a4_data_delayed_4 <= a4_data_delayed_3;
-	a5_data_delayed_2 <= a5_data_delayed_1;
-	a5_data_delayed_3 <= a5_data_delayed_2;
-	a5_data_delayed_4 <= a5_data_delayed_3;
-	a5_data_delayed_5 <= a5_data_delayed_4;
-	a6_data_delayed_2 <= a6_data_delayed_1;
-	a6_data_delayed_3 <= a6_data_delayed_2;
-	a6_data_delayed_4 <= a6_data_delayed_3;
-	a6_data_delayed_5 <= a6_data_delayed_4;
-	a6_data_delayed_6 <= a6_data_delayed_5;
-	a7_data_delayed_2 <= a7_data_delayed_1;
-	a7_data_delayed_3 <= a7_data_delayed_2;
-	a7_data_delayed_4 <= a7_data_delayed_3;
-	a7_data_delayed_5 <= a7_data_delayed_4;
-	a7_data_delayed_6 <= a7_data_delayed_5;
-	a7_data_delayed_7 <= a7_data_delayed_6;
+  a1_data_delayed_1 <= a1_data;
+  a2_data_delayed_1 <= a2_data;
+  a3_data_delayed_1 <= a3_data;
+  a4_data_delayed_1 <= a4_data;
+  a5_data_delayed_1 <= a5_data;
+  a6_data_delayed_1 <= a6_data;
+  a7_data_delayed_1 <= a7_data;
+  a2_data_delayed_2 <= a2_data_delayed_1;
+  a3_data_delayed_2 <= a3_data_delayed_1;
+  a3_data_delayed_3 <= a3_data_delayed_2;
+  a4_data_delayed_2 <= a4_data_delayed_1;
+  a4_data_delayed_3 <= a4_data_delayed_2;
+  a4_data_delayed_4 <= a4_data_delayed_3;
+  a5_data_delayed_2 <= a5_data_delayed_1;
+  a5_data_delayed_3 <= a5_data_delayed_2;
+  a5_data_delayed_4 <= a5_data_delayed_3;
+  a5_data_delayed_5 <= a5_data_delayed_4;
+  a6_data_delayed_2 <= a6_data_delayed_1;
+  a6_data_delayed_3 <= a6_data_delayed_2;
+  a6_data_delayed_4 <= a6_data_delayed_3;
+  a6_data_delayed_5 <= a6_data_delayed_4;
+  a6_data_delayed_6 <= a6_data_delayed_5;
+  a7_data_delayed_2 <= a7_data_delayed_1;
+  a7_data_delayed_3 <= a7_data_delayed_2;
+  a7_data_delayed_4 <= a7_data_delayed_3;
+  a7_data_delayed_5 <= a7_data_delayed_4;
+  a7_data_delayed_6 <= a7_data_delayed_5;
+  a7_data_delayed_7 <= a7_data_delayed_6;
  
   end
 end
@@ -336,6 +341,7 @@ reg b_mem_access; //flag that tells whether the matmul is trying to access memor
 always @(posedge clk) begin
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
+
   if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 
       b_addr <= address_mat_b - address_stride_b;
@@ -344,6 +350,7 @@ always @(posedge clk) begin
   end
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
+
   else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 
       b_addr <= b_addr + address_stride_b;
@@ -355,35 +362,31 @@ end
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate valid signals for data coming from BRAM B
 //////////////////////////////////////////////////////////////////////////
-reg b_data_valid; //flag that tells whether the data from memory is valid
 reg [7:0] b_mem_access_counter;
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
-    b_data_valid <= 0;
     b_mem_access_counter <= 0;
   end
   else if (b_mem_access == 1) begin
     b_mem_access_counter <= b_mem_access_counter + 1;  
-    if ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==0) ||
-        (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==1) ||
-        (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==2) ||
-        (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==3) ||
-        (validity_mask_a_cols_b_rows[4]==1'b0 && b_mem_access_counter==4) ||
-        (validity_mask_a_cols_b_rows[5]==1'b0 && b_mem_access_counter==5) ||
-        (validity_mask_a_cols_b_rows[6]==1'b0 && b_mem_access_counter==6) ||
-        (validity_mask_a_cols_b_rows[7]==1'b0 && b_mem_access_counter==7)) begin
-    
-      b_data_valid <= 0;
-    end
-    else if (b_mem_access_counter == `MEM_ACCESS_LATENCY) begin
-      b_data_valid <= 1;
-    end
   end
   else begin
-    b_data_valid <= 0;
     b_mem_access_counter <= 0;
   end
 end
+
+wire b_data_valid; //flag that tells whether the data from memory is valid
+assign b_data_valid = 
+     ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==0) ||
+      (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==1) ||
+      (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==2) ||
+      (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==3) ||
+      (validity_mask_a_cols_b_rows[4]==1'b0 && b_mem_access_counter==4) ||
+      (validity_mask_a_cols_b_rows[5]==1'b0 && b_mem_access_counter==5) ||
+      (validity_mask_a_cols_b_rows[6]==1'b0 && b_mem_access_counter==6) ||
+      (validity_mask_a_cols_b_rows[7]==1'b0 && b_mem_access_counter==7)) ?
+    
+        1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM B (systolic data setup)
@@ -456,65 +459,65 @@ reg [`DWIDTH-1:0] b7_data_delayed_7;
 
 always @(posedge clk) begin
   if (reset || ~start_mat_mul || clk_cnt==0) begin
-		b1_data_delayed_1 <= 0;
-		b2_data_delayed_1 <= 0;
-		b2_data_delayed_2 <= 0;
-		b3_data_delayed_1 <= 0;
-		b3_data_delayed_2 <= 0;
-		b3_data_delayed_3 <= 0;
-		b4_data_delayed_1 <= 0;
-		b4_data_delayed_2 <= 0;
-		b4_data_delayed_3 <= 0;
-		b4_data_delayed_4 <= 0;
-		b5_data_delayed_1 <= 0;
-		b5_data_delayed_2 <= 0;
-		b5_data_delayed_3 <= 0;
-		b5_data_delayed_4 <= 0;
-		b5_data_delayed_5 <= 0;
-		b6_data_delayed_1 <= 0;
-		b6_data_delayed_2 <= 0;
-		b6_data_delayed_3 <= 0;
-		b6_data_delayed_4 <= 0;
-		b6_data_delayed_5 <= 0;
-		b6_data_delayed_6 <= 0;
-		b7_data_delayed_1 <= 0;
-		b7_data_delayed_2 <= 0;
-		b7_data_delayed_3 <= 0;
-		b7_data_delayed_4 <= 0;
-		b7_data_delayed_5 <= 0;
-		b7_data_delayed_6 <= 0;
-		b7_data_delayed_7 <= 0;
+    b1_data_delayed_1 <= 0;
+    b2_data_delayed_1 <= 0;
+    b2_data_delayed_2 <= 0;
+    b3_data_delayed_1 <= 0;
+    b3_data_delayed_2 <= 0;
+    b3_data_delayed_3 <= 0;
+    b4_data_delayed_1 <= 0;
+    b4_data_delayed_2 <= 0;
+    b4_data_delayed_3 <= 0;
+    b4_data_delayed_4 <= 0;
+    b5_data_delayed_1 <= 0;
+    b5_data_delayed_2 <= 0;
+    b5_data_delayed_3 <= 0;
+    b5_data_delayed_4 <= 0;
+    b5_data_delayed_5 <= 0;
+    b6_data_delayed_1 <= 0;
+    b6_data_delayed_2 <= 0;
+    b6_data_delayed_3 <= 0;
+    b6_data_delayed_4 <= 0;
+    b6_data_delayed_5 <= 0;
+    b6_data_delayed_6 <= 0;
+    b7_data_delayed_1 <= 0;
+    b7_data_delayed_2 <= 0;
+    b7_data_delayed_3 <= 0;
+    b7_data_delayed_4 <= 0;
+    b7_data_delayed_5 <= 0;
+    b7_data_delayed_6 <= 0;
+    b7_data_delayed_7 <= 0;
 
   end
   else begin
-	b1_data_delayed_1 <= b1_data;
-	b2_data_delayed_1 <= b2_data;
-	b3_data_delayed_1 <= b3_data;
-	b4_data_delayed_1 <= b4_data;
-	b5_data_delayed_1 <= b5_data;
-	b6_data_delayed_1 <= b6_data;
-	b7_data_delayed_1 <= b7_data;
-	b2_data_delayed_2 <= b2_data_delayed_1;
-	b3_data_delayed_2 <= b3_data_delayed_1;
-	b3_data_delayed_3 <= b3_data_delayed_2;
-	b4_data_delayed_2 <= b4_data_delayed_1;
-	b4_data_delayed_3 <= b4_data_delayed_2;
-	b4_data_delayed_4 <= b4_data_delayed_3;
-	b5_data_delayed_2 <= b5_data_delayed_1;
-	b5_data_delayed_3 <= b5_data_delayed_2;
-	b5_data_delayed_4 <= b5_data_delayed_3;
-	b5_data_delayed_5 <= b5_data_delayed_4;
-	b6_data_delayed_2 <= b6_data_delayed_1;
-	b6_data_delayed_3 <= b6_data_delayed_2;
-	b6_data_delayed_4 <= b6_data_delayed_3;
-	b6_data_delayed_5 <= b6_data_delayed_4;
-	b6_data_delayed_6 <= b6_data_delayed_5;
-	b7_data_delayed_2 <= b7_data_delayed_1;
-	b7_data_delayed_3 <= b7_data_delayed_2;
-	b7_data_delayed_4 <= b7_data_delayed_3;
-	b7_data_delayed_5 <= b7_data_delayed_4;
-	b7_data_delayed_6 <= b7_data_delayed_5;
-	b7_data_delayed_7 <= b7_data_delayed_6;
+  b1_data_delayed_1 <= b1_data;
+  b2_data_delayed_1 <= b2_data;
+  b3_data_delayed_1 <= b3_data;
+  b4_data_delayed_1 <= b4_data;
+  b5_data_delayed_1 <= b5_data;
+  b6_data_delayed_1 <= b6_data;
+  b7_data_delayed_1 <= b7_data;
+  b2_data_delayed_2 <= b2_data_delayed_1;
+  b3_data_delayed_2 <= b3_data_delayed_1;
+  b3_data_delayed_3 <= b3_data_delayed_2;
+  b4_data_delayed_2 <= b4_data_delayed_1;
+  b4_data_delayed_3 <= b4_data_delayed_2;
+  b4_data_delayed_4 <= b4_data_delayed_3;
+  b5_data_delayed_2 <= b5_data_delayed_1;
+  b5_data_delayed_3 <= b5_data_delayed_2;
+  b5_data_delayed_4 <= b5_data_delayed_3;
+  b5_data_delayed_5 <= b5_data_delayed_4;
+  b6_data_delayed_2 <= b6_data_delayed_1;
+  b6_data_delayed_3 <= b6_data_delayed_2;
+  b6_data_delayed_4 <= b6_data_delayed_3;
+  b6_data_delayed_5 <= b6_data_delayed_4;
+  b6_data_delayed_6 <= b6_data_delayed_5;
+  b7_data_delayed_2 <= b7_data_delayed_1;
+  b7_data_delayed_3 <= b7_data_delayed_2;
+  b7_data_delayed_4 <= b7_data_delayed_3;
+  b7_data_delayed_5 <= b7_data_delayed_4;
+  b7_data_delayed_6 <= b7_data_delayed_5;
+  b7_data_delayed_7 <= b7_data_delayed_6;
  
   end
 end
@@ -556,12 +559,6 @@ assign b4 = (a_loc==0) ? b4_data_delayed_4 : b4_data_in;
 assign b5 = (a_loc==0) ? b5_data_delayed_5 : b5_data_in;
 assign b6 = (a_loc==0) ? b6_data_delayed_6 : b6_data_in;
 assign b7 = (a_loc==0) ? b7_data_delayed_7 : b7_data_in;
-
-
-
-//////////////////////////////////////////////////////////////////////////
-// Logic to handle accumulation of partial sums (accumulators)
-//////////////////////////////////////////////////////////////////////////
 
 wire [`DWIDTH-1:0] a0_0to0_1, a0_1to0_2, a0_2to0_3, a0_3to0_4, a0_4to0_5, a0_5to0_6, a0_6to0_7, a0_7to0_8;
 wire [`DWIDTH-1:0] a1_0to1_1, a1_1to1_2, a1_2to1_3, a1_3to1_4, a1_4to1_5, a1_5to1_6, a1_6to1_7, a1_7to1_8;
@@ -793,13 +790,13 @@ reg [`DWIDTH-1:0] matrixC7_5_accum;
 reg [`DWIDTH-1:0] matrixC7_6_accum;
 reg [`DWIDTH-1:0] matrixC7_7_accum;
 
-reg outputs_saved_to_accum;
-reg outputs_added_to_accum;
-wire reset_accum;
-
-always @(posedge clk) begin
-  if (reset || ~(save_output_to_accum || add_accum_to_output) || (reset_accum)) begin
-matrixC0_0_accum <= 0;
+  reg outputs_saved_to_accum;
+  reg outputs_added_to_accum;
+  wire reset_accum;
+  
+  always @(posedge clk) begin
+    if (reset || ~(save_output_to_accum || add_accum_to_output) || (reset_accum)) begin
+  matrixC0_0_accum <= 0;
 matrixC0_1_accum <= 0;
 matrixC0_2_accum <= 0;
 matrixC0_3_accum <= 0;
@@ -864,11 +861,11 @@ matrixC7_5_accum <= 0;
 matrixC7_6_accum <= 0;
 matrixC7_7_accum <= 0;
  outputs_saved_to_accum <= 0;
-    outputs_added_to_accum <= 0;
-
-  end
-  else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
-	matrixC0_0_accum <= matrixC0_0_added;
+      outputs_added_to_accum <= 0;
+  
+    end
+    else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
+  	matrixC0_0_accum <= matrixC0_0_added;
 	matrixC0_1_accum <= matrixC0_1_added;
 	matrixC0_2_accum <= matrixC0_2_added;
 	matrixC0_3_accum <= matrixC0_3_added;
@@ -933,12 +930,12 @@ matrixC7_7_accum <= 0;
 	matrixC7_6_accum <= matrixC7_6_added;
 	matrixC7_7_accum <= matrixC7_7_added;
 
-    outputs_saved_to_accum <= 1;
-    outputs_added_to_accum <= 1;
-
-  end
-  else if (row_latch_en && save_output_to_accum) begin
-	matrixC0_0_accum <= matrixC0_0;
+      outputs_saved_to_accum <= 1;
+      outputs_added_to_accum <= 1;
+  
+    end
+    else if (row_latch_en && save_output_to_accum) begin
+  	matrixC0_0_accum <= matrixC0_0;
 	matrixC0_1_accum <= matrixC0_1;
 	matrixC0_2_accum <= matrixC0_2;
 	matrixC0_3_accum <= matrixC0_3;
@@ -1003,14 +1000,14 @@ matrixC7_7_accum <= 0;
 	matrixC7_6_accum <= matrixC7_6;
 	matrixC7_7_accum <= matrixC7_7;
 
-    outputs_saved_to_accum <= 1;
-
+      outputs_saved_to_accum <= 1;
+  
+    end
+    else if (row_latch_en && add_accum_to_output) begin
+      outputs_added_to_accum <= 1;
+    end
   end
-  else if (row_latch_en && add_accum_to_output) begin
-    outputs_added_to_accum <= 1;
-  end
-end
-assign matrixC0_0_added = (add_accum_to_output) ? (matrixC0_0 + matrixC0_0_accum) : matrixC0_0;
+  assign matrixC0_0_added = (add_accum_to_output) ? (matrixC0_0 + matrixC0_0_accum) : matrixC0_0;
 assign matrixC0_1_added = (add_accum_to_output) ? (matrixC0_1 + matrixC0_1_accum) : matrixC0_1;
 assign matrixC0_2_added = (add_accum_to_output) ? (matrixC0_2 + matrixC0_2_accum) : matrixC0_2;
 assign matrixC0_3_added = (add_accum_to_output) ? (matrixC0_3 + matrixC0_3_accum) : matrixC0_3;
@@ -1081,10 +1078,11 @@ assign matrixC7_7_added = (add_accum_to_output) ? (matrixC7_7 + matrixC7_7_accum
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 +  `NUM_CYCLES_IN_MAC - 1));
 //Writing the line above to avoid multiplication:
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
+
 assign row_latch_en =  (save_output_to_accum) ?
                        ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -1 +`NUM_CYCLES_IN_MAC))) :
                        ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -2 +`NUM_CYCLES_IN_MAC)));
-
+    
 reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
@@ -1107,7 +1105,7 @@ assign condition_to_start_shifting_output =
                           row_latch_en:  
                           row_latch_en ));  
 
-
+  
 //For larger matmuls, this logic will have more entries in the case statement
 always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
@@ -1134,13 +1132,13 @@ always @(posedge clk) begin
     c_addr <= c_addr + address_stride_c; 
     counter <= counter + 1;
     case (counter)  //rest of the elements are captured here
-    		1: c_data_out <= {matrixC7_1_added, matrixC6_1_added, matrixC5_1_added, matrixC4_1_added, matrixC3_1_added, matrixC2_1_added, matrixC1_1_added, matrixC0_1_added};
-		2: c_data_out <= {matrixC7_2_added, matrixC6_2_added, matrixC5_2_added, matrixC4_2_added, matrixC3_2_added, matrixC2_2_added, matrixC1_2_added, matrixC0_2_added};
-		3: c_data_out <= {matrixC7_3_added, matrixC6_3_added, matrixC5_3_added, matrixC4_3_added, matrixC3_3_added, matrixC2_3_added, matrixC1_3_added, matrixC0_3_added};
-		4: c_data_out <= {matrixC7_4_added, matrixC6_4_added, matrixC5_4_added, matrixC4_4_added, matrixC3_4_added, matrixC2_4_added, matrixC1_4_added, matrixC0_4_added};
-		5: c_data_out <= {matrixC7_5_added, matrixC6_5_added, matrixC5_5_added, matrixC4_5_added, matrixC3_5_added, matrixC2_5_added, matrixC1_5_added, matrixC0_5_added};
-		6: c_data_out <= {matrixC7_6_added, matrixC6_6_added, matrixC5_6_added, matrixC4_6_added, matrixC3_6_added, matrixC2_6_added, matrixC1_6_added, matrixC0_6_added};
-		7: c_data_out <= {matrixC7_7_added, matrixC6_7_added, matrixC5_7_added, matrixC4_7_added, matrixC3_7_added, matrixC2_7_added, matrixC1_7_added, matrixC0_7_added};
+    1: c_data_out <= {matrixC7_1_added, matrixC6_1_added, matrixC5_1_added, matrixC4_1_added, matrixC3_1_added, matrixC2_1_added, matrixC1_1_added, matrixC0_1_added};
+    2: c_data_out <= {matrixC7_2_added, matrixC6_2_added, matrixC5_2_added, matrixC4_2_added, matrixC3_2_added, matrixC2_2_added, matrixC1_2_added, matrixC0_2_added};
+    3: c_data_out <= {matrixC7_3_added, matrixC6_3_added, matrixC5_3_added, matrixC4_3_added, matrixC3_3_added, matrixC2_3_added, matrixC1_3_added, matrixC0_3_added};
+    4: c_data_out <= {matrixC7_4_added, matrixC6_4_added, matrixC5_4_added, matrixC4_4_added, matrixC3_4_added, matrixC2_4_added, matrixC1_4_added, matrixC0_4_added};
+    5: c_data_out <= {matrixC7_5_added, matrixC6_5_added, matrixC5_5_added, matrixC4_5_added, matrixC3_5_added, matrixC2_5_added, matrixC1_5_added, matrixC0_5_added};
+    6: c_data_out <= {matrixC7_6_added, matrixC6_6_added, matrixC5_6_added, matrixC4_6_added, matrixC3_6_added, matrixC2_6_added, matrixC1_6_added, matrixC0_6_added};
+    7: c_data_out <= {matrixC7_7_added, matrixC6_7_added, matrixC5_7_added, matrixC4_7_added, matrixC3_7_added, matrixC2_7_added, matrixC1_7_added, matrixC0_7_added};
 
         default: c_data_out <= 0;
     endcase
