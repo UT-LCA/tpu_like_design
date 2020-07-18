@@ -2,22 +2,15 @@ export VCS_HOME /usr/local/packages/synopsys_2018/vcs-mx/O-2018.09-SP1
 
 all: compile run
 
-size?=8
-
-ifeq ($(size),4)
-	FILES=../design/4x4.v
-	DEFINES=+define+MATMUL_SIZE_4
-else
-	FILES=../design/8x8_gen.v
-	DEFINES=+define+MATMUL_SIZE_8
-endif
+FILES=../design/8x8_gen.v
+DEFINES=+define+MATMUL_SIZE_8
 
 compile:
 	$(VCS_HOME)/bin/vcs -full64 \
 	$(DEFINES) \
 	../design/defines.v \
 	$(FILES) \
-	../design/8x8_with_ram.v \
+	8x8_with_ram.v \
 	8x8_with_ram_tb_gen.v \
 	-sverilog \
 	-debug_access+all \

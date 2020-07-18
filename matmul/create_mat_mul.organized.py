@@ -343,113 +343,89 @@ always @(posedge clk) begin
 end  
 """)
 
-f.write("""
-//////////////////////////////////////////////////////////////////////////
-// Logic to generate addresses to BRAM A
-//////////////////////////////////////////////////////////////////////////
-reg [`AWIDTH-1:0] a_addr;
-reg a_mem_access; //flag that tells whether the matmul is trying to access memory or not
-
-always @(posedge clk) begin
-  //(clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
-  //Writing the line above to avoid multiplication:
-""")
-if hard_counts:
-  f.write("""
-  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
-  """)
-else:
-  f.write("""
-  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-  """)
-if conv_code:
-  f.write("""
-    if (enable_conv_mode) begin
-      a_addr <= address_mat_a;
-    end 
-    else begin
-      a_addr <= address_mat_a-address_stride_a;
-    end
-  """)
-else:
-  f.write("""
-      a_addr <= address_mat_a-address_stride_a;
-  """)
-f.write("""
-    a_mem_access <= 0;
-  end
-  //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
-  //Writing the line above to avoid multiplication:
-""")
-if hard_counts:
-  f.write("""
-  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
-  """)
-else:
-  f.write("""
-  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-  """)
-if conv_code:
-  f.write("""
-    if (enable_conv_mode) begin
-      a_addr <= address_mat_a + s + r * (inp_img_width+conv_padding_left+conv_padding_right) + c * (inp_img_width+conv_padding_left+conv_padding_right) * (inp_img_height+conv_padding_top+conv_padding_bottom);
-    end
-    else begin
-      a_addr <= a_addr + address_stride_a;
-    end
-  """)
-else:
-  f.write("""
-      a_addr <= a_addr + address_stride_a;
-  """)
-f.write("""
-    a_mem_access <= 1;
-  end
-end
-
-//////////////////////////////////////////////////////////////////////////
-// Logic to generate valid signals for data coming from BRAM A
-//////////////////////////////////////////////////////////////////////////
-reg [7:0] a_mem_access_counter;
-always @(posedge clk) begin
-  if (reset || ~start_mat_mul) begin
-    a_mem_access_counter <= 0;
-  end
-  else if (a_mem_access == 1) begin
-    a_mem_access_counter <= a_mem_access_counter + 1;  
-  end
-  else begin
-    a_mem_access_counter <= 0;
-  end
-end
-
-wire a_data_valid; //flag that tells whether the data from memory is valid
-assign a_data_valid = 
-""")
-for i in range(int(systolic_size)):
-  if i==0:
-    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
-  elif i==(int(systolic_size)-1):
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ")) ?\n")
-  else:
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
-f.write("""    
-    1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
-
-//////////////////////////////////////////////////////////////////////////
-// Logic to delay certain parts of the data received from BRAM A (systolic data setup)
-//////////////////////////////////////////////////////////////////////////
-""")
 
 for i in range(int(systolic_size)):
   f.write("wire [`DWIDTH-1:0] a" + str(i) + "_data;\n")
 
-f.write("\n")
+for i in range(int(systolic_size)):
+  f.write("wire [`DWIDTH-1:0] b" + str(i) + "_data;\n")
 
 for i in range(int(systolic_size)):
-  f.write("assign a"+ str(i) + "_data = a_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{a_data_valid}} & {`DWIDTH{validity_mask_a_rows[" + str(i) + "]}};\n")
+  for j in range(1,i+1):
+    f.write("wire [`DWIDTH-1:0] a" + str(i) + "_data_delayed_" + str(j) + ";\n")
 
-f.write("\n")  
+for i in range(int(systolic_size)):
+  for j in range(1,i+1):
+    f.write("wire [`DWIDTH-1:0] b" + str(i) + "_data_delayed_" + str(j) + ";\n")
+
+f.write("\n")
+
+f.write("""
+//////////////////////////////////////////////////////////////////////////
+// Instantiation of systolic data setup
+//////////////////////////////////////////////////////////////////////////
+systolic_data_setup u_systolic_data_setup(
+.clk(clk),
+.reset(reset),
+.start_mat_mul(start_mat_mul),
+.a_addr(a_addr),
+.b_addr(b_addr),
+.address_mat_a(address_mat_a),
+.address_mat_b(address_mat_b),
+.address_stride_a(address_stride_a),
+.address_stride_b(address_stride_b),
+.a_data(a_data),
+.b_data(b_data),
+.clk_cnt(clk_cnt),
+.a0_data(a0_data),
+.b0_data(b0_data),
+""")
+
+for i in range(1,int(systolic_size)):
+  f.write(".a{}_data_delayed_{}(a{}_data_delayed_{}),\n".format(i,i,i,i))
+  f.write(".b{}_data_delayed_{}(b{}_data_delayed_{}),\n".format(i,i,i,i))
+
+f.write("""
+.validity_mask_a_rows(validity_mask_a_rows),
+.validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+.validity_mask_b_cols(validity_mask_b_cols),
+""")
+
+if conv_code:
+  f.write("""
+.enable_conv_mode(enable_conv_mode),
+.r(r),
+.s(s),
+.c(c),
+.num_channels_out(num_channels_out),
+.conv_padding_left(conv_padding_left),
+.conv_padding_right(conv_padding_right),
+.conv_padding_top(conv_padding_top),
+.conv_padding_bottom(conv_padding_bottom),
+.inp_img_height(inp_img_height),
+.inp_img_width(inp_img_width),
+  """)
+
+f.write("""
+.final_mat_mul_size(final_mat_mul_size),
+.a_loc(a_loc),
+.b_loc(b_loc)
+);
+""")
+
+f.write("""
+//////////////////////////////////////////////////////////////////////////
+// Logic to mux data_in coming from neighboring matmuls
+//////////////////////////////////////////////////////////////////////////
+""")
+
+for i in range(int(systolic_size)):
+  f.write("wire [`DWIDTH-1:0] a" + str(i) + ";\n")
+
+for i in range(int(systolic_size)):
+  f.write("wire [`DWIDTH-1:0] b" + str(i) + ";\n")
+
+f.write("\n")
 
 for i in range(int(systolic_size)):
   f.write("wire [`DWIDTH-1:0] a" + str(i) + "_data_in;\n")
@@ -462,200 +438,12 @@ for i in range(int(systolic_size)):
 f.write("\n")
 
 for i in range(int(systolic_size)):
-  for j in range(1,i+1):
-    f.write("reg [`DWIDTH-1:0] a" + str(i) + "_data_delayed_" + str(j) + ";\n")
-
-f.write("\n")
-
-f.write(
-"""
-always @(posedge clk) begin
-  if (reset || ~start_mat_mul || clk_cnt==0) begin
-""")
-
-for i in range(int(systolic_size)):
-  for j in range(1,i+1):
-    f.write("    a"+ str(i) +"_data_delayed_" + str(j) + " <= 0;\n")
-
-f.write(
-"""
-  end
-  else begin
-""")
-
-for i in range(1,int(systolic_size)):
-  f.write("  a" + str(i)+ "_data_delayed_1 <= a" +str(i)+ "_data;\n")
-
-for i in range(1,int(systolic_size)):
-  for j in range(2,i+1):
-    f.write("  a"+ str(i) +"_data_delayed_" + str(j) + " <= a"+ str(i) +"_data_delayed_"+ str(j-1) + ";\n")
-
-f.write(
-""" 
-  end
-end
-
-//////////////////////////////////////////////////////////////////////////
-// Logic to generate addresses to BRAM B
-//////////////////////////////////////////////////////////////////////////
-reg [`AWIDTH-1:0] b_addr;
-reg b_mem_access; //flag that tells whether the matmul is trying to access memory or not
-always @(posedge clk) begin
-  //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
-  //Writing the line above to avoid multiplication:
-""")
-if hard_counts:
-  f.write("""
-  if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
-""")
-else:
-  f.write("""
-  if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-""")
- 
-if conv_code:
-  f.write("""
-    if (enable_conv_mode) begin
-      b_addr <= address_mat_b;
-    end 
-    else begin
-      b_addr <= address_mat_b - address_stride_b;
-    end
-  """)
-else:
-  f.write("""
-      b_addr <= address_mat_b - address_stride_b;
-  """)
-f.write("""
-    b_mem_access <= 0;
-  end
-  //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
-  //Writing the line above to avoid multiplication:
-""")
-if hard_counts:
-  f.write("""
-  else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
-""")
-else:
-  f.write("""
-  else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
-""")
-if conv_code:
-  f.write("""
-    if (enable_conv_mode) begin
-      b_addr <= address_mat_b + (s*num_channels_out) + (r*num_channels_out*num_channels_out) + (c*num_channels_out*num_channels_out*num_channels_out);
-    end
-    else begin
-      b_addr <= b_addr + address_stride_b;
-    end
-  """)
-else:
-  f.write("""
-      b_addr <= b_addr + address_stride_b;
-  """)
-f.write("""
-    b_mem_access <= 1;
-  end
-end 
-
-//////////////////////////////////////////////////////////////////////////
-// Logic to generate valid signals for data coming from BRAM B
-//////////////////////////////////////////////////////////////////////////
-reg [7:0] b_mem_access_counter;
-always @(posedge clk) begin
-  if (reset || ~start_mat_mul) begin
-    b_mem_access_counter <= 0;
-  end
-  else if (b_mem_access == 1) begin
-    b_mem_access_counter <= b_mem_access_counter + 1;  
-  end
-  else begin
-    b_mem_access_counter <= 0;
-  end
-end
-
-wire b_data_valid; //flag that tells whether the data from memory is valid
-assign b_data_valid = 
-""")
-for i in range(int(systolic_size)):
-  if i==0:
-    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
-  elif i==(int(systolic_size)-1):
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ")) ?\n")
-  else:
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
-f.write("""    
-        1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
-
-//////////////////////////////////////////////////////////////////////////
-// Logic to delay certain parts of the data received from BRAM B (systolic data setup)
-//////////////////////////////////////////////////////////////////////////
-""")
-
-for i in range(int(systolic_size)):
-  f.write("wire [`DWIDTH-1:0] b" + str(i) + "_data;\n")
-
-f.write("\n")
-
-for i in range(int(systolic_size)):
-  f.write("assign b"+ str(i) + "_data = b_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{b_data_valid}} & {`DWIDTH{validity_mask_b_cols[" + str(i) + "]}};\n")
-
-f.write("\n")  
-
-for i in range(int(systolic_size)):
   f.write("wire [`DWIDTH-1:0] b" + str(i) + "_data_in;\n")
 
 f.write("\n")
 
 for i in range(int(systolic_size)):
   f.write("assign b"+ str(i) + "_data_in = b_data_in[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH];\n")
-
-f.write("\n")
-
-for i in range(int(systolic_size)):
-  for j in range(1,i+1):
-    f.write("reg [`DWIDTH-1:0] b" + str(i) + "_data_delayed_" + str(j) + ";\n")
-
-f.write("\n")
-
-f.write(
-"""
-always @(posedge clk) begin
-  if (reset || ~start_mat_mul || clk_cnt==0) begin
-""")
-
-for i in range(int(systolic_size)):
-  for j in range(1,i+1):
-    f.write("    b"+ str(i) +"_data_delayed_" + str(j) + " <= 0;\n")
-
-f.write(
-"""
-  end
-  else begin
-""")
-
-for i in range(1,int(systolic_size)):
-  f.write("  b" + str(i)+ "_data_delayed_1 <= b" +str(i)+ "_data;\n")
-
-for i in range(1,int(systolic_size)):
-  for j in range(2,i+1):
-    f.write("  b"+ str(i) +"_data_delayed_" + str(j) + " <= b"+ str(i) +"_data_delayed_"+ str(j-1) + ";\n")
-
-f.write(
-""" 
-  end
-end
-
-//////////////////////////////////////////////////////////////////////////
-// Logic to mux data_in coming from neighboring matmuls
-//////////////////////////////////////////////////////////////////////////
-""")
-
-for i in range(int(systolic_size)):
-  f.write("wire [`DWIDTH-1:0] a" + str(i) + ";\n")
-
-for i in range(int(systolic_size)):
-  f.write("wire [`DWIDTH-1:0] b" + str(i) + ";\n")
 
 f.write("\n")
 
@@ -688,34 +476,10 @@ for i in range(1,int(systolic_size)):
 f.write("\n")
 
 for i in range(int(systolic_size)):
-  f.write("wire [`DWIDTH-1:0] ")
-
-  for j in range(int(systolic_size)):
-    f.write("a" + str(i) + "_" + str(j) + "to" + str(i) + "_" + str(j+1))
-
-    if (j != int(systolic_size)-1):
-      f.write(", ")
-    else:
-      f.write(";\n")
-
-f.write("\n")
-for i in range(int(systolic_size)):
-  f.write("wire [`DWIDTH-1:0] ")
-
-  for j in range(int(systolic_size)):
-    f.write("b" + str(j) + "_" + str(i)  + "to" + str(j+1) + "_" + str(i))
-
-    if (j != int(systolic_size)-1):
-      f.write(", ")
-    else:
-      f.write(";\n")
-
-
-f.write("wire row_latch_en;\n\n")
-
-for i in range(int(systolic_size)):
   for j in range(int(systolic_size)):
     f.write("wire [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + ";\n")
+
+f.write("\n")
 
 if accum_code:
   for i in range(int(systolic_size)):
@@ -723,89 +487,181 @@ if accum_code:
       f.write("wire [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + "_added;\n")
   
   f.write("\n\n")
-  
-  for i in range(int(systolic_size)):
-    for j in range(int(systolic_size)):
-      f.write("reg [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + "_accum;\n")
 
 
-  f.write(
-  """
-  reg outputs_saved_to_accum;
-  reg outputs_added_to_accum;
-  wire reset_accum;
-  
-  always @(posedge clk) begin
-    if (reset || ~(save_output_to_accum || add_accum_to_output) || (reset_accum)) begin
-  """)
-  
-  
-  for i in range(int(systolic_size)):
-    for j in range(int(systolic_size)):
-      f.write("matrixC" + str(i) + "_" + str(j) + "_accum <= 0;\n")
-  
-  f.write(
-  """ outputs_saved_to_accum <= 0;
-      outputs_added_to_accum <= 0;
+if accum_code:
+  f.write("""
+//////////////////////////////////////////////////////////////////////////
+// Instantiation of accumulators
+//////////////////////////////////////////////////////////////////////////
+accumulators u_accumulators(
+.save_output_to_accum(save_output_to_accum),
+.add_accum_to_output(add_accum_to_output),
+.reset_accum(reset_accum),
+.row_latch_en(row_latch_en),
   """)
   if conv_code:
     f.write("""
-      cur_c_saved <= 0;
-      cur_r_saved <= 0;
-      cur_s_saved <= 0;
+.r(r),
+.s(s),
+.c(c),
     """)
-  f.write("""
-    end
-    else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
-  """
-  )
   
   for i in range(int(systolic_size)):
     for j in range(int(systolic_size)):
-      f.write("\tmatrixC" + str(i) + "_" + str(j) + "_accum <= matrixC" + str(i) + "_" + str(j) + "_added;\n")
-  
-  f.write(
-  """
-      outputs_saved_to_accum <= 1;
-      outputs_added_to_accum <= 1;
-  """)
-  if conv_code:
-    f.write("""
-      cur_c_saved <= c;
-      cur_r_saved <= r;
-      cur_s_saved <= s;
-    """)
-  f.write("""
-    end
-    else if (row_latch_en && save_output_to_accum) begin
-  """)
-  
-  for i in range(int(systolic_size)):
-    for j in range(int(systolic_size)):
-      f.write("\tmatrixC" + str(i) + "_" + str(j) + "_accum <= matrixC" + str(i) + "_" + str(j) + ";\n")
-  
-  f.write("""
-      outputs_saved_to_accum <= 1;
-  """)
-  if conv_code:
-    f.write("""
-      cur_c_saved <= c;
-      cur_r_saved <= r;
-      cur_s_saved <= s;
-    """)
-  f.write("""
-    end
-    else if (row_latch_en && add_accum_to_output) begin
-      outputs_added_to_accum <= 1;
-    end
-  end
-  """)
-  
-  
-  for i in range(int(systolic_size)):
-    for j in range(int(systolic_size)):
-      f.write("assign matrixC" + str(i) + "_" + str(j) + "_added = (add_accum_to_output) ? (matrixC" + str(i) + "_" + str(j) + " + matrixC" + str(i) + "_" + str(j) + "_accum) : matrixC" + str(i) + "_" + str(j) + ";\n")
+      f.write(".matrixC" + str(i) + "_" + str(j) + "(matrixC" + str(i) + "_" + str(j) + "),\n")
 
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write(".matrixC" + str(i) + "_" + str(j) + "_added(matrixC" + str(i) + "_" + str(j) + "_added),\n")
+
+  f.write("""
+.reset(reset),
+.clk(clk)
+);
+
+  """)
+
+
+f.write("""
+//////////////////////////////////////////////////////////////////////////
+// Instantiation of the output logic
+//////////////////////////////////////////////////////////////////////////
+output_logic u_output_logic(
+.start_mat_mul(start_mat_mul),
+.done_mat_mul(done_mat_mul),
+.address_mat_c(address_mat_c),
+.address_stride_c(address_stride_c),
+.c_data_out(c_data_out),
+.c_addr(c_addr),
+.c_data_available(c_data_available),
+.clk_cnt(clk_cnt),
+.row_latch_en(row_latch_en),
+""")
+
+if accum_code:
+  f.write("""
+.save_output_to_accum(save_output_to_accum),
+.add_accum_to_output(add_accum_to_output),
+.reset_accum(reset_accum),
+  """)
+
+if accum_code:
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write(".matrixC" + str(i) + "_" + str(j) + "_added(matrixC" + str(i) + "_" + str(j) + "_added),\n")
+else:
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write(".matrixC" + str(i) + "_" + str(j) + "(matrixC" + str(i) + "_" + str(j) + "),\n")
+
+f.write("""
+.clk(clk),
+.reset(reset)
+);
+""")
+
+
+f.write("""
+//////////////////////////////////////////////////////////////////////////
+// Instantiations of the actual PEs
+//////////////////////////////////////////////////////////////////////////
+systolic_pe_matrix u_systolic_pe_matrix(
+.reset(reset),
+.clk(clk),
+.start_mat_mul(start_mat_mul),
+""")
+
+for i in range(int(systolic_size)):
+  f.write(".a" + str(i) + "(a" + str(i) + "),\n")
+for i in range(int(systolic_size)):
+  f.write(".b" + str(i) + "(b" + str(i) + "),\n")
+for i in range(int(systolic_size)):
+  for j in range(int(systolic_size)):
+    f.write(".matrixC" + str(i) + "_" + str(j) + "(matrixC" + str(i) + "_" + str(j) + "),\n")
+
+f.write("""
+.a_data_out(a_data_out),
+.b_data_out(b_data_out)
+);
+""")
+
+f.write("""
+endmodule
+""")
+
+
+f.write("""
+
+//////////////////////////////////////////////////////////////////////////
+// Output logic
+//////////////////////////////////////////////////////////////////////////
+module output_logic(
+start_mat_mul,
+done_mat_mul,
+address_mat_c,
+address_stride_c,
+c_data_in,
+c_data_out, //Data values going out to next matmul - systolic shifting
+c_addr,
+c_data_available,
+clk_cnt,
+row_latch_en,
+""")
+
+if accum_code:
+  f.write("""
+save_output_to_accum,
+add_accum_to_output,
+reset_accum,
+""")
+
+if accum_code:
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("matrixC" + str(i) + "_" + str(j) + "_added,\n")
+else:
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("matrixC" + str(i) + "_" + str(j) + ",\n")
+
+f.write("""
+clk,
+reset
+);
+
+input clk;
+input reset;
+input start_mat_mul;
+input done_mat_mul;
+input [`AWIDTH-1:0] address_mat_c;
+input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
+input [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
+output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
+output [`AWIDTH-1:0] c_addr;
+output c_data_available;
+input [7:0] clk_cnt;
+output row_latch_en;
+""")
+
+if accum_code:
+  f.write("""
+input save_output_to_accum;
+input add_accum_to_output;
+output reset_accum;
+""")
+
+if accum_code:
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("input [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + "_added;\n")
+else:
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("input [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + ";\n")
+
+
+f.write("wire row_latch_en;\n\n")
 
 f.write(
 """
@@ -942,6 +798,590 @@ f.write("""
   end
 end""")
 
+
+f.write("""
+
+//////////////////////////////////////////////////////////////////////////
+// Systolic data setup
+//////////////////////////////////////////////////////////////////////////
+module systolic_data_setup(
+clk,
+reset,
+start_mat_mul,
+a_addr,
+b_addr,
+address_mat_a,
+address_mat_b,
+address_stride_a,
+address_stride_b,
+a_data,
+b_data,
+clk_cnt,
+a0_data,
+b0_data,
+""")
+
+for i in range(1,int(systolic_size)):
+  f.write("a{}_data_delayed_{},\n".format(i,i,i,i))
+  f.write("b{}_data_delayed_{},\n".format(i,i,i,i))
+
+f.write("""
+validity_mask_a_rows,
+validity_mask_a_cols_b_rows,
+validity_mask_b_cols,
+""")
+
+if conv_code:
+  f.write("""
+enable_conv_mode,
+r,
+s,
+c,
+num_channels_out,
+conv_padding_left,
+conv_padding_right,
+conv_padding_top,
+conv_padding_bottom,
+inp_img_height,
+inp_img_width,
+  """)
+f.write("""
+final_mat_mul_size,
+a_loc,
+b_loc
+);
+
+input clk;
+input reset;
+input start_mat_mul;
+output [`AWIDTH-1:0] a_addr;
+output [`AWIDTH-1:0] b_addr;
+input [`AWIDTH-1:0] address_mat_a;
+input [`AWIDTH-1:0] address_mat_b;
+input [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
+input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
+input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data;
+input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
+input [7:0] clk_cnt;
+output [`DWIDTH-1:0] a0_data;
+output [`DWIDTH-1:0] b0_data;
+""")
+
+for i in range(1,int(systolic_size)):
+  f.write("output [`DWIDTH-1:0] a{}_data_delayed_{};\n".format(i,i,i,i))
+  f.write("output [`DWIDTH-1:0] b{}_data_delayed_{};\n".format(i,i,i,i))
+
+if conv_code:
+  f.write("""
+input enable_conv_mode;
+input [3:0] r; //iterator for filter height
+input [3:0] s; //iterator for filter width
+input [15:0] c; //iterator for input channels
+input [15:0] num_channels_out;
+input [3:0] conv_padding_left;
+input [3:0] conv_padding_right;
+input [3:0] conv_padding_top;
+input [3:0] conv_padding_bottom;
+input [15:0] inp_img_height;
+input [15:0] inp_img_width;
+  """)
+
+f.write("""
+input [`MASK_WIDTH-1:0] validity_mask_a_rows;
+input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+input [`MASK_WIDTH-1:0] validity_mask_b_cols;
+input [7:0] final_mat_mul_size;
+input [7:0] a_loc;
+input [7:0] b_loc;
+""")
+
+for i in range(int(systolic_size)):
+  f.write("wire [`DWIDTH-1:0] a" + str(i) + "_data;\n")
+
+for i in range(int(systolic_size)):
+  f.write("wire [`DWIDTH-1:0] b" + str(i) + "_data;\n")
+
+f.write("""
+//////////////////////////////////////////////////////////////////////////
+// Logic to generate addresses to BRAM A
+//////////////////////////////////////////////////////////////////////////
+reg [`AWIDTH-1:0] a_addr;
+reg a_mem_access; //flag that tells whether the matmul is trying to access memory or not
+
+always @(posedge clk) begin
+  //(clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
+  //Writing the line above to avoid multiplication:
+""")
+if hard_counts:
+  f.write("""
+  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
+  """)
+else:
+  f.write("""
+  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  """)
+if conv_code:
+  f.write("""
+    if (enable_conv_mode) begin
+      a_addr <= address_mat_a;
+    end 
+    else begin
+      a_addr <= address_mat_a-address_stride_a;
+    end
+  """)
+else:
+  f.write("""
+      a_addr <= address_mat_a-address_stride_a;
+  """)
+f.write("""
+    a_mem_access <= 0;
+  end
+  //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
+  //Writing the line above to avoid multiplication:
+""")
+if hard_counts:
+  f.write("""
+  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
+  """)
+else:
+  f.write("""
+  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  """)
+if conv_code:
+  f.write("""
+    if (enable_conv_mode) begin
+      a_addr <= address_mat_a + s + r * (inp_img_width+conv_padding_left+conv_padding_right) + c * (inp_img_width+conv_padding_left+conv_padding_right) * (inp_img_height+conv_padding_top+conv_padding_bottom);
+    end
+    else begin
+      a_addr <= a_addr + address_stride_a;
+    end
+  """)
+else:
+  f.write("""
+      a_addr <= a_addr + address_stride_a;
+  """)
+f.write("""
+    a_mem_access <= 1;
+  end
+end
+
+//////////////////////////////////////////////////////////////////////////
+// Logic to generate valid signals for data coming from BRAM A
+//////////////////////////////////////////////////////////////////////////
+reg [7:0] a_mem_access_counter;
+always @(posedge clk) begin
+  if (reset || ~start_mat_mul) begin
+    a_mem_access_counter <= 0;
+  end
+  else if (a_mem_access == 1) begin
+    a_mem_access_counter <= a_mem_access_counter + 1;  
+  end
+  else begin
+    a_mem_access_counter <= 0;
+  end
+end
+
+wire a_data_valid; //flag that tells whether the data from memory is valid
+assign a_data_valid = 
+""")
+for i in range(int(systolic_size)):
+  if i==0:
+    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
+  elif i==(int(systolic_size)-1):
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ")) ?\n")
+  else:
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
+f.write("""    
+    1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
+
+//////////////////////////////////////////////////////////////////////////
+// Logic to delay certain parts of the data received from BRAM A (systolic data setup)
+//////////////////////////////////////////////////////////////////////////
+""")
+
+
+for i in range(int(systolic_size)):
+  f.write("assign a"+ str(i) + "_data = a_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{a_data_valid}} & {`DWIDTH{validity_mask_a_rows[" + str(i) + "]}};\n")
+
+f.write("\n")  
+
+
+for i in range(int(systolic_size)):
+  for j in range(1,i+1):
+    f.write("reg [`DWIDTH-1:0] a" + str(i) + "_data_delayed_" + str(j) + ";\n")
+
+f.write("\n")
+
+f.write(
+"""
+always @(posedge clk) begin
+  if (reset || ~start_mat_mul || clk_cnt==0) begin
+""")
+
+for i in range(int(systolic_size)):
+  for j in range(1,i+1):
+    f.write("    a"+ str(i) +"_data_delayed_" + str(j) + " <= 0;\n")
+
+f.write(
+"""
+  end
+  else begin
+""")
+
+for i in range(1,int(systolic_size)):
+  f.write("  a" + str(i)+ "_data_delayed_1 <= a" +str(i)+ "_data;\n")
+
+for i in range(1,int(systolic_size)):
+  for j in range(2,i+1):
+    f.write("  a"+ str(i) +"_data_delayed_" + str(j) + " <= a"+ str(i) +"_data_delayed_"+ str(j-1) + ";\n")
+
+f.write(
+""" 
+  end
+end
+
+//////////////////////////////////////////////////////////////////////////
+// Logic to generate addresses to BRAM B
+//////////////////////////////////////////////////////////////////////////
+reg [`AWIDTH-1:0] b_addr;
+reg b_mem_access; //flag that tells whether the matmul is trying to access memory or not
+always @(posedge clk) begin
+  //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
+  //Writing the line above to avoid multiplication:
+""")
+if hard_counts:
+  f.write("""
+  if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
+""")
+else:
+  f.write("""
+  if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+""")
+ 
+if conv_code:
+  f.write("""
+    if (enable_conv_mode) begin
+      b_addr <= address_mat_b;
+    end 
+    else begin
+      b_addr <= address_mat_b - address_stride_b;
+    end
+  """)
+else:
+  f.write("""
+      b_addr <= address_mat_b - address_stride_b;
+  """)
+f.write("""
+    b_mem_access <= 0;
+  end
+  //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
+  //Writing the line above to avoid multiplication:
+""")
+if hard_counts:
+  f.write("""
+  else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+"""+str(final_mat_mul_size)+""")) begin
+""")
+else:
+  f.write("""
+  else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+""")
+if conv_code:
+  f.write("""
+    if (enable_conv_mode) begin
+      b_addr <= address_mat_b + (s*num_channels_out) + (r*num_channels_out*num_channels_out) + (c*num_channels_out*num_channels_out*num_channels_out);
+    end
+    else begin
+      b_addr <= b_addr + address_stride_b;
+    end
+  """)
+else:
+  f.write("""
+      b_addr <= b_addr + address_stride_b;
+  """)
+f.write("""
+    b_mem_access <= 1;
+  end
+end 
+
+//////////////////////////////////////////////////////////////////////////
+// Logic to generate valid signals for data coming from BRAM B
+//////////////////////////////////////////////////////////////////////////
+reg [7:0] b_mem_access_counter;
+always @(posedge clk) begin
+  if (reset || ~start_mat_mul) begin
+    b_mem_access_counter <= 0;
+  end
+  else if (b_mem_access == 1) begin
+    b_mem_access_counter <= b_mem_access_counter + 1;  
+  end
+  else begin
+    b_mem_access_counter <= 0;
+  end
+end
+
+wire b_data_valid; //flag that tells whether the data from memory is valid
+assign b_data_valid = 
+""")
+for i in range(int(systolic_size)):
+  if i==0:
+    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
+  elif i==(int(systolic_size)-1):
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ")) ?\n")
+  else:
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
+f.write("""    
+        1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
+
+//////////////////////////////////////////////////////////////////////////
+// Logic to delay certain parts of the data received from BRAM B (systolic data setup)
+//////////////////////////////////////////////////////////////////////////
+""")
+
+
+for i in range(int(systolic_size)):
+  f.write("assign b"+ str(i) + "_data = b_data[" + str(i+1) + "*`DWIDTH-1:" + str(i) + "*`DWIDTH] & {`DWIDTH{b_data_valid}} & {`DWIDTH{validity_mask_b_cols[" + str(i) + "]}};\n")
+
+f.write("\n")  
+
+
+for i in range(int(systolic_size)):
+  for j in range(1,i+1):
+    f.write("reg [`DWIDTH-1:0] b" + str(i) + "_data_delayed_" + str(j) + ";\n")
+
+f.write("\n")
+
+f.write(
+"""
+always @(posedge clk) begin
+  if (reset || ~start_mat_mul || clk_cnt==0) begin
+""")
+
+for i in range(int(systolic_size)):
+  for j in range(1,i+1):
+    f.write("    b"+ str(i) +"_data_delayed_" + str(j) + " <= 0;\n")
+
+f.write(
+"""
+  end
+  else begin
+""")
+
+for i in range(1,int(systolic_size)):
+  f.write("  b" + str(i)+ "_data_delayed_1 <= b" +str(i)+ "_data;\n")
+
+for i in range(1,int(systolic_size)):
+  for j in range(2,i+1):
+    f.write("  b"+ str(i) +"_data_delayed_" + str(j) + " <= b"+ str(i) +"_data_delayed_"+ str(j-1) + ";\n")
+
+f.write(
+""" 
+  end
+end
+""")
+
+
+if accum_code:
+  f.write("""
+//////////////////////////////////////////////////////////////////////////
+// Accumulators
+//////////////////////////////////////////////////////////////////////////
+module accumulators(
+save_output_to_accum,
+add_accum_to_output,
+reset_accum,
+row_latch_en,
+""")
+  if conv_code:
+    f.write("""
+r,
+s,
+c,
+    """)
+
+    for i in range(int(systolic_size)):
+      for j in range(int(systolic_size)):
+        f.write("matrixC" + str(i) + "_" + str(j) + ",\n")
+
+    for i in range(int(systolic_size)):
+      for j in range(int(systolic_size)):
+        f.write("matrixC" + str(i) + "_" + str(j) + "_added,\n")
+
+  f.write("""
+.reset(reset),
+.clk(clk)
+);
+
+
+input clk;
+input reset;
+input save_output_to_accum;
+input add_accum_to_output;
+input reset_accum;
+input row_latch_en;
+  """)
+
+  if conv_code:
+    f.write("""
+input [3:0] r; //iterator for filter height
+input [3:0] s; //iterator for filter width
+input [15:0] c; //iterator for input channels
+    """)
+
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("input [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + ";\n")
+
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("input [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + "_added;\n")
+
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("reg [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + "_accum;\n")
+  
+  f.write(
+  """
+  reg outputs_saved_to_accum;
+  reg outputs_added_to_accum;
+  wire reset_accum;
+  
+  always @(posedge clk) begin
+    if (reset || ~(save_output_to_accum || add_accum_to_output) || (reset_accum)) begin
+  """)
+  
+  
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("matrixC" + str(i) + "_" + str(j) + "_accum <= 0;\n")
+  
+  f.write(
+  """ outputs_saved_to_accum <= 0;
+      outputs_added_to_accum <= 0;
+  """)
+  if conv_code:
+    f.write("""
+      cur_c_saved <= 0;
+      cur_r_saved <= 0;
+      cur_s_saved <= 0;
+    """)
+  f.write("""
+    end
+    else if (row_latch_en && save_output_to_accum && add_accum_to_output) begin
+  """
+  )
+  
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("\tmatrixC" + str(i) + "_" + str(j) + "_accum <= matrixC" + str(i) + "_" + str(j) + "_added;\n")
+  
+  f.write(
+  """
+      outputs_saved_to_accum <= 1;
+      outputs_added_to_accum <= 1;
+  """)
+  if conv_code:
+    f.write("""
+      cur_c_saved <= c;
+      cur_r_saved <= r;
+      cur_s_saved <= s;
+    """)
+  f.write("""
+    end
+    else if (row_latch_en && save_output_to_accum) begin
+  """)
+  
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("\tmatrixC" + str(i) + "_" + str(j) + "_accum <= matrixC" + str(i) + "_" + str(j) + ";\n")
+  
+  f.write("""
+      outputs_saved_to_accum <= 1;
+  """)
+  if conv_code:
+    f.write("""
+      cur_c_saved <= c;
+      cur_r_saved <= r;
+      cur_s_saved <= s;
+    """)
+  f.write("""
+    end
+    else if (row_latch_en && add_accum_to_output) begin
+      outputs_added_to_accum <= 1;
+    end
+  end
+  """)
+  
+  
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("assign matrixC" + str(i) + "_" + str(j) + "_added = (add_accum_to_output) ? (matrixC" + str(i) + "_" + str(j) + " + matrixC" + str(i) + "_" + str(j) + "_accum) : matrixC" + str(i) + "_" + str(j) + ";\n")
+
+
+f.write("""
+
+//////////////////////////////////////////////////////////////////////////
+// Systolically connected PEs
+//////////////////////////////////////////////////////////////////////////
+module systolic_pe_matrix(
+reset,
+clk,
+start_mat_mul,
+""")
+for i in range(int(systolic_size)):
+  f.write("a" + str(i) + ",\n")
+for i in range(int(systolic_size)):
+  f.write("b" + str(i) + ",\n")
+for i in range(int(systolic_size)):
+  for j in range(int(systolic_size)):
+    f.write(".matrixC" + str(i) + "_" + str(j) + ",\n")
+f.write("""
+a_data_out,
+b_data_out
+);
+
+input clk;
+input reset;
+input start_mat_mul;
+""")
+for i in range(int(systolic_size)):
+  f.write("input [`DWIDTH-1:0] a" + str(i) + ";\n")
+for i in range(int(systolic_size)):
+  f.write("input [`DWIDTH-1:0] b" + str(i) + ";\n")
+for i in range(int(systolic_size)):
+  for j in range(int(systolic_size)):
+    f.write("output [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + ";\n")
+f.write("""
+output [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out;
+output [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out;
+
+""")
+
+for i in range(int(systolic_size)):
+  f.write("wire [`DWIDTH-1:0] ")
+
+  for j in range(int(systolic_size)):
+    f.write("a" + str(i) + "_" + str(j) + "to" + str(i) + "_" + str(j+1))
+
+    if (j != int(systolic_size)-1):
+      f.write(", ")
+    else:
+      f.write(";\n")
+
+f.write("\n")
+for i in range(int(systolic_size)):
+  f.write("wire [`DWIDTH-1:0] ")
+
+  for j in range(int(systolic_size)):
+    f.write("b" + str(j) + "_" + str(i)  + "to" + str(j+1) + "_" + str(i))
+
+    if (j != int(systolic_size)-1):
+      f.write(", ")
+    else:
+      f.write(";\n")
+
+  
+
+
 f.write("""
 //////////////////////////////////////////////////////////////////////////
 // Instantiations of the actual PEs
@@ -982,25 +1422,6 @@ for i in range(int(systolic_size)-1):
     "), .in_b(b" + str(i) + "_" + str(j+1) + "to" + str(i+1) + "_" + str(j+1) +"),  .out_a(a" +  str(i+1) + "_" + str(j+1) + 
     "to" + str(i+1) + "_" + str(j+2) +"), .out_b(b"+str(i+1) + "_" + str(j+1) + "to" + str(i+2) + "_" + str(j+1) + "), .out_c(matrixC" + str(i+1) + "_" + str(j+1) + "));\n")
 
-"""
-
-processing_element pe10(.reset(effective_rst), .clk(clk),  .in_a(a1),      .in_b(b00to10), .out_a(a10to11), .out_b(b10to20), .out_c(matrixC10));
-processing_element pe11(.reset(effective_rst), .clk(clk),  .in_a(a10to11), .in_b(b01to11), .out_a(a11to12), .out_b(b11to21), .out_c(matrixC11));
-processing_element pe12(.reset(effective_rst), .clk(clk),  .in_a(a11to12), .in_b(b02to12), .out_a(a12to13), .out_b(b12to22), .out_c(matrixC12));
-processing_element pe13(.reset(effective_rst), .clk(clk),  .in_a(a12to13), .in_b(b03to13), .out_a(a13to14), .out_b(b13to23), .out_c(matrixC13));
-
-processing_element pe20(.reset(effective_rst), .clk(clk),  .in_a(a2),      .in_b(b10to20), .out_a(a20to21), .out_b(b20to30), .out_c(matrixC20));
-processing_element pe21(.reset(effective_rst), .clk(clk),  .in_a(a20to21), .in_b(b11to21), .out_a(a21to22), .out_b(b21to31), .out_c(matrixC21));
-processing_element pe22(.reset(effective_rst), .clk(clk),  .in_a(a21to22), .in_b(b12to22), .out_a(a22to23), .out_b(b22to32), .out_c(matrixC22));
-processing_element pe23(.reset(effective_rst), .clk(clk),  .in_a(a22to23), .in_b(b13to23), .out_a(a23to24), .out_b(b23to33), .out_c(matrixC23));
-
-processing_element pe30(.reset(effective_rst), .clk(clk),  .in_a(a3),      .in_b(b20to30), .out_a(a30to31), .out_b(b30to40), .out_c(matrixC30));
-processing_element pe31(.reset(effective_rst), .clk(clk),  .in_a(a30to31), .in_b(b21to31), .out_a(a31to32), .out_b(b31to41), .out_c(matrixC31));
-processing_element pe32(.reset(effective_rst), .clk(clk),  .in_a(a31to32), .in_b(b22to32), .out_a(a32to33), .out_b(b32to42), .out_c(matrixC32));
-processing_element pe33(.reset(effective_rst), .clk(clk),  .in_a(a32to33), .in_b(b23to33), .out_a(a33to34), .out_b(b33to43), .out_c(matrixC33));
-
-
-"""
 
 f.write("assign a_data_out = {")
 
@@ -1023,7 +1444,6 @@ for i in range(int(systolic_size)-1,-1,-1):
     f.write("};\n") 
 
 f.write("""
-endmodule
 
 module processing_element(
  reset, 

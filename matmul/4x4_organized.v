@@ -448,14 +448,6 @@ output_logic u_output_logic(
 );
 
 
-wire [`DWIDTH-1:0] cin_col0;
-wire [`DWIDTH-1:0] cin_col1;
-wire [`DWIDTH-1:0] cin_col2;
-wire [`DWIDTH-1:0] cin_col3;
-assign cin_col0 = c_data_in[`DWIDTH-1:0];
-assign cin_col1 = c_data_in[2*`DWIDTH-1:`DWIDTH];
-assign cin_col2 = c_data_in[3*`DWIDTH-1:2*`DWIDTH];
-assign cin_col3 = c_data_in[4*`DWIDTH-1:3*`DWIDTH];
 
 //////////////////////////////////////////////////////////////////////////
 // Instantiations of the actual PEs
@@ -504,6 +496,7 @@ start_mat_mul,
 done_mat_mul,
 address_mat_c,
 address_stride_c,
+c_data_in,
 c_data_out, //Data values going out to next matmul - systolic shifting
 c_addr,
 c_data_available,
@@ -536,6 +529,7 @@ input start_mat_mul;
 input done_mat_mul;
 input [`AWIDTH-1:0] address_mat_c;
 input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
+input [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
 output [`AWIDTH-1:0] c_addr;
 output c_data_available;
@@ -604,13 +598,14 @@ always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= address_mat_c-address_stride_c;
+    c_addr <= address_mat_c+address_stride_c;
     c_data_out <= 0;
     counter <= 0;
-  end else if (condition_to_start_shifting_output) begin
+  end
+  else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
-    c_addr <= c_addr + address_stride_c;
+    c_addr <= c_addr - address_stride_c;
     c_data_out <= {matrixC30_added, matrixC20_added, matrixC10_added, matrixC00_added};  //first set of elements is captured here
     counter <= counter + 1;
   end else if (done_mat_mul) begin
@@ -619,9 +614,12 @@ always @(posedge clk) begin
     c_addr <= address_mat_c-address_stride_c;
     c_data_out <= 0;
   end 
+  else if (counter >= `MAT_MUL_SIZE) begin
+    c_data_out <= c_data_in;
+  end
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
-    c_addr <= c_addr + address_stride_c;
+    c_addr <= c_addr - address_stride_c;
     counter <= counter + 1;
     case (counter)  //rest of the elements are captured here
         1: c_data_out <= {matrixC31_added, matrixC21_added, matrixC11_added, matrixC01_added};
