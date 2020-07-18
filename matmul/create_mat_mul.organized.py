@@ -279,9 +279,6 @@ if conv_code:
 reg [3:0] r; //iterator for filter height
 reg [3:0] s; //iterator for filter width
 reg [15:0] c; //iterator for input channels
-reg [15:0] cur_c_saved;
-reg [3:0] cur_r_saved;
-reg [3:0] cur_s_saved;
 reg dummy;
 
 always @(posedge clk) begin
@@ -533,6 +530,7 @@ output_logic u_output_logic(
 .address_mat_c(address_mat_c),
 .address_stride_c(address_stride_c),
 .c_data_out(c_data_out),
+.c_data_in(c_data_in),
 .c_addr(c_addr),
 .c_data_available(c_data_available),
 .clk_cnt(clk_cnt),
@@ -796,7 +794,10 @@ f.write("""
         default: c_data_out <= 0;
     endcase
   end
-end""")
+end
+
+endmodule
+""")
 
 
 f.write("""
@@ -1177,6 +1178,7 @@ f.write(
 """ 
   end
 end
+endmodule
 """)
 
 
@@ -1244,6 +1246,9 @@ input [15:0] c; //iterator for input channels
   reg outputs_saved_to_accum;
   reg outputs_added_to_accum;
   wire reset_accum;
+  reg [15:0] cur_c_saved;
+  reg [3:0] cur_r_saved;
+  reg [3:0] cur_s_saved;
   
   always @(posedge clk) begin
     if (reset || ~(save_output_to_accum || add_accum_to_output) || (reset_accum)) begin
@@ -1316,6 +1321,9 @@ input [15:0] c; //iterator for input channels
     for j in range(int(systolic_size)):
       f.write("assign matrixC" + str(i) + "_" + str(j) + "_added = (add_accum_to_output) ? (matrixC" + str(i) + "_" + str(j) + " + matrixC" + str(i) + "_" + str(j) + "_accum) : matrixC" + str(i) + "_" + str(j) + ";\n")
 
+f.write("""
+endmodule
+""")
 
 f.write("""
 
@@ -1333,7 +1341,7 @@ for i in range(int(systolic_size)):
   f.write("b" + str(i) + ",\n")
 for i in range(int(systolic_size)):
   for j in range(int(systolic_size)):
-    f.write(".matrixC" + str(i) + "_" + str(j) + ",\n")
+    f.write("matrixC" + str(i) + "_" + str(j) + ",\n")
 f.write("""
 a_data_out,
 b_data_out
@@ -1444,6 +1452,7 @@ for i in range(int(systolic_size)-1,-1,-1):
     f.write("};\n") 
 
 f.write("""
+endmodule
 
 module processing_element(
  reset, 
