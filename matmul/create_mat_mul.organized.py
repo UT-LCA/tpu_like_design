@@ -47,6 +47,27 @@ f = open(filename,"w")
 
 f.write("""
 `timescale 1ns / 1ps
+""")
+
+f.write("""
+`define DWIDTH 8
+`define AWIDTH 11
+`define MEM_SIZE 2048
+
+`define MAT_MUL_SIZE {}
+`define MASK_WIDTH {}
+`define LOG2_MAT_MUL_SIZE {}
+
+`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
+`define NUM_CYCLES_IN_MAC 3
+`define MEM_ACCESS_LATENCY 1
+`define REG_DATAWIDTH 32
+`define REG_ADDRWIDTH 8
+`define ADDR_STRIDE_WIDTH 8
+`define MAX_BITS_POOL 3
+""".format(systolic_size, systolic_size,int(math.log2(int(systolic_size)))))
+
+f.write("""
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -403,8 +424,12 @@ if conv_code:
 .inp_img_width(inp_img_width),
   """)
 
-f.write("""
+if not hard_counts:
+  f.write("""
 .final_mat_mul_size(final_mat_mul_size),
+  """)
+
+f.write("""
 .a_loc(a_loc),
 .b_loc(b_loc)
 );
@@ -846,8 +871,11 @@ conv_padding_bottom,
 inp_img_height,
 inp_img_width,
   """)
-f.write("""
+if not hard_counts:
+  f.write("""
 final_mat_mul_size,
+  """)
+f.write("""
 a_loc,
 b_loc
 );
@@ -891,7 +919,12 @@ f.write("""
 input [`MASK_WIDTH-1:0] validity_mask_a_rows;
 input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
 input [`MASK_WIDTH-1:0] validity_mask_b_cols;
+""")
+if not hard_counts:
+  f.write("""
 input [7:0] final_mat_mul_size;
+  """)
+f.write("""
 input [7:0] a_loc;
 input [7:0] b_loc;
 """)
@@ -1321,9 +1354,9 @@ input [15:0] c; //iterator for input channels
     for j in range(int(systolic_size)):
       f.write("assign matrixC" + str(i) + "_" + str(j) + "_added = (add_accum_to_output) ? (matrixC" + str(i) + "_" + str(j) + " + matrixC" + str(i) + "_" + str(j) + "_accum) : matrixC" + str(i) + "_" + str(j) + ";\n")
 
-f.write("""
-endmodule
-""")
+  f.write("""
+  endmodule
+  """)
 
 f.write("""
 
