@@ -31,35 +31,11 @@ module matrix_multiplication(
   validity_mask_a_cols_b_rows,
   validity_mask_b_cols,
 
-  bram_addr_a_0_0_ext,
-  bram_rdata_a_0_0_ext,
-  bram_wdata_a_0_0_ext,
-  bram_we_a_0_0_ext,
-
-  bram_addr_a_1_0_ext,
-  bram_rdata_a_1_0_ext,
-  bram_wdata_a_1_0_ext,
-  bram_we_a_1_0_ext,
-
-  bram_addr_b_0_0_ext,
-  bram_rdata_b_0_0_ext,
-  bram_wdata_b_0_0_ext,
-  bram_we_b_0_0_ext,
-
-  bram_addr_b_0_1_ext,
-  bram_rdata_b_0_1_ext,
-  bram_wdata_b_0_1_ext,
-  bram_we_b_0_1_ext,
-
-  bram_addr_c_1_0_ext,
-  bram_rdata_c_1_0_ext,
-  bram_wdata_c_1_0_ext,
-  bram_we_c_1_0_ext,
-
-  bram_addr_c_1_1_ext,
-  bram_rdata_c_1_1_ext,
-  bram_wdata_c_1_1_ext,
-  bram_we_c_1_1_ext,
+  bram_select,
+  bram_addr_ext,
+  bram_rdata_ext,
+  bram_wdata_ext,
+  bram_we_ext,
 
   start_reg,
   clear_done_reg
@@ -78,38 +54,45 @@ module matrix_multiplication(
   input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
   input [`MASK_WIDTH-1:0] validity_mask_b_cols;
 
-  input  [`AWIDTH-1:0] bram_addr_a_0_0_ext;
-  output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_0_0_ext;
-  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_0_0_ext;
-  input  [`MASK_WIDTH-1:0] bram_we_a_0_0_ext;
+  input [7:0] bram_select;
 
-  input  [`AWIDTH-1:0] bram_addr_a_1_0_ext;
-  output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_1_0_ext;
-  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_1_0_ext;
-  input  [`MASK_WIDTH-1:0] bram_we_a_1_0_ext;
-
-  input  [`AWIDTH-1:0] bram_addr_b_0_0_ext;
-  output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_0_ext;
-  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_0_0_ext;
-  input  [`MASK_WIDTH-1:0] bram_we_b_0_0_ext;
-
-  input  [`AWIDTH-1:0] bram_addr_b_0_1_ext;
-  output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_1_ext;
-  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_0_1_ext;
-  input  [`MASK_WIDTH-1:0] bram_we_b_0_1_ext;
-
-  input  [`AWIDTH-1:0] bram_addr_c_1_0_ext;
-  output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_1_0_ext;
-  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_1_0_ext;
-  input  [`MASK_WIDTH-1:0] bram_we_c_1_0_ext;
-
-  input  [`AWIDTH-1:0] bram_addr_c_1_1_ext;
-  output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_1_1_ext;
-  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_1_1_ext;
-  input  [`MASK_WIDTH-1:0] bram_we_c_1_1_ext;
+  input  [`AWIDTH-1:0] bram_addr_ext;
+  output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_ext;
+  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_ext;
+  input  [`MASK_WIDTH-1:0] bram_we_ext;
 
   input start_reg;
   input clear_done_reg;
+
+  reg [`AWIDTH-1:0] bram_addr_a_0_0_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_0_0_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_0_0_ext;
+  reg [`MASK_WIDTH-1:0] bram_we_a_0_0_ext;
+
+  reg [`AWIDTH-1:0] bram_addr_a_1_0_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_1_0_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_1_0_ext;
+  reg [`MASK_WIDTH-1:0] bram_we_a_1_0_ext;
+
+  reg [`AWIDTH-1:0] bram_addr_b_0_0_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_0_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_0_0_ext;
+  reg [`MASK_WIDTH-1:0] bram_we_b_0_0_ext;
+
+  reg [`AWIDTH-1:0] bram_addr_b_0_1_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_1_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_0_1_ext;
+  reg [`MASK_WIDTH-1:0] bram_we_b_0_1_ext;
+
+  reg [`AWIDTH-1:0] bram_addr_c_1_0_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_1_0_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_1_0_ext;
+  reg [`MASK_WIDTH-1:0] bram_we_c_1_0_ext;
+
+  reg [`AWIDTH-1:0] bram_addr_c_1_1_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_1_1_ext;
+  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_1_1_ext;
+  reg [`MASK_WIDTH-1:0] bram_we_c_1_1_ext;
 
 	wire [`AWIDTH-1:0] bram_addr_a_0_0;
 	wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_0_0;
@@ -146,6 +129,53 @@ module matrix_multiplication(
 	wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_1_1;
 	wire [`MASK_WIDTH-1:0] bram_we_c_1_1;
 	wire bram_en_c_1_1;
+
+  always @* begin
+    case (bram_select)
+      0: begin
+      bram_addr_a_0_0_ext = bram_addr_ext;
+      bram_wdata_a_0_0_ext = bram_wdata_ext;
+      bram_we_a_0_0_ext = bram_we_ext;
+      bram_rdata_ext = bram_rdata_a_0_0_ext;
+      end
+      1: begin
+      bram_addr_a_1_0_ext = bram_addr_ext;
+      bram_wdata_a_1_0_ext = bram_wdata_ext;
+      bram_we_a_1_0_ext = bram_we_ext;
+      bram_rdata_ext = bram_rdata_a_1_0_ext;
+      end
+      2: begin
+      bram_addr_b_0_0_ext = bram_addr_ext;
+      bram_wdata_b_0_0_ext = bram_wdata_ext;
+      bram_we_b_0_0_ext = bram_we_ext;
+      bram_rdata_ext = bram_rdata_b_0_0_ext;
+      end 
+      3: begin
+      bram_addr_b_0_1_ext = bram_addr_ext;
+      bram_wdata_b_0_1_ext = bram_wdata_ext;
+      bram_we_b_0_1_ext = bram_we_ext;
+      bram_rdata_ext = bram_rdata_b_0_1_ext;
+      end
+      4: begin
+      bram_addr_c_1_0_ext = bram_addr_ext;
+      bram_wdata_c_1_0_ext = bram_wdata_ext;
+      bram_we_c_1_0_ext = bram_we_ext;
+      bram_rdata_ext = bram_rdata_c_1_0_ext;
+      end
+      5: begin
+      bram_addr_c_1_1_ext = bram_addr_ext;
+      bram_wdata_c_1_1_ext = bram_wdata_ext;
+      bram_we_c_1_1_ext = bram_we_ext;
+      bram_rdata_ext = bram_rdata_c_1_1_ext;
+      end
+      default: begin
+      bram_addr_a_0_0_ext = bram_addr_ext;
+      bram_wdata_a_0_0_ext = bram_wdata_ext;
+      bram_we_a_0_0_ext = bram_we_ext;
+      bram_rdata_ext = bram_rdata_a_0_0_ext;
+      end
+    endcase 
+  end
 
   reg [3:0] state;
 
