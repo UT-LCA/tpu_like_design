@@ -16,6 +16,14 @@
 `define ADDR_STRIDE_WIDTH 8
 `define MAX_BITS_POOL 3
 
+`define REG_START_DONE_ADDR 32'h0
+`define REG_MATRIX_A_ADDR 32'he
+`define REG_MATRIX_B_ADDR 32'h12
+`define REG_MATRIX_C_ADDR 32'h16
+`define REG_VALID_MASK_ADDR 32'h20
+`define REG_MATRIX_A_STRIDE_ADDR 32'h28
+`define REG_MATRIX_B_STRIDE_ADDR 32'h32
+`define REG_MATRIX_C_STRIDE_ADDR 32'h36
 
 /////////////////////////////////////////////////
 // The 8x8 matmul definition

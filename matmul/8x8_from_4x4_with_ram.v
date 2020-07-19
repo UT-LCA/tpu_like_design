@@ -18,51 +18,31 @@
 
 //Design with memories
 module matrix_multiplication(
-  clk, 
-  clk_mem, 
-  resetn, 
-  address_mat_a,
-  address_mat_b,
-  address_mat_c,
-  address_stride_a,
-  address_stride_b,
-  address_stride_c,
-  validity_mask_a_rows,
-  validity_mask_a_cols_b_rows,
-  validity_mask_b_cols,
+  input clk,
+  input clk_mem,
+  input resetn,
 
-  bram_select,
-  bram_addr_ext,
-  bram_rdata_ext,
-  bram_wdata_ext,
-  bram_we_ext,
+  input                             PCLK,
+  input                             PRESETn,
+  input        [`REG_ADDRWIDTH-1:0] PADDR,
+  input                             PWRITE,
+  input                             PSEL,
+  input                             PENABLE,
+  input        [`REG_DATAWIDTH-1:0] PWDATA,
+  output reg   [`REG_DATAWIDTH-1:0] PRDATA,
+  output reg                        PREADY,
 
-  start_reg,
-  clear_done_reg
+  input [7:0] bram_select,
+  input  [`AWIDTH-1:0] bram_addr_ext,
+  output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_ext,
+  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_ext,
+  input  [`MASK_WIDTH-1:0] bram_we_ext
 );
 
-  input clk;
-  input clk_mem;
-  input resetn;
-  input [`AWIDTH-1:0] address_mat_a;
-  input [`AWIDTH-1:0] address_mat_b;
-  input [`AWIDTH-1:0] address_mat_c;
-  input [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
-  input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
-  input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
-  input [`MASK_WIDTH-1:0] validity_mask_a_rows;
-  input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
-  input [`MASK_WIDTH-1:0] validity_mask_b_cols;
-
-  input [7:0] bram_select;
-
-  input  [`AWIDTH-1:0] bram_addr_ext;
-  output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_ext;
-  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_ext;
-  input  [`MASK_WIDTH-1:0] bram_we_ext;
-
-  input start_reg;
-  input clear_done_reg;
+  reg start_reg;
+  reg clear_done_reg;
+  //Dummy register to sync all other invalid/unimplemented addresses
+  reg [`REG_DATAWIDTH-1:0] reg_dummy;
 
   reg [`AWIDTH-1:0] bram_addr_a_0_0_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_0_0_ext;
@@ -261,8 +241,10 @@ wire done_mat_mul;
       if (resetn == 1'b0) begin
         state <= 4'b0000;
         start_mat_mul <= 1'b0;
-      end else begin
+      end 
+      else begin
         case (state)
+
         4'b0000: begin
           start_mat_mul <= 1'b0;
           if (start_reg == 1'b1) begin
@@ -276,7 +258,6 @@ wire done_mat_mul;
           start_mat_mul <= 1'b1;	      
           state <= 4'b1010;                    
         end      
-        
         
         4'b1010: begin                 
           if (done_mat_mul == 1'b1) begin
@@ -299,6 +280,101 @@ wire done_mat_mul;
       endcase  
 	end 
   end
+
+reg [1:0] state_apb;
+`define IDLE     2'b00
+`define W_ENABLE  2'b01
+`define R_ENABLE  2'b10
+
+reg [`AWIDTH-1:0] address_mat_a;
+reg [`AWIDTH-1:0] address_mat_b;
+reg [`AWIDTH-1:0] address_mat_c;
+reg [`MASK_WIDTH-1:0] validity_mask_a_rows;
+reg [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+reg [`MASK_WIDTH-1:0] validity_mask_b_cols;
+reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
+reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
+reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
+
+always @(posedge PCLK) begin
+  if (PRESETn == 0) begin
+    state_apb <= `IDLE;
+    PRDATA <= 0;
+    PREADY <= 0;
+    address_mat_a <= 0;
+    address_mat_b <= 0;
+    address_mat_c <= 0;
+    validity_mask_a_rows <= {`MASK_WIDTH{1'b1}};
+    validity_mask_a_cols_b_rows <= {`MASK_WIDTH{1'b1}};
+    validity_mask_b_cols <= {`MASK_WIDTH{1'b1}};
+    address_stride_a <= `MAT_MUL_SIZE;
+    address_stride_b <= `MAT_MUL_SIZE;
+    address_stride_c <= `MAT_MUL_SIZE;
+  end
+
+  else begin
+    case (state_apb)
+      `IDLE : begin
+        PRDATA <= 0;
+        if (PSEL) begin
+          if (PWRITE) begin
+            state_apb <= `W_ENABLE;
+          end
+          else begin
+            state_apb <= `R_ENABLE;
+          end
+        end
+        PREADY <= 0;
+      end
+
+      `W_ENABLE : begin
+        if (PSEL && PWRITE && PENABLE) begin
+          case (PADDR)
+          `REG_START_DONE_ADDR : begin
+                                 start_reg <= PWDATA[0];
+                                 clear_done_reg <= PWDATA[31];
+                                 end
+          `REG_MATRIX_A_ADDR   : address_mat_a <= PWDATA[`AWIDTH-1:0];
+          `REG_MATRIX_B_ADDR   : address_mat_b <= PWDATA[`AWIDTH-1:0];
+          `REG_MATRIX_C_ADDR   : address_mat_c <= PWDATA[`AWIDTH-1:0];
+          `REG_VALID_MASK_ADDR : begin
+                                 validity_mask_a_rows <= PWDATA[`MASK_WIDTH-1:0];
+                                 validity_mask_a_cols_b_rows <= PWDATA[2*`MASK_WIDTH-1:`MASK_WIDTH];
+                                 validity_mask_b_cols <= PWDATA[3*`MASK_WIDTH-1:2*`MASK_WIDTH];
+                                 end
+          `REG_MATRIX_A_STRIDE_ADDR : address_stride_a <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
+          `REG_MATRIX_B_STRIDE_ADDR : address_stride_b <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
+          `REG_MATRIX_C_STRIDE_ADDR : address_stride_c <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
+          default : reg_dummy <= PWDATA; //sink writes to a dummy register
+          endcase
+          PREADY <=1;          
+        end
+        state_apb <= `IDLE;
+      end
+
+      `R_ENABLE : begin
+        if (PSEL && !PWRITE && PENABLE) begin
+          PREADY <= 1;
+          case (PADDR)
+          `REG_START_DONE_ADDR  : PRDATA <= {done_mat_mul, 30'b0, start_mat_mul};
+          `REG_MATRIX_A_ADDR    : PRDATA <= address_mat_a;
+          `REG_MATRIX_B_ADDR    : PRDATA <= address_mat_b;
+          `REG_MATRIX_C_ADDR    : PRDATA <= address_mat_c;
+          `REG_VALID_MASK_ADDR  : PRDATA <= {validity_mask_b_cols, validity_mask_a_cols_b_rows, validity_mask_a_rows};
+          `REG_MATRIX_A_STRIDE_ADDR : PRDATA <= address_stride_a;
+          `REG_MATRIX_B_STRIDE_ADDR : PRDATA <= address_stride_b;
+          `REG_MATRIX_C_STRIDE_ADDR : PRDATA <= address_stride_c;
+          default : PRDATA <= reg_dummy; //read the dummy register for undefined addresses
+          endcase
+        end
+        state_apb <= `IDLE;
+      end
+      default: begin
+        state_apb <= `IDLE;
+      end
+    endcase
+  end
+end 
 
   wire c_data_1_0_available;
   wire c_data_1_1_available;

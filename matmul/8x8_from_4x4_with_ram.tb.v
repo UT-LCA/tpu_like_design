@@ -11,17 +11,9 @@ matrix_multiplication u_matmul(
   .clk(clk), 
   .clk_mem(clk),
   .resetn(resetn), 
-  .address_mat_a(11'b0),
-  .address_mat_b(11'b0),
-  .address_mat_c(11'b0),
-  .address_stride_a(8'd4),
-  .address_stride_b(8'd4),
-  .address_stride_c(8'd4),
-  .validity_mask_a_rows(4'b1111),
-  .validity_mask_a_cols_b_rows(4'b1111),
-  .validity_mask_b_cols(4'b1111),
-  .start_reg(start),
-  .clear_done_reg(clear_done));
+  .PCLK(clk),
+  .PRESETn(resetn)
+  );
 
 initial begin
   clk = 0;
@@ -33,6 +25,11 @@ end
 initial begin
   resetn = 0;
   #55 resetn = 1;
+end
+
+initial begin
+  force u_matmul.start_reg = start;
+  force u_matmul.clear_done_reg = clear_done;
 end
 
 initial begin
