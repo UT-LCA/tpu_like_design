@@ -560,6 +560,7 @@ output_logic u_output_logic(
 .c_data_available(c_data_available),
 .clk_cnt(clk_cnt),
 .row_latch_en(row_latch_en),
+.final_mat_mul_size(final_mat_mul_size),
 """)
 
 if accum_code:
@@ -630,6 +631,7 @@ c_addr,
 c_data_available,
 clk_cnt,
 row_latch_en,
+final_mat_mul_size,
 """)
 
 if accum_code:
@@ -665,6 +667,7 @@ output [`AWIDTH-1:0] c_addr;
 output c_data_available;
 input [7:0] clk_cnt;
 output row_latch_en;
+input [7:0] final_mat_mul_size;
 """)
 
 if accum_code:
@@ -695,6 +698,7 @@ f.write(
 //Writing the line above to avoid multiplication:
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
 """)
+
 if accum_code:
   if hard_counts:
     f.write("""
@@ -705,8 +709,8 @@ assign row_latch_en =  (save_output_to_accum) ?
   else:
     f.write("""
 assign row_latch_en =  (save_output_to_accum) ?
-                       ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -1 +`NUM_CYCLES_IN_MAC))) :
-                       ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -2 +`NUM_CYCLES_IN_MAC)));
+                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size -1 +`NUM_CYCLES_IN_MAC))) :
+                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size -2 +`NUM_CYCLES_IN_MAC)));
     """)
 else:
   if hard_counts:
@@ -717,7 +721,7 @@ assign row_latch_en =
   else:
     f.write("""
 assign row_latch_en =  
-                       ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -2 +`NUM_CYCLES_IN_MAC)));
+                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size -2 +`NUM_CYCLES_IN_MAC)));
     """)
 
 f.write("""
@@ -727,6 +731,11 @@ reg start_capturing_c_data;
 integer counter;
 reg [""" + systolic_size + """*`DWIDTH-1:0] c_data_out;
 """)
+
+for i in range(int(systolic_size)-1):
+  f.write("""
+reg [""" + systolic_size + """*`DWIDTH-1:0] c_data_shift_""" + str(i) + """;
+  """)
 
 if accum_code:
   f.write("""
@@ -765,6 +774,11 @@ always @(posedge clk) begin
     c_addr <= address_mat_c-address_stride_c;
     c_data_out <= 0;
     counter <= 0;
+""")
+for i in range(int(systolic_size)-1):
+  f.write("""
+    c_data_shift_""" + str(i) + """ <= 0;""")
+f.write("""
   end else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
@@ -793,7 +807,7 @@ f.write(
     c_data_out <= 0;
   end 
   else if (counter >= `MAT_MUL_SIZE) begin
-    c_data_out <= c_data_in;
+    c_data_out <= c_data_shift_"""  + str(int(systolic_size)-2) + """;
   end
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
@@ -803,17 +817,22 @@ f.write(
 """)
 
 for i in range(1,int(systolic_size)):
-  f.write("    "+str(i) + ": c_data_out <= {")
+  f.write("    "+str(i) + ": begin\n    c_data_out <= {")
   for j in range(int(systolic_size)-1,-1,-1):
     if accum_code:
       f.write("matrixC" + str(j) + "_" + str(i) + "_added")
     else:
       f.write("matrixC" + str(j) + "_" + str(i))
-
     if j == 0:
       f.write("};\n")
     else:
       f.write(", ")
+  if i == 1:
+    f.write("    c_data_shift_0 <= c_data_in;\n")
+  else:
+    f.write("    c_data_shift_" + str(i-1) + " <= c_data_shift_" + str(i-2) + ";\n")
+  f.write("    end\n")
+
 
 f.write("""
         default: c_data_out <= 0;

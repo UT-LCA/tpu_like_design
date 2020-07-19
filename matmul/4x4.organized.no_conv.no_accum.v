@@ -1,20 +1,20 @@
 
 `timescale 1ns / 1ps
-`define DWIDTH 8
-`define AWIDTH 11
-`define MEM_SIZE 2048
-
-`define MAT_MUL_SIZE 4
-`define MASK_WIDTH 4
-`define LOG2_MAT_MUL_SIZE 2
-
-`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
-`define NUM_CYCLES_IN_MAC 3
-`define MEM_ACCESS_LATENCY 1
-`define REG_DATAWIDTH 32
-`define REG_ADDRWIDTH 8
-`define ADDR_STRIDE_WIDTH 8
-`define MAX_BITS_POOL 3
+//`define DWIDTH 8
+//`define AWIDTH 11
+//`define MEM_SIZE 2048
+//
+//`define MAT_MUL_SIZE 4
+//`define MASK_WIDTH 4
+//`define LOG2_MAT_MUL_SIZE 2
+//
+//`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
+//`define NUM_CYCLES_IN_MAC 3
+//`define MEM_ACCESS_LATENCY 1
+//`define REG_DATAWIDTH 32
+//`define REG_ADDRWIDTH 8
+//`define ADDR_STRIDE_WIDTH 8
+//`define MAX_BITS_POOL 3
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -277,6 +277,7 @@ output_logic u_output_logic(
 .c_data_available(c_data_available),
 .clk_cnt(clk_cnt),
 .row_latch_en(row_latch_en),
+.final_mat_mul_size(final_mat_mul_size),
 .matrixC00(matrixC00),
 .matrixC01(matrixC01),
 .matrixC02(matrixC02),
@@ -348,6 +349,7 @@ c_addr,
 c_data_available,
 clk_cnt,
 row_latch_en,
+final_mat_mul_size,
 matrixC00,
 matrixC01,
 matrixC02,
@@ -378,6 +380,7 @@ output [`AWIDTH-1:0] c_addr;
 output c_data_available;
 input [7:0] clk_cnt;
 output row_latch_en;
+input [7:0] final_mat_mul_size;
 input [`DWIDTH-1:0] matrixC00;
 input [`DWIDTH-1:0] matrixC01;
 input [`DWIDTH-1:0] matrixC02;
@@ -407,13 +410,17 @@ wire row_latch_en;
 //Fixing bug. The line above is inaccurate. Using the line below. 
 //TODO: This line needs to be fixed to include a_loc and b_loc ie. when final_mat_mul_size is different from `MAT_MUL_SIZE
 assign row_latch_en =  
-                       ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -2 +`NUM_CYCLES_IN_MAC)));
+                       //((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -2 +`NUM_CYCLES_IN_MAC)));
+                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size -2 +`NUM_CYCLES_IN_MAC)));
 
 reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
 integer counter;
 reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_shift_0;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_shift_1;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_shift_2;
 
 //If save_output_to_accum is asserted, that means we are not intending to shift
 //out the outputs, because the outputs are still partial sums. 
@@ -429,6 +436,9 @@ always @(posedge clk) begin
     c_addr <= address_mat_c+address_stride_c;
     c_data_out <= 0;
     counter <= 0;
+    c_data_shift_0 <= 0;
+    c_data_shift_1 <= 0;
+    c_data_shift_2 <= 0;
   end
   else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
@@ -444,16 +454,25 @@ always @(posedge clk) begin
     c_data_out <= 0;
   end 
   else if (counter >= `MAT_MUL_SIZE) begin
-    c_data_out <= c_data_in;
+    c_data_out <= c_data_shift_2;
   end
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
     c_addr <= c_addr - address_stride_c;
     counter <= counter + 1;
     case (counter)  //rest of the elements are captured here
-        1: c_data_out <= {matrixC31, matrixC21, matrixC11, matrixC01};
-        2: c_data_out <= {matrixC32, matrixC22, matrixC12, matrixC02};
-        3: c_data_out <= {matrixC33, matrixC23, matrixC13, matrixC03};
+        1: begin
+          c_data_out <= {matrixC31, matrixC21, matrixC11, matrixC01};
+          c_data_shift_0 <= c_data_in;
+        end 
+        2: begin
+          c_data_out <= {matrixC32, matrixC22, matrixC12, matrixC02};
+          c_data_shift_1 <= c_data_shift_0;
+        end 
+        3: begin
+          c_data_out <= {matrixC33, matrixC23, matrixC13, matrixC03};
+          c_data_shift_2 <= c_data_shift_1;
+        end
         default: c_data_out <= 0;
     endcase
   end
