@@ -14,7 +14,6 @@
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
 `define ADDR_STRIDE_WIDTH 8
-`define MAX_BITS_POOL 3
 
 `define REG_START_DONE_ADDR 32'h0
 `define REG_MATRIX_A_ADDR 32'he

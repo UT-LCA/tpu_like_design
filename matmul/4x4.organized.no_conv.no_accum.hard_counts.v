@@ -366,7 +366,7 @@ input start_mat_mul;
 input done_mat_mul;
 input [`AWIDTH-1:0] address_mat_c;
 input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
-output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
+input [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
 output [`AWIDTH-1:0] c_addr;
 output c_data_available;

@@ -3,3 +3,10 @@ verif/simv.daidir/*
 verif/simv
 verif/ucli.key
 verif/vcdplus.vpd
+verif/DVEfiles/*
+matmul/csrc/*
+matmul/simv.daidir/*
+matmul/simv
+matmul/ucli.key
+matmul/vcdplus.vpd
+matmul/DVEfiles/*
