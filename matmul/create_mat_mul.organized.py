@@ -67,6 +67,8 @@ f.write("""
 `define MAX_BITS_POOL 3
 """.format(systolic_size, systolic_size,int(math.log2(int(systolic_size)))))
 
+module_name = "matmul_" + systolic_size + "x" + systolic_size + "_systolic"
+
 f.write("""
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
@@ -75,7 +77,7 @@ f.write("""
 // Create Date: """ + str(datetime.now()) +
 """
 // Design Name: 
-// Module Name: matmul_""" + systolic_size + "x" + systolic_size + 
+// Module Name: """ + module_name + 
 """
 // Project Name: 
 // Target Devices: 
@@ -90,7 +92,7 @@ f.write("""
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module matmul(
+module """ + module_name + """(
  clk,
  reset,
  start_mat_mul,
@@ -778,7 +780,7 @@ always @(posedge clk) begin
   if (reset | ~start_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= address_mat_c-address_stride_c;
+    c_addr <= address_mat_c + address_stride_c;
     c_data_out <= 0;
     counter <= 0;
 """)
@@ -789,7 +791,7 @@ f.write("""
   end else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
-    c_addr <= c_addr + address_stride_c ;
+    c_addr <= c_addr - address_stride_c ;
     c_data_out <= {""")
 
 for i in range(int(systolic_size)-1,-1,-1):
@@ -832,6 +834,7 @@ f.write("""
   end 
   else if (counter >= `MAT_MUL_SIZE) begin
     c_data_out <= c_data_out_1;
+    c_addr <= c_addr - address_stride_c; 
 """)
 for i in range(1,int(systolic_size)-2):
   f.write("""
@@ -843,7 +846,7 @@ f.write("""
   end
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
-    c_addr <= c_addr + address_stride_c; 
+    c_addr <= c_addr - address_stride_c; 
     counter <= counter + 1;
     c_data_out <= c_data_out_1;
 """)
@@ -1270,14 +1273,14 @@ s,
 c,
     """)
 
-    for i in range(int(systolic_size)):
-      for j in range(int(systolic_size)):
-        f.write("matrixC" + str(i) + "_" + str(j) + ",\n")
-
-    for i in range(int(systolic_size)):
-      for j in range(int(systolic_size)):
-        f.write("matrixC" + str(i) + "_" + str(j) + "_added,\n")
-
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("matrixC" + str(i) + "_" + str(j) + ",\n")
+  
+  for i in range(int(systolic_size)):
+    for j in range(int(systolic_size)):
+      f.write("matrixC" + str(i) + "_" + str(j) + "_added,\n")
+  
   f.write("""
 .reset(reset),
 .clk(clk)
@@ -1302,11 +1305,11 @@ input [15:0] c; //iterator for input channels
   for i in range(int(systolic_size)):
     for j in range(int(systolic_size)):
       f.write("input [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + ";\n")
-
+  
   for i in range(int(systolic_size)):
     for j in range(int(systolic_size)):
       f.write("input [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + "_added;\n")
-
+  
   for i in range(int(systolic_size)):
     for j in range(int(systolic_size)):
       f.write("reg [`DWIDTH-1:0] matrixC" + str(i) + "_" + str(j) + "_accum;\n")

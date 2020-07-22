@@ -469,6 +469,7 @@ always @(posedge clk) begin
     c_data_out_3 <= 0;
   end 
   else if (counter >= `MAT_MUL_SIZE) begin
+    c_addr <= c_addr - address_stride_c;
     c_data_out <= c_data_out_1;
     c_data_out_1 <= c_data_out_2;
     c_data_out_2 <= c_data_out_3;
