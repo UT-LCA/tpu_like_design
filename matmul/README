@@ -1,0 +1,27 @@
+Final designs (July 21, 2020):
+
+4x4 
+----
+4x4.organized.no_conv.no_accum.v
+4x4_with_ram.dpram.noconv.noaccum.v
+
+8x8 (building block)
+-------------------------------
+8x8.organized.gen.v (generated)
+
+8x8 (composed)
+-------------------------------
+8x8_from_4x4.with_ram.gen.v (generated)
+
+16x16 (building block)
+-------------------------------
+16x16.organized.gen.no_conv.v (generated)
+
+16x16 (composed)
+-------------------------------
+16x16_from_4x4.with_ram.gen.v (generated)
+
+Use these scripts:
+-------------------------------
+1. For generating building block matmuls: create_mat_mul.organized.py
+2. For generating composed matmuls: matmul_compose.py

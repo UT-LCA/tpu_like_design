@@ -418,9 +418,18 @@ reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
 integer counter;
 reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
-reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_shift_0;
-reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_shift_1;
-reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_shift_2;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out_1;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out_2;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out_3;
+
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] col0;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] col1;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] col2;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] col3;
+assign col0 = {matrixC30, matrixC20, matrixC10, matrixC00};
+assign col1 = {matrixC31, matrixC21, matrixC11, matrixC01};
+assign col2 = {matrixC32, matrixC22, matrixC12, matrixC02};
+assign col3 = {matrixC33, matrixC23, matrixC13, matrixC03};
 
 //If save_output_to_accum is asserted, that means we are not intending to shift
 //out the outputs, because the outputs are still partial sums. 
@@ -436,15 +445,18 @@ always @(posedge clk) begin
     c_addr <= address_mat_c+address_stride_c;
     c_data_out <= 0;
     counter <= 0;
-    c_data_shift_0 <= 0;
-    c_data_shift_1 <= 0;
-    c_data_shift_2 <= 0;
+    c_data_out_1 <= 0; 
+    c_data_out_2 <= 0; 
+    c_data_out_3 <= 0; 
   end
   else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
     c_addr <= c_addr - address_stride_c;
-    c_data_out <= {matrixC30, matrixC20, matrixC10, matrixC00};  //first set of elements is captured here
+    c_data_out <= col0; 
+    c_data_out_1 <= col1; 
+    c_data_out_2 <= col2; 
+    c_data_out_3 <= col3; 
     counter <= counter + 1;
   end 
   else if (done_mat_mul) begin
@@ -452,29 +464,24 @@ always @(posedge clk) begin
     c_data_available <= 1'b0;
     c_addr <= address_mat_c-address_stride_c;
     c_data_out <= 0;
+    c_data_out_1 <= 0;
+    c_data_out_2 <= 0;
+    c_data_out_3 <= 0;
   end 
   else if (counter >= `MAT_MUL_SIZE) begin
-    c_data_out <= c_data_shift_2;
+    c_data_out <= c_data_out_1;
+    c_data_out_1 <= c_data_out_2;
+    c_data_out_2 <= c_data_out_3;
+    c_data_out_3 <= c_data_in;
   end
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
     c_addr <= c_addr - address_stride_c;
     counter <= counter + 1;
-    case (counter)  //rest of the elements are captured here
-        1: begin
-          c_data_out <= {matrixC31, matrixC21, matrixC11, matrixC01};
-          c_data_shift_0 <= c_data_in;
-        end 
-        2: begin
-          c_data_out <= {matrixC32, matrixC22, matrixC12, matrixC02};
-          c_data_shift_1 <= c_data_shift_0;
-        end 
-        3: begin
-          c_data_out <= {matrixC33, matrixC23, matrixC13, matrixC03};
-          c_data_shift_2 <= c_data_shift_1;
-        end
-        default: c_data_out <= 0;
-    endcase
+    c_data_out <= c_data_out_1;
+    c_data_out_1 <= c_data_out_2;
+    c_data_out_2 <= c_data_out_3;
+    c_data_out_3 <= c_data_in;
   end
 end
 

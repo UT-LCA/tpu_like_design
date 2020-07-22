@@ -1,10 +1,27 @@
 
 `timescale 1ns / 1ps
+
+`define DWIDTH 8
+`define AWIDTH 11
+`define MEM_SIZE 2048
+
+`define MAT_MUL_SIZE 8
+`define MASK_WIDTH 8
+`define LOG2_MAT_MUL_SIZE 3
+
+`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
+`define NUM_CYCLES_IN_MAC 3
+`define MEM_ACCESS_LATENCY 1
+`define REG_DATAWIDTH 32
+`define REG_ADDRWIDTH 8
+`define ADDR_STRIDE_WIDTH 8
+`define MAX_BITS_POOL 3
+
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020-07-18 17:49:57.630093
+// Create Date: 2020-07-21 23:35:28.173089
 // Design Name: 
 // Module Name: matmul_8x8
 // Project Name: 
@@ -353,6 +370,7 @@ systolic_data_setup u_systolic_data_setup(
 .inp_img_width(inp_img_width),
   
 .final_mat_mul_size(final_mat_mul_size),
+  
 .a_loc(a_loc),
 .b_loc(b_loc)
 );
@@ -723,6 +741,7 @@ output_logic u_output_logic(
 .c_data_available(c_data_available),
 .clk_cnt(clk_cnt),
 .row_latch_en(row_latch_en),
+.final_mat_mul_size(final_mat_mul_size),
 
 .save_output_to_accum(save_output_to_accum),
 .add_accum_to_output(add_accum_to_output),
@@ -905,6 +924,7 @@ c_addr,
 c_data_available,
 clk_cnt,
 row_latch_en,
+final_mat_mul_size,
 
 save_output_to_accum,
 add_accum_to_output,
@@ -990,6 +1010,7 @@ output [`AWIDTH-1:0] c_addr;
 output c_data_available;
 input [7:0] clk_cnt;
 output row_latch_en;
+input [7:0] final_mat_mul_size;
 
 input save_output_to_accum;
 input add_accum_to_output;
@@ -1069,15 +1090,21 @@ wire row_latch_en;
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
 
 assign row_latch_en =  (save_output_to_accum) ?
-                       ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -1 +`NUM_CYCLES_IN_MAC))) :
-                       ((clk_cnt == ((`MAT_MUL_SIZE<<2) - `MAT_MUL_SIZE -2 +`NUM_CYCLES_IN_MAC)));
+                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size -1 +`NUM_CYCLES_IN_MAC))) :
+                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size -2 +`NUM_CYCLES_IN_MAC)));
     
 reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
 integer counter;
 reg [8*`DWIDTH-1:0] c_data_out;
-
+reg [8*`DWIDTH-1:0] c_data_out_1;
+reg [8*`DWIDTH-1:0] c_data_out_2;
+reg [8*`DWIDTH-1:0] c_data_out_3;
+reg [8*`DWIDTH-1:0] c_data_out_4;
+reg [8*`DWIDTH-1:0] c_data_out_5;
+reg [8*`DWIDTH-1:0] c_data_out_6;
+reg [8*`DWIDTH-1:0] c_data_out_7;
 //We need to reset the accumulators when the mat mul is done and when we are 
 //done with final reduction to generated a tile's output.
 assign reset_accum = done_mat_mul & start_capturing_c_data;
@@ -1103,11 +1130,26 @@ always @(posedge clk) begin
     c_addr <= address_mat_c-address_stride_c;
     c_data_out <= 0;
     counter <= 0;
+
+    c_data_out_1 <= 0;
+    c_data_out_2 <= 0;
+    c_data_out_3 <= 0;
+    c_data_out_4 <= 0;
+    c_data_out_5 <= 0;
+    c_data_out_6 <= 0;
+    c_data_out_7 <= 0;
   end else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
     c_addr <= c_addr + address_stride_c ;
     c_data_out <= {matrixC7_0_added, matrixC6_0_added, matrixC5_0_added, matrixC4_0_added, matrixC3_0_added, matrixC2_0_added, matrixC1_0_added, matrixC0_0_added};
+      c_data_out_1 <= {matrixC7_1_added, matrixC6_1_added, matrixC5_1_added, matrixC4_1_added, matrixC3_1_added, matrixC2_1_added, matrixC1_1_added, matrixC0_1_added};
+      c_data_out_2 <= {matrixC7_2_added, matrixC6_2_added, matrixC5_2_added, matrixC4_2_added, matrixC3_2_added, matrixC2_2_added, matrixC1_2_added, matrixC0_2_added};
+      c_data_out_3 <= {matrixC7_3_added, matrixC6_3_added, matrixC5_3_added, matrixC4_3_added, matrixC3_3_added, matrixC2_3_added, matrixC1_3_added, matrixC0_3_added};
+      c_data_out_4 <= {matrixC7_4_added, matrixC6_4_added, matrixC5_4_added, matrixC4_4_added, matrixC3_4_added, matrixC2_4_added, matrixC1_4_added, matrixC0_4_added};
+      c_data_out_5 <= {matrixC7_5_added, matrixC6_5_added, matrixC5_5_added, matrixC4_5_added, matrixC3_5_added, matrixC2_5_added, matrixC1_5_added, matrixC0_5_added};
+      c_data_out_6 <= {matrixC7_6_added, matrixC6_6_added, matrixC5_6_added, matrixC4_6_added, matrixC3_6_added, matrixC2_6_added, matrixC1_6_added, matrixC0_6_added};
+      c_data_out_7 <= {matrixC7_7_added, matrixC6_7_added, matrixC5_7_added, matrixC4_7_added, matrixC3_7_added, matrixC2_7_added, matrixC1_7_added, matrixC0_7_added};
 
     counter <= counter + 1;
   end else if (done_mat_mul) begin
@@ -1115,25 +1157,37 @@ always @(posedge clk) begin
     c_data_available <= 1'b0;
     c_addr <= address_mat_c - address_stride_c;
     c_data_out <= 0;
+
+    c_data_out_1 <= 0;
+    c_data_out_2 <= 0;
+    c_data_out_3 <= 0;
+    c_data_out_4 <= 0;
+    c_data_out_5 <= 0;
+    c_data_out_6 <= 0;
+    c_data_out_7 <= 0;
   end 
   else if (counter >= `MAT_MUL_SIZE) begin
-    c_data_out <= c_data_in;
+    c_data_out <= c_data_out_1;
+
+    c_data_out_1 <= c_data_out_2;
+    c_data_out_2 <= c_data_out_3;
+    c_data_out_3 <= c_data_out_4;
+    c_data_out_4 <= c_data_out_5;
+    c_data_out_5 <= c_data_out_6;
+    c_data_out_7 <= c_data_in;
   end
   else if (start_capturing_c_data) begin
     c_data_available <= 1'b1;
     c_addr <= c_addr + address_stride_c; 
     counter <= counter + 1;
-    case (counter)  //rest of the elements are captured here
-    1: c_data_out <= {matrixC7_1_added, matrixC6_1_added, matrixC5_1_added, matrixC4_1_added, matrixC3_1_added, matrixC2_1_added, matrixC1_1_added, matrixC0_1_added};
-    2: c_data_out <= {matrixC7_2_added, matrixC6_2_added, matrixC5_2_added, matrixC4_2_added, matrixC3_2_added, matrixC2_2_added, matrixC1_2_added, matrixC0_2_added};
-    3: c_data_out <= {matrixC7_3_added, matrixC6_3_added, matrixC5_3_added, matrixC4_3_added, matrixC3_3_added, matrixC2_3_added, matrixC1_3_added, matrixC0_3_added};
-    4: c_data_out <= {matrixC7_4_added, matrixC6_4_added, matrixC5_4_added, matrixC4_4_added, matrixC3_4_added, matrixC2_4_added, matrixC1_4_added, matrixC0_4_added};
-    5: c_data_out <= {matrixC7_5_added, matrixC6_5_added, matrixC5_5_added, matrixC4_5_added, matrixC3_5_added, matrixC2_5_added, matrixC1_5_added, matrixC0_5_added};
-    6: c_data_out <= {matrixC7_6_added, matrixC6_6_added, matrixC5_6_added, matrixC4_6_added, matrixC3_6_added, matrixC2_6_added, matrixC1_6_added, matrixC0_6_added};
-    7: c_data_out <= {matrixC7_7_added, matrixC6_7_added, matrixC5_7_added, matrixC4_7_added, matrixC3_7_added, matrixC2_7_added, matrixC1_7_added, matrixC0_7_added};
+    c_data_out <= c_data_out_1;
 
-        default: c_data_out <= 0;
-    endcase
+    c_data_out_1 <= c_data_out_2;
+    c_data_out_2 <= c_data_out_3;
+    c_data_out_3 <= c_data_out_4;
+    c_data_out_4 <= c_data_out_5;
+    c_data_out_5 <= c_data_out_6;
+    c_data_out_7 <= c_data_in;
   end
 end
 
@@ -1190,6 +1244,7 @@ inp_img_height,
 inp_img_width,
   
 final_mat_mul_size,
+  
 a_loc,
 b_loc
 );
@@ -1238,7 +1293,9 @@ input [15:0] inp_img_width;
 input [`MASK_WIDTH-1:0] validity_mask_a_rows;
 input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
 input [`MASK_WIDTH-1:0] validity_mask_b_cols;
+
 input [7:0] final_mat_mul_size;
+  
 input [7:0] a_loc;
 input [7:0] b_loc;
 wire [`DWIDTH-1:0] a0_data;
@@ -2250,8 +2307,8 @@ assign matrixC7_5_added = (add_accum_to_output) ? (matrixC7_5 + matrixC7_5_accum
 assign matrixC7_6_added = (add_accum_to_output) ? (matrixC7_6 + matrixC7_6_accum) : matrixC7_6;
 assign matrixC7_7_added = (add_accum_to_output) ? (matrixC7_7 + matrixC7_7_accum) : matrixC7_7;
 
-endmodule
-
+  endmodule
+  
 
 //////////////////////////////////////////////////////////////////////////
 // Systolically connected PEs

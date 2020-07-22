@@ -560,8 +560,11 @@ output_logic u_output_logic(
 .c_data_available(c_data_available),
 .clk_cnt(clk_cnt),
 .row_latch_en(row_latch_en),
-.final_mat_mul_size(final_mat_mul_size),
 """)
+if not hard_counts:
+  f.write("""
+.final_mat_mul_size(final_mat_mul_size),
+  """)
 
 if accum_code:
   f.write("""
@@ -631,8 +634,11 @@ c_addr,
 c_data_available,
 clk_cnt,
 row_latch_en,
-final_mat_mul_size,
 """)
+if not hard_counts:
+  f.write("""
+final_mat_mul_size,
+  """)
 
 if accum_code:
   f.write("""
@@ -667,8 +673,11 @@ output [`AWIDTH-1:0] c_addr;
 output c_data_available;
 input [7:0] clk_cnt;
 output row_latch_en;
-input [7:0] final_mat_mul_size;
 """)
+if not hard_counts:
+  f.write("""
+input [7:0] final_mat_mul_size;
+  """)
 
 if accum_code:
   f.write("""
@@ -729,13 +738,11 @@ reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
 integer counter;
-reg [""" + systolic_size + """*`DWIDTH-1:0] c_data_out;
-""")
+reg [""" + systolic_size + """*`DWIDTH-1:0] c_data_out;""")
 
-for i in range(int(systolic_size)-1):
+for i in range(1,int(systolic_size)):
   f.write("""
-reg [""" + systolic_size + """*`DWIDTH-1:0] c_data_shift_""" + str(i) + """;
-  """)
+reg [""" + systolic_size + """*`DWIDTH-1:0] c_data_out_""" + str(i) + """;""")
 
 if accum_code:
   f.write("""
@@ -775,9 +782,9 @@ always @(posedge clk) begin
     c_data_out <= 0;
     counter <= 0;
 """)
-for i in range(int(systolic_size)-1):
+for i in range(1,int(systolic_size)):
   f.write("""
-    c_data_shift_""" + str(i) + """ <= 0;""")
+    c_data_out_""" + str(i) + """ <= 0;""")
 f.write("""
   end else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
@@ -796,28 +803,8 @@ for i in range(int(systolic_size)-1,-1,-1):
   else:
     f.write(", ")
 
-
-f.write(
-"""
-    counter <= counter + 1;
-  end else if (done_mat_mul) begin
-    start_capturing_c_data <= 1'b0;
-    c_data_available <= 1'b0;
-    c_addr <= address_mat_c - address_stride_c;
-    c_data_out <= 0;
-  end 
-  else if (counter >= `MAT_MUL_SIZE) begin
-    c_data_out <= c_data_shift_"""  + str(int(systolic_size)-2) + """;
-  end
-  else if (start_capturing_c_data) begin
-    c_data_available <= 1'b1;
-    c_addr <= c_addr + address_stride_c; 
-    counter <= counter + 1;
-    case (counter)  //rest of the elements are captured here
-""")
-
 for i in range(1,int(systolic_size)):
-  f.write("    "+str(i) + ": begin\n    c_data_out <= {")
+  f.write("      c_data_out_" + str(i) + " <= {")
   for j in range(int(systolic_size)-1,-1,-1):
     if accum_code:
       f.write("matrixC" + str(j) + "_" + str(i) + "_added")
@@ -827,16 +814,47 @@ for i in range(1,int(systolic_size)):
       f.write("};\n")
     else:
       f.write(", ")
-  if i == 1:
-    f.write("    c_data_shift_0 <= c_data_in;\n")
-  else:
-    f.write("    c_data_shift_" + str(i-1) + " <= c_data_shift_" + str(i-2) + ";\n")
-  f.write("    end\n")
+
+f.write(
+"""
+    counter <= counter + 1;
+  end else if (done_mat_mul) begin
+    start_capturing_c_data <= 1'b0;
+    c_data_available <= 1'b0;
+    c_addr <= address_mat_c - address_stride_c;
+    c_data_out <= 0;
+""")
+for i in range(1,int(systolic_size)):
+  f.write("""
+    c_data_out_""" + str(i) + """ <= 0;""")
+
+f.write("""
+  end 
+  else if (counter >= `MAT_MUL_SIZE) begin
+    c_data_out <= c_data_out_1;
+""")
+for i in range(1,int(systolic_size)-2):
+  f.write("""
+    c_data_out_""" + str(i) + """ <= c_data_out_""" + str(i+1) + """;""")
+f.write("""
+    c_data_out_""" + str(int(systolic_size)-1) + """ <= c_data_in;""")
+
+f.write("""
+  end
+  else if (start_capturing_c_data) begin
+    c_data_available <= 1'b1;
+    c_addr <= c_addr + address_stride_c; 
+    counter <= counter + 1;
+    c_data_out <= c_data_out_1;
+""")
+for i in range(1,int(systolic_size)-2):
+  f.write("""
+    c_data_out_""" + str(i) + """ <= c_data_out_""" + str(i+1) + """;""")
+f.write("""
+    c_data_out_""" + str(int(systolic_size)-1) + """ <= c_data_in;""")
 
 
 f.write("""
-        default: c_data_out <= 0;
-    endcase
   end
 end
 
