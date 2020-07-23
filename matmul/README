@@ -2,8 +2,8 @@ Final designs (July 21, 2020):
 
 4x4 
 ----
-4x4.organized.no_conv.no_accum.v
-4x4_with_ram.dpram.noconv.noaccum.v
+4x4.organized.no_conv.no_accum.accum.v
+4x4_with_ram.dpram.noconv.noaccum.accum.v
 
 Following are all generated. Best to generate them from the scripts listed below.
 

@@ -95,6 +95,7 @@ f.write("""
 module """ + module_name + """(
  clk,
  reset,
+ pe_reset,
  start_mat_mul,
  done_mat_mul,
  address_mat_a,
@@ -156,6 +157,7 @@ f.write("""
 
  input clk;
  input reset;
+ input pe_reset;
  input start_mat_mul;
  output done_mat_mul;
  input [`AWIDTH-1:0] address_mat_a;
@@ -241,34 +243,34 @@ if accum_code:
     f.write("""
 assign clk_cnt_for_done = 
                           (save_output_to_accum && add_accum_to_output) ?
-                          (""" + (final_mat_mul_size*3) - 3 + NUM_CYCLES_IN_MAC + """) : (
+                          (""" + (final_mat_mul_size*3) - 2 + NUM_CYCLES_IN_MAC + """) : (
                           (save_output_to_accum) ?
-                          (""" + (final_mat_mul_size*3) - 3 + NUM_CYCLES_IN_MAC + """) : (
+                          (""" + (final_mat_mul_size*3) - 2 + NUM_CYCLES_IN_MAC + """) : (
                           (add_accum_to_output) ? 
-                          (""" + (final_mat_mul_size*4) - 3 + NUM_CYCLES_IN_MAC + """) :  
-                          (""" + (final_mat_mul_size*4) - 3 + NUM_CYCLES_IN_MAC + """) ));  
+                          (""" + (final_mat_mul_size*4) - 2 + NUM_CYCLES_IN_MAC + """) :  
+                          (""" + (final_mat_mul_size*4) - 2 + NUM_CYCLES_IN_MAC + """) ));  
     """)
   else:
     f.write("""
 assign clk_cnt_for_done = 
                           (save_output_to_accum && add_accum_to_output) ?
-                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC - final_mat_mul_size) : (
+                          ((final_mat_mul_size<<2) - 2 + `NUM_CYCLES_IN_MAC - final_mat_mul_size) : (
                           (save_output_to_accum) ?
-                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC - final_mat_mul_size) : (
+                          ((final_mat_mul_size<<2) - 2 + `NUM_CYCLES_IN_MAC - final_mat_mul_size) : (
                           (add_accum_to_output) ? 
-                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) :  
-                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC) ));  
+                          ((final_mat_mul_size<<2) - 2 + `NUM_CYCLES_IN_MAC) :  
+                          ((final_mat_mul_size<<2) - 2 + `NUM_CYCLES_IN_MAC) ));  
     """)
 else:
   if hard_counts:
     f.write("""
 assign clk_cnt_for_done = 
-                          (""" + str(final_mat_mul_size*4 - 3 + NUM_CYCLES_IN_MAC) + """);  
+                          (""" + str(final_mat_mul_size*4 - 2 + NUM_CYCLES_IN_MAC) + """);  
     """)
   else:
     f.write("""
 assign clk_cnt_for_done = 
-                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC);  
+                          ((final_mat_mul_size<<2) - 2 + `NUM_CYCLES_IN_MAC);  
     """)
 
 f.write("""
@@ -596,8 +598,9 @@ f.write("""
 // Instantiations of the actual PEs
 //////////////////////////////////////////////////////////////////////////
 systolic_pe_matrix u_systolic_pe_matrix(
-.reset(reset),
 .clk(clk),
+.reset(reset),
+.pe_reset(pe_reset),
 .start_mat_mul(start_mat_mul),
 """)
 
@@ -714,25 +717,25 @@ if accum_code:
   if hard_counts:
     f.write("""
 assign row_latch_en =  (save_output_to_accum) ?
-                       ((clk_cnt == """+str((MAT_MUL_SIZE*4) - MAT_MUL_SIZE -1 + NUM_CYCLES_IN_MAC) + """)) :
-                       ((clk_cnt == """+str((MAT_MUL_SIZE*4) - MAT_MUL_SIZE -2 + NUM_CYCLES_IN_MAC) + """));
+                       ((clk_cnt == """+str((MAT_MUL_SIZE*4) - MAT_MUL_SIZE    + NUM_CYCLES_IN_MAC) + """)) :
+                       ((clk_cnt == """+str((MAT_MUL_SIZE*4) - MAT_MUL_SIZE - 1 + NUM_CYCLES_IN_MAC) + """));
     """)
   else:
     f.write("""
 assign row_latch_en =  (save_output_to_accum) ?
-                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size -1 +`NUM_CYCLES_IN_MAC))) :
-                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size -2 +`NUM_CYCLES_IN_MAC)));
+                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size    +`NUM_CYCLES_IN_MAC))) :
+                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size - 1 +`NUM_CYCLES_IN_MAC)));
     """)
 else:
   if hard_counts:
     f.write("""
 assign row_latch_en =  
-                       ((clk_cnt == """+str((MAT_MUL_SIZE*4) - MAT_MUL_SIZE -2 + NUM_CYCLES_IN_MAC) +""" ));
+                       ((clk_cnt == """+str((MAT_MUL_SIZE*4) - MAT_MUL_SIZE - 1 + NUM_CYCLES_IN_MAC) +""" ));
     """)
   else:
     f.write("""
 assign row_latch_en =  
-                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size -2 +`NUM_CYCLES_IN_MAC)));
+                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size - 1 +`NUM_CYCLES_IN_MAC)));
     """)
 
 f.write("""
@@ -1404,8 +1407,9 @@ f.write("""
 // Systolically connected PEs
 //////////////////////////////////////////////////////////////////////////
 module systolic_pe_matrix(
-reset,
 clk,
+reset,
+pe_reset,
 start_mat_mul,
 """)
 for i in range(int(systolic_size)):
@@ -1422,6 +1426,7 @@ b_data_out
 
 input clk;
 input reset;
+input pe_reset;
 input start_mat_mul;
 """)
 for i in range(int(systolic_size)):
@@ -1469,7 +1474,7 @@ f.write("""
 //////////////////////////////////////////////////////////////////////////
 //For larger matmul, more PEs will be needed
 wire effective_rst;
-assign effective_rst = reset | ~start_mat_mul;
+assign effective_rst = reset | pe_reset;
 
 processing_element pe0_0(.reset(effective_rst), .clk(clk),  .in_a(a0),      .in_b(b0),  .out_a(a0_0to0_1), .out_b(b0_0to1_0), .out_c(matrixC0_0));
 """)

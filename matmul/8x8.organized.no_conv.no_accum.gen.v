@@ -21,7 +21,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020-07-22 00:46:55.950393
+// Create Date: 2020-07-22 23:28:40.825328
 // Design Name: 
 // Module Name: matmul_8x8_systolic
 // Project Name: 
@@ -40,6 +40,7 @@
 module matmul_8x8_systolic(
  clk,
  reset,
+ pe_reset,
  start_mat_mul,
  done_mat_mul,
  address_mat_a,
@@ -73,6 +74,7 @@ final_mat_mul_size,
 
  input clk;
  input reset;
+ input pe_reset;
  input start_mat_mul;
  output done_mat_mul;
  input [`AWIDTH-1:0] address_mat_a;
@@ -126,7 +128,7 @@ reg [7:0] clk_cnt;
 wire [7:0] clk_cnt_for_done;
 
 assign clk_cnt_for_done = 
-                          ((final_mat_mul_size<<2) - 3 + `NUM_CYCLES_IN_MAC);  
+                          ((final_mat_mul_size<<2) - 2 + `NUM_CYCLES_IN_MAC);  
     
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
@@ -493,8 +495,9 @@ output_logic u_output_logic(
 // Instantiations of the actual PEs
 //////////////////////////////////////////////////////////////////////////
 systolic_pe_matrix u_systolic_pe_matrix(
-.reset(reset),
 .clk(clk),
+.reset(reset),
+.pe_reset(pe_reset),
 .start_mat_mul(start_mat_mul),
 .a0(a0),
 .a1(a1),
@@ -758,7 +761,7 @@ wire row_latch_en;
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
 
 assign row_latch_en =  
-                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size -2 +`NUM_CYCLES_IN_MAC)));
+                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size - 1 +`NUM_CYCLES_IN_MAC)));
     
 reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
@@ -1278,8 +1281,9 @@ endmodule
 // Systolically connected PEs
 //////////////////////////////////////////////////////////////////////////
 module systolic_pe_matrix(
-reset,
 clk,
+reset,
+pe_reset,
 start_mat_mul,
 a0,
 a1,
@@ -1368,6 +1372,7 @@ b_data_out
 
 input clk;
 input reset;
+input pe_reset;
 input start_mat_mul;
 input [`DWIDTH-1:0] a0;
 input [`DWIDTH-1:0] a1;
@@ -1476,7 +1481,7 @@ wire [`DWIDTH-1:0] b0_7to1_7, b1_7to2_7, b2_7to3_7, b3_7to4_7, b4_7to5_7, b5_7to
 //////////////////////////////////////////////////////////////////////////
 //For larger matmul, more PEs will be needed
 wire effective_rst;
-assign effective_rst = reset | ~start_mat_mul;
+assign effective_rst = reset | pe_reset;
 
 processing_element pe0_0(.reset(effective_rst), .clk(clk),  .in_a(a0),      .in_b(b0),  .out_a(a0_0to0_1), .out_b(b0_0to1_0), .out_c(matrixC0_0));
 processing_element pe0_1(.reset(effective_rst), .clk(clk),  .in_a(a0_0to0_1), .in_b(b1),  .out_a(a0_1to0_2), .out_b(b0_1to1_1), .out_c(matrixC0_1));
