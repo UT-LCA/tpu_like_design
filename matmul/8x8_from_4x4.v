@@ -47,11 +47,11 @@ module matmul_8x8_systolic(
   a_addr_1_0,
   b_data_0_1,
   b_addr_0_1,
-  c_data_1_0,
-  c_addr_1_0,
+  c_data_0_1,
+  c_addr_0_1,
   c_data_1_1,
   c_addr_1_1,
-  c_data_1_0_available,
+  c_data_0_1_available,
   c_data_1_1_available,
   validity_mask_a_rows,
   validity_mask_a_cols_b_rows,
@@ -76,7 +76,7 @@ module matmul_8x8_systolic(
   input [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_0;
   input [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_1;
 
-  output [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_0;
+  output [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_1;
   output [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_1;
 
   output [`AWIDTH-1:0] a_addr_0_0;
@@ -85,10 +85,10 @@ module matmul_8x8_systolic(
   output [`AWIDTH-1:0] b_addr_0_0;
   output [`AWIDTH-1:0] b_addr_0_1;
 
-  output [`AWIDTH-1:0] c_addr_1_0;
+  output [`AWIDTH-1:0] c_addr_0_1;
   output [`AWIDTH-1:0] c_addr_1_1;
 
-  output c_data_1_0_available;
+  output c_data_0_1_available;
   output c_data_1_1_available;
 
   input [`MASK_WIDTH-1:0] validity_mask_a_rows;
@@ -114,11 +114,11 @@ module matmul_8x8_systolic(
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_0_0_NC;
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_0_NC;
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_0_0_NC;
-  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_0_to_1_0;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_0_to_0_1;
   wire [`AWIDTH-1:0] c_addr_0_0_NC;
   wire c_data_available_0_0_NC;
 
-matmul u_matmul_4x4_0_0(
+matmul_4x4_systolic u_matmul_4x4_0_0(
   .clk(clk),
   .reset(reset),
   .start_mat_mul(start_mat_mul),
@@ -134,7 +134,7 @@ matmul u_matmul_4x4_0_0(
   .a_data_in(a_data_in_0_0_NC),
   .b_data_in(b_data_in_0_0_NC),
   .c_data_in(c_data_in_0_0_NC),
-  .c_data_out(c_data_0_0_to_1_0),
+  .c_data_out(c_data_0_0_to_0_1),
   .a_data_out(a_data_0_0_to_0_1),
   .b_data_out(b_data_0_0_to_1_0),
   .a_addr(a_addr_0_0),
@@ -159,11 +159,11 @@ matmul u_matmul_4x4_0_0(
   wire [`AWIDTH-1:0] c_addr_0_1_NC;
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_1_NC;
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_1_NC;
-  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_1_to_1_1;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_0_to_0_1;
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_1_NC;
   wire c_data_available_0_1_NC;
 
-matmul u_matmul_4x4_0_1(
+matmul_4x4_systolic u_matmul_4x4_0_1(
   .clk(clk),
   .reset(reset),
   .start_mat_mul(start_mat_mul),
@@ -178,14 +178,14 @@ matmul u_matmul_4x4_0_1(
   .b_data(b_data_0_1),
   .a_data_in(a_data_0_0_to_0_1),
   .b_data_in(b_data_in_0_1_NC),
-  .c_data_in(c_data_0_1_NC),
-  .c_data_out(c_data_0_1_to_1_1),
+  .c_data_in(c_data_0_0_to_0_1),
+  .c_data_out(c_data_0_1),
   .a_data_out(a_data_0_1_to_0_2_NC),
   .b_data_out(b_data_0_1_to_1_1),
   .a_addr(a_addr_0_1_NC),
   .b_addr(b_addr_0_1),
-  .c_addr(c_addr_0_1_NC),
-  .c_data_available(c_data_available_0_1_NC),
+  .c_addr(c_addr_0_1),
+  .c_data_available(c_data_0_1_available),
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
@@ -201,10 +201,14 @@ matmul u_matmul_4x4_0_1(
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_0_to_1_1;
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_0_to_2_0_NC;
   wire [`AWIDTH-1:0] b_addr_1_0_NC;
+  wire [`AWIDTH-1:0] c_addr_1_0_NC;
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_0_NC;
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_1_0_NC;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_0_NC;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_0_to_1_1;
+  wire c_data_available_0_1_NC;
 
-matmul u_matmul_4x4_1_0(
+matmul_4x4_systolic u_matmul_4x4_1_0(
   .clk(clk),
   .reset(reset),
   .start_mat_mul(start_mat_mul),
@@ -219,14 +223,14 @@ matmul u_matmul_4x4_1_0(
   .b_data(b_data_1_0_NC),
   .a_data_in(a_data_in_1_0_NC),
   .b_data_in(b_data_0_0_to_1_0),
-  .c_data_in(c_data_0_0_to_1_0),
-  .c_data_out(c_data_1_0),
+  .c_data_in(c_data_1_0_NC),
+  .c_data_out(c_data_1_0_to_1_1),
   .a_data_out(a_data_1_0_to_1_1),
   .b_data_out(b_data_1_0_to_2_0_NC),
   .a_addr(a_addr_1_0),
   .b_addr(b_addr_1_0_NC),
-  .c_addr(c_addr_1_0),
-  .c_data_available(c_data_1_0_available),
+  .c_addr(c_addr_1_0_NC),
+  .c_data_available(c_data_0_1_available_NC),
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
@@ -244,8 +248,9 @@ matmul u_matmul_4x4_1_0(
   wire [`AWIDTH-1:0] b_addr_1_1_NC;
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_1_NC;
   wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_1_NC;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_0_to_1_1;
 
-matmul u_matmul_4x4_1_1(
+matmul_4x4_systolic u_matmul_4x4_1_1(
   .clk(clk),
   .reset(reset),
   .start_mat_mul(start_mat_mul),
@@ -260,7 +265,7 @@ matmul u_matmul_4x4_1_1(
   .b_data(b_data_1_1_NC),
   .a_data_in(a_data_1_0_to_1_1),
   .b_data_in(b_data_0_1_to_1_1),
-  .c_data_in(c_data_0_1_to_1_1),
+  .c_data_in(c_data_1_0_to_1_1),
   .c_data_out(c_data_1_1),
   .a_data_out(a_data_1_1_to_1_2_NC),
   .b_data_out(b_data_1_1_to_2_1_NC),

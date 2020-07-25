@@ -74,7 +74,7 @@ def write_with_ram(file, basic_block_size, final_block_size):
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_{0}_{1}_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_{0}_{1}_ext;
   reg [`MASK_WIDTH-1:0] bram_we_c_{0}_{1}_ext;
-    """.format(num_of_bram-1,i))
+    """.format(i,num_of_bram-1))
 
   for i in range(num_of_bram):
     file.write("""
@@ -101,7 +101,7 @@ def write_with_ram(file, basic_block_size, final_block_size):
 	wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_{0}_{1};
 	wire [`MASK_WIDTH-1:0] bram_we_c_{0}_{1};
 	wire bram_en_c_{0}_{1};
-    """.format(num_of_bram-1,i))
+    """.format(i,num_of_bram-1))
 
   file.write("""
   always @* begin
@@ -139,7 +139,7 @@ def write_with_ram(file, basic_block_size, final_block_size):
       bram_we_c_{1}_{2}_ext = bram_we_ext;
       bram_rdata_ext = bram_rdata_c_{1}_{2}_ext;
       end
-    """.format(tot,num_of_bram-1,i))
+    """.format(tot,i,num_of_bram-1))
 
   file.write("""
       default: begin
@@ -205,7 +205,7 @@ ram matrix_C_{0}_{1}(
   .we1(bram_we_c_{0}_{1}_ext), 
   .q1(bram_rdata_c_{0}_{1}_ext), 
   .clk(clk_mem));
-  	""".format(num_of_bram-1,i))
+  	""".format(i,num_of_bram-1))
   
 
   file.write("""
@@ -370,7 +370,7 @@ assign pe_reset = ~pe_resetn;
   wire c_data_{0}_{1}_available;
   assign bram_en_c_{0}_{1} = 1'b1;
   assign bram_we_c_{0}_{1} = (c_data_{0}_{1}_available) ? {{`MASK_WIDTH{{1'b1}}}} : {{`MASK_WIDTH{{1'b0}}}};  
-  	""".format(num_of_bram-1,i))
+  	""".format(i,num_of_bram-1))
 
   for i in range(num_of_bram):
     file.write("""
@@ -420,7 +420,7 @@ assign pe_reset = ~pe_resetn;
   .c_data_{0}_{1}(bram_wdata_c_{0}_{1}),
   .c_addr_{0}_{1}(bram_addr_c_{0}_{1}),
   .c_data_{0}_{1}_available(c_data_{0}_{1}_available),
-   		""".format(num_of_bram-1,i))
+   		""".format(i,num_of_bram-1))
 
   file.write("""
   .validity_mask_a_rows(validity_mask_a_rows),
@@ -468,7 +468,7 @@ module matmul_{0}x{0}_systolic(
   output [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_{0}_{1},
   output [`AWIDTH-1:0] c_addr_{0}_{1},
   output c_data_{0}_{1}_available,
-    """.format(num_of_bram-1,i))
+    """.format(i,num_of_bram-1))
 
   file.write("""
   input [`MASK_WIDTH-1:0] validity_mask_a_rows,
@@ -484,13 +484,16 @@ module matmul_{0}x{0}_systolic(
     for j in range(num_of_bram):
       file.write('  wire done_mat_mul_{0}_{1};\n'.format(i, j))
   file.write('\n')
-  file.write('  assign done_mat_mul = ')
-  for i in range(num_of_bram):
-    for j in range(num_of_bram):
-      if (i == num_of_bram-1) and (j == num_of_bram-1):
-        file.write('  done_mat_mul_{0}_{1};\n'.format(i, j))
-      else:
-        file.write('  done_mat_mul_{0}_{1} || '.format(i, j))
+  file.write('  assign done_mat_mul = done_mat_mul_0_0;')
+  #we don't really need to OR together all done signals because
+  #all of them are identical.
+  #file.write('  assign done_mat_mul = ')
+  #for i in range(num_of_bram):
+  #  for j in range(num_of_bram):
+  #    if (i == num_of_bram-1) and (j == num_of_bram-1):
+  #      file.write('  done_mat_mul_{0}_{1};\n'.format(i, j))
+  #    else:
+  #      file.write('  done_mat_mul_{0}_{1} || '.format(i, j))
   
   #instaniate 4x4 matmul
   for i in range(num_of_bram):
@@ -514,15 +517,15 @@ module matmul_{0}x{0}_systolic(
   
       if(j == 0):
         file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_{0}_{1}_NC;\n'.format(i,j))
+        file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_{0}_{1}_NC;\n'.format(i,j))
       if(i == 0):
         file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_{0}_{1}_NC;\n'.format(i,j))
-        file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_{0}_{1}_NC;\n'.format(i,j))
   
-      if(i != num_of_bram - 1):
-        file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_{a}_{b}_to_{c}_{d};\n'.format(a = i, b = j, c = i+1, d =j))
+      if(j != num_of_bram - 1):
+        file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_{a}_{b}_to_{c}_{d};\n'.format(a = i, b = j, c = i, d = j+1))
         file.write('  wire [`AWIDTH-1:0] c_addr_{a}_{b}_NC;\n'.format(a = i, b = j))
 
-      if(i != num_of_bram - 1):
+      if(j != num_of_bram - 1):
         file.write('  wire c_data_{a}_{b}_available_NC;\n'.format(a = i, b = j))
   
       #instantiate the basic building block matmul
@@ -563,15 +566,15 @@ module matmul_{0}x{0}_systolic(
       else:
         file.write('  .b_data_in(b_data_{2}_{1}_to_{0}_{1}),\n'.format(i,j,i-1))
   
-      if(i == 0):
+      if(j == 0):
         file.write('  .c_data_in(c_data_in_{0}_{1}_NC),\n'.format(i,j))
       else:
-        file.write('  .c_data_in(c_data_{2}_{1}_to_{0}_{1}),\n'.format(i,j,i-1))
+        file.write('  .c_data_in(c_data_{0}_{1}_to_{2}_{3}),\n'.format(i,j-1,i,j))
   
-      if(i == num_of_bram - 1):
+      if(j == num_of_bram - 1):
         file.write('  .c_data_out(c_data_{0}_{1}),\n'.format(i,j))
       else:
-        file.write('  .c_data_out(c_data_{a}_{b}_to_{c}_{d}),\n'.format(a = i, b = j, c = i+1, d = j))
+        file.write('  .c_data_out(c_data_{a}_{b}_to_{c}_{d}),\n'.format(a = i, b = j, c = i, d = j+1))
 
       file.write(  '  .a_data_out(a_data_{a}_{b}_to_{a}_{c}),\n'
   					'  .b_data_out(b_data_{a}_{b}_to_{d}_{b}),\n'
@@ -587,12 +590,12 @@ module matmul_{0}x{0}_systolic(
       else:
         file.write('  .b_addr(b_addr_{0}_{1}),\n'.format(i, j))
 
-      if(i == num_of_bram - 1):
+      if(j == num_of_bram - 1):
         file.write('  .c_addr(c_addr_{0}_{1}),\n'.format(i, j))
       else:
         file.write('  .c_addr(c_addr_{0}_{1}_NC),\n'.format(i, j))
 
-      if(i == num_of_bram - 1):
+      if(j == num_of_bram - 1):
         file.write('  .c_data_available(c_data_{0}_{1}_available),\n'.format(i,j))
       else:
         file.write('  .c_data_available(c_data_{a}_{b}_available_NC),\n'.format(a = i, b = j))

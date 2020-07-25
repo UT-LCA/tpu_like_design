@@ -453,11 +453,11 @@ matmul_8x8_systolic u_matmul_8x8(
   .a_addr_1_0(bram_addr_a_1_0),
   .b_addr_0_1(bram_addr_b_0_1),
 
-  .c_data_1_0(bram_wdata_c_1_0),
+  .c_data_0_1(bram_wdata_c_1_0),
   .c_data_1_1(bram_wdata_c_1_1),
-  .c_addr_1_0(bram_addr_c_1_0),
+  .c_addr_0_1(bram_addr_c_1_0),
   .c_addr_1_1(bram_addr_c_1_1),
-  .c_data_1_0_available(c_data_1_0_available),
+  .c_data_0_1_available(c_data_1_0_available),
   .c_data_1_1_available(c_data_1_1_available),
 
   .validity_mask_a_rows(validity_mask_a_rows),
