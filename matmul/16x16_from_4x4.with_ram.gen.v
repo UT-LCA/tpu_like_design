@@ -26,6 +26,7 @@
   input clk,
   input clk_mem,
   input resetn,
+  input pe_resetn,
   input                             PCLK,
   input                             PRESETn,
   input        [`REG_ADDRWIDTH-1:0] PADDR,
@@ -582,6 +583,8 @@ end
   
 wire reset;
 assign reset = ~resetn;
+wire pe_reset;
+assign pe_reset = ~pe_resetn;
   
   wire c_data_3_0_available;
   assign bram_en_c_3_0 = 1'b1;
@@ -643,6 +646,7 @@ assign reset = ~resetn;
   matmul_16x16_systolic u_matmul_16x16_systolic (
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul),
   .address_mat_a(address_mat_a),
@@ -702,6 +706,7 @@ endmodule
 module matmul_16x16_systolic(
   input clk,
   input reset,
+  input pe_reset,
   input start_mat_mul,
   output done_mat_mul,
 
@@ -789,6 +794,7 @@ module matmul_16x16_systolic(
 matmul_4x4_systolic u_matmul_4x4_systolic_0_0(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_0_0),
   .address_mat_a(address_mat_a),
@@ -835,6 +841,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_0_0(
 matmul_4x4_systolic u_matmul_4x4_systolic_0_1(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_0_1),
   .address_mat_a(address_mat_a),
@@ -881,6 +888,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_0_1(
 matmul_4x4_systolic u_matmul_4x4_systolic_0_2(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_0_2),
   .address_mat_a(address_mat_a),
@@ -927,6 +935,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_0_2(
 matmul_4x4_systolic u_matmul_4x4_systolic_0_3(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_0_3),
   .address_mat_a(address_mat_a),
@@ -972,6 +981,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_0_3(
 matmul_4x4_systolic u_matmul_4x4_systolic_1_0(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_1_0),
   .address_mat_a(address_mat_a),
@@ -1018,6 +1028,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_1_0(
 matmul_4x4_systolic u_matmul_4x4_systolic_1_1(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_1_1),
   .address_mat_a(address_mat_a),
@@ -1064,6 +1075,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_1_1(
 matmul_4x4_systolic u_matmul_4x4_systolic_1_2(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_1_2),
   .address_mat_a(address_mat_a),
@@ -1110,6 +1122,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_1_2(
 matmul_4x4_systolic u_matmul_4x4_systolic_1_3(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_1_3),
   .address_mat_a(address_mat_a),
@@ -1155,6 +1168,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_1_3(
 matmul_4x4_systolic u_matmul_4x4_systolic_2_0(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_2_0),
   .address_mat_a(address_mat_a),
@@ -1201,6 +1215,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_2_0(
 matmul_4x4_systolic u_matmul_4x4_systolic_2_1(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_2_1),
   .address_mat_a(address_mat_a),
@@ -1247,6 +1262,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_2_1(
 matmul_4x4_systolic u_matmul_4x4_systolic_2_2(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_2_2),
   .address_mat_a(address_mat_a),
@@ -1293,6 +1309,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_2_2(
 matmul_4x4_systolic u_matmul_4x4_systolic_2_3(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_2_3),
   .address_mat_a(address_mat_a),
@@ -1335,6 +1352,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_2_3(
 matmul_4x4_systolic u_matmul_4x4_systolic_3_0(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_3_0),
   .address_mat_a(address_mat_a),
@@ -1378,6 +1396,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_3_0(
 matmul_4x4_systolic u_matmul_4x4_systolic_3_1(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_3_1),
   .address_mat_a(address_mat_a),
@@ -1421,6 +1440,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_3_1(
 matmul_4x4_systolic u_matmul_4x4_systolic_3_2(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_3_2),
   .address_mat_a(address_mat_a),
@@ -1464,6 +1484,7 @@ matmul_4x4_systolic u_matmul_4x4_systolic_3_2(
 matmul_4x4_systolic u_matmul_4x4_systolic_3_3(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul_3_3),
   .address_mat_a(address_mat_a),

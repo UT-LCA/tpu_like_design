@@ -361,6 +361,8 @@ end
   
 wire reset;
 assign reset = ~resetn;
+wire pe_reset;
+assign pe_reset = ~pe_resetn;
   """)
 
   for i in range(num_of_bram):
@@ -529,6 +531,7 @@ module matmul_{0}x{0}_systolic(
       file.write('matmul_{c}x{c}_systolic u_matmul_{c}x{c}_systolic_{a}_{b}(\n'
   		 '  .clk(clk),\n'
   		 '  .reset(reset),\n'
+  		 '  .pe_reset(pe_reset),\n'
   		 '  .start_mat_mul(start_mat_mul),\n'
   		 '  .done_mat_mul(done_mat_mul_{a}_{b}),'.format(a = i, b = j, c = basic_block_size))
 

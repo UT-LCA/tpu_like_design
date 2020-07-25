@@ -11,6 +11,7 @@ matrix_multiplication u_matmul(
   .clk(clk), 
   .clk_mem(clk),
   .resetn(resetn), 
+  .pe_resetn(resetn), 
   .PCLK(clk),
   .PRESETn(resetn)
   );

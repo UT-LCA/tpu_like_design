@@ -6,7 +6,7 @@ all: compile run
 compile:
 	$(VCS_HOME)/bin/vcs -full64 \
 	8x8_from_4x4.with_ram.gen.v \
-	4x4.organized.no_conv.no_accum.v \
+	4x4.organized.no_conv.no_accum.accum.v \
 	8x8_from_4x4_with_ram.tb.v \
 	-sverilog \
 	-debug_access+all \
