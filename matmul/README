@@ -17,7 +17,7 @@ Following are all generated. Best to generate them from the scripts listed below
 
 16x16 (building block)
 -------------------------------
-16x16.organized.gen.no_conv.v (generated)
+16x16.organized.no_conv.no_accum.gen.v (generated)
 
 16x16 (composed)
 -------------------------------

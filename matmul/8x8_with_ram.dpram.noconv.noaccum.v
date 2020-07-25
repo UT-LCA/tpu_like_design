@@ -21,6 +21,7 @@ module matrix_multiplication(
   clk, 
   clk_mem, 
   resetn, 
+  pe_resetn,
   address_mat_a,
   address_mat_b,
   address_mat_c,
@@ -49,6 +50,7 @@ module matrix_multiplication(
   input clk;
   input clk_mem;
   input resetn;
+  input pe_resetn;
   input [`AWIDTH-1:0] address_mat_a;
   input [`AWIDTH-1:0] address_mat_b;
   input [`AWIDTH-1:0] address_mat_c;
@@ -223,10 +225,13 @@ wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_NC;
 
 wire reset;
 assign reset = ~resetn;
+wire pe_reset;
+assign pe_reset = ~pe_resetn;
 
-matmul u_matmul_8x8(
+matmul_8x8_systolic u_matmul_8x8(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul),
   .address_mat_a(address_mat_a),
@@ -250,6 +255,7 @@ matmul u_matmul_8x8(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
+  .final_mat_mul_size(8'd8),
   .a_loc(8'd0),
   .b_loc(8'd0)
 );

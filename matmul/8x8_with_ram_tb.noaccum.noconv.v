@@ -11,6 +11,7 @@ matrix_multiplication u_matmul(
   .clk(clk), 
   .clk_mem(clk),
   .resetn(resetn), 
+  .pe_resetn(resetn), 
   .address_mat_a(11'b0),
   .address_mat_b(11'b0),
   .address_mat_c(11'b0),

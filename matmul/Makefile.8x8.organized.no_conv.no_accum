@@ -5,8 +5,8 @@ all: compile run
 
 compile:
 	$(VCS_HOME)/bin/vcs -full64 \
-	8x8.organized.no_conv.no_accum.hard_counts.v \
-	8x8_with_ram.dpram.noconv.noaccum.hard_counts.v \
+	8x8.organized.no_conv.no_accum.gen.v \
+	8x8_with_ram.dpram.noconv.noaccum.v \
 	8x8_with_ram_tb.noaccum.noconv.v \
 	-sverilog \
 	-debug_access+all \

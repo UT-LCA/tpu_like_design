@@ -26,6 +26,7 @@ def write_with_ram(file, basic_block_size, final_block_size):
   file.write('  input clk,\n')
   file.write('  input clk_mem,\n')
   file.write('  input resetn,\n')
+  file.write('  input pe_resetn,\n')
   file.write('  input                             PCLK,\n')
   file.write('  input                             PRESETn,\n')
   file.write('  input        [`REG_ADDRWIDTH-1:0] PADDR,\n')
@@ -393,6 +394,7 @@ assign reset = ~resetn;
   matmul_{0}x{0}_systolic u_matmul_{0}x{0}_systolic (
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul),
   .address_mat_a(address_mat_a),
@@ -439,6 +441,7 @@ def write_systolic_matmul(file, basic_block_size, final_block_size):
 module matmul_{0}x{0}_systolic(
   input clk,
   input reset,
+  input pe_reset,
   input start_mat_mul,
   output done_mat_mul,
 
