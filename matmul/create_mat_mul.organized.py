@@ -799,9 +799,9 @@ f.write("""
 
 for i in range(int(systolic_size)-1,-1,-1):
   if accum_code:
-    f.write("matrixC" + str(i) + "_" + "0_added")
+    f.write("matrixC" + str(i) + "_" + str(int(systolic_size)-1) + "_added")
   else:
-    f.write("matrixC" + str(i) + "_" + "0")
+    f.write("matrixC" + str(i) + "_" + str(int(systolic_size)-1))
 
   if i == 0:
     f.write("};\n")
@@ -812,9 +812,9 @@ for i in range(1,int(systolic_size)):
   f.write("      c_data_out_" + str(i) + " <= {")
   for j in range(int(systolic_size)-1,-1,-1):
     if accum_code:
-      f.write("matrixC" + str(j) + "_" + str(i) + "_added")
+      f.write("matrixC" + str(j) + "_" + str(int(systolic_size)-i-1) + "_added")
     else:
-      f.write("matrixC" + str(j) + "_" + str(i))
+      f.write("matrixC" + str(j) + "_" + str(int(systolic_size)-i-1))
     if j == 0:
       f.write("};\n")
     else:

@@ -4,11 +4,8 @@ all: compile run
 
 size?=8
 
-ifeq ($(size),4)
-	FILES=../design/4x4.v
-	DEFINES=+define+MATMUL_SIZE_4
-else
-	FILES=../design/8x8_gen.v
+ifeq ($(size),8)
+	FILES=../design_modif/8x8.organized.no_conv.no_accum.gen.v
 	DEFINES=+define+MATMUL_SIZE_8
 endif
 
@@ -17,15 +14,15 @@ compile:
 	$(DEFINES) \
 	../design/defines.v \
 	$(FILES) \
-	../design/cfg.v \
+	../design_modif/cfg.v \
 	../design/norm.v \
 	../design/ram.v \
 	../design/control.v \
 	../design/pool.v \
 	../design/activation.v \
-	../design/top.v \
-	../verif/layer_test.v \
-	../verif/accum_test.v \
+	../design_modif/top.v \
+	../verif_modif/layer_test.v \
+	../verif_modif/accum_test.v \
 	../verif/conv_test_no_padding.v \
 	../verif/conv_test_with_padding.v \
 	../verif/top_tb.v \
@@ -38,7 +35,7 @@ compile:
 
 compile_one_file_design:
 	$(VCS_HOME)/bin/vcs -full64 \
-	../design/one_file_design.v \
+	../design_modif/one_file_design.v \
 	-sverilog \
 
 run:
