@@ -27,14 +27,13 @@ module matrix_multiplication(
   clk, 
   clk_mem, 
   resetn, 
+  pe_resetn, 
   address_mat_a,
   address_mat_b,
   address_mat_c,
   address_stride_a,
   address_stride_b,
   address_stride_c,
-  save_output_to_accum,
-  add_accum_to_output,
   validity_mask_a_rows,
   validity_mask_a_cols_b_rows,
   validity_mask_b_cols,
@@ -45,14 +44,13 @@ module matrix_multiplication(
   input clk;
   input clk_mem;
   input resetn;
+  input pe_resetn;
   input [`AWIDTH-1:0] address_mat_a;
   input [`AWIDTH-1:0] address_mat_b;
   input [`AWIDTH-1:0] address_mat_c;
   input [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
   input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
   input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
-  input save_output_to_accum;
-  input add_accum_to_output;
   input [`MASK_WIDTH-1:0] validity_mask_a_rows;
   input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
   input [`MASK_WIDTH-1:0] validity_mask_b_cols;
@@ -191,10 +189,13 @@ wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_NC;
 
 wire reset;
 assign reset = ~resetn;
+wire pe_reset;
+assign pe_reset = ~pe_resetn;
 
-matmul u_matmul_8x8(
+matmul_16x16_systolic u_matmul_16x16(
   .clk(clk),
   .reset(reset),
+  .pe_reset(pe_reset),
   .start_mat_mul(start_mat_mul),
   .done_mat_mul(done_mat_mul),
   .address_mat_a(address_mat_a),
@@ -215,8 +216,6 @@ matmul u_matmul_8x8(
   .b_addr(bram_addr_b),
   .c_addr(bram_addr_c),
   .c_data_available(c_data_available),
-  .save_output_to_accum(save_output_to_accum),
-  .add_accum_to_output(add_accum_to_output),
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),

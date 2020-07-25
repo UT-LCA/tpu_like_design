@@ -2093,7 +2093,7 @@ always @(posedge clk) begin
   end else if (done_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= address_mat_c - address_stride_c;
+    c_addr <= address_mat_c + address_stride_c;
     c_data_out <= 0;
 
     c_data_out_1 <= 0;

@@ -2,7 +2,7 @@ export VCS_HOME /usr/local/packages/synopsys_2018/vcs-mx/O-2018.09-SP1
 
 all: compile run
 
-FILES=16x16.organized.gen.no_conv.v
+FILES=16x16.organized.no_conv.no_accum.gen.v
 DEFINES=+define+MATMUL_SIZE_16
 
 compile:
