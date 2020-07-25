@@ -794,7 +794,7 @@ f.write("""
   end else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
-    c_addr <= c_addr - address_stride_c ;
+    c_addr <= c_addr - address_stride_c;
     c_data_out <= {""")
 
 for i in range(int(systolic_size)-1,-1,-1):
@@ -826,7 +826,7 @@ f.write(
   end else if (done_mat_mul) begin
     start_capturing_c_data <= 1'b0;
     c_data_available <= 1'b0;
-    c_addr <= c_addr + address_stride_c ;
+    c_addr <= address_mat_c + address_stride_c;
     c_data_out <= 0;
 """)
 for i in range(1,int(systolic_size)):
@@ -839,7 +839,7 @@ f.write("""
     c_data_out <= c_data_out_1;
     c_addr <= c_addr - address_stride_c; 
 """)
-for i in range(1,int(systolic_size)-2):
+for i in range(1,int(systolic_size)-1):
   f.write("""
     c_data_out_""" + str(i) + """ <= c_data_out_""" + str(i+1) + """;""")
 f.write("""
@@ -853,7 +853,7 @@ f.write("""
     counter <= counter + 1;
     c_data_out <= c_data_out_1;
 """)
-for i in range(1,int(systolic_size)-2):
+for i in range(1,int(systolic_size)-1):
   f.write("""
     c_data_out_""" + str(i) + """ <= c_data_out_""" + str(i+1) + """;""")
 f.write("""

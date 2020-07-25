@@ -21,7 +21,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020-07-22 23:28:40.825328
+// Create Date: 2020-07-25 18:45:03.147540
 // Design Name: 
 // Module Name: matmul_8x8_systolic
 // Project Name: 
@@ -799,15 +799,15 @@ always @(posedge clk) begin
   end else if (condition_to_start_shifting_output) begin
     start_capturing_c_data <= 1'b1;
     c_data_available <= 1'b1;
-    c_addr <= c_addr - address_stride_c ;
-    c_data_out <= {matrixC7_0, matrixC6_0, matrixC5_0, matrixC4_0, matrixC3_0, matrixC2_0, matrixC1_0, matrixC0_0};
-      c_data_out_1 <= {matrixC7_1, matrixC6_1, matrixC5_1, matrixC4_1, matrixC3_1, matrixC2_1, matrixC1_1, matrixC0_1};
-      c_data_out_2 <= {matrixC7_2, matrixC6_2, matrixC5_2, matrixC4_2, matrixC3_2, matrixC2_2, matrixC1_2, matrixC0_2};
-      c_data_out_3 <= {matrixC7_3, matrixC6_3, matrixC5_3, matrixC4_3, matrixC3_3, matrixC2_3, matrixC1_3, matrixC0_3};
-      c_data_out_4 <= {matrixC7_4, matrixC6_4, matrixC5_4, matrixC4_4, matrixC3_4, matrixC2_4, matrixC1_4, matrixC0_4};
-      c_data_out_5 <= {matrixC7_5, matrixC6_5, matrixC5_5, matrixC4_5, matrixC3_5, matrixC2_5, matrixC1_5, matrixC0_5};
-      c_data_out_6 <= {matrixC7_6, matrixC6_6, matrixC5_6, matrixC4_6, matrixC3_6, matrixC2_6, matrixC1_6, matrixC0_6};
-      c_data_out_7 <= {matrixC7_7, matrixC6_7, matrixC5_7, matrixC4_7, matrixC3_7, matrixC2_7, matrixC1_7, matrixC0_7};
+    c_addr <= c_addr - address_stride_c;
+    c_data_out <= {matrixC7_7, matrixC6_7, matrixC5_7, matrixC4_7, matrixC3_7, matrixC2_7, matrixC1_7, matrixC0_7};
+      c_data_out_1 <= {matrixC7_6, matrixC6_6, matrixC5_6, matrixC4_6, matrixC3_6, matrixC2_6, matrixC1_6, matrixC0_6};
+      c_data_out_2 <= {matrixC7_5, matrixC6_5, matrixC5_5, matrixC4_5, matrixC3_5, matrixC2_5, matrixC1_5, matrixC0_5};
+      c_data_out_3 <= {matrixC7_4, matrixC6_4, matrixC5_4, matrixC4_4, matrixC3_4, matrixC2_4, matrixC1_4, matrixC0_4};
+      c_data_out_4 <= {matrixC7_3, matrixC6_3, matrixC5_3, matrixC4_3, matrixC3_3, matrixC2_3, matrixC1_3, matrixC0_3};
+      c_data_out_5 <= {matrixC7_2, matrixC6_2, matrixC5_2, matrixC4_2, matrixC3_2, matrixC2_2, matrixC1_2, matrixC0_2};
+      c_data_out_6 <= {matrixC7_1, matrixC6_1, matrixC5_1, matrixC4_1, matrixC3_1, matrixC2_1, matrixC1_1, matrixC0_1};
+      c_data_out_7 <= {matrixC7_0, matrixC6_0, matrixC5_0, matrixC4_0, matrixC3_0, matrixC2_0, matrixC1_0, matrixC0_0};
 
     counter <= counter + 1;
   end else if (done_mat_mul) begin
@@ -833,6 +833,7 @@ always @(posedge clk) begin
     c_data_out_3 <= c_data_out_4;
     c_data_out_4 <= c_data_out_5;
     c_data_out_5 <= c_data_out_6;
+    c_data_out_6 <= c_data_out_7;
     c_data_out_7 <= c_data_in;
   end
   else if (start_capturing_c_data) begin
@@ -846,6 +847,7 @@ always @(posedge clk) begin
     c_data_out_3 <= c_data_out_4;
     c_data_out_4 <= c_data_out_5;
     c_data_out_5 <= c_data_out_6;
+    c_data_out_6 <= c_data_out_7;
     c_data_out_7 <= c_data_in;
   end
 end

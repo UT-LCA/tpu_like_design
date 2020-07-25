@@ -421,7 +421,7 @@ begin
   //First pass
   /////////////////////////////////////////////////////////////////
   //Set save_output_to_accum = 1 and set add_accum_to_output = 1 (even though we don't need to add)
-  write(`REG_ACCUM_ACTIONS_ADDR, 32'h0000_0003);
+  //write(`REG_ACCUM_ACTIONS_ADDR, 32'h0000_0003);
   //Configure addresses
   //We don't need to configure C addr right now actually because output won't be written to bram
   //But it's okay. Let's do it now anyway.
@@ -431,7 +431,8 @@ begin
 
   $display("Start the TPU for first pass");
   //start = 1;
-  write(`REG_STDN_TPU_ADDR, 32'h0000_0001);
+  //also pe_reset = 1
+  write(`REG_STDN_TPU_ADDR, 32'h0000_8001);
   
   $display("Wait until TPU is done");
   do 
@@ -476,7 +477,7 @@ begin
   //Third pass
   /////////////////////////////////////////////////////////////////
   //Set save_output_to_accum = 0 and set add_accum_to_output = 1 
-  write(`REG_ACCUM_ACTIONS_ADDR, 32'h0000_0002);
+  //write(`REG_ACCUM_ACTIONS_ADDR, 32'h0000_0002);
   //Configure strides to 12 (because we have 3 tiles in each direction)
   //Already configured in step 1
   //Configure addresses. Matrix C address is already configured.
