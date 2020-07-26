@@ -145,10 +145,14 @@ always @(posedge PCLK) begin
           `REG_MATRIX_A_ADDR  : address_mat_a <= PWDATA[`AWIDTH-1:0];
           `REG_MATRIX_B_ADDR  : address_mat_b <= PWDATA[`AWIDTH-1:0];
           `REG_MATRIX_C_ADDR  : address_mat_c <= PWDATA[`AWIDTH-1:0];
-          `REG_VALID_MASK_ADDR: begin
+          `REG_VALID_MASK_A_ROWS_ADDR: begin
                                 validity_mask_a_rows <= PWDATA[`MASK_WIDTH-1:0];
-                                validity_mask_a_cols_b_rows <= PWDATA[2*`MASK_WIDTH-1:`MASK_WIDTH];
-                                validity_mask_b_cols <= PWDATA[3*`MASK_WIDTH-1:2*`MASK_WIDTH];
+                                end
+          `REG_VALID_MASK_A_COLS_B_ROWS_ADDR: begin
+                                validity_mask_a_cols_b_rows <= PWDATA[`MASK_WIDTH-1:0];
+                                end
+          `REG_VALID_MASK_B_COLS_ADDR: begin
+                                validity_mask_b_cols <= PWDATA[`MASK_WIDTH-1:0];
                                 end
           `REG_POOL_WINDOW_ADDR: pool_window_size <= PWDATA[`MAX_BITS_POOL-1:0];
 					`REG_ACCUM_ACTIONS_ADDR: begin
@@ -200,7 +204,9 @@ always @(posedge PCLK) begin
           `REG_MATRIX_A_ADDR  : PRDATA <= address_mat_a;
           `REG_MATRIX_B_ADDR  : PRDATA <= address_mat_b;
           `REG_MATRIX_C_ADDR  : PRDATA <= address_mat_c;
-          `REG_VALID_MASK_ADDR: PRDATA <= {validity_mask_b_cols, validity_mask_a_cols_b_rows, validity_mask_a_rows};
+          `REG_VALID_MASK_A_ROWS_ADDR: PRDATA <= validity_mask_a_rows;
+          `REG_VALID_MASK_A_COLS_B_ROWS_ADDR: PRDATA <= validity_mask_a_cols_b_rows;
+          `REG_VALID_MASK_B_COLS_ADDR: PRDATA <= validity_mask_b_cols;
           `REG_POOL_WINDOW_ADDR : PRDATA <= pool_window_size;
 					`REG_ACCUM_ACTIONS_ADDR: PRDATA <= {30'b0, add_accum_to_output, save_output_to_accum};
           `REG_MATRIX_A_STRIDE_ADDR : PRDATA <= address_stride_a;

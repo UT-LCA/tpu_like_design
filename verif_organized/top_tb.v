@@ -100,10 +100,12 @@ endtask
 // Instantiate the test modules
 ////////////////////////////////////////////
 layer_test u_layer_test();
+
+//For now, for the 16x16, I'm only testing the basic layer test
+`ifndef MATMUL_SIZE_16
 accum_test u_accum_test();
 npo2_test u_npo2_test();
-conv_test_no_padding u_conv_test_no_padding();
-conv_test_with_padding u_conv_test_with_padding();
+`endif
 
 ////////////////////////////////////////////
 // Main routine. Calls the appropriate task
@@ -128,15 +130,15 @@ initial begin
   //Call the respective task
   if ($test$plusargs("layer_test")) begin
     u_layer_test.run();
-  end else if ($test$plusargs("accum_test")) begin
+  end 
+//For now, for the 16x16, I'm only testing the basic layer test
+`ifndef MATMUL_SIZE_16
+  else if ($test$plusargs("accum_test")) begin
 	  u_accum_test.run();
   end else if ($test$plusargs("npo2_test")) begin
 	  u_npo2_test.run();
-  end else if ($test$plusargs("conv_test_no_padding")) begin
-	  u_conv_test_no_padding.run();
-  end else if ($test$plusargs("conv_test_with_padding")) begin
-	  u_conv_test_with_padding.run();
-  end
+  end 
+ `endif 
  
   $display("Finishing simulation");
   //A little bit of drain time before we finish

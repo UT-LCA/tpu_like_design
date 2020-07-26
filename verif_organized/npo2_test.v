@@ -237,11 +237,11 @@ begin
 
   if ((tile_x == 1) && (tile_y == 0)) begin
     //Set rows 7-8 of A as invalid.
-    write(`REG_VALID_MASK_ADDR, 32'hffff_ff3f);
+    write(`REG_VALID_MASK_A_ROWS_ADDR, 32'hffff_ff3f);
   end
   if ((tile_x == 1) && (tile_y == 1)) begin
     //Set rows 7-8 of A as invalid.
-    write(`REG_VALID_MASK_ADDR, 32'hffff_ff3f);
+    write(`REG_VALID_MASK_A_ROWS_ADDR, 32'hffff_ff3f);
   end
 
   //Set save_output_to_accum = 1 and set add_accum_to_output = 1 (even though we don't need to add)
@@ -279,19 +279,23 @@ begin
 
   if ((tile_x == 0) && (tile_y == 0)) begin
     //Set cols4-7 of A as invalid.
-    write(`REG_VALID_MASK_ADDR, 32'hffff_0fff);
+    write(`REG_VALID_MASK_A_COLS_B_ROWS_ADDR, 32'hffff_0fff);
   end
   if ((tile_x == 0) && (tile_y == 1)) begin
     //Set cols4-7 of A as invalid.
-    write(`REG_VALID_MASK_ADDR, 32'hffff_0fff);
+    write(`REG_VALID_MASK_A_COLS_B_ROWS_ADDR, 32'hffff_0fff);
   end
   if ((tile_x == 1) && (tile_y == 0)) begin
-    //Set cols 4-7 of A as invalid. rows 7-8 of A as invalid.
-    write(`REG_VALID_MASK_ADDR, 32'hffff_0f3f);
+    //Set cols 4-7 of A as invalid. 
+    write(`REG_VALID_MASK_A_COLS_B_ROWS_ADDR, 32'hffff_ff0f);
+    //Set rows 7-8 of A as invalid.
+    write(`REG_VALID_MASK_A_ROWS_ADDR, 32'hffff_ff3f);
   end
   if ((tile_x == 1) && (tile_y == 1)) begin
-    //Set cols 4-7 of A as invalid. rows 7-8 of A as invalid.
-    write(`REG_VALID_MASK_ADDR, 32'hffff_0f3f);
+    //Set cols 4-7 of A as invalid. 
+    write(`REG_VALID_MASK_A_COLS_B_ROWS_ADDR, 32'hffff_ff0f);
+    //Set rows 7-8 of A as invalid.
+    write(`REG_VALID_MASK_A_ROWS_ADDR, 32'hffff_ff3f);
   end
 
   //Set save_output_to_accum = 1 and set add_accum_to_output = 1 
