@@ -997,14 +997,14 @@ end
 
 wire a_data_valid; //flag that tells whether the data from memory is valid
 assign a_data_valid = 
-     ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==0) ||
-      (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==1) ||
-      (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==2) ||
-      (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==3) ||
-      (validity_mask_a_cols_b_rows[4]==1'b0 && a_mem_access_counter==4) ||
-      (validity_mask_a_cols_b_rows[5]==1'b0 && a_mem_access_counter==5) ||
-      (validity_mask_a_cols_b_rows[6]==1'b0 && a_mem_access_counter==6) ||
-      (validity_mask_a_cols_b_rows[7]==1'b0 && a_mem_access_counter==7)) ?
+     ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==1) ||
+      (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==2) ||
+      (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==3) ||
+      (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==4) ||
+      (validity_mask_a_cols_b_rows[4]==1'b0 && a_mem_access_counter==5) ||
+      (validity_mask_a_cols_b_rows[5]==1'b0 && a_mem_access_counter==6) ||
+      (validity_mask_a_cols_b_rows[6]==1'b0 && a_mem_access_counter==7) ||
+      (validity_mask_a_cols_b_rows[7]==1'b0 && a_mem_access_counter==8)) ?
     
     1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
@@ -1159,14 +1159,14 @@ end
 
 wire b_data_valid; //flag that tells whether the data from memory is valid
 assign b_data_valid = 
-     ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==0) ||
-      (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==1) ||
-      (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==2) ||
-      (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==3) ||
-      (validity_mask_a_cols_b_rows[4]==1'b0 && b_mem_access_counter==4) ||
-      (validity_mask_a_cols_b_rows[5]==1'b0 && b_mem_access_counter==5) ||
-      (validity_mask_a_cols_b_rows[6]==1'b0 && b_mem_access_counter==6) ||
-      (validity_mask_a_cols_b_rows[7]==1'b0 && b_mem_access_counter==7)) ?
+     ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==1) ||
+      (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==2) ||
+      (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==3) ||
+      (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==4) ||
+      (validity_mask_a_cols_b_rows[4]==1'b0 && b_mem_access_counter==5) ||
+      (validity_mask_a_cols_b_rows[5]==1'b0 && b_mem_access_counter==6) ||
+      (validity_mask_a_cols_b_rows[6]==1'b0 && b_mem_access_counter==7) ||
+      (validity_mask_a_cols_b_rows[7]==1'b0 && b_mem_access_counter==8)) ?
     
         1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
 

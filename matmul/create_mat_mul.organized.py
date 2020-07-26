@@ -1063,11 +1063,11 @@ assign a_data_valid =
 """)
 for i in range(int(systolic_size)):
   if i==0:
-    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
+    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i+1) + ") ||\n")
   elif i==(int(systolic_size)-1):
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ")) ?\n")
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i+1) + ")) ?\n")
   else:
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i) + ") ||\n")
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i+1) + ") ||\n")
 f.write("""    
     1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
@@ -1201,11 +1201,11 @@ assign b_data_valid =
 """)
 for i in range(int(systolic_size)):
   if i==0:
-    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
+    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i+1) + ") ||\n")
   elif i==(int(systolic_size)-1):
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ")) ?\n")
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i+1) + ")) ?\n")
   else:
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i) + ") ||\n")
+    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i+1) + ") ||\n")
 f.write("""    
         1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
 

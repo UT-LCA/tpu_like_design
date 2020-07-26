@@ -25,7 +25,8 @@ compile:
 	../verif_modif/accum_test.v \
 	../verif/conv_test_no_padding.v \
 	../verif/conv_test_with_padding.v \
-	../verif/top_tb.v \
+	../verif_modif/npo2_test.v \
+	../verif_modif/top_tb.v \
 	-sverilog \
 	-debug_access+all \
 	-y /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
@@ -52,6 +53,9 @@ run_activation_disabled:
 
 run_accumulator:
 	./simv +accum_test +norm_disabled +pool_disabled +activation_disabled
+
+run_npo2:
+	./simv +npo2_test +norm_disabled +pool_disabled +activation_disabled
 
 run_conv_no_pad:
 	./simv +conv_test_no_padding +norm_disabled +pool_disabled +activation_disabled

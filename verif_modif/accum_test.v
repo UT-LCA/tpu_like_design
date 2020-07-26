@@ -18,7 +18,7 @@ integer inv_var = 1;
 `ifdef MATMUL_SIZE_4
 integer a_start_addr = 0;
 integer b_start_addr = 0;
-integer c_start_addr = 200;
+integer c_start_addr = 200;//TODO: Need to fix this based on the updated matmul that takes c_addr from the last column
 integer problem_size = 12;
 
 //////////////////////////////////////////////
@@ -124,7 +124,7 @@ reg [`DWIDTH-1:0] c[12][12] =
 `ifdef MATMUL_SIZE_8
 integer a_start_addr = 0;
 integer b_start_addr = 0;
-integer c_start_addr = 600;
+integer c_start_addr = 600;//TODO: Need to fix this based on the updated matmul that takes c_addr from the last column
 integer problem_size = 24;
 
 //////////////////////////////////////////////
@@ -427,6 +427,7 @@ begin
   //But it's okay. Let's do it now anyway.
   write(`REG_MATRIX_A_ADDR, a_start_addr + tile_x*`MAT_MUL_SIZE);
   write(`REG_MATRIX_B_ADDR, b_start_addr + tile_y*`MAT_MUL_SIZE);
+  //TODO: Need to fix this based on the updated matmul that takes c_addr from the last column
   write(`REG_MATRIX_C_ADDR, c_start_addr + tile_x*`MAT_MUL_SIZE + tile_y*`MAT_MUL_SIZE*problem_size);
 
   $display("Start the TPU for first pass");
