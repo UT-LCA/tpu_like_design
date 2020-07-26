@@ -1,0 +1,71 @@
+ 
+****************************************
+Report : area
+Design : matmul_8x8_systolic
+Version: O-2018.06-SP5
+Date   : Sun Jul 26 17:42:15 2020
+****************************************
+
+Library(s) Used:
+
+    gscl45nm (File: /home/projects/ljohn/aarora1/FreePDK45/FreePDK45/osu_soc/lib/files/gscl45nm.db)
+
+Number of ports:                        18082
+Number of nets:                         65952
+Number of cells:                        48158
+Number of combinational cells:          42428
+Number of sequential cells:              4856
+Number of macros/black boxes:               0
+Number of buf/inv:                      15076
+Number of references:                       4
+
+Combinational area:             117548.385483
+Buf/Inv area:                    25201.409398
+Noncombinational area:           38741.652740
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                156290.038223
+Total area:                 undefined
+
+Hierarchical area distribution
+------------------------------
+
+                                  Global cell area              Local cell area
+                                  --------------------  ------------------------------- 
+Hierarchical cell                 Absolute     Percent  Combi-       Noncombi-   Black-
+                                  Total        Total    national     national    boxes   Design
+--------------------------------  -----------  -------  -----------  ----------  ------  --------------------------------
+matmul_8x8_systolic               156290.0382    100.0       0.0000      0.0000  0.0000  matmul_8x8_systolic
+u_matmul_4x4_systolic_0_0          39072.5096     25.0     407.8217     71.8029  0.0000  matmul_4x4_systolic_0
+u_matmul_4x4_systolic_0_0/u_output_logic
+                                    3824.7949      2.4    2025.0295   1380.2113  0.0000  output_logic_0
+u_matmul_4x4_systolic_0_0/u_systolic_data_setup
+                                    2692.3741      1.7    1060.1487   1085.0216  0.0000  systolic_data_setup_0
+u_matmul_4x4_systolic_0_0/u_systolic_pe_matrix
+                                   32041.4571     20.5       5.1623      0.0000  0.0000  systolic_pe_matrix_0
+u_matmul_4x4_systolic_0_1          39072.5096     25.0     407.8217     71.8029  0.0000  matmul_4x4_systolic_3
+u_matmul_4x4_systolic_0_1/u_output_logic
+                                    3824.7949      2.4    2025.0295   1380.2113  0.0000  output_logic_3
+u_matmul_4x4_systolic_0_1/u_systolic_data_setup
+                                    2692.3741      1.7    1060.1487   1085.0216  0.0000  systolic_data_setup_3
+u_matmul_4x4_systolic_0_1/u_systolic_pe_matrix
+                                   32041.4571     20.5       5.1623      0.0000  0.0000  systolic_pe_matrix_3
+u_matmul_4x4_systolic_1_0          39072.5096     25.0     407.8217     71.8029  0.0000  matmul_4x4_systolic_2
+u_matmul_4x4_systolic_1_0/u_output_logic
+                                    3824.7949      2.4    2025.0295   1380.2113  0.0000  output_logic_2
+u_matmul_4x4_systolic_1_0/u_systolic_data_setup
+                                    2692.3741      1.7    1060.1487   1085.0216  0.0000  systolic_data_setup_2
+u_matmul_4x4_systolic_1_0/u_systolic_pe_matrix
+                                   32041.4571     20.5       5.1623      0.0000  0.0000  systolic_pe_matrix_2
+u_matmul_4x4_systolic_1_1          39072.5096     25.0     407.8217     71.8029  0.0000  matmul_4x4_systolic_1
+u_matmul_4x4_systolic_1_1/u_output_logic
+                                    3824.7949      2.4    2025.0295   1380.2113  0.0000  output_logic_1
+u_matmul_4x4_systolic_1_1/u_systolic_data_setup
+                                    2692.3741      1.7    1060.1487   1085.0216  0.0000  systolic_data_setup_1
+u_matmul_4x4_systolic_1_1/u_systolic_pe_matrix
+                                   32041.4571     20.5       5.1623      0.0000  0.0000  systolic_pe_matrix_1
+--------------------------------  -----------  -------  -----------  ----------  ------  --------------------------------
+Total                                                   117548.3855  38741.6527  0.0000
+
+1

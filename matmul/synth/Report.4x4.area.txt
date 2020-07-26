@@ -1,0 +1,219 @@
+ 
+****************************************
+Report : area
+Design : matmul_4x4_systolic
+Version: O-2018.06-SP5
+Date   : Sun Jul 26 17:29:26 2020
+****************************************
+
+Library(s) Used:
+
+    gscl45nm (File: /home/projects/ljohn/aarora1/FreePDK45/FreePDK45/osu_soc/lib/files/gscl45nm.db)
+
+Number of ports:                         4437
+Number of nets:                         16328
+Number of cells:                        12010
+Number of combinational cells:          10659
+Number of sequential cells:              1214
+Number of macros/black boxes:               0
+Number of buf/inv:                       3821
+Number of references:                      14
+
+Combinational area:              29460.307169
+Buf/Inv area:                     6373.563148
+Noncombinational area:            9685.413185
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                 39145.720355
+Total area:                 undefined
+
+Hierarchical area distribution
+------------------------------
+
+                                  Global cell area            Local cell area
+                                  -------------------  ----------------------------- 
+Hierarchical cell                 Absolute    Percent  Combi-      Noncombi-  Black-
+                                  Total       Total    national    national   boxes   Design
+--------------------------------  ----------  -------  ----------  ---------  ------  ------------------------------
+matmul_4x4_systolic               39145.7204    100.0    407.8217    71.8029  0.0000  matmul_4x4_systolic
+r324                                 34.2589      0.1     34.2589     0.0000  0.0000  matmul_4x4_systolic_DW01_inc_0
+u_output_logic                     3837.4660      9.8   2037.7006  1380.2113  0.0000  output_logic
+u_output_logic/r329                  88.2284      0.2     88.2284     0.0000  0.0000  output_logic_DW01_add_0
+u_output_logic/r330                  99.4916      0.3     99.4916     0.0000  0.0000  output_logic_DW01_sub_0
+u_output_logic/r331                 146.8909      0.4    146.8909     0.0000  0.0000  output_logic_DW01_inc_0
+u_output_logic/sub_415_2             84.9433      0.2     84.9433     0.0000  0.0000  output_logic_DW01_dec_0
+u_systolic_data_setup              2692.3741      6.9   1060.1487  1085.0216  0.0000  systolic_data_setup
+u_systolic_data_setup/add_571        51.6230      0.1     51.6230     0.0000  0.0000  systolic_data_setup_DW01_add_3
+u_systolic_data_setup/add_579        88.2284      0.2     88.2284     0.0000  0.0000  systolic_data_setup_DW01_add_1
+u_systolic_data_setup/add_593        34.2589      0.1     34.2589     0.0000  0.0000  systolic_data_setup_DW01_inc_1
+u_systolic_data_setup/add_653        51.6230      0.1     51.6230     0.0000  0.0000  systolic_data_setup_DW01_add_2
+u_systolic_data_setup/add_660        88.2284      0.2     88.2284     0.0000  0.0000  systolic_data_setup_DW01_add_0
+u_systolic_data_setup/add_674        34.2589      0.1     34.2589     0.0000  0.0000  systolic_data_setup_DW01_inc_0
+u_systolic_data_setup/sub_572        99.4916      0.3     99.4916     0.0000  0.0000  systolic_data_setup_DW01_sub_1
+u_systolic_data_setup/sub_654        99.4916      0.3     99.4916     0.0000  0.0000  systolic_data_setup_DW01_sub_0
+u_systolic_pe_matrix              32101.9968     82.0      9.3860     0.0000  0.0000  systolic_pe_matrix
+u_systolic_pe_matrix/pe00          2005.7882      5.1     40.3598   127.6496  0.0000  processing_element_0
+u_systolic_pe_matrix/pe00/u_mac    1837.7788      4.7    169.4173   319.1240  0.0000  seq_mac_0
+u_systolic_pe_matrix/pe00/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_0
+u_systolic_pe_matrix/pe00/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_0_DW01_add_0
+u_systolic_pe_matrix/pe00/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_0
+u_systolic_pe_matrix/pe00/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_0_DW_mult_uns_0
+u_systolic_pe_matrix/pe01          2004.3803      5.1     40.3598   127.6496  0.0000  processing_element_15
+u_systolic_pe_matrix/pe01/u_mac    1836.3709      4.7    168.0094   319.1240  0.0000  seq_mac_15
+u_systolic_pe_matrix/pe01/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_15
+u_systolic_pe_matrix/pe01/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_15_DW01_add_0
+u_systolic_pe_matrix/pe01/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_15
+u_systolic_pe_matrix/pe01/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_15_DW_mult_uns_0
+u_systolic_pe_matrix/pe02          2007.1961      5.1     40.3598   127.6496  0.0000  processing_element_14
+u_systolic_pe_matrix/pe02/u_mac    1839.1867      4.7    170.8252   319.1240  0.0000  seq_mac_14
+u_systolic_pe_matrix/pe02/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_14
+u_systolic_pe_matrix/pe02/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_14_DW01_add_0
+u_systolic_pe_matrix/pe02/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_14
+u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_14_DW_mult_uns_0
+u_systolic_pe_matrix/pe03          2005.7882      5.1     40.3598   127.6496  0.0000  processing_element_13
+u_systolic_pe_matrix/pe03/u_mac    1837.7788      4.7    169.4173   319.1240  0.0000  seq_mac_13
+u_systolic_pe_matrix/pe03/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_13
+u_systolic_pe_matrix/pe03/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_13_DW01_add_0
+u_systolic_pe_matrix/pe03/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_13
+u_systolic_pe_matrix/pe03/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_13_DW_mult_uns_0
+u_systolic_pe_matrix/pe10          2005.7882      5.1     40.3598   127.6496  0.0000  processing_element_12
+u_systolic_pe_matrix/pe10/u_mac    1837.7788      4.7    169.4173   319.1240  0.0000  seq_mac_12
+u_systolic_pe_matrix/pe10/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_12
+u_systolic_pe_matrix/pe10/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_12_DW01_add_0
+u_systolic_pe_matrix/pe10/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_12
+u_systolic_pe_matrix/pe10/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_12_DW_mult_uns_0
+u_systolic_pe_matrix/pe11          2004.3803      5.1     40.3598   127.6496  0.0000  processing_element_11
+u_systolic_pe_matrix/pe11/u_mac    1836.3709      4.7    168.0094   319.1240  0.0000  seq_mac_11
+u_systolic_pe_matrix/pe11/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_11
+u_systolic_pe_matrix/pe11/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_11_DW01_add_0
+u_systolic_pe_matrix/pe11/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_11
+u_systolic_pe_matrix/pe11/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_11_DW_mult_uns_0
+u_systolic_pe_matrix/pe12          2004.3803      5.1     40.3598   127.6496  0.0000  processing_element_10
+u_systolic_pe_matrix/pe12/u_mac    1836.3709      4.7    168.0094   319.1240  0.0000  seq_mac_10
+u_systolic_pe_matrix/pe12/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_10
+u_systolic_pe_matrix/pe12/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_10_DW01_add_0
+u_systolic_pe_matrix/pe12/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_10
+u_systolic_pe_matrix/pe12/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_10_DW_mult_uns_0
+u_systolic_pe_matrix/pe13          2004.3803      5.1     40.3598   127.6496  0.0000  processing_element_9
+u_systolic_pe_matrix/pe13/u_mac    1836.3709      4.7    168.0094   319.1240  0.0000  seq_mac_9
+u_systolic_pe_matrix/pe13/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_9
+u_systolic_pe_matrix/pe13/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_9_DW01_add_0
+u_systolic_pe_matrix/pe13/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_9
+u_systolic_pe_matrix/pe13/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_9_DW_mult_uns_0
+u_systolic_pe_matrix/pe20          2007.1961      5.1     40.3598   127.6496  0.0000  processing_element_8
+u_systolic_pe_matrix/pe20/u_mac    1839.1867      4.7    170.8252   319.1240  0.0000  seq_mac_8
+u_systolic_pe_matrix/pe20/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_8
+u_systolic_pe_matrix/pe20/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_8_DW01_add_0
+u_systolic_pe_matrix/pe20/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_8
+u_systolic_pe_matrix/pe20/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_8_DW_mult_uns_0
+u_systolic_pe_matrix/pe21          2007.1961      5.1     40.3598   127.6496  0.0000  processing_element_7
+u_systolic_pe_matrix/pe21/u_mac    1839.1867      4.7    170.8252   319.1240  0.0000  seq_mac_7
+u_systolic_pe_matrix/pe21/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_7
+u_systolic_pe_matrix/pe21/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_7_DW01_add_0
+u_systolic_pe_matrix/pe21/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_7
+u_systolic_pe_matrix/pe21/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_7_DW_mult_uns_0
+u_systolic_pe_matrix/pe22          2007.1961      5.1     40.3598   127.6496  0.0000  processing_element_6
+u_systolic_pe_matrix/pe22/u_mac    1839.1867      4.7    170.8252   319.1240  0.0000  seq_mac_6
+u_systolic_pe_matrix/pe22/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_6
+u_systolic_pe_matrix/pe22/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_6_DW01_add_0
+u_systolic_pe_matrix/pe22/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_6
+u_systolic_pe_matrix/pe22/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_6_DW_mult_uns_0
+u_systolic_pe_matrix/pe23          2005.7882      5.1     40.3598   127.6496  0.0000  processing_element_5
+u_systolic_pe_matrix/pe23/u_mac    1837.7788      4.7    169.4173   319.1240  0.0000  seq_mac_5
+u_systolic_pe_matrix/pe23/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_5
+u_systolic_pe_matrix/pe23/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_5_DW01_add_0
+u_systolic_pe_matrix/pe23/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_5
+u_systolic_pe_matrix/pe23/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_5_DW_mult_uns_0
+u_systolic_pe_matrix/pe30          2005.7882      5.1     40.3598   127.6496  0.0000  processing_element_4
+u_systolic_pe_matrix/pe30/u_mac    1837.7788      4.7    169.4173   319.1240  0.0000  seq_mac_4
+u_systolic_pe_matrix/pe30/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_4
+u_systolic_pe_matrix/pe30/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_4_DW01_add_0
+u_systolic_pe_matrix/pe30/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_4
+u_systolic_pe_matrix/pe30/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_4_DW_mult_uns_0
+u_systolic_pe_matrix/pe31          2005.7882      5.1     40.3598   127.6496  0.0000  processing_element_3
+u_systolic_pe_matrix/pe31/u_mac    1837.7788      4.7    169.4173   319.1240  0.0000  seq_mac_3
+u_systolic_pe_matrix/pe31/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_3
+u_systolic_pe_matrix/pe31/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_3_DW01_add_0
+u_systolic_pe_matrix/pe31/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_3
+u_systolic_pe_matrix/pe31/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_3_DW_mult_uns_0
+u_systolic_pe_matrix/pe32          2005.7882      5.1     40.3598   127.6496  0.0000  processing_element_2
+u_systolic_pe_matrix/pe32/u_mac    1837.7788      4.7    169.4173   319.1240  0.0000  seq_mac_2
+u_systolic_pe_matrix/pe32/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_2
+u_systolic_pe_matrix/pe32/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_2_DW01_add_0
+u_systolic_pe_matrix/pe32/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_2
+u_systolic_pe_matrix/pe32/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_2_DW_mult_uns_0
+u_systolic_pe_matrix/pe33          2005.7882      5.1     40.3598   127.6496  0.0000  processing_element_1
+u_systolic_pe_matrix/pe33/u_mac    1837.7788      4.7    169.4173   319.1240  0.0000  seq_mac_1
+u_systolic_pe_matrix/pe33/u_mac/add_u1
+                                     69.4564      0.2      0.0000     0.0000  0.0000  qadd_1
+u_systolic_pe_matrix/pe33/u_mac/add_u1/add_968
+                                     69.4564      0.2     69.4564     0.0000  0.0000  qadd_1_DW01_add_0
+u_systolic_pe_matrix/pe33/u_mac/mult_u1
+                                   1279.7811      3.3      0.0000     0.0000  0.0000  qmult_1
+u_systolic_pe_matrix/pe33/u_mac/mult_u1/mult_954
+                                   1279.7811      3.3   1279.7811     0.0000  0.0000  qmult_1_DW_mult_uns_0
+--------------------------------  ----------  -------  ----------  ---------  ------  ------------------------------
+Total                                                  29460.3072  9685.4132  0.0000
+
+1

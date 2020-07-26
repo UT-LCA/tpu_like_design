@@ -1,0 +1,46 @@
+ 
+****************************************
+Report : area
+Design : matmul_8x8_systolic
+Version: O-2018.06-SP5
+Date   : Sun Jul 26 17:11:20 2020
+****************************************
+
+Library(s) Used:
+
+    gscl45nm (File: /home/projects/ljohn/aarora1/FreePDK45/FreePDK45/osu_soc/lib/files/gscl45nm.db)
+
+Number of ports:                        14489
+Number of nets:                         58650
+Number of cells:                        44466
+Number of combinational cells:          39360
+Number of sequential cells:              4638
+Number of macros/black boxes:               0
+Number of buf/inv:                      13839
+Number of references:                      14
+
+Combinational area:             108992.577293
+Buf/Inv area:                    23262.731140
+Noncombinational area:           37002.426979
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                145995.004272
+Total area:                 undefined
+
+Hierarchical area distribution
+------------------------------
+
+                                  Global cell area              Local cell area
+                                  --------------------  ------------------------------- 
+Hierarchical cell                 Absolute     Percent  Combi-       Noncombi-   Black-
+                                  Total        Total    national     national    boxes   Design
+--------------------------------  -----------  -------  -----------  ----------  ------  ------------------------------
+matmul_8x8_systolic               145995.0043    100.0     708.1737     71.8029  0.0000  matmul_8x8_systolic
+u_output_logic                     10808.9174      7.4    5945.5616   4443.8016  0.0000  output_logic
+u_systolic_data_setup               6258.1154      4.3    1920.8448   3893.3127  0.0000  systolic_data_setup
+u_systolic_pe_matrix              128113.7360     87.8       7.9781      0.0000  0.0000  systolic_pe_matrix
+--------------------------------  -----------  -------  -----------  ----------  ------  ------------------------------
+Total                                                   108992.5773  37002.4270  0.0000
+
+1

@@ -41,7 +41,8 @@ compile:
 
 compile_one_file_design:
 	$(VCS_HOME)/bin/vcs -full64 \
-	../design_organized/one_file_design.v \
+	../design_organized/one_file_design_$(size)x$(size).v \
+	+define+SIMULATION \
 	-sverilog \
 
 run:
