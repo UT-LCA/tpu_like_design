@@ -315,7 +315,7 @@ always @(posedge clk) begin
     end
     else begin
       bram_wdata_a <= 0;
-      bram_addr_a_for_writing <= address_mat_c-address_stride_c;
+      bram_addr_a_for_writing <= address_mat_c + address_stride_c;
       bram_a_wdata_available <= 0;
     end
   end
@@ -327,7 +327,7 @@ always @(posedge clk) begin
     end
     else begin
       bram_wdata_a <= activation_data_out;
-      bram_addr_a_for_writing <= bram_addr_a_for_writing + address_stride_c;
+      bram_addr_a_for_writing <= bram_addr_a_for_writing - address_stride_c;
       bram_a_wdata_available <= activation_out_data_available;
     end
   end
@@ -339,7 +339,7 @@ always @(posedge clk) begin
     end
     else begin
       bram_wdata_a <= 0;
-      bram_addr_a_for_writing <= address_mat_c-address_stride_c;
+      bram_addr_a_for_writing <= address_mat_c + address_stride_c;
       bram_a_wdata_available <= 0;
     end
   end
