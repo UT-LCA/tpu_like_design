@@ -24,17 +24,17 @@ reg  [`REG_DATAWIDTH-1:0] PWDATA;
 wire [`REG_DATAWIDTH-1:0] PRDATA;
 wire PREADY;
 wire [`AWIDTH-1:0] bram_addr_a_ext;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_ext;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_ext;
-wire [`MASK_WIDTH-1:0] bram_we_a_ext;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] bram_rdata_a_ext;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] bram_wdata_a_ext;
+wire [`DESIGN_SIZE-1:0] bram_we_a_ext;
 wire [`AWIDTH-1:0] bram_addr_b_ext;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_ext;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_ext;
-wire [`MASK_WIDTH-1:0] bram_we_b_ext;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] bram_rdata_b_ext;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] bram_wdata_b_ext;
+wire [`DESIGN_SIZE-1:0] bram_we_b_ext;
 wire [`AWIDTH-1:0] bram_addr_c_ext;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_ext;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_ext;
-wire [`MASK_WIDTH-1:0] bram_we_c_ext;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] bram_rdata_c_ext;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] bram_wdata_c_ext;
+wire [`DESIGN_SIZE-1:0] bram_we_c_ext;
 
 ////////////////////////////////////////////
 //Instance of the DUT
@@ -102,7 +102,7 @@ endtask
 layer_test u_layer_test();
 
 //For now, for the 16x16, I'm only testing the basic layer test
-`ifndef MATMUL_SIZE_16
+`ifdef MORE_TESTS
 accum_test u_accum_test();
 npo2_test u_npo2_test();
 `endif
@@ -132,7 +132,7 @@ initial begin
     u_layer_test.run();
   end 
 //For now, for the 16x16, I'm only testing the basic layer test
-`ifndef MATMUL_SIZE_16
+`ifdef MORE_TESTS
   else if ($test$plusargs("accum_test")) begin
 	  u_accum_test.run();
   end else if ($test$plusargs("npo2_test")) begin

@@ -87,9 +87,9 @@ always @(posedge PCLK) begin
     validity_mask_b_cols <= {`MASK_WIDTH{1'b1}};
     save_output_to_accum <= 0;
     add_accum_to_output <= 0;
-    address_stride_a <= `MAT_MUL_SIZE;
-    address_stride_b <= `MAT_MUL_SIZE;
-    address_stride_c <= `MAT_MUL_SIZE;
+    address_stride_a <= `DESIGN_SIZE;
+    address_stride_b <= `DESIGN_SIZE;
+    address_stride_c <= `DESIGN_SIZE;
     activation_type <= 1;
     conv_filter_height <= 2;
     conv_filter_width  <= 2;

@@ -11,26 +11,26 @@ module top(
     output [`REG_DATAWIDTH-1:0] PRDATA,
     output PREADY,
     input  [`AWIDTH-1:0] bram_addr_a_ext,
-    output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_ext,
-    input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_ext,
-    input  [`MASK_WIDTH-1:0] bram_we_a_ext,
+    output [`DESIGN_SIZE*`DWIDTH-1:0] bram_rdata_a_ext,
+    input  [`DESIGN_SIZE*`DWIDTH-1:0] bram_wdata_a_ext,
+    input  [`DESIGN_SIZE-1:0] bram_we_a_ext,
     input  [`AWIDTH-1:0] bram_addr_b_ext,
-    output [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_ext,
-    input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_ext,
-    input  [`MASK_WIDTH-1:0] bram_we_b_ext
+    output [`DESIGN_SIZE*`DWIDTH-1:0] bram_rdata_b_ext,
+    input  [`DESIGN_SIZE*`DWIDTH-1:0] bram_wdata_b_ext,
+    input  [`DESIGN_SIZE-1:0] bram_we_b_ext
 );
 
 wire [`AWIDTH-1:0] bram_addr_a;
 wire [`AWIDTH-1:0] bram_addr_a_for_reading;
 reg [`AWIDTH-1:0] bram_addr_a_for_writing;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a;
-reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a;
-wire [`MASK_WIDTH-1:0] bram_we_a;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] bram_rdata_a;
+reg [`DESIGN_SIZE*`DWIDTH-1:0] bram_wdata_a;
+wire [`DESIGN_SIZE-1:0] bram_we_a;
 wire bram_en_a;
 wire [`AWIDTH-1:0] bram_addr_b;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b;
-wire [`MASK_WIDTH-1:0] bram_we_b;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] bram_rdata_b;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] bram_wdata_b;
+wire [`DESIGN_SIZE-1:0] bram_we_b;
 wire bram_en_b;
 reg bram_a_wdata_available;
 wire [`AWIDTH-1:0] bram_addr_c_NC;
@@ -48,15 +48,15 @@ wire enable_matmul;
 wire enable_norm;
 wire enable_activation;
 wire enable_pool;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] matmul_c_data_out;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] norm_data_out;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] pool_data_out;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] activation_data_out;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] matmul_c_data_out;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] norm_data_out;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] pool_data_out;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] activation_data_out;
 wire matmul_c_data_available;
-wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out_NC;
-wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out_NC;
-wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_NC;
-wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_NC;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] a_data_out_NC;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] b_data_out_NC;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] a_data_in_NC;
+wire [`DESIGN_SIZE*`DWIDTH-1:0] b_data_in_NC;
 wire [`DWIDTH-1:0] mean;
 wire [`DWIDTH-1:0] inv_var;
 wire [`AWIDTH-1:0] address_mat_a;
@@ -98,7 +98,7 @@ wire pe_reset;
 //bram_en_a -> hardcoded to 1
 assign bram_addr_a = (bram_a_wdata_available) ? bram_addr_a_for_writing : bram_addr_a_for_reading;
 assign bram_en_a = 1'b1;
-assign bram_we_a = (bram_a_wdata_available) ? {`MASK_WIDTH{1'b1}} : {`MASK_WIDTH{1'b0}};  
+assign bram_we_a = (bram_a_wdata_available) ? {`DESIGN_SIZE{1'b1}} : {`DESIGN_SIZE{1'b0}};  
   
 //Connections for bram b (weights matrix)
 //bram_addr_b -> connected to u_matmul_4x4
@@ -106,9 +106,9 @@ assign bram_we_a = (bram_a_wdata_available) ? {`MASK_WIDTH{1'b1}} : {`MASK_WIDTH
 //bram_wdata_b -> hardcoded to 0 (this block only reads from bram b)
 //bram_we_b -> hardcoded to 0 (this block only reads from bram b)
 //bram_en_b -> hardcoded to 1
-assign bram_wdata_b = {`BB_MAT_MUL_SIZE*`DWIDTH{1'b0}};
+assign bram_wdata_b = {`DESIGN_SIZE*`DWIDTH{1'b0}};
 assign bram_en_b = 1'b1;
-assign bram_we_b = {`MASK_WIDTH{1'b0}};
+assign bram_we_b = {`DESIGN_SIZE{1'b0}};
   
 ////////////////////////////////////////////////////////////////
 // BRAM matrix A (inputs/activations)
@@ -221,7 +221,15 @@ cfg u_cfg(
 //Note: the ports on this module to write data to bram c
 //are not used in this top module. 
 ////////////////////////////////////////////////////////////////
-matmul u_matmul(
+`ifdef DESIGN_SIZE_16
+matmul_16x16_systolic u_matmul(
+`endif
+`ifdef DESIGN_SIZE_8
+matmul_8x8_systolic u_matmul(
+`endif
+`ifdef DESIGN_SIZE_4
+matmul_4x4_systolic u_matmul(
+`endif
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),
@@ -237,7 +245,7 @@ matmul u_matmul(
   .b_data(bram_rdata_b),
   .a_data_in(a_data_in_NC),
   .b_data_in(b_data_in_NC),
-  .c_data_in({`BB_MAT_MUL_SIZE*`DWIDTH{1'b0}}),
+  .c_data_in({`DESIGN_SIZE*`DWIDTH{1'b0}}),
   .c_data_out(matmul_c_data_out),
   .a_data_out(a_data_out_NC),
   .b_data_out(b_data_out_NC),
@@ -248,7 +256,7 @@ matmul u_matmul(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
-  .final_mat_mul_size(8'd`MAT_MUL_SIZE),
+  .final_mat_mul_size(8'd`DESIGN_SIZE),
   .a_loc(8'd0),
   .b_loc(8'd0)
 );

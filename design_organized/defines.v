@@ -20,6 +20,21 @@
 `define LOG2_MAT_MUL_SIZE 4
 `endif
 
+`ifdef DESIGN_SIZE_4
+`define DESIGN_SIZE 4
+`define LOG2_DESIGN_SIZE 2
+`endif
+
+`ifdef DESIGN_SIZE_8
+`define DESIGN_SIZE 8
+`define LOG2_DESIGN_SIZE 3
+`endif
+
+`ifdef DESIGN_SIZE_16
+`define DESIGN_SIZE 16
+`define LOG2_DESIGN_SIZE 4
+`endif
+
 `define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
 `define NUM_CYCLES_IN_MAC 3
 `define MEM_ACCESS_LATENCY 1

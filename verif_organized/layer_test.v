@@ -15,7 +15,7 @@ endtask
 integer mean = 1;
 integer inv_var = 1;
 
-`ifdef MATMUL_SIZE_4
+`ifdef DESIGN_SIZE_4
 integer a_start_addr = 0;
 integer b_start_addr = 0;
 integer c_start_addr = 200;
@@ -46,7 +46,7 @@ reg [`DWIDTH-1:0] c[4][4] =
 //36 28 2e 0d
 `endif
 
-`ifdef MATMUL_SIZE_8
+`ifdef DESIGN_SIZE_8
 /*
 >>> a = np.random.randint(low=0, high=5,size=(8,8), dtype=np.uint8)
 >>> print(a)
@@ -127,7 +127,7 @@ reg [`DWIDTH-1:0] c[8][8] =
 
 `endif
 
-`ifdef MATMUL_SIZE_16
+`ifdef DESIGN_SIZE_16
 /*
 >>> a = np.random.randint(low=0, high=5,size=(16,16), dtype=np.uint8)
 >>> print(a)
@@ -353,7 +353,7 @@ begin
   write(`REG_MATRIX_B_ADDR, b_start_addr);
   //write(`REG_MATRIX_C_ADDR, c_start_addr); 
   //with this matmul, we need to enter the address of the last column
-  write(`REG_MATRIX_C_ADDR, c_start_addr+((problem_size-1)*`MAT_MUL_SIZE)); 
+  write(`REG_MATRIX_C_ADDR, c_start_addr+((problem_size-1)*problem_size)); 
 
   $display("Start the TPU");
   //start = 1;

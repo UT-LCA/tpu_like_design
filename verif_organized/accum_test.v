@@ -15,7 +15,7 @@ endtask
 integer mean = 1;
 integer inv_var = 1;
 
-`ifdef MATMUL_SIZE_4
+`ifdef DESIGN_SIZE_4
 integer a_start_addr = 0;
 integer b_start_addr = 0;
 integer c_start_addr = 200;//TODO: Need to fix this based on the updated matmul that takes c_addr from the last column
@@ -121,7 +121,7 @@ reg [`DWIDTH-1:0] c[12][12] =
   {8'd04,8'd06,8'd04,8'd13,8'd08,8'd13,8'd08,8'd09,8'd15,8'd11,8'd11,8'd8}};
 `endif
 
-`ifdef MATMUL_SIZE_8
+`ifdef DESIGN_SIZE_8
 integer a_start_addr = 0;
 integer b_start_addr = 0;
 integer c_start_addr = 600;//TODO: Need to fix this based on the updated matmul that takes c_addr from the last column
