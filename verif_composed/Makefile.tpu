@@ -8,9 +8,17 @@ size?=16
 
 ifeq ($(size),16)
 	FILES=../design_composed/16x16_from_8x8.no_ram.gen.v 
-	FILES+=../design_composed/16x16_matmul_wrap.v 
+	FILES+=../design_composed/16x16_from_8x8.wrap.v 
 	FILES+=../design_organized/8x8.organized.no_conv.no_accum.gen.v  
 	DEFINES=+define+MATMUL_SIZE_8 +define+DESIGN_SIZE_16
+	TEST_FILES=../verif_organized/layer_test.v 
+endif
+
+ifeq ($(size),32)
+	FILES=../design_composed/32x32_from_8x8.no_ram.gen.v 
+	FILES+=../design_composed/32x32_from_8x8.wrap.v 
+	FILES+=../design_organized/8x8.organized.no_conv.no_accum.gen.v  
+	DEFINES=+define+MATMUL_SIZE_8 +define+DESIGN_SIZE_32
 	TEST_FILES=../verif_organized/layer_test.v 
 endif
 
