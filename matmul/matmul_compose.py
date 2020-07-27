@@ -38,9 +38,9 @@ def write_with_ram(file, basic_block_size, final_block_size):
   file.write('  output reg                        PREADY,\n')
   file.write('  input  [7:0] bram_select,\n')
   file.write('  input  [`AWIDTH-1:0] bram_addr_ext,\n')
-  file.write('  output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_ext,\n')
-  file.write('  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_ext,\n')
-  file.write('  input  [`MASK_WIDTH-1:0] bram_we_ext\n')
+  file.write('  output reg [`DESIGN_SIZE*`DWIDTH-1:0] bram_rdata_ext,\n')
+  file.write('  input  [`DESIGN_SIZE*`DWIDTH-1:0] bram_wdata_ext,\n')
+  file.write('  input  [`DESIGN_SIZE-1:0] bram_we_ext\n')
   file.write(');\n\n')
 
   file.write("""
@@ -290,9 +290,9 @@ always @(posedge PCLK) begin
     validity_mask_a_rows <= {`MASK_WIDTH{1'b1}};
     validity_mask_a_cols_b_rows <= {`MASK_WIDTH{1'b1}};
     validity_mask_b_cols <= {`MASK_WIDTH{1'b1}};
-    address_stride_a <= `MAT_MUL_SIZE;
-    address_stride_b <= `MAT_MUL_SIZE;
-    address_stride_c <= `MAT_MUL_SIZE;
+    address_stride_a <= `DESIGN_SIZE;
+    address_stride_b <= `DESIGN_SIZE;
+    address_stride_c <= `DESIGN_SIZE;
   end
 
   else begin
@@ -633,12 +633,12 @@ module ram (
 
 input [`AWIDTH-1:0] addr0;
 input [`AWIDTH-1:0] addr1;
-input [`MASK_WIDTH*`DWIDTH-1:0] d0;
-input [`MASK_WIDTH*`DWIDTH-1:0] d1;
-input [`MASK_WIDTH-1:0] we0;
-input [`MASK_WIDTH-1:0] we1;
-output reg [`MASK_WIDTH*`DWIDTH-1:0] q0;
-output reg [`MASK_WIDTH*`DWIDTH-1:0] q1;
+input [`DESIGN_SIZE*`DWIDTH-1:0] d0;
+input [`DESIGN_SIZE*`DWIDTH-1:0] d1;
+input [`DESIGN_SIZE-1:0] we0;
+input [`DESIGN_SIZE-1:0] we1;
+output reg [`DESIGN_SIZE*`DWIDTH-1:0] q0;
+output reg [`DESIGN_SIZE*`DWIDTH-1:0] q1;
 input clk;
 
 `ifdef VCS
@@ -647,20 +647,20 @@ integer i;
 
 always @(posedge clk)  
 begin 
-    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+    for (i = 0; i < `DESIGN_SIZE; i=i+1) begin
         if (we0[i]) ram[addr0+i] <= d0[i*`DWIDTH +: `DWIDTH]; 
     end    
-    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+    for (i = 0; i < `DESIGN_SIZE; i=i+1) begin
         q0[i*`DWIDTH +: `DWIDTH] <= ram[addr0+i];
     end    
 end
 
 always @(posedge clk)  
 begin 
-    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+    for (i = 0; i < `DESIGN_SIZE; i=i+1) begin
         if (we1[i]) ram[addr0+i] <= d1[i*`DWIDTH +: `DWIDTH]; 
     end    
-    for (i = 0; i < `MASK_WIDTH; i=i+1) begin
+    for (i = 0; i < `DESIGN_SIZE; i=i+1) begin
         q1[i*`DWIDTH +: `DWIDTH] <= ram[addr1+i];
     end    
 end
@@ -745,15 +745,6 @@ def main():
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
 `define ADDR_STRIDE_WIDTH 8
-
-`define REG_START_DONE_ADDR 32'h0
-`define REG_MATRIX_A_ADDR 32'he
-`define REG_MATRIX_B_ADDR 32'h12
-`define REG_MATRIX_C_ADDR 32'h16
-`define REG_VALID_MASK_ADDR 32'h20
-`define REG_MATRIX_A_STRIDE_ADDR 32'h28
-`define REG_MATRIX_B_STRIDE_ADDR 32'h32
-`define REG_MATRIX_C_STRIDE_ADDR 32'h36
   """.format(data_width, address_width, mem_size, basic_block_size, basic_block_size, str(int(math.log2(basic_block_size)))))
   
   #with bram module
