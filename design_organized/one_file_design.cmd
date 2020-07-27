@@ -49,4 +49,22 @@ perl -i -pe 's/d`DESIGN_SIZE/d16/g;' $output_file
 end
 
 
+set output_file = "one_file_design_32x32.v"
+
+\rm -f $output_file
+touch $output_file
+
+echo '`define MATMUL_SIZE_32\n`define DESIGN_SIZE_32\n' >> $output_file
+foreach i (defines.v 32x32.organized.no_conv.no_accum.gen.v cfg.v norm.v ram.v control.v pool.v activation.v top.v)
+echo "//////////////////////////\n" >> $output_file
+echo "//$i \n" >> $output_file
+echo "//////////////////////////\n" >> $output_file
+cat $i >> $output_file
+echo "\n" >> $output_file
+perl -i -pe 's/d`MAT_MUL_SIZE/d32/g;' $output_file
+perl -i -pe 's/d`DESIGN_SIZE/d32/g;' $output_file
+end
+
+
+
 

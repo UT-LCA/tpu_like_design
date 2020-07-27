@@ -29,6 +29,12 @@
 `define LOG2_MAT_MUL_SIZE 4
 `endif
 
+`ifdef MATMUL_SIZE_32
+`define MAT_MUL_SIZE 32
+`define MASK_WIDTH 32
+`define LOG2_MAT_MUL_SIZE 5
+`endif
+
 `ifdef DESIGN_SIZE_4
 `define DESIGN_SIZE 4
 `define LOG2_DESIGN_SIZE 2
@@ -42,6 +48,11 @@
 `ifdef DESIGN_SIZE_16
 `define DESIGN_SIZE 16
 `define LOG2_DESIGN_SIZE 4
+`endif
+
+`ifdef DESIGN_SIZE_32
+`define DESIGN_SIZE 32
+`define LOG2_DESIGN_SIZE 5
 `endif
 
 `define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
@@ -5621,6 +5632,9 @@ cfg u_cfg(
 //Note: the ports on this module to write data to bram c
 //are not used in this top module. 
 ////////////////////////////////////////////////////////////////
+`ifdef DESIGN_SIZE_32
+matmul_32x32_systolic u_matmul(
+`endif
 `ifdef DESIGN_SIZE_16
 matmul_16x16_systolic u_matmul(
 `endif

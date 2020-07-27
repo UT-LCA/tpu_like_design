@@ -221,6 +221,9 @@ cfg u_cfg(
 //Note: the ports on this module to write data to bram c
 //are not used in this top module. 
 ////////////////////////////////////////////////////////////////
+`ifdef DESIGN_SIZE_32
+matmul_32x32_systolic u_matmul(
+`endif
 `ifdef DESIGN_SIZE_16
 matmul_16x16_systolic u_matmul(
 `endif

@@ -264,6 +264,17 @@ reg [`DWIDTH-1:0] c[16][16] =
 
 `endif
 
+`ifdef DESIGN_SIZE_32
+integer a_start_addr = 0;
+integer b_start_addr = 300;
+integer c_start_addr = 700;
+integer problem_size = 32;
+reg [`DWIDTH-1:0] a[32][32];
+reg [`DWIDTH-1:0] b[32][32];
+reg [`DWIDTH-1:0] c[32][32];
+//TODO: Need to provide actual values and verify
+`endif
+
 ////////////////////////////////////////////
 //Task to initialize BRAMs
 ////////////////////////////////////////////

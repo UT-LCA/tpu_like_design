@@ -18,6 +18,12 @@ ifeq ($(size),16)
 	TEST_FILES=../verif_organized/layer_test.v 
 endif
 
+ifeq ($(size),32)
+	FILES=../design_organized/32x32.organized.no_conv.no_accum.gen.v
+	DEFINES=+define+MATMUL_SIZE_32 +define+DESIGN_SIZE_32
+	TEST_FILES=../verif_organized/layer_test.v 
+endif
+
 compile:
 	$(VCS_HOME)/bin/vcs -full64 \
 	$(DEFINES) \
