@@ -313,18 +313,22 @@ always @(posedge PCLK) begin
       `W_ENABLE : begin
         if (PSEL && PWRITE && PENABLE) begin
           case (PADDR)
-          `REG_START_DONE_ADDR : begin
+          `REG_STDN_TPU_ADDR   : begin
                                  start_reg <= PWDATA[0];
                                  clear_done_reg <= PWDATA[31];
                                  end
           `REG_MATRIX_A_ADDR   : address_mat_a <= PWDATA[`AWIDTH-1:0];
           `REG_MATRIX_B_ADDR   : address_mat_b <= PWDATA[`AWIDTH-1:0];
           `REG_MATRIX_C_ADDR   : address_mat_c <= PWDATA[`AWIDTH-1:0];
-          `REG_VALID_MASK_ADDR : begin
-                                 validity_mask_a_rows <= PWDATA[`MASK_WIDTH-1:0];
-                                 validity_mask_a_cols_b_rows <= PWDATA[2*`MASK_WIDTH-1:`MASK_WIDTH];
-                                 validity_mask_b_cols <= PWDATA[3*`MASK_WIDTH-1:2*`MASK_WIDTH];
-                                 end
+          `REG_VALID_MASK_A_ROWS_ADDR: begin
+                                validity_mask_a_rows <= PWDATA[`MASK_WIDTH-1:0];
+                                end
+          `REG_VALID_MASK_A_COLS_B_ROWS_ADDR: begin
+                                validity_mask_a_cols_b_rows <= PWDATA[`MASK_WIDTH-1:0];
+                                end
+          `REG_VALID_MASK_B_COLS_ADDR: begin
+                                validity_mask_b_cols <= PWDATA[`MASK_WIDTH-1:0];
+                                end
           `REG_MATRIX_A_STRIDE_ADDR : address_stride_a <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
           `REG_MATRIX_B_STRIDE_ADDR : address_stride_b <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
           `REG_MATRIX_C_STRIDE_ADDR : address_stride_c <= PWDATA[`ADDR_STRIDE_WIDTH-1:0];
@@ -339,11 +343,13 @@ always @(posedge PCLK) begin
         if (PSEL && !PWRITE && PENABLE) begin
           PREADY <= 1;
           case (PADDR)
-          `REG_START_DONE_ADDR  : PRDATA <= {done_mat_mul, 30'b0, start_mat_mul};
+          `REG_STDN_TPU_ADDR  : PRDATA <= {done_mat_mul, 30'b0, start_mat_mul};
           `REG_MATRIX_A_ADDR    : PRDATA <= address_mat_a;
           `REG_MATRIX_B_ADDR    : PRDATA <= address_mat_b;
           `REG_MATRIX_C_ADDR    : PRDATA <= address_mat_c;
-          `REG_VALID_MASK_ADDR  : PRDATA <= {validity_mask_b_cols, validity_mask_a_cols_b_rows, validity_mask_a_rows};
+          `REG_VALID_MASK_A_ROWS_ADDR: PRDATA <= validity_mask_a_rows;
+          `REG_VALID_MASK_A_COLS_B_ROWS_ADDR: PRDATA <= validity_mask_a_cols_b_rows;
+          `REG_VALID_MASK_B_COLS_ADDR: PRDATA <= validity_mask_b_cols;
           `REG_MATRIX_A_STRIDE_ADDR : PRDATA <= address_stride_a;
           `REG_MATRIX_B_STRIDE_ADDR : PRDATA <= address_stride_b;
           `REG_MATRIX_C_STRIDE_ADDR : PRDATA <= address_stride_c;
@@ -392,8 +398,10 @@ assign pe_reset = ~pe_resetn;
   		'/////////////////////////////////////////////////\n\n'
   		.format(final_block_size))
   
+  temp = "_temp" if final_block_size == basic_block_size else ""
+
   file.write("""
-  matmul_{0}x{0}_systolic u_matmul_{0}x{0}_systolic (
+  matmul_{0}x{0}_systolic{1} u_matmul_{0}x{0}_systolic (
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),
@@ -405,7 +413,7 @@ assign pe_reset = ~pe_resetn;
   .address_stride_a(address_stride_a),
   .address_stride_b(address_stride_b),
   .address_stride_c(address_stride_c),
-  """.format(final_block_size))
+  """.format(final_block_size, temp))
 
   for i in range(num_of_bram):
     file.write("""
@@ -438,9 +446,11 @@ def write_systolic_matmul(file, basic_block_size, final_block_size):
   	     '// The {0}x{0} matmul definition\n'
   	     '/////////////////////////////////////////////////\n\n'
   	     .format(final_block_size))
+
+  temp = "_temp" if final_block_size == basic_block_size else ""
   
   file.write("""
-module matmul_{0}x{0}_systolic(
+module matmul_{0}x{0}_systolic{1}(
   input clk,
   input reset,
   input pe_reset,
@@ -453,7 +463,7 @@ module matmul_{0}x{0}_systolic(
   input [`ADDR_STRIDE_WIDTH-1:0] address_stride_a,
   input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b,
   input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c,
-  """.format(final_block_size))
+  """.format(final_block_size, temp))
 
   for i in range(num_of_bram):
     file.write("""
@@ -735,7 +745,7 @@ def main():
 `define DWIDTH {}
 `define AWIDTH {}
 `define MEM_SIZE {}
-
+`define DESIGN_SIZE {}
 `define MAT_MUL_SIZE {}
 `define MASK_WIDTH {}
 `define LOG2_MAT_MUL_SIZE {}
@@ -745,7 +755,7 @@ def main():
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
 `define ADDR_STRIDE_WIDTH 8
-  """.format(data_width, address_width, mem_size, basic_block_size, basic_block_size, str(int(math.log2(basic_block_size)))))
+  """.format(data_width, address_width, mem_size, final_block_size, basic_block_size, basic_block_size, str(int(math.log2(basic_block_size)))))
   
   #with bram module
   if(with_ram == True):
