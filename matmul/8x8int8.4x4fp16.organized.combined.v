@@ -721,6 +721,7 @@ reg [`DWIDTH-1:0] in_delayed;
 assign out_fp16 = in_delayed;
 always @(posedge clk) begin
   if (rst) begin
+    in_delayed <= 0;
     out_int8 <= 0;
   end
   else begin
@@ -745,6 +746,8 @@ reg [`DWIDTH-1:0] in_delayed_2;
 assign out_fp16 = in_delayed_1;
 always @(posedge clk) begin
   if (rst) begin
+    in_delayed_1 <= 0;
+    in_delayed_2 <= 0;
     out_int8 <= 0;
   end
   else begin
@@ -771,6 +774,9 @@ reg [`DWIDTH-1:0] in_delayed_3;
 assign out_fp16 = in_delayed_2;
 always @(posedge clk) begin
   if (rst) begin
+    in_delayed_1 <= 0;
+    in_delayed_2 <= 0;
+    in_delayed_3 <= 0;
     out_int8 <= 0;
   end
   else begin
@@ -800,6 +806,10 @@ assign out_fp16 = in_delayed_2;
 always @(posedge clk) begin
   if (rst) begin
     out_int8 <= 0;
+    in_delayed_1 <= 0;
+    in_delayed_2 <= 0;
+    in_delayed_3 <= 0;
+    in_delayed_4 <= 0;
   end
   else begin
     in_delayed_1 <= in;
@@ -830,6 +840,11 @@ assign out_fp16 = in_delayed_3;
 always @(posedge clk) begin
   if (rst) begin
     out_int8 <= 0;
+    in_delayed_1 <= 0;
+    in_delayed_2 <= 0;
+    in_delayed_3 <= 0;
+    in_delayed_4 <= 0;
+    in_delayed_5 <= 0;
   end
   else begin
     in_delayed_1 <= in;
@@ -862,6 +877,12 @@ assign out_fp16 = in_delayed_3;
 always @(posedge clk) begin
   if (rst) begin
     out_int8 <= 0;
+    in_delayed_1 <= 0;
+    in_delayed_2 <= 0;
+    in_delayed_3 <= 0;
+    in_delayed_4 <= 0;
+    in_delayed_5 <= 0;
+    in_delayed_6 <= 0;
   end
   else begin
     in_delayed_1 <= in;
@@ -1251,6 +1272,9 @@ module processing_element(
     if(reset) begin
       out_a <= 0;
       out_b <= 0;
+      out_a_0to1 <= 0;
+      out_a_1to2 <= 0;
+      out_a_2to3 <= 0;
     end
     else begin  
       out_a[7:0]   <= (dtype == `DTYPE_FP16) ? in_a[7:0]  : out_a_2to3;
