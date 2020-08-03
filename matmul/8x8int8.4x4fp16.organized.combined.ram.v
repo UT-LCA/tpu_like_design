@@ -44,7 +44,9 @@ module matrix_multiplication(
   bram_wdata_c_ext,
   bram_we_c_ext,
   start_reg,
-  clear_done_reg
+  clear_done_reg,
+  dtype,
+  final_mat_mul_size
 );
 
   input clk;
@@ -74,6 +76,8 @@ module matrix_multiplication(
   input  [`MASK_WIDTH-1:0] bram_we_c_ext;
   input start_reg;
   input clear_done_reg;
+  input dtype;
+  input [7:0] final_mat_mul_size;
 
 	wire [`AWIDTH-1:0] bram_addr_a;
 	wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a;
@@ -255,8 +259,8 @@ matmul_8x8_systolic u_matmul_8x8(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
-  .dtype(1'b0),
-  .final_mat_mul_size(8'd8),
+  .dtype(dtype),
+  .final_mat_mul_size(final_mat_mul_size),
   .a_loc(8'd0),
   .b_loc(8'd0)
 );

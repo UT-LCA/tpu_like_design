@@ -1047,19 +1047,19 @@ wire [1*`DWIDTH-1:0] a0_3to0_4_int8;
 assign a0_0to0_1_fp16 = out_a_pe00;
 assign a0_3to0_4_int8 = out_a_pe00[7:0];
 assign in_a_pe01 = (dtype == `DTYPE_FP16) ? a0_0to0_1_fp16 : {8'b0, a0_3to0_4_int8};
-assign in_b_pe01 = (dtype == `DTYPE_FP16) ? b_data[15:0] : {b_data[39:32], b_data[47:40], b_data[55:48], b_data[63:56]};
+assign in_b_pe01 = (dtype == `DTYPE_FP16) ? b_data[31:16] : {b_data[39:32], b_data[47:40], b_data[55:48], b_data[63:56]};
 
 wire [2*`DWIDTH-1:0] a0_1to0_2_fp16;
 assign a0_1to0_2_fp16 = out_a_pe01;
 assign in_a_pe02 = (dtype == `DTYPE_FP16) ? a0_1to0_2_fp16 : {8'b0, a_data[15:8]};
-assign in_b_pe02 = (dtype == `DTYPE_FP16) ? b_data[31:16] : out_b_pe00;
+assign in_b_pe02 = (dtype == `DTYPE_FP16) ? b_data[47:32] : out_b_pe00;
 
 wire [2*`DWIDTH-1:0] a0_2to0_3_fp16;
 wire [1*`DWIDTH-1:0] a1_3to1_4_int8;
 assign a0_2to0_3_fp16 = out_a_pe02;
 assign a1_3to1_4_int8 = out_a_pe02[7:0];
 assign in_a_pe03 = (dtype == `DTYPE_FP16) ? a0_2to0_3_fp16 : a1_3to1_4_int8;
-assign in_b_pe03 = (dtype == `DTYPE_FP16) ? b_data[47:32] : out_b_pe01;
+assign in_b_pe03 = (dtype == `DTYPE_FP16) ? b_data[63:48] : out_b_pe01;
 
 
 ///////////////////////////////////////////
@@ -1376,6 +1376,8 @@ always @(*) begin
     o_result[63:48] = i_multiplicand[31:24] * i_multiplier[31:24];
   end
   else begin
+    //TODO: For now, this is just faking it. 
+    //Upper 16 bits will be 0
     o_result[31:0]  = i_multiplicand[15:0] * i_multiplier[15:0];
   end
 end
@@ -1398,6 +1400,7 @@ always @(*) begin
     c[63:48] = a[63:48] + b[63:48];
   end
   else begin
+    //TODO: For now, this is just faking it
     c[31:0] = a[31:0] + b[31:0];
   end
 end

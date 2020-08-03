@@ -6,6 +6,9 @@ reg clk;
 reg resetn;
 reg start;
 reg clear_done;
+reg dtype;
+reg [7:0] final_mat_mul_size;
+reg [`ADDR_STRIDE_WIDTH-1:0] address_stride;
 
 matrix_multiplication u_matmul(
   .clk(clk), 
@@ -15,14 +18,16 @@ matrix_multiplication u_matmul(
   .address_mat_a(11'b0),
   .address_mat_b(11'b0),
   .address_mat_c(11'b0),
-  .address_stride_a(8'd8),
-  .address_stride_b(8'd8),
-  .address_stride_c(8'd8),
+  .address_stride_a(address_stride),
+  .address_stride_b(address_stride),
+  .address_stride_c(address_stride),
   .validity_mask_a_rows(8'b11111111),
   .validity_mask_a_cols_b_rows(8'b11111111),
   .validity_mask_b_cols(8'b11111111),
   .start_reg(start),
-  .clear_done_reg(clear_done));
+  .clear_done_reg(clear_done),
+  .dtype(dtype),
+  .final_mat_mul_size(final_mat_mul_size));
 
 initial begin
   clk = 0;
@@ -32,11 +37,30 @@ initial begin
 end
 
 initial begin
+  //First let's try int8 mode
+  dtype = `DTYPE_INT8;
+  final_mat_mul_size = 8'd8;
+  address_stride = 8'd8;
   resetn = 0;
   #55 resetn = 1;
-end
+  start = 0;
+  #115 start = 1;
+  @(posedge u_matmul.done_mat_mul);
+  start = 0;
+  clear_done = 1;
+  #200;
+  #115 start = 1;
+  @(posedge u_matmul.done_mat_mul);
+  start = 0;
+  clear_done = 1;
+  #200;
 
-initial begin
+  //Next let's try fp16 mode
+  dtype = `DTYPE_FP16;
+  final_mat_mul_size = 8'd4;
+  address_stride = 8'd16;
+  resetn = 0;
+  #55 resetn = 1;
   start = 0;
   #115 start = 1;
   @(posedge u_matmul.done_mat_mul);
@@ -48,158 +72,63 @@ initial begin
   start = 0;
   clear_done = 1;
   #200;
+
   $finish;
 end
 
+//One column in this is really interpreted as 1 row in matrix A
+//In the following, by changing the first column, I'm effectively changing the first row of matrix A.
+reg [`DWIDTH-1:0] a[16][16] = 
+'{{8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  
+  {8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1}}; 
+
+//One column in this is really interpreted as 1 column in matrix B. Transposed.
+//In the following, by changing the first row, I'm effectively changing the last column of matrix B.
+reg [`DWIDTH-1:0] b[16][16] = 
+'{{8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},
+  {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1}};
 
 initial begin
-  //A is stored in row major format
-force u_matmul.matrix_A.ram[0] = 8'h01;
-force u_matmul.matrix_A.ram[1] = 8'h01;
-force u_matmul.matrix_A.ram[2] = 8'h01;
-force u_matmul.matrix_A.ram[3] = 8'h01;
-force u_matmul.matrix_A.ram[4] = 8'h01;
-force u_matmul.matrix_A.ram[5] = 8'h01;
-force u_matmul.matrix_A.ram[6] = 8'h01;
-force u_matmul.matrix_A.ram[7] = 8'h01;
-force u_matmul.matrix_A.ram[8] = 8'h01;
-force u_matmul.matrix_A.ram[9] = 8'h01;
-force u_matmul.matrix_A.ram[10] = 8'h01;
-force u_matmul.matrix_A.ram[11] = 8'h01;
-force u_matmul.matrix_A.ram[12] = 8'h01;
-force u_matmul.matrix_A.ram[13] = 8'h01;
-force u_matmul.matrix_A.ram[14] = 8'h01;
-force u_matmul.matrix_A.ram[15] = 8'h01;
-force u_matmul.matrix_A.ram[16] = 8'h01;
-force u_matmul.matrix_A.ram[17] = 8'h01;
-force u_matmul.matrix_A.ram[18] = 8'h01;
-force u_matmul.matrix_A.ram[19] = 8'h01;
-force u_matmul.matrix_A.ram[20] = 8'h01;
-force u_matmul.matrix_A.ram[21] = 8'h01;
-force u_matmul.matrix_A.ram[22] = 8'h01;
-force u_matmul.matrix_A.ram[23] = 8'h01;
-force u_matmul.matrix_A.ram[24] = 8'h01;
-force u_matmul.matrix_A.ram[25] = 8'h01;
-force u_matmul.matrix_A.ram[26] = 8'h01;
-force u_matmul.matrix_A.ram[27] = 8'h01;
-force u_matmul.matrix_A.ram[28] = 8'h01;
-force u_matmul.matrix_A.ram[29] = 8'h01;
-force u_matmul.matrix_A.ram[30] = 8'h01;
-force u_matmul.matrix_A.ram[31] = 8'h01;
-force u_matmul.matrix_A.ram[32] = 8'h01;
-force u_matmul.matrix_A.ram[33] = 8'h01;
-force u_matmul.matrix_A.ram[34] = 8'h01;
-force u_matmul.matrix_A.ram[35] = 8'h01;
-force u_matmul.matrix_A.ram[36] = 8'h01;
-force u_matmul.matrix_A.ram[37] = 8'h01;
-force u_matmul.matrix_A.ram[38] = 8'h01;
-force u_matmul.matrix_A.ram[39] = 8'h01;
-force u_matmul.matrix_A.ram[40] = 8'h01;
-force u_matmul.matrix_A.ram[41] = 8'h01;
-force u_matmul.matrix_A.ram[42] = 8'h01;
-force u_matmul.matrix_A.ram[43] = 8'h01;
-force u_matmul.matrix_A.ram[44] = 8'h01;
-force u_matmul.matrix_A.ram[45] = 8'h01;
-force u_matmul.matrix_A.ram[46] = 8'h01;
-force u_matmul.matrix_A.ram[47] = 8'h01;
-force u_matmul.matrix_A.ram[48] = 8'h01;
-force u_matmul.matrix_A.ram[49] = 8'h01;
-force u_matmul.matrix_A.ram[50] = 8'h01;
-force u_matmul.matrix_A.ram[51] = 8'h01;
-force u_matmul.matrix_A.ram[52] = 8'h01;
-force u_matmul.matrix_A.ram[53] = 8'h01;
-force u_matmul.matrix_A.ram[54] = 8'h01;
-force u_matmul.matrix_A.ram[55] = 8'h01;
-force u_matmul.matrix_A.ram[56] = 8'h01;
-force u_matmul.matrix_A.ram[57] = 8'h01;
-force u_matmul.matrix_A.ram[58] = 8'h01;
-force u_matmul.matrix_A.ram[59] = 8'h01;
-force u_matmul.matrix_A.ram[60] = 8'h01;
-force u_matmul.matrix_A.ram[61] = 8'h01;
-force u_matmul.matrix_A.ram[62] = 8'h01;
-force u_matmul.matrix_A.ram[63] = 8'h01;
-force u_matmul.matrix_A.ram[`MEM_SIZE-1-7] = 8'h0;
-force u_matmul.matrix_A.ram[`MEM_SIZE-1-6] = 8'h0;
-force u_matmul.matrix_A.ram[`MEM_SIZE-1-5] = 8'h0;
-force u_matmul.matrix_A.ram[`MEM_SIZE-1-4] = 8'h0;
-force u_matmul.matrix_A.ram[`MEM_SIZE-1-3] = 8'h0;
-force u_matmul.matrix_A.ram[`MEM_SIZE-1-2] = 8'h0;
-force u_matmul.matrix_A.ram[`MEM_SIZE-1-1] = 8'h0;
-force u_matmul.matrix_A.ram[`MEM_SIZE-1-0] = 8'h0;
 
+for (int i=0; i<16; i++) begin
+  for (int j=0; j<16; j++) begin
+    u_matmul.matrix_A.ram[16*i + j] = a[i][j];
+  end
+end
 
-force u_matmul.matrix_B.ram[0] = 8'h01;
-force u_matmul.matrix_B.ram[1] = 8'h01;
-force u_matmul.matrix_B.ram[2] = 8'h01;
-force u_matmul.matrix_B.ram[3] = 8'h01;
-force u_matmul.matrix_B.ram[4] = 8'h01;
-force u_matmul.matrix_B.ram[5] = 8'h01;
-force u_matmul.matrix_B.ram[6] = 8'h01;
-force u_matmul.matrix_B.ram[7] = 8'h01;
-force u_matmul.matrix_B.ram[8] = 8'h01;
-force u_matmul.matrix_B.ram[9] = 8'h01;
-force u_matmul.matrix_B.ram[10] = 8'h01;
-force u_matmul.matrix_B.ram[11] = 8'h01;
-force u_matmul.matrix_B.ram[12] = 8'h01;
-force u_matmul.matrix_B.ram[13] = 8'h01;
-force u_matmul.matrix_B.ram[14] = 8'h01;
-force u_matmul.matrix_B.ram[15] = 8'h01;
-force u_matmul.matrix_B.ram[16] = 8'h01;
-force u_matmul.matrix_B.ram[17] = 8'h01;
-force u_matmul.matrix_B.ram[18] = 8'h01;
-force u_matmul.matrix_B.ram[19] = 8'h01;
-force u_matmul.matrix_B.ram[20] = 8'h01;
-force u_matmul.matrix_B.ram[21] = 8'h01;
-force u_matmul.matrix_B.ram[22] = 8'h01;
-force u_matmul.matrix_B.ram[23] = 8'h01;
-force u_matmul.matrix_B.ram[24] = 8'h01;
-force u_matmul.matrix_B.ram[25] = 8'h01;
-force u_matmul.matrix_B.ram[26] = 8'h01;
-force u_matmul.matrix_B.ram[27] = 8'h01;
-force u_matmul.matrix_B.ram[28] = 8'h01;
-force u_matmul.matrix_B.ram[29] = 8'h01;
-force u_matmul.matrix_B.ram[30] = 8'h01;
-force u_matmul.matrix_B.ram[31] = 8'h01;
-force u_matmul.matrix_B.ram[32] = 8'h01;
-force u_matmul.matrix_B.ram[33] = 8'h01;
-force u_matmul.matrix_B.ram[34] = 8'h01;
-force u_matmul.matrix_B.ram[35] = 8'h01;
-force u_matmul.matrix_B.ram[36] = 8'h01;
-force u_matmul.matrix_B.ram[37] = 8'h01;
-force u_matmul.matrix_B.ram[38] = 8'h01;
-force u_matmul.matrix_B.ram[39] = 8'h01;
-force u_matmul.matrix_B.ram[40] = 8'h01;
-force u_matmul.matrix_B.ram[41] = 8'h01;
-force u_matmul.matrix_B.ram[42] = 8'h01;
-force u_matmul.matrix_B.ram[43] = 8'h01;
-force u_matmul.matrix_B.ram[44] = 8'h01;
-force u_matmul.matrix_B.ram[45] = 8'h01;
-force u_matmul.matrix_B.ram[46] = 8'h01;
-force u_matmul.matrix_B.ram[47] = 8'h01;
-force u_matmul.matrix_B.ram[48] = 8'h01;
-force u_matmul.matrix_B.ram[49] = 8'h01;
-force u_matmul.matrix_B.ram[50] = 8'h01;
-force u_matmul.matrix_B.ram[51] = 8'h01;
-force u_matmul.matrix_B.ram[52] = 8'h01;
-force u_matmul.matrix_B.ram[53] = 8'h01;
-force u_matmul.matrix_B.ram[54] = 8'h01;
-force u_matmul.matrix_B.ram[55] = 8'h01;
-force u_matmul.matrix_B.ram[56] = 8'h01;
-force u_matmul.matrix_B.ram[57] = 8'h01;
-force u_matmul.matrix_B.ram[58] = 8'h01;
-force u_matmul.matrix_B.ram[59] = 8'h01;
-force u_matmul.matrix_B.ram[60] = 8'h01;
-force u_matmul.matrix_B.ram[61] = 8'h01;
-force u_matmul.matrix_B.ram[62] = 8'h01;
-force u_matmul.matrix_B.ram[63] = 8'h01;
-force u_matmul.matrix_B.ram[`MEM_SIZE-1-7] = 8'h0;
-force u_matmul.matrix_B.ram[`MEM_SIZE-1-6] = 8'h0;
-force u_matmul.matrix_B.ram[`MEM_SIZE-1-5] = 8'h0;
-force u_matmul.matrix_B.ram[`MEM_SIZE-1-4] = 8'h0;
-force u_matmul.matrix_B.ram[`MEM_SIZE-1-3] = 8'h0;
-force u_matmul.matrix_B.ram[`MEM_SIZE-1-2] = 8'h0;
-force u_matmul.matrix_B.ram[`MEM_SIZE-1-1] = 8'h0;
-force u_matmul.matrix_B.ram[`MEM_SIZE-1-0] = 8'h0;
+for (int j=0; j<16; j++) begin
+  for (int i=0; i<16; i++) begin
+    u_matmul.matrix_B.ram[16*j + i] = b[i][j];
+  end
+end
 
 end
 /*
