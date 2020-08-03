@@ -151,6 +151,9 @@ always @(posedge clk) begin
   end
 end
 
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_delayed;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_delayed;
+
 //////////////////////////////////////////////////////////////////////////
 // Instantiation of systolic data setup
 //////////////////////////////////////////////////////////////////////////
@@ -181,19 +184,23 @@ systolic_data_setup u_systolic_data_setup(
 //////////////////////////////////////////////////////////////////////////
 // Logic to mux data_in coming from neighboring matmuls
 //////////////////////////////////////////////////////////////////////////
-assign a_data_pes = (b_loc==0) ? a_data_delayed : a_data_in;
-assign b_data_pes = (a_loc==0) ? b_data_delayed : b_data_in;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_to_pes;
+wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_to_pes;
+
+assign a_data_to_pes = (b_loc==0) ? a_data_delayed : a_data_in;
+assign b_data_to_pes = (a_loc==0) ? b_data_delayed : b_data_in;
 
 //////////////////////////////////////////////////////////////////////////
 // Instantiations of the actual PEs
 //////////////////////////////////////////////////////////////////////////
+wire [511:0] pe_data_out;
 systolic_pe_matrix u_systolic_pe_matrix(
 .clk(clk),
 .reset(reset),
 .pe_reset(pe_reset),
 .start_mat_mul(start_mat_mul),
-.a_data(a_data_pes),
-.b_data(b_data_pes),
+.a_data(a_data_to_pes),
+.b_data(b_data_to_pes),
 .dtype(dtype),
 .pe_data_out(pe_data_out),
 .a_data_out(a_data_out),
@@ -425,13 +432,11 @@ input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
 input [7:0] clk_cnt;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_delayed;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_delayed;
-
 input [`MASK_WIDTH-1:0] validity_mask_a_rows;
 input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
 input [`MASK_WIDTH-1:0] validity_mask_b_cols;
-
+input dtype;
 input [7:0] final_mat_mul_size;
-  
 input [7:0] a_loc;
 input [7:0] b_loc;
 
@@ -506,7 +511,16 @@ assign a_data_valid =
 // Logic to delay certain parts of the data received from BRAM A (systolic data setup)
 //////////////////////////////////////////////////////////////////////////
 wire [`MASK_WIDTH-1:0] validity_mask_a_rows_internal;
-validity_mask_a_rows_internal = (dtype = `DTYPE_INT8) ? validity_mask_a_rows : {validity_mask_a_rows[3],validity_mask_a_rows[3], validity_mask_a_rows[2],validity_mask_a_rows[2], validity_mask_a_rows[1],validity_mask_a_rows[1], validity_mask_a_rows[0],validity_mask_a_rows[0]};
+assign validity_mask_a_rows_internal = (dtype == `DTYPE_INT8) ? 
+                                      validity_mask_a_rows : 
+                                     {validity_mask_a_rows[3],
+                                      validity_mask_a_rows[3], 
+                                      validity_mask_a_rows[2],
+                                      validity_mask_a_rows[2], 
+                                      validity_mask_a_rows[1],
+                                      validity_mask_a_rows[1], 
+                                      validity_mask_a_rows[0],
+                                      validity_mask_a_rows[0]};
 
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_validated;
 assign a_data_validated[1*`DWIDTH-1:0*`DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[0]) ? a_data[1*`DWIDTH-1:0*`DWIDTH] : {`DWIDTH{1'b0}};
@@ -520,7 +534,7 @@ assign a_data_validated[8*`DWIDTH-1:7*`DWIDTH] = (a_data_valid & validity_mask_a
 
 
 wire flop_rst;
-flop_rst = (reset || ~start_mat_mul || clk_cnt==0);
+assign flop_rst = (reset || ~start_mat_mul || clk_cnt==0);
 
 wire [`DWIDTH-1:0] a_one_clk_del_int8;
 wire [`DWIDTH-1:0] a_two_clk_del_int8;
@@ -537,22 +551,22 @@ wire [`DWIDTH-1:0] a_fiv_clk_del_fp16;
 wire [`DWIDTH-1:0] a_six_clk_del_fp16;
 wire [`DWIDTH-1:0] a_sev_clk_del_fp16;
 
-one_clk_delay    u_a_one_clk_delay     (.rst(flop_rst), .in(a_data_validated[2*`DWIDTH-1:1*`DWIDTH]), .out_int8(a_one_clk_del_int8), .out_fp16(a_one_clk_del_fp16));
-two_clk_delay    u_a_two_clk_delay     (.rst(flop_rst), .in(a_data_validated[3*`DWIDTH-1:2*`DWIDTH]), .out_int8(a_two_clk_del_int8), .out_fp16(a_two_clk_del_fp16));
-three_clk_delay  u_a_three_clk_delay   (.rst(flop_rst), .in(a_data_validated[4*`DWIDTH-1:3*`DWIDTH]), .out_int8(a_thr_clk_del_int8), .out_fp16(a_thr_clk_del_fp16));
-four_clk_delay   u_a_four_clk_delay    (.rst(flop_rst), .in(a_data_validated[5*`DWIDTH-1:4*`DWIDTH]), .out_int8(a_fou_clk_del_int8), .out_fp16(a_fou_clk_del_fp16));
-five_clk_delay   u_a_five_clk_delay    (.rst(flop_rst), .in(a_data_validated[6*`DWIDTH-1:5*`DWIDTH]), .out_int8(a_fiv_clk_del_int8), .out_fp16(a_fiv_clk_del_fp16));
-six_clk_delay    u_a_six_clk_delay     (.rst(flop_rst), .in(a_data_validated[7*`DWIDTH-1:6*`DWIDTH]), .out_int8(a_six_clk_del_int8), .out_fp16(a_six_clk_del_fp16));
-seven_clk_delay  u_a_seven_clk_delay   (.rst(flop_rst), .in(a_data_validated[8*`DWIDTH-1:7*`DWIDTH]), .out_int8(a_sev_clk_del_int8), .out_fp16(a_sev_clk_del_fp16));
+one_clk_delay    u_a_one_clk_delay     (.clk(clk), .rst(flop_rst), .in(a_data_validated[2*`DWIDTH-1:1*`DWIDTH]), .out_int8(a_one_clk_del_int8), .out_fp16(a_one_clk_del_fp16));
+two_clk_delay    u_a_two_clk_delay     (.clk(clk), .rst(flop_rst), .in(a_data_validated[3*`DWIDTH-1:2*`DWIDTH]), .out_int8(a_two_clk_del_int8), .out_fp16(a_two_clk_del_fp16));
+three_clk_delay  u_a_three_clk_delay   (.clk(clk), .rst(flop_rst), .in(a_data_validated[4*`DWIDTH-1:3*`DWIDTH]), .out_int8(a_thr_clk_del_int8), .out_fp16(a_thr_clk_del_fp16));
+four_clk_delay   u_a_four_clk_delay    (.clk(clk), .rst(flop_rst), .in(a_data_validated[5*`DWIDTH-1:4*`DWIDTH]), .out_int8(a_fou_clk_del_int8), .out_fp16(a_fou_clk_del_fp16));
+five_clk_delay   u_a_five_clk_delay    (.clk(clk), .rst(flop_rst), .in(a_data_validated[6*`DWIDTH-1:5*`DWIDTH]), .out_int8(a_fiv_clk_del_int8), .out_fp16(a_fiv_clk_del_fp16));
+six_clk_delay    u_a_six_clk_delay     (.clk(clk), .rst(flop_rst), .in(a_data_validated[7*`DWIDTH-1:6*`DWIDTH]), .out_int8(a_six_clk_del_int8), .out_fp16(a_six_clk_del_fp16));
+seven_clk_delay  u_a_seven_clk_delay   (.clk(clk), .rst(flop_rst), .in(a_data_validated[8*`DWIDTH-1:7*`DWIDTH]), .out_int8(a_sev_clk_del_int8), .out_fp16(a_sev_clk_del_fp16));
 
-a_data_delayed[`DWIDTH-1:0]           = a_data_validated[`DWIDTH-1:0];
-a_data_delayed[2*`DWIDTH-1:1*`DWIDTH] = (dtype == `DTYPE_INT8)? a_one_clk_del_int8 : a_one_clk_del_fp16;
-a_data_delayed[3*`DWIDTH-1:2*`DWIDTH] = (dtype == `DTYPE_INT8)? a_two_clk_del_int8 : a_two_clk_del_fp16;
-a_data_delayed[4*`DWIDTH-1:3*`DWIDTH] = (dtype == `DTYPE_INT8)? a_thr_clk_del_int8 : a_thr_clk_del_fp16;
-a_data_delayed[5*`DWIDTH-1:4*`DWIDTH] = (dtype == `DTYPE_INT8)? a_fou_clk_del_int8 : a_fou_clk_del_fp16;
-a_data_delayed[6*`DWIDTH-1:5*`DWIDTH] = (dtype == `DTYPE_INT8)? a_fiv_clk_del_int8 : a_fiv_clk_del_fp16;
-a_data_delayed[7*`DWIDTH-1:6*`DWIDTH] = (dtype == `DTYPE_INT8)? a_six_clk_del_int8 : a_six_clk_del_fp16;
-a_data_delayed[8*`DWIDTH-1:7*`DWIDTH] = (dtype == `DTYPE_INT8)? a_sev_clk_del_int8 : a_sev_clk_del_fp16;
+assign a_data_delayed[`DWIDTH-1:0]           = a_data_validated[`DWIDTH-1:0];
+assign a_data_delayed[2*`DWIDTH-1:1*`DWIDTH] = (dtype == `DTYPE_INT8)? a_one_clk_del_int8 : a_one_clk_del_fp16;
+assign a_data_delayed[3*`DWIDTH-1:2*`DWIDTH] = (dtype == `DTYPE_INT8)? a_two_clk_del_int8 : a_two_clk_del_fp16;
+assign a_data_delayed[4*`DWIDTH-1:3*`DWIDTH] = (dtype == `DTYPE_INT8)? a_thr_clk_del_int8 : a_thr_clk_del_fp16;
+assign a_data_delayed[5*`DWIDTH-1:4*`DWIDTH] = (dtype == `DTYPE_INT8)? a_fou_clk_del_int8 : a_fou_clk_del_fp16;
+assign a_data_delayed[6*`DWIDTH-1:5*`DWIDTH] = (dtype == `DTYPE_INT8)? a_fiv_clk_del_int8 : a_fiv_clk_del_fp16;
+assign a_data_delayed[7*`DWIDTH-1:6*`DWIDTH] = (dtype == `DTYPE_INT8)? a_six_clk_del_int8 : a_six_clk_del_fp16;
+assign a_data_delayed[8*`DWIDTH-1:7*`DWIDTH] = (dtype == `DTYPE_INT8)? a_sev_clk_del_int8 : a_sev_clk_del_fp16;
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -624,7 +638,7 @@ assign b_data_valid =
 // Logic to delay certain parts of the data received from BRAM B (systolic data setup)
 //////////////////////////////////////////////////////////////////////////
 wire [`MASK_WIDTH-1:0] validity_mask_b_cols_internal;
-validity_mask_b_cols_internal = (dtype = `DTYPE_INT8) ? validity_mask_b_cols : {validity_mask_b_cols[3],validity_mask_b_cols[3], validity_mask_b_cols[2],validity_mask_b_cols[2], validity_mask_b_cols[1],validity_mask_b_cols[1], validity_mask_b_cols[0],validity_mask_b_cols[0]};
+assign validity_mask_b_cols_internal = (dtype == `DTYPE_INT8) ? validity_mask_b_cols : {validity_mask_b_cols[3],validity_mask_b_cols[3], validity_mask_b_cols[2],validity_mask_b_cols[2], validity_mask_b_cols[1],validity_mask_b_cols[1], validity_mask_b_cols[0],validity_mask_b_cols[0]};
 
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_validated;
 assign b_data_validated[1*`DWIDTH-1:0*`DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[0]) ? b_data[1*`DWIDTH-1:0*`DWIDTH] : {`DWIDTH{1'b0}};
@@ -652,32 +666,35 @@ wire [`DWIDTH-1:0] b_fiv_clk_del_fp16;
 wire [`DWIDTH-1:0] b_six_clk_del_fp16;
 wire [`DWIDTH-1:0] b_sev_clk_del_fp16;
 
-one_clk_delay   u_b_one_clk_delay     (.rst(flop_rst), .in(b_data_validated[2*`DWIDTH-1:1*`DWIDTH]), .out_int8(b_one_clk_del_int8), .out_fp16(b_one_clk_del_fp16));
-two_clk_delay   u_b_two_clk_delay     (.rst(flop_rst), .in(b_data_validated[3*`DWIDTH-1:2*`DWIDTH]), .out_int8(b_two_clk_del_int8), .out_fp16(b_two_clk_del_fp16));
-three_clk_delay u_b_three_clk_delay   (.rst(flop_rst), .in(b_data_validated[4*`DWIDTH-1:3*`DWIDTH]), .out_int8(b_thr_clk_del_int8), .out_fp16(b_thr_clk_del_fp16));
-four_clk_delay  u_b_four_clk_delay    (.rst(flop_rst), .in(b_data_validated[5*`DWIDTH-1:4*`DWIDTH]), .out_int8(b_fou_clk_del_int8), .out_fp16(b_fou_clk_del_fp16));
-five_clk_delay  u_b_five_clk_delay    (.rst(flop_rst), .in(b_data_validated[6*`DWIDTH-1:5*`DWIDTH]), .out_int8(b_fiv_clk_del_int8), .out_fp16(b_fiv_clk_del_fp16));
-six_clk_delay   u_b_six_clk_delay     (.rst(flop_rst), .in(b_data_validated[7*`DWIDTH-1:6*`DWIDTH]), .out_int8(b_six_clk_del_int8), .out_fp16(b_six_clk_del_fp16));
-seven_clk_delay u_b_seven_clk_delay   (.rst(flop_rst), .in(b_data_validated[8*`DWIDTH-1:7*`DWIDTH]), .out_int8(b_sev_clk_del_int8), .out_fp16(b_sev_clk_del_fp16));
+one_clk_delay   u_b_one_clk_delay     (.clk(clk), .rst(flop_rst), .in(b_data_validated[2*`DWIDTH-1:1*`DWIDTH]), .out_int8(b_one_clk_del_int8), .out_fp16(b_one_clk_del_fp16));
+two_clk_delay   u_b_two_clk_delay     (.clk(clk), .rst(flop_rst), .in(b_data_validated[3*`DWIDTH-1:2*`DWIDTH]), .out_int8(b_two_clk_del_int8), .out_fp16(b_two_clk_del_fp16));
+three_clk_delay u_b_three_clk_delay   (.clk(clk), .rst(flop_rst), .in(b_data_validated[4*`DWIDTH-1:3*`DWIDTH]), .out_int8(b_thr_clk_del_int8), .out_fp16(b_thr_clk_del_fp16));
+four_clk_delay  u_b_four_clk_delay    (.clk(clk), .rst(flop_rst), .in(b_data_validated[5*`DWIDTH-1:4*`DWIDTH]), .out_int8(b_fou_clk_del_int8), .out_fp16(b_fou_clk_del_fp16));
+five_clk_delay  u_b_five_clk_delay    (.clk(clk), .rst(flop_rst), .in(b_data_validated[6*`DWIDTH-1:5*`DWIDTH]), .out_int8(b_fiv_clk_del_int8), .out_fp16(b_fiv_clk_del_fp16));
+six_clk_delay   u_b_six_clk_delay     (.clk(clk), .rst(flop_rst), .in(b_data_validated[7*`DWIDTH-1:6*`DWIDTH]), .out_int8(b_six_clk_del_int8), .out_fp16(b_six_clk_del_fp16));
+seven_clk_delay u_b_seven_clk_delay   (.clk(clk), .rst(flop_rst), .in(b_data_validated[8*`DWIDTH-1:7*`DWIDTH]), .out_int8(b_sev_clk_del_int8), .out_fp16(b_sev_clk_del_fp16));
 
-b_data_delayed[`DWIDTH-1:0]           = b_data_validated[`DWIDTH-1:0];
-b_data_delayed[2*`DWIDTH-1:1*`DWIDTH] = (dtype == `DTYPE_INT8)? b_one_clk_del_int8 : b_one_clk_del_fp16;
-b_data_delayed[3*`DWIDTH-1:2*`DWIDTH] = (dtype == `DTYPE_INT8)? b_two_clk_del_int8 : b_two_clk_del_fp16;
-b_data_delayed[4*`DWIDTH-1:3*`DWIDTH] = (dtype == `DTYPE_INT8)? b_thr_clk_del_int8 : b_thr_clk_del_fp16;
-b_data_delayed[5*`DWIDTH-1:4*`DWIDTH] = (dtype == `DTYPE_INT8)? b_fou_clk_del_int8 : b_fou_clk_del_fp16;
-b_data_delayed[6*`DWIDTH-1:5*`DWIDTH] = (dtype == `DTYPE_INT8)? b_fiv_clk_del_int8 : b_fiv_clk_del_fp16;
-b_data_delayed[7*`DWIDTH-1:6*`DWIDTH] = (dtype == `DTYPE_INT8)? b_six_clk_del_int8 : b_six_clk_del_fp16;
-b_data_delayed[8*`DWIDTH-1:7*`DWIDTH] = (dtype == `DTYPE_INT8)? b_sev_clk_del_int8 : b_sev_clk_del_fp16;
+assign b_data_delayed[`DWIDTH-1:0]           = b_data_validated[`DWIDTH-1:0];
+assign b_data_delayed[2*`DWIDTH-1:1*`DWIDTH] = (dtype == `DTYPE_INT8)? b_one_clk_del_int8 : b_one_clk_del_fp16;
+assign b_data_delayed[3*`DWIDTH-1:2*`DWIDTH] = (dtype == `DTYPE_INT8)? b_two_clk_del_int8 : b_two_clk_del_fp16;
+assign b_data_delayed[4*`DWIDTH-1:3*`DWIDTH] = (dtype == `DTYPE_INT8)? b_thr_clk_del_int8 : b_thr_clk_del_fp16;
+assign b_data_delayed[5*`DWIDTH-1:4*`DWIDTH] = (dtype == `DTYPE_INT8)? b_fou_clk_del_int8 : b_fou_clk_del_fp16;
+assign b_data_delayed[6*`DWIDTH-1:5*`DWIDTH] = (dtype == `DTYPE_INT8)? b_fiv_clk_del_int8 : b_fiv_clk_del_fp16;
+assign b_data_delayed[7*`DWIDTH-1:6*`DWIDTH] = (dtype == `DTYPE_INT8)? b_six_clk_del_int8 : b_six_clk_del_fp16;
+assign b_data_delayed[8*`DWIDTH-1:7*`DWIDTH] = (dtype == `DTYPE_INT8)? b_sev_clk_del_int8 : b_sev_clk_del_fp16;
 
 endmodule
 
+//////////////////////////////////////////////
+// Delay modules - Flops to delay for various number of clocks
+//////////////////////////////////////////////
 module one_clk_delay(
-  input clk;
-  input rst;
-  input [`DWIDTH-1:0] in;
-  output [`DWIDTH-1:0] out_int8;
-  output [`DWIDTH-1:0] out_fp16;
-)
+  input clk,
+  input rst,
+  input [`DWIDTH-1:0] in,
+  output reg [`DWIDTH-1:0] out_int8,
+  output [`DWIDTH-1:0] out_fp16
+);
 //1 clk delay in int8, 0 clk delay in fp16
 assign out_fp16 = in;
 always @(posedge clk) begin
@@ -687,17 +704,20 @@ always @(posedge clk) begin
   else begin
     out_int8 <= in;
   end
+end
 endmodule
 
+//////////////////////////////////////////////
 module two_clk_delay(
-  input clk;
-  input rst;
-  input [`DWIDTH-1:0] in;
-  output [`DWIDTH-1:0] out_int8;
-  output [`DWIDTH-1:0] out_fp16;
-)
+  input clk,
+  input rst,
+  input [`DWIDTH-1:0] in,
+  output reg [`DWIDTH-1:0] out_int8,
+  output [`DWIDTH-1:0] out_fp16
+);
+reg [`DWIDTH-1:0] out_int8;
 //2 clk delay in int8, 1 clk delay in fp16
-wire [`DWIDTH-1:0] in_delayed;
+reg [`DWIDTH-1:0] in_delayed;
 assign out_fp16 = in_delayed;
 always @(posedge clk) begin
   if (rst) begin
@@ -707,18 +727,20 @@ always @(posedge clk) begin
     in_delayed <= in;
     out_int8 <= in_delayed;
   end
+end
 endmodule
 
+//////////////////////////////////////////////
 module three_clk_delay(
-  input clk;
-  input rst;
-  input [`DWIDTH-1:0] in;
-  output [`DWIDTH-1:0] out_int8;
-  output [`DWIDTH-1:0] out_fp16;
-)
+  input clk,
+  input rst,
+  input [`DWIDTH-1:0] in,
+  output reg [`DWIDTH-1:0] out_int8,
+  output [`DWIDTH-1:0] out_fp16
+);
 //3 clk delay in int8, 1 clk delay in fp16
-wire [`DWIDTH-1:0] in_delayed_1;
-wire [`DWIDTH-1:0] in_delayed_2;
+reg [`DWIDTH-1:0] in_delayed_1;
+reg [`DWIDTH-1:0] in_delayed_2;
 
 assign out_fp16 = in_delayed_1;
 always @(posedge clk) begin
@@ -730,19 +752,21 @@ always @(posedge clk) begin
     in_delayed_2 <= in_delayed_1;
     out_int8 <= in_delayed_2;
   end
+end
 endmodule
 
+//////////////////////////////////////////////
 module four_clk_delay(
-  input clk;
-  input rst;
-  input [`DWIDTH-1:0] in;
-  output [`DWIDTH-1:0] out_int8;
-  output [`DWIDTH-1:0] out_fp16;
-)
+  input clk,
+  input rst,
+  input [`DWIDTH-1:0] in,
+  output reg [`DWIDTH-1:0] out_int8,
+  output [`DWIDTH-1:0] out_fp16
+);
 //4 clk delay in int8, 2 clk delay in fp16
-wire [`DWIDTH-1:0] in_delayed_1;
-wire [`DWIDTH-1:0] in_delayed_2;
-wire [`DWIDTH-1:0] in_delayed_3;
+reg [`DWIDTH-1:0] in_delayed_1;
+reg [`DWIDTH-1:0] in_delayed_2;
+reg [`DWIDTH-1:0] in_delayed_3;
 
 assign out_fp16 = in_delayed_2;
 always @(posedge clk) begin
@@ -755,20 +779,22 @@ always @(posedge clk) begin
     in_delayed_3 <= in_delayed_2;
     out_int8 <= in_delayed_3;
   end
+end
 endmodule
 
+//////////////////////////////////////////////
 module five_clk_delay(
-  input clk;
-  input rst;
-  input [`DWIDTH-1:0] in;
-  output [`DWIDTH-1:0] out_int8;
-  output [`DWIDTH-1:0] out_fp16;
-)
+  input clk,
+  input rst,
+  input [`DWIDTH-1:0] in,
+  output reg [`DWIDTH-1:0] out_int8,
+  output [`DWIDTH-1:0] out_fp16
+);
 //5 clk delay in int8, 2 clk delay in fp16
-wire [`DWIDTH-1:0] in_delayed_1;
-wire [`DWIDTH-1:0] in_delayed_2;
-wire [`DWIDTH-1:0] in_delayed_3;
-wire [`DWIDTH-1:0] in_delayed_4;
+reg [`DWIDTH-1:0] in_delayed_1;
+reg [`DWIDTH-1:0] in_delayed_2;
+reg [`DWIDTH-1:0] in_delayed_3;
+reg [`DWIDTH-1:0] in_delayed_4;
 
 assign out_fp16 = in_delayed_2;
 always @(posedge clk) begin
@@ -782,21 +808,23 @@ always @(posedge clk) begin
     in_delayed_4 <= in_delayed_3;
     out_int8 <= in_delayed_4;
   end
+end
 endmodule
 
+//////////////////////////////////////////////
 module six_clk_delay(
-  input clk;
-  input rst;
-  input [`DWIDTH-1:0] in;
-  output [`DWIDTH-1:0] out_int8;
-  output [`DWIDTH-1:0] out_fp16;
-)
+  input clk,
+  input rst,
+  input [`DWIDTH-1:0] in,
+  output reg [`DWIDTH-1:0] out_int8,
+  output [`DWIDTH-1:0] out_fp16
+);
 //6 clk delay in int8, 3 clk delay in fp16
-wire [`DWIDTH-1:0] in_delayed_1;
-wire [`DWIDTH-1:0] in_delayed_2;
-wire [`DWIDTH-1:0] in_delayed_3;
-wire [`DWIDTH-1:0] in_delayed_4;
-wire [`DWIDTH-1:0] in_delayed_5;
+reg [`DWIDTH-1:0] in_delayed_1;
+reg [`DWIDTH-1:0] in_delayed_2;
+reg [`DWIDTH-1:0] in_delayed_3;
+reg [`DWIDTH-1:0] in_delayed_4;
+reg [`DWIDTH-1:0] in_delayed_5;
 
 assign out_fp16 = in_delayed_3;
 always @(posedge clk) begin
@@ -811,22 +839,24 @@ always @(posedge clk) begin
     in_delayed_5 <= in_delayed_4;
     out_int8 <= in_delayed_5;
   end
+end
 endmodule
 
+//////////////////////////////////////////////
 module seven_clk_delay(
-  input clk;
-  input rst;
-  input [`DWIDTH-1:0] in;
-  output [`DWIDTH-1:0] out_int8;
-  output [`DWIDTH-1:0] out_fp16;
-)
+  input clk,
+  input rst,
+  input [`DWIDTH-1:0] in,
+  output reg [`DWIDTH-1:0] out_int8,
+  output [`DWIDTH-1:0] out_fp16
+);
 //7 clk delay in int8, 3 clk delay in fp16
-wire [`DWIDTH-1:0] in_delayed_1;
-wire [`DWIDTH-1:0] in_delayed_2;
-wire [`DWIDTH-1:0] in_delayed_3;
-wire [`DWIDTH-1:0] in_delayed_4;
-wire [`DWIDTH-1:0] in_delayed_5;
-wire [`DWIDTH-1:0] in_delayed_6;
+reg [`DWIDTH-1:0] in_delayed_1;
+reg [`DWIDTH-1:0] in_delayed_2;
+reg [`DWIDTH-1:0] in_delayed_3;
+reg [`DWIDTH-1:0] in_delayed_4;
+reg [`DWIDTH-1:0] in_delayed_5;
+reg [`DWIDTH-1:0] in_delayed_6;
 
 assign out_fp16 = in_delayed_3;
 always @(posedge clk) begin
@@ -842,6 +872,7 @@ always @(posedge clk) begin
     in_delayed_6 <= in_delayed_5;
     out_int8 <= in_delayed_6;
   end
+end
 endmodule
 
 //////////////////////////////////////////////////////////////////////////
@@ -975,10 +1006,10 @@ wire [4*`DWIDTH-1:0] out_b_pe33;
 wire [4*`DWIDTH-1:0] out_c_pe33;
 
 assign pe_data_out =  {
-                      out_c_pe33[31:0], out_c_pe_32[31:0], out_c_pe_31[31:0], out_c_pe_30[31:0],
-                      out_c_pe23[31:0], out_c_pe_22[31:0], out_c_pe_21[31:0], out_c_pe_20[31:0],
-                      out_c_pe13[31:0], out_c_pe_12[31:0], out_c_pe_11[31:0], out_c_pe_10[31:0],
-                      out_c_pe03[31:0], out_c_pe_02[31:0], out_c_pe_01[31:0], out_c_pe_00[31:0]
+                      out_c_pe33[31:0], out_c_pe32[31:0], out_c_pe31[31:0], out_c_pe30[31:0],
+                      out_c_pe23[31:0], out_c_pe22[31:0], out_c_pe21[31:0], out_c_pe20[31:0],
+                      out_c_pe13[31:0], out_c_pe12[31:0], out_c_pe11[31:0], out_c_pe10[31:0],
+                      out_c_pe03[31:0], out_c_pe02[31:0], out_c_pe01[31:0], out_c_pe00[31:0]
                       };
                                               
 assign a_data_out = {out_a_pe33, out_a_pe23, out_a_pe13, out_a_pe03};
@@ -988,22 +1019,18 @@ assign b_data_out = {out_b_pe33, out_b_pe23, out_b_pe13, out_b_pe03};
 // First row of PEs 
 ///////////////////////////////////////////
 assign in_a_pe00 = (dtype == `DTYPE_FP16) ? a_data[15:0] : {8'b0, a_data[7:0]};
-assign in_b_pe00 = (dtype == `DTYPE_FP16) ? b_data[15:0] : {b_data{7:0}, b_data[15:8], b_data[23:16], b_data[31:24]};
+assign in_b_pe00 = (dtype == `DTYPE_FP16) ? b_data[15:0] : {b_data[7:0], b_data[15:8], b_data[23:16], b_data[31:24]};
 
 wire [2*`DWIDTH-1:0] a0_0to0_1_fp16;
 wire [1*`DWIDTH-1:0] a0_3to0_4_int8;
-wire [2*`DWIDTH-1:0] a0_0to0_1_fp16;
-wire [1*`DWIDTH-1:0] a0_3to0_4_int8;
 assign a0_0to0_1_fp16 = out_a_pe00;
 assign a0_3to0_4_int8 = out_a_pe00[7:0];
-assign a0_0to0_1_fp16 = out_a_pe00;
-assign a0_3to0_4_int8 = out_a_pe00[7:0];
-assign in_a_pe01 = (dtype == `DTYPE_FP16) ? a0_0to0_1_fp16 : {8'b0 : a0_3to0_4_int8};
-assign in_b_pe01 = (dtype == `DTYPE_FP16) ? b_data[15:0] : {b_data{39:32}, b_data[47:40], b_data[55:48], b_data[63:56]};
+assign in_a_pe01 = (dtype == `DTYPE_FP16) ? a0_0to0_1_fp16 : {8'b0, a0_3to0_4_int8};
+assign in_b_pe01 = (dtype == `DTYPE_FP16) ? b_data[15:0] : {b_data[39:32], b_data[47:40], b_data[55:48], b_data[63:56]};
 
 wire [2*`DWIDTH-1:0] a0_1to0_2_fp16;
 assign a0_1to0_2_fp16 = out_a_pe01;
-assign in_a_pe02 = (dtype == `DTYPE_FP16) ? a0_1to0_2_fp16 : {8'b0: a_data[15:8]};
+assign in_a_pe02 = (dtype == `DTYPE_FP16) ? a0_1to0_2_fp16 : {8'b0, a_data[15:8]};
 assign in_b_pe02 = (dtype == `DTYPE_FP16) ? b_data[31:16] : out_b_pe00;
 
 wire [2*`DWIDTH-1:0] a0_2to0_3_fp16;
@@ -1044,7 +1071,7 @@ wire [2*`DWIDTH-1:0] b0_3to1_3_fp16;
 assign a1_2to1_3_fp16 = out_a_pe12;
 assign a3_3to3_4_int8 = out_a_pe12[7:0];
 assign b0_3to1_3_fp16 = out_b_pe03[15:0];
-assign in_a_pe13 = (dtype == `DTYPE_FP16) ? a1_2to1_3_fp16 : {8'b0, a3_3to3_4_int8}
+assign in_a_pe13 = (dtype == `DTYPE_FP16) ? a1_2to1_3_fp16 : {8'b0, a3_3to3_4_int8};
 assign in_b_pe13 = (dtype == `DTYPE_FP16) ? b0_3to1_3_fp16 : out_b_pe11;
 
 
@@ -1078,7 +1105,7 @@ wire [2*`DWIDTH-1:0] b1_3to2_3_fp16;
 assign a2_2to2_3_fp16 = out_a_pe22;
 assign a5_3to5_4_int8 = out_a_pe22[7:0];
 assign b1_3to2_3_fp16 = out_b_pe13[15:0];
-assign in_a_pe23 = (dtype == `DTYPE_FP16) ? a2_2to2_3_fp16 : {8'b0, a5_3to5_4_int8}
+assign in_a_pe23 = (dtype == `DTYPE_FP16) ? a2_2to2_3_fp16 : {8'b0, a5_3to5_4_int8};
 assign in_b_pe23 = (dtype == `DTYPE_FP16) ? b1_3to2_3_fp16 : out_b_pe21;
 
 
@@ -1112,7 +1139,7 @@ wire [2*`DWIDTH-1:0] b2_3to3_3_fp16;
 assign a3_2to3_3_fp16 = out_a_pe32;
 assign a7_3to7_4_int8 = out_a_pe32[7:0];
 assign b2_3to3_3_fp16 = out_b_pe23[15:0];
-assign in_a_pe33 = (dtype == `DTYPE_FP16) ? a3_2to3_3_fp16 : {8'b0, a7_3to7_4_int8}
+assign in_a_pe33 = (dtype == `DTYPE_FP16) ? a3_2to3_3_fp16 : {8'b0, a7_3to7_4_int8};
 assign in_b_pe33 = (dtype == `DTYPE_FP16) ? b2_3to3_3_fp16 : out_b_pe31;
 
 //                                                                          16 bits                 32 bits           16 bits             32 bits          32 bits
@@ -1196,11 +1223,12 @@ module processing_element(
  output [31:0] out_b;
  output [31:0] out_c;
 
- reg [`DWIDTH-1:0] out_a;
- reg [`DWIDTH-1:0] out_b;
- wire [`DWIDTH-1:0] out_c;
+ reg [2*`DWIDTH-1:0] out_a;
+ reg [4*`DWIDTH-1:0] out_b;
 
- wire [`DWIDTH-1:0] out_mac;
+ wire [4*`DWIDTH-1:0] out_mac;
+ wire [4*`DWIDTH-1:0] a_seq_mac;
+ wire [4*`DWIDTH-1:0] b_seq_mac;
 
  reg [`DWIDTH-1: 0] out_a_0to1;
  reg [`DWIDTH-1: 0] out_a_1to2;
@@ -1248,7 +1276,7 @@ input [4*`DWIDTH-1:0] a;
 input [4*`DWIDTH-1:0] b;
 output [4*`DWIDTH-1:0] out;
 
-wire [`DWIDTH-1:0] add_out;
+wire [8*`DWIDTH-1:0] add_out;
 
 reg [4*`DWIDTH-1:0] a_flopped; //32 bits
 reg [4*`DWIDTH-1:0] b_flopped; //32 bits
@@ -1265,7 +1293,7 @@ end
 
 wire [8*`DWIDTH-1:0] mul_out; //64 bits
 //                            32 bits                   32 bits              64 bits
-qmult mult_u1(.i_multiplicand(a_flopped), .i_multiplier(b_flopped), .o_result(mul_out));
+qmult mult_u1(.i_multiplicand(a_flopped), .i_multiplier(b_flopped), .o_result(mul_out), .dtype(dtype));
 
 reg [8*`DWIDTH-1:0] mul_out_reg;
 always @(posedge clk) begin
@@ -1278,7 +1306,7 @@ end
 
 reg [8*`DWIDTH-1:0] out_temp;
 //             64 bits       64 bits         64 bits
-qadd add_u1(.a(out_temp), .b(mul_out_reg), .c(add_out));
+qadd add_u1(.a(out_temp), .b(mul_out_reg), .c(add_out), .dtype(dtype));
 
 always @(posedge clk) begin
   if (reset) begin
@@ -1294,13 +1322,27 @@ assign out[4*`DWIDTH-1:0] = {out_temp[55:48], out_temp[39:32], out_temp[23:16], 
 
 endmodule
 
+/////////////////////////////////////////
+// For int8:
+// Multiplication: 8 bits * 8 bits -> 16 bits
+// Addition:       16 bits + 16 bits -> 16 bits
+// We can provide an option to do accumulation/addition 
+// in 8 bits, but that can come later.
+//
+// For fp16:
+// Multiplication: 16 bits * 16 bits -> 16 bits (then cast this to 32 bits)
+// Addition:       32 bits + 32 bits -> 32 bits
+// We can provide an option to do accumulation/addition 
+// in 16 bits, but that can come later.
 
 //4 int8 multipliers, one fp16 multiplier
-module qmult(i_multiplicand,i_multiplier,o_result, dtype);
+module qmult(i_multiplicand, i_multiplier, o_result, dtype);
 input [4*`DWIDTH-1:0] i_multiplicand;
 input [4*`DWIDTH-1:0] i_multiplier;
 output [8*`DWIDTH-1:0] o_result;
 input dtype;
+
+reg [8*`DWIDTH-1:0] o_result;
 
 always @(*) begin
   if (dtype == `DTYPE_INT8) begin
@@ -1316,18 +1358,20 @@ end
 endmodule
 
 //4 int8 adders (actually int16 adders because we support accumulation in higher precision), one fp16 adder (actually fp32 adder)
-module qadd(a,b,c, dtype);
+module qadd(a, b, c, dtype);
 input [8*`DWIDTH-1:0] a;
 input [8*`DWIDTH-1:0] b;
 output [8*`DWIDTH-1:0] c;
 input dtype;
+
+reg [8*`DWIDTH-1:0] c;
 
 always @(*) begin
   if (dtype == `DTYPE_INT8) begin
     c[15:0]  = a[15:0]  + b[15:0];
     c[31:16] = a[31:16] + b[31:16];
     c[47:32] = a[47:32] + b[47:32];
-    d[63:48] = a[63:48] + b[63:48];
+    c[63:48] = a[63:48] + b[63:48];
   end
   else begin
     c[31:0] = a[31:0] + b[31:0];
