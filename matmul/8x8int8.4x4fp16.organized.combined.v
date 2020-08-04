@@ -220,7 +220,6 @@ output_logic u_output_logic(
 .c_addr(c_addr),
 .c_data_available(c_data_available),
 .clk_cnt(clk_cnt),
-.row_latch_en(row_latch_en),
 .final_mat_mul_size(final_mat_mul_size),
 .pe_data_out(pe_data_out),
 .dtype(dtype),
@@ -243,7 +242,6 @@ c_data_out, //Data values going out to next matmul - systolic shifting
 c_addr,
 c_data_available,
 clk_cnt,
-row_latch_en,
 final_mat_mul_size,
 pe_data_out,
 dtype,
@@ -262,12 +260,10 @@ output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
 output [`AWIDTH-1:0] c_addr;
 output c_data_available;
 input [7:0] clk_cnt;
-output row_latch_en;
 input [7:0] final_mat_mul_size;
 input [511:0] pe_data_out;
 input dtype;
 wire row_latch_en;
-
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to capture matrix C data from the PEs and shift it out
@@ -715,7 +711,6 @@ module two_clk_delay(
   output reg [`DWIDTH-1:0] out_int8,
   output [`DWIDTH-1:0] out_fp16
 );
-reg [`DWIDTH-1:0] out_int8;
 //2 clk delay in int8, 1 clk delay in fp16
 reg [`DWIDTH-1:0] in_delayed;
 assign out_fp16 = in_delayed;

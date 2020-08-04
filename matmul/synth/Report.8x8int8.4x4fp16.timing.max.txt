@@ -1,0 +1,129 @@
+Information: Updating design information... (UID-85)
+Warning: Design 'matmul_8x8_systolic' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+        -sort_by group
+Design : matmul_8x8_systolic
+Version: O-2018.06-SP5
+Date   : Mon Aug  3 21:33:08 2020
+****************************************
+
+ # A fanout number of 1000 was used for high fanout net computations.
+
+Operating Conditions: typical   Library: gscl45nm
+Wire Load Model Mode: top
+
+  Startpoint: u_systolic_pe_matrix/pe33/u_mac/out_temp_reg[0]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: u_systolic_pe_matrix/pe33/u_mac/out_temp_reg[31]
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clk (rise edge)                                   0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  u_systolic_pe_matrix/pe33/u_mac/out_temp_reg[0]/CLK (DFFPOSX1)
+                                                          0.00 #     0.00 r
+  u_systolic_pe_matrix/pe33/u_mac/out_temp_reg[0]/Q (DFFPOSX1)
+                                                          0.12       0.12 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/a[0] (qadd_1)
+                                                          0.00       0.12 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/A[0] (qadd_1_DW01_add_0)
+                                                          0.00       0.12 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1/Y (AND2X1)
+                                                          0.06       0.18 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_1/YC (FAX1)
+                                                          0.08       0.26 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_2/YC (FAX1)
+                                                          0.08       0.34 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_3/YC (FAX1)
+                                                          0.08       0.42 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_4/YC (FAX1)
+                                                          0.08       0.50 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_5/YC (FAX1)
+                                                          0.08       0.58 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_6/YC (FAX1)
+                                                          0.08       0.67 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_7/YC (FAX1)
+                                                          0.08       0.75 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_8/YC (FAX1)
+                                                          0.08       0.83 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_9/YC (FAX1)
+                                                          0.08       0.91 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_10/YC (FAX1)
+                                                          0.08       0.99 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_11/YC (FAX1)
+                                                          0.08       1.07 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_12/YC (FAX1)
+                                                          0.08       1.15 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_13/YC (FAX1)
+                                                          0.08       1.24 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_14/YC (FAX1)
+                                                          0.08       1.32 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_15/YC (FAX1)
+                                                          0.08       1.40 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_16/YC (FAX1)
+                                                          0.08       1.48 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_17/YC (FAX1)
+                                                          0.08       1.56 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_18/YC (FAX1)
+                                                          0.08       1.64 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_19/YC (FAX1)
+                                                          0.08       1.72 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_20/YC (FAX1)
+                                                          0.08       1.81 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_21/YC (FAX1)
+                                                          0.08       1.89 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_22/YC (FAX1)
+                                                          0.08       1.97 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_23/YC (FAX1)
+                                                          0.08       2.05 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_24/YC (FAX1)
+                                                          0.08       2.13 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_25/YC (FAX1)
+                                                          0.08       2.21 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_26/YC (FAX1)
+                                                          0.08       2.29 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_27/YC (FAX1)
+                                                          0.08       2.38 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_28/YC (FAX1)
+                                                          0.08       2.46 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_29/YC (FAX1)
+                                                          0.08       2.54 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_30/YC (FAX1)
+                                                          0.08       2.62 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/U1_31/YS (FAX1)
+                                                          0.08       2.70 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/add_1404/SUM[31] (qadd_1_DW01_add_0)
+                                                          0.00       2.70 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/U47/Y (AOI22X1)
+                                                          0.03       2.73 r
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/U36/Y (INVX1)
+                                                          0.07       2.80 f
+  u_systolic_pe_matrix/pe33/u_mac/add_u1/c[31] (qadd_1)
+                                                          0.00       2.80 f
+  u_systolic_pe_matrix/pe33/u_mac/U103/Y (AND2X1)         0.03       2.83 f
+  u_systolic_pe_matrix/pe33/u_mac/out_temp_reg[31]/D (DFFPOSX1)
+                                                          0.00       2.83 f
+  data arrival time                                                  2.83
+
+  clock clk (rise edge)                                   3.00       3.00
+  clock network delay (ideal)                             0.00       3.00
+  u_systolic_pe_matrix/pe33/u_mac/out_temp_reg[31]/CLK (DFFPOSX1)
+                                                          0.00       3.00 r
+  library setup time                                     -0.06       2.94
+  data required time                                                 2.94
+  --------------------------------------------------------------------------
+  data required time                                                 2.94
+  data arrival time                                                 -2.83
+  --------------------------------------------------------------------------
+  slack (MET)                                                        0.11
+
+
+1
