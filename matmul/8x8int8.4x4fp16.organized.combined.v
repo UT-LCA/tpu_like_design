@@ -1398,8 +1398,10 @@ module processing_element(
                 .direct_dtype(direct_dtype),
                 .direct_mode(direct_mode));
 
- assign out_c[15:0]  = (slice_dtype == `DTYPE_FP16) ? out_mac[15:0] : {out_mac[15:8],  out_mac[7:0]};
- assign out_c[31:16] = (slice_dtype == `DTYPE_FP16) ? {16{1'b0}}    : {out_mac[31:24], out_mac[23:16]} ;
+ //assign out_c[15:0]  = (slice_dtype == `DTYPE_FP16) ? out_mac[15:0] : {out_mac[15:8],  out_mac[7:0]};
+ //assign out_c[31:16] = (slice_dtype == `DTYPE_FP16) ? {16{1'b0}}    : {out_mac[31:24], out_mac[23:16]} ;
+ //We don't need the muxing above really.
+ assign out_c[31:0] = out_mac[31:0];
 
  always @(posedge clk)begin
     if(reset) begin
