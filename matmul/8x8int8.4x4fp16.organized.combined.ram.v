@@ -45,8 +45,14 @@ module matrix_multiplication(
   bram_we_c_ext,
   start_reg,
   clear_done_reg,
-  dtype,
-  final_mat_mul_size
+  slice_dtype,
+  slice_mode,
+  final_mat_mul_size,
+  a_loc,
+  b_loc,
+  a_data_in,
+  b_data_in,
+  c_data_in
 );
 
   input clk;
@@ -76,8 +82,14 @@ module matrix_multiplication(
   input  [`MASK_WIDTH-1:0] bram_we_c_ext;
   input start_reg;
   input clear_done_reg;
-  input dtype;
+  input slice_dtype;
+  input slice_mode;
   input [7:0] final_mat_mul_size;
+  input [7:0] a_loc;
+  input [7:0] b_loc;
+  input [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in;
+  input [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in;
+  input [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
 
 	wire [`AWIDTH-1:0] bram_addr_a;
 	wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a;
@@ -221,18 +233,15 @@ wire c_data_available;
   assign bram_en_b = 1'b1;
   assign bram_we_b = 8'b0;
   
-//NC wires 
 wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out_NC;
 wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out_NC;
-wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_NC;
-wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_NC;
 
 wire reset;
 assign reset = ~resetn;
 wire pe_reset;
 assign pe_reset = ~pe_resetn;
 
-matmul_8x8_systolic u_matmul_8x8(
+matmul_slice u_matmul_8x8(
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),
@@ -246,9 +255,9 @@ matmul_8x8_systolic u_matmul_8x8(
   .address_stride_c(address_stride_c),
   .a_data(bram_rdata_a),
   .b_data(bram_rdata_b),
-  .a_data_in(a_data_in_NC),
-  .b_data_in(b_data_in_NC),
-  .c_data_in({`BB_MAT_MUL_SIZE*`DWIDTH{1'b0}}),
+  .a_data_in(a_data_in),
+  .b_data_in(b_data_in),
+  .c_data_in(c_data_in),
   .c_data_out(bram_wdata_c),
   .a_data_out(a_data_out_NC),
   .b_data_out(b_data_out_NC),
@@ -259,10 +268,11 @@ matmul_8x8_systolic u_matmul_8x8(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
-  .dtype(dtype),
+  .slice_dtype(slice_dtype),
+  .slice_mode(slice_mode),
   .final_mat_mul_size(final_mat_mul_size),
-  .a_loc(8'd0),
-  .b_loc(8'd0)
+  .a_loc(a_loc),
+  .b_loc(b_loc)
 );
 
 endmodule  
@@ -337,7 +347,5 @@ dual_port_ram u_dual_port_ram(
 );
 
 `endif
-
-
 endmodule
 
