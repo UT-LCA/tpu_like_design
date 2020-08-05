@@ -1,5 +1,6 @@
 analyze -format verilog {
 /home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/16_bit/fp16_multiplier_modif.v \
+/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/32_bit/Stratix10/DSP_Slice/FpAddSub_single.modif.v \
 ../8x8int8.4x4fp16.organized.combined.v
 }
 elaborate matmul_slice -architecture verilog -library DEFAULT

@@ -1644,14 +1644,14 @@ input dtype;
   wire [4:0] fpmult_16_flags_NC;
   wire fpmult_16_clk_NC;
   wire fpmult_16_rst_NC;
-  wire [15:0] floating_pt_result;
+  wire [15:0] fpmult_16_result;
 
   FPMult_16 u_fpmult_16(
     .clk(fpmult_16_clk_NC),
     .rst(fpmult_16_rst_NC),
     .a(i_multiplicand[15:0]),
     .b(i_multiplier[15:0]),
-    .result(floating_pt_result),
+    .result(fpmult_16_result),
     .flags(fpmult_16_flags_NC),
     .fixed_pt_mantissa_mult_inp_a(fixed_pt_mantissa_mult_inp_a),
     .fixed_pt_mantissa_mult_inp_b(fixed_pt_mantissa_mult_inp_b),
@@ -1661,7 +1661,7 @@ input dtype;
   //In fixed point, the outputs of the 8 bit multipliers above is the output.
   //In floating point, the output comes from the FPMult instance above.
   //TODO: Faking the conversion from fp16 to fp32 for now.
-  assign o_result = (dtype == `DTYPE_INT8) ? {mult_shared_out_4, mult_shared_out_3, mult_shared_out_2, mult_shared_out_1} : {47'b0, floating_pt_result};
+  assign o_result = (dtype == `DTYPE_INT8) ? {mult_shared_out_4, mult_shared_out_3, mult_shared_out_2, mult_shared_out_1} : {47'b0, fpmult_16_result};
 
 endmodule
 
@@ -1672,19 +1672,232 @@ input [8*`DWIDTH-1:0] b;
 output [8*`DWIDTH-1:0] c;
 input dtype;
 
-reg [8*`DWIDTH-1:0] c;
+//reg [8*`DWIDTH-1:0] c;
+//
+//always @(*) begin
+//  if (dtype == `DTYPE_INT8) begin
+//    c[15:0]  = a[15:0]  + b[15:0];
+//    c[31:16] = a[31:16] + b[31:16];
+//    c[47:32] = a[47:32] + b[47:32];
+//    c[63:48] = a[63:48] + b[63:48];
+//  end
+//  else begin
+//    //TODO: For now, this is just faking it
+//    c[31:0] = a[31:0] + b[31:0];
+//  end
+//end
 
-always @(*) begin
-  if (dtype == `DTYPE_INT8) begin
-    c[15:0]  = a[15:0]  + b[15:0];
-    c[31:16] = a[31:16] + b[31:16];
-    c[47:32] = a[47:32] + b[47:32];
-    c[63:48] = a[63:48] + b[63:48];
-  end
-  else begin
-    //TODO: For now, this is just faking it
-    c[31:0] = a[31:0] + b[31:0];
-  end
-end
+//Actual adders. These adders are shared in fixed point and floating point modes
+//We needed 4 16-bit adders for the fixed point mode, and 1 32-bit floating point adder.
+//Inside the 32-bit floating point adder, we have some fixed point adders that we will share with the 16-bit fixed point adders.
+//We are instantiating 8 8-bit adders. 
+//In fixed point mode, these 8 8-bit adders will combine to be used as 4 16-bit adders.
+//In floating point mode, the 32-floating point adder (instantiated below) requires 4 fixed point adders:
+// Adder 1  -> 8 bit fixed point adder
+// Adder 2  -> 8 bit fixed point adder
+// Adder 34 -> 24 bit fixed point adder
+// Adder 5  -> 8 bit fixed point adder
+
+wire [7:0] add_shared_a_1;
+wire [7:0] add_shared_b_1;
+wire       add_shared_cin_1;
+wire [7:0] add_shared_out_1;
+wire       add_shared_cout_1;
+wire       add_shared_op_1;
+
+wire [7:0] add_shared_a_2;
+wire [7:0] add_shared_b_2;
+wire       add_shared_cin_2;
+wire [7:0] add_shared_out_2;
+wire       add_shared_cout_2;
+wire       add_shared_op_2;
+
+wire [7:0] add_shared_a_3;
+wire [7:0] add_shared_b_3;
+wire       add_shared_cin_3;
+wire [7:0] add_shared_out_3;
+wire       add_shared_cout_3;
+wire       add_shared_op_3;
+
+wire [7:0] add_shared_a_4;
+wire [7:0] add_shared_b_4;
+wire       add_shared_cin_4;
+wire [7:0] add_shared_out_4;
+wire       add_shared_cout_4;
+wire       add_shared_op_4;
+
+wire [7:0] add_shared_a_5;
+wire [7:0] add_shared_b_5;
+wire       add_shared_cin_5;
+wire [7:0] add_shared_out_5;
+wire       add_shared_cout_5;
+wire       add_shared_op_5;
+
+wire [7:0] add_shared_a_6;
+wire [7:0] add_shared_b_6;
+wire       add_shared_cin_6;
+wire [7:0] add_shared_out_6;
+wire       add_shared_cout_6;
+wire       add_shared_op_6;
+
+wire [7:0] add_shared_a_7;
+wire [7:0] add_shared_b_7;
+wire       add_shared_cin_7;
+wire [7:0] add_shared_out_7;
+wire       add_shared_cout_7;
+wire       add_shared_op_7;
+
+wire [7:0] add_shared_a_8;
+wire [7:0] add_shared_b_8;
+wire       add_shared_cin_8;
+wire [7:0] add_shared_out_8;
+wire       add_shared_cout_8;
+wire       add_shared_op_8;
+
+
+addsub_8bit  u_addsub_8bit_1 (.a(add_shared_a_1), .b(add_shared_b_1), .cin(add_shared_cin_1), .out(add_shared_out_1), .cout(add_shared_cout_1), .op(add_shared_op_1));
+addsub_8bit  u_addsub_8bit_2 (.a(add_shared_a_2), .b(add_shared_b_2), .cin(add_shared_cin_2), .out(add_shared_out_2), .cout(add_shared_cout_2), .op(add_shared_op_2));
+addsub_8bit  u_addsub_8bit_3 (.a(add_shared_a_3), .b(add_shared_b_1), .cin(add_shared_cin_3), .out(add_shared_out_3), .cout(add_shared_cout_3), .op(add_shared_op_3));
+addsub_8bit  u_addsub_8bit_4 (.a(add_shared_a_4), .b(add_shared_b_2), .cin(add_shared_cin_4), .out(add_shared_out_4), .cout(add_shared_cout_4), .op(add_shared_op_4));
+addsub_8bit  u_addsub_8bit_5 (.a(add_shared_a_5), .b(add_shared_b_1), .cin(add_shared_cin_5), .out(add_shared_out_5), .cout(add_shared_cout_5), .op(add_shared_op_5));
+addsub_8bit  u_addsub_8bit_6 (.a(add_shared_a_6), .b(add_shared_b_2), .cin(add_shared_cin_6), .out(add_shared_out_6), .cout(add_shared_cout_6), .op(add_shared_op_6));
+addsub_8bit  u_addsub_8bit_7 (.a(add_shared_a_7), .b(add_shared_b_1), .cin(add_shared_cin_7), .out(add_shared_out_7), .cout(add_shared_cout_7), .op(add_shared_op_7));
+addsub_8bit  u_addsub_8bit_8 (.a(add_shared_a_8), .b(add_shared_b_2), .cin(add_shared_cin_8), .out(add_shared_out_8), .cout(add_shared_cout_8), .op(add_shared_op_8));
+
+wire [7:0] fixed_pt_adder1_in_a;
+wire [7:0] fixed_pt_adder1_in_b;
+wire       fixed_pt_adder1_mode;
+wire       fixed_pt_adder1_cin;
+wire [7:0] fixed_pt_adder1_out;
+wire       fixed_pt_adder1_cout;
+
+wire [7:0] fixed_pt_adder2_in_a;
+wire [7:0] fixed_pt_adder2_in_b;
+wire       fixed_pt_adder2_mode;
+wire       fixed_pt_adder2_cin;
+wire [7:0] fixed_pt_adder2_out;
+wire       fixed_pt_adder2_cout;
+
+wire [23:0] fixed_pt_adder34_in_a;
+wire [23:0] fixed_pt_adder34_in_b;
+wire        fixed_pt_adder34_mode;
+wire        fixed_pt_adder34_cin;
+wire [23:0] fixed_pt_adder34_out;
+wire        fixed_pt_adder34_cout;
+
+wire [7:0] fixed_pt_adder5_in_a;
+wire [7:0] fixed_pt_adder5_in_b;
+wire       fixed_pt_adder5_mode;
+wire       fixed_pt_adder5_cin;
+wire [7:0] fixed_pt_adder5_out;
+wire       fixed_pt_adder5_cout;
+
+wire [4:0] fpadd_32_flags_NC;
+wire fpadd_32_clk_NC;
+wire fpadd_32_rst_NC;
+wire [31:0] fpadd_32_result;
+
+//Instantiation of the floating point adder block
+FPAddSub u_fpaddsub_32(
+  .clk(fpadd_32_clk_NC),
+  .rst(fpadd_32_rst_NC),
+  .a(a[31:0]),
+  .b(b[31:0]),
+  .operation(1'b0), //addition
+  .result(fpadd_32_result),
+  .flags(fpadd_32_flags_NC), 
+    //8 bit adder exposed outside
+  .fixed_pt_adder1_in_a(fixed_pt_adder1_in_a),
+  .fixed_pt_adder1_in_b(fixed_pt_adder1_in_b),
+  .fixed_pt_adder1_mode(fixed_pt_adder1_mode),
+  .fixed_pt_adder1_cin(fixed_pt_adder1_cin),
+  .fixed_pt_adder1_out(fixed_pt_adder1_out),
+  .fixed_pt_adder1_cout(fixed_pt_adder1_cout),
+    //8 bit adder exposed outside
+  .fixed_pt_adder2_in_a(fixed_pt_adder2_in_a),
+  .fixed_pt_adder2_in_b(fixed_pt_adder2_in_b),
+  .fixed_pt_adder2_mode(fixed_pt_adder2_mode),
+  .fixed_pt_adder2_cin(fixed_pt_adder2_cin),
+  .fixed_pt_adder2_out(fixed_pt_adder2_out),
+  .fixed_pt_adder2_cout(fixed_pt_adder2_cout),
+    //24 bit adder exposed outside
+  .fixed_pt_adder34_in_a(fixed_pt_adder34_in_a),
+  .fixed_pt_adder34_in_b(fixed_pt_adder34_in_b),
+  .fixed_pt_adder34_mode(fixed_pt_adder34_mode),
+  .fixed_pt_adder34_cin(fixed_pt_adder34_cin),
+  .fixed_pt_adder34_out(fixed_pt_adder34_out),
+  .fixed_pt_adder34_cout(fixed_pt_adder34_cout),
+    //8 bit adder exposed outside
+  .fixed_pt_adder5_in_a(fixed_pt_adder5_in_a),
+  .fixed_pt_adder5_in_b(fixed_pt_adder5_in_b),
+  .fixed_pt_adder5_mode(fixed_pt_adder5_mode),
+  .fixed_pt_adder5_cin(fixed_pt_adder5_cin),
+  .fixed_pt_adder5_out(fixed_pt_adder5_out),
+  .fixed_pt_adder5_cout(fixed_pt_adder5_cout)
+	);
+
+assign add_shared_a_1 = (dtype == `DTYPE_INT8) ? a[7:0]   : fixed_pt_adder1_in_a;
+assign add_shared_a_2 = (dtype == `DTYPE_INT8) ? a[15:8]  : fixed_pt_adder2_in_a;
+assign add_shared_a_3 = (dtype == `DTYPE_INT8) ? a[23:16] : fixed_pt_adder5_in_a;
+assign add_shared_a_4 = (dtype == `DTYPE_INT8) ? a[31:24] : fixed_pt_adder34_in_a[7:0];
+assign add_shared_a_5 = (dtype == `DTYPE_INT8) ? a[39:32] : fixed_pt_adder34_in_a[15:8];
+assign add_shared_a_6 = (dtype == `DTYPE_INT8) ? a[47:40] : fixed_pt_adder34_in_a[23:16];
+assign add_shared_a_7 = (dtype == `DTYPE_INT8) ? a[55:48] : 8'b0;
+assign add_shared_a_8 = (dtype == `DTYPE_INT8) ? a[63:56] : 8'b0;
+
+assign add_shared_b_1 = (dtype == `DTYPE_INT8) ? b[7:0]   : fixed_pt_adder1_in_b;
+assign add_shared_b_2 = (dtype == `DTYPE_INT8) ? b[15:8]  : fixed_pt_adder2_in_b;
+assign add_shared_b_3 = (dtype == `DTYPE_INT8) ? b[23:16] : fixed_pt_adder5_in_b;
+assign add_shared_b_4 = (dtype == `DTYPE_INT8) ? b[31:24] : fixed_pt_adder34_in_b[7:0];
+assign add_shared_b_5 = (dtype == `DTYPE_INT8) ? b[39:32] : fixed_pt_adder34_in_b[15:8];
+assign add_shared_b_6 = (dtype == `DTYPE_INT8) ? b[47:40] : fixed_pt_adder34_in_b[23:16];
+assign add_shared_b_7 = (dtype == `DTYPE_INT8) ? b[55:48] : 8'b0;
+assign add_shared_b_8 = (dtype == `DTYPE_INT8) ? b[63:56] : 8'b0;
+
+assign add_shared_cin_1 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder1_cin;
+assign add_shared_cin_2 = (dtype == `DTYPE_INT8) ? add_shared_cout_1 : fixed_pt_adder2_cin;
+assign add_shared_cin_3 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder5_cin;
+assign add_shared_cin_4 = (dtype == `DTYPE_INT8) ? add_shared_cout_3 : fixed_pt_adder34_cin;
+assign add_shared_cin_5 = (dtype == `DTYPE_INT8) ? 1'b0 : add_shared_cout_4;
+assign add_shared_cin_6 = (dtype == `DTYPE_INT8) ? add_shared_cout_5 : add_shared_cout_5;
+assign add_shared_cin_7 = (dtype == `DTYPE_INT8) ? 1'b0 : 1'b0;
+assign add_shared_cin_8 = (dtype == `DTYPE_INT8) ? add_shared_cout_7 : 1'b0;
+
+assign add_shared_op_1 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder1_mode;
+assign add_shared_op_2 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder2_mode;
+assign add_shared_op_3 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder5_mode;
+assign add_shared_op_4 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder34_mode;
+assign add_shared_op_5 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder34_mode;
+assign add_shared_op_6 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder34_mode;
+assign add_shared_op_7 = (dtype == `DTYPE_INT8) ? 1'b0 : 1'b0;
+assign add_shared_op_8 = (dtype == `DTYPE_INT8) ? 1'b0 : 1'b0;
+
+//TODO: convert 32 bit fp32 result to fp16
+assign c[15:0 ] = (dtype == `DTYPE_INT8) ? {add_shared_out_2, add_shared_out_1} : fpadd_32_result[15:0];
+assign c[31:16] = (dtype == `DTYPE_INT8) ? {add_shared_out_4, add_shared_out_3} : fpadd_32_result[31:16];
+assign c[47:32] = (dtype == `DTYPE_INT8) ? {add_shared_out_6, add_shared_out_5} : 15'b0;
+assign c[63:48] = (dtype == `DTYPE_INT8) ? {add_shared_out_8, add_shared_out_7} : 15'b0;
+
+assign fixed_pt_adder1_out = add_shared_out_1;
+assign fixed_pt_adder1_cout = add_shared_cout_1;
+assign fixed_pt_adder2_out = add_shared_out_2;
+assign fixed_pt_adder2_cout = add_shared_cout_2;
+assign fixed_pt_adder5_out = add_shared_out_3;
+assign fixed_pt_adder5_cout = add_shared_cout_3;
+assign fixed_pt_adder34_out = {add_shared_out_6, add_shared_out_5, add_shared_out_4};
+assign fixed_pt_adder34_cout = add_shared_cout_6;
 
 endmodule
+
+module addsub_8bit(a,b,cin,out,cout,op);
+input [7:0] a;
+input [7:0] b;
+input cin;
+output [7:0] out;
+output cout;
+input op; //0 means addition, 1 means subtraction
+
+assign {cout, out} = (op==0) ? (a + b + cin) : (a - b - cin);
+
+endmodule
+

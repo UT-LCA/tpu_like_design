@@ -8,7 +8,7 @@ Report : power
         -analysis_effort low
 Design : matmul_slice
 Version: O-2018.06-SP5
-Date   : Wed Aug  5 11:15:02 2020
+Date   : Wed Aug  5 17:03:19 2020
 ****************************************
 
 
@@ -30,12 +30,12 @@ Power-specific unit information :
     Leakage Power Units = 1nW
 
 
-  Cell Internal Power  =  31.1671 mW   (86%)
-  Net Switching Power  =   4.9603 mW   (14%)
+  Cell Internal Power  =  34.1036 mW   (81%)
+  Net Switching Power  =   7.7747 mW   (19%)
                          ---------
-Total Dynamic Power    =  36.1275 mW  (100%)
+Total Dynamic Power    =  41.8783 mW  (100%)
 
-Cell Leakage Power     =   1.1411 mW
+Cell Leakage Power     =   1.6524 mW
 
 
                  Internal         Switching           Leakage            Total
@@ -45,9 +45,9 @@ io_pad             0.0000            0.0000            0.0000            0.0000 
 memory             0.0000            0.0000            0.0000            0.0000  (   0.00%)
 black_box          0.0000            0.0000            0.0000            0.0000  (   0.00%)
 clock_network      0.0000            0.0000            0.0000            0.0000  (   0.00%)
-register          25.5612            0.1272        2.9100e+05           25.9794  (  69.71%)
-sequential         0.5246        3.6695e-03        1.2546e+04            0.5408  (   1.45%)
-combinational      5.0814            4.8295        8.3756e+05           10.7484  (  28.84%)
+register          25.6555            0.1237        2.9100e+05           26.0703  (  59.89%)
+sequential         0.0000            0.0000            0.0000            0.0000  (   0.00%)
+combinational      8.4480            7.6510        1.3614e+06           17.4604  (  40.11%)
 --------------------------------------------------------------------------------------------------
-Total             31.1671 mW         4.9603 mW     1.1411e+06 nW        37.2686 mW
+Total             34.1035 mW         7.7747 mW     1.6524e+06 nW        43.5307 mW
 1

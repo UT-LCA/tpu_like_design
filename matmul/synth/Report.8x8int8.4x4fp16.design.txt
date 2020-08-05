@@ -3,7 +3,7 @@
 Report : design
 Design : matmul_slice
 Version: O-2018.06-SP5
-Date   : Wed Aug  5 11:15:03 2020
+Date   : Wed Aug  5 17:03:20 2020
 ****************************************
 
 Design allows ideal nets on clock nets.
