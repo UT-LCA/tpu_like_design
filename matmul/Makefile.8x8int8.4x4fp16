@@ -5,6 +5,7 @@ all: compile run
 
 compile:
 	$(VCS_HOME)/bin/vcs -full64 \
+	/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/16_bit/fp16_multiplier_modif.v \
 	8x8int8.4x4fp16.organized.combined.v \
 	8x8int8.4x4fp16.organized.combined.ram.v \
 	8x8int8.4x4fp16.organized.combined.tb.v \

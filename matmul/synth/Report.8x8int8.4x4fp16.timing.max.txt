@@ -9,7 +9,7 @@ Report : timing
         -sort_by group
 Design : matmul_slice
 Version: O-2018.06-SP5
-Date   : Tue Aug  4 23:48:07 2020
+Date   : Wed Aug  5 11:14:56 2020
 ****************************************
 
  # A fanout number of 1000 was used for high fanout net computations.
@@ -17,9 +17,9 @@ Date   : Tue Aug  4 23:48:07 2020
 Operating Conditions: typical   Library: gscl45nm
 Wire Load Model Mode: top
 
-  Startpoint: u_systolic_data_setup/a_mem_access_counter_reg[1]
+  Startpoint: u_systolic_pe_matrix/pe03/out_b_reg[0]
               (rising edge-triggered flip-flop clocked by clk)
-  Endpoint: u_output_logic/c_data_out_1_reg[13]
+  Endpoint: u_systolic_pe_matrix/pe13/u_mac/out_temp_reg[31]
             (rising edge-triggered flip-flop clocked by clk)
   Path Group: clk
   Path Type: max
@@ -28,182 +28,106 @@ Wire Load Model Mode: top
   --------------------------------------------------------------------------
   clock clk (rise edge)                                   0.00       0.00
   clock network delay (ideal)                             0.00       0.00
-  u_systolic_data_setup/a_mem_access_counter_reg[1]/CLK (DFFPOSX1)
+  u_systolic_pe_matrix/pe03/out_b_reg[0]/CLK (DFFPOSX1)
                                                           0.00 #     0.00 r
-  u_systolic_data_setup/a_mem_access_counter_reg[1]/Q (DFFPOSX1)
-                                                          0.12       0.12 f
-  u_systolic_data_setup/U601/Y (MUX2X1)                   0.04       0.16 f
-  u_systolic_data_setup/U602/Y (OAI21X1)                  0.04       0.20 r
-  u_systolic_data_setup/U605/Y (NAND3X1)                  0.02       0.22 f
-  u_systolic_data_setup/U320/Y (BUFX2)                    0.03       0.25 f
-  u_systolic_data_setup/U606/Y (AOI22X1)                  0.02       0.28 r
-  u_systolic_data_setup/U319/Y (BUFX2)                    0.04       0.31 r
-  u_systolic_data_setup/U609/Y (NAND3X1)                  0.02       0.33 f
-  u_systolic_data_setup/U138/Y (BUFX2)                    0.03       0.36 f
-  u_systolic_data_setup/U610/Y (OAI21X1)                  0.01       0.38 r
-  u_systolic_data_setup/U10/Y (INVX1)                     0.03       0.41 f
-  u_systolic_data_setup/U150/Y (AND2X2)                   0.04       0.45 f
-  u_systolic_data_setup/U3/Y (INVX1)                      0.00       0.45 r
-  u_systolic_data_setup/U4/Y (INVX1)                      0.01       0.46 f
-  u_systolic_data_setup/U137/Y (AND2X2)                   0.04       0.50 f
-  u_systolic_data_setup/U149/Y (INVX1)                    0.00       0.49 r
-  u_systolic_data_setup/U613/Y (OAI21X1)                  0.01       0.50 f
-  u_systolic_data_setup/U133/Y (INVX2)                    0.02       0.52 r
-  u_systolic_data_setup/U15/Y (INVX2)                     0.03       0.55 f
-  u_systolic_data_setup/U430/Y (AND2X1)                   0.05       0.60 f
-  u_systolic_data_setup/u_a_one_clk_delay/in[7] (one_clk_delay_0)
-                                                          0.00       0.60 f
-  u_systolic_data_setup/u_a_one_clk_delay/out_fp16[7] (one_clk_delay_0)
-                                                          0.00       0.60 f
-  u_systolic_data_setup/U671/Y (MUX2X1)                   0.04       0.63 r
-  u_systolic_data_setup/U460/Y (INVX1)                    0.02       0.66 f
-  u_systolic_data_setup/a_data_delayed[15] (systolic_data_setup)
-                                                          0.00       0.66 f
-  U1251/Y (MUX2X1)                                        0.04       0.69 r
-  U852/Y (INVX1)                                          0.04       0.73 f
-  u_systolic_pe_matrix/a_data[15] (systolic_pe_matrix)
-                                                          0.00       0.73 f
-  u_systolic_pe_matrix/U1377/Y (MUX2X1)                   0.05       0.78 r
-  u_systolic_pe_matrix/U9/Y (INVX2)                       0.02       0.81 f
-  u_systolic_pe_matrix/pe02/in_a[7] (processing_element_14)
-                                                          0.00       0.81 f
-  u_systolic_pe_matrix/pe02/U210/Y (MUX2X1)               0.05       0.85 r
-  u_systolic_pe_matrix/pe02/U9/Y (INVX1)                  0.03       0.88 f
-  u_systolic_pe_matrix/pe02/u_mac/a[7] (seq_mac_14)       0.00       0.88 f
-  u_systolic_pe_matrix/pe02/u_mac/U1174/Y (AOI22X1)       0.05       0.93 r
-  u_systolic_pe_matrix/pe02/u_mac/U617/Y (BUFX2)          0.04       0.96 r
-  u_systolic_pe_matrix/pe02/u_mac/U16/Y (AND2X1)          0.03       0.99 r
-  u_systolic_pe_matrix/pe02/u_mac/U614/Y (INVX1)          0.03       1.02 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/i_multiplicand[7] (qmult_14)
-                                                          0.00       1.02 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/a[7] (qmult_14_DW_mult_uns_4)
-                                                          0.00       1.02 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U965/Y (BUFX2)
-                                                          0.05       1.07 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U692/Y (AND2X1)
-                                                          0.06       1.13 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U1303/Y (AOI22X1)
-                                                          0.05       1.18 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U580/Y (INVX1)
-                                                          0.02       1.20 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U581/Y (INVX1)
-                                                          0.00       1.20 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U1302/Y (OAI21X1)
-                                                          0.03       1.23 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U1301/YS (FAX1)
-                                                          0.10       1.33 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U1204/Y (AND2X1)
-                                                          0.04       1.36 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U1203/Y (AOI21X1)
-                                                          0.02       1.38 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U848/Y (BUFX2)
-                                                          0.03       1.41 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U921/Y (INVX1)
-                                                          0.01       1.43 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U1202/Y (AOI21X1)
-                                                          0.02       1.44 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U847/Y (BUFX2)
-                                                          0.05       1.50 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U1189/YS (FAX1)
-                                                          0.11       1.60 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U1138/Y (AOI22X1)
-                                                          0.05       1.66 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U834/Y (BUFX2)
-                                                          0.03       1.69 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U889/Y (INVX1)
-                                                          0.02       1.71 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U1137/Y (AOI21X1)
-                                                          0.02       1.72 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U833/Y (BUFX2)
-                                                          0.05       1.77 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U503/Y (AND2X1)
-                                                          0.03       1.80 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U502/Y (INVX1)
-                                                          0.03       1.84 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U492/Y (AND2X1)
-                                                          0.03       1.87 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U707/Y (INVX1)
-                                                          0.01       1.88 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U496/Y (OR2X1)
-                                                          0.05       1.93 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U539/Y (INVX1)
-                                                          0.02       1.95 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U1039/Y (AOI21X1)
-                                                          0.03       1.98 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U616/Y (BUFX2)
-                                                          0.04       2.02 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/U1038/Y (MUX2X1)
-                                                          0.04       2.06 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/mult_1581/product[14] (qmult_14_DW_mult_uns_4)
-                                                          0.00       2.06 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/U50/Y (MUX2X1)
-                                                          0.03       2.09 f
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/U18/Y (INVX1)
-                                                          0.06       2.14 r
-  u_systolic_pe_matrix/pe02/u_mac/mult_u1/o_result[14] (qmult_14)
-                                                          0.00       2.14 r
-  u_systolic_pe_matrix/pe02/u_mac/U808/Y (INVX1)          0.02       2.16 f
-  u_systolic_pe_matrix/pe02/u_mac/U1198/Y (OAI21X1)       0.05       2.22 r
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/b[14] (qadd_14)
-                                                          0.00       2.22 r
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/B[14] (qadd_14_DW01_add_5)
-                                                          0.00       2.22 r
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U352/Y (OR2X2)
-                                                          0.05       2.27 r
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U373/Y (INVX1)
-                                                          0.03       2.30 f
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U356/Y (OR2X1)
-                                                          0.04       2.34 f
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U519/Y (INVX1)
-                                                          0.01       2.35 r
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U375/Y (AND2X2)
-                                                          0.03       2.38 r
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U431/Y (INVX1)
-                                                          0.02       2.40 f
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U357/Y (OR2X1)
-                                                          0.05       2.45 f
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U377/Y (INVX1)
-                                                          0.00       2.45 r
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U195/Y (AOI21X1)
-                                                          0.02       2.47 f
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U654/Y (INVX1)
-                                                          0.01       2.48 r
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U376/Y (INVX4)
-                                                          0.04       2.52 f
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U141/Y (OAI21X1)
-                                                          0.05       2.57 r
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/U126/Y (XNOR2X1)
-                                                          0.03       2.61 f
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/add_1605/SUM[21] (qadd_14_DW01_add_5)
-                                                          0.00       2.61 f
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/U64/Y (MUX2X1)
-                                                          0.04       2.65 r
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/U12/Y (INVX2)
-                                                          0.02       2.67 f
-  u_systolic_pe_matrix/pe02/u_mac/add_u1/c[21] (qadd_14)
-                                                          0.00       2.67 f
-  u_systolic_pe_matrix/pe02/u_mac/U1232/Y (AOI22X1)       0.05       2.71 r
-  u_systolic_pe_matrix/pe02/u_mac/U619/Y (BUFX2)          0.04       2.75 r
-  u_systolic_pe_matrix/pe02/u_mac/U33/Y (AND2X1)          0.03       2.78 r
-  u_systolic_pe_matrix/pe02/u_mac/U10/Y (INVX2)           0.03       2.81 f
-  u_systolic_pe_matrix/pe02/u_mac/out[13] (seq_mac_14)
-                                                          0.00       2.81 f
-  u_systolic_pe_matrix/pe02/out_c[13] (processing_element_14)
-                                                          0.00       2.81 f
-  u_systolic_pe_matrix/pe_data_out[77] (systolic_pe_matrix)
-                                                          0.00       2.81 f
-  u_output_logic/pe_data_out[77] (output_logic)           0.00       2.81 f
-  u_output_logic/U2822/Y (AOI22X1)                        0.05       2.85 r
-  u_output_logic/U1728/Y (INVX1)                          0.03       2.88 f
-  u_output_logic/U1729/Y (INVX1)                          0.00       2.88 r
-  u_output_logic/U19/Y (AND2X1)                           0.04       2.92 r
-  u_output_logic/U64/Y (INVX1)                            0.02       2.94 f
-  u_output_logic/c_data_out_1_reg[13]/D (DFFPOSX1)        0.00       2.94 f
+  u_systolic_pe_matrix/pe03/out_b_reg[0]/Q (DFFPOSX1)     0.10       0.10 f
+  u_systolic_pe_matrix/pe03/out_b[0] (processing_element_13)
+                                                          0.00       0.10 f
+  u_systolic_pe_matrix/U415/Y (AND2X1)                    0.03       0.14 f
+  u_systolic_pe_matrix/U416/Y (INVX1)                     0.00       0.13 r
+  u_systolic_pe_matrix/U898/Y (OAI21X1)                   0.02       0.15 f
+  u_systolic_pe_matrix/pe13/in_b[0] (processing_element_9)
+                                                          0.00       0.15 f
+  u_systolic_pe_matrix/pe13/u_mac/b[0] (seq_mac_9)        0.00       0.15 f
+  u_systolic_pe_matrix/pe13/u_mac/U658/Y (AOI22X1)        0.04       0.19 r
+  u_systolic_pe_matrix/pe13/u_mac/U116/Y (BUFX2)          0.03       0.23 r
+  u_systolic_pe_matrix/pe13/u_mac/U75/Y (AND2X2)          0.04       0.26 r
+  u_systolic_pe_matrix/pe13/u_mac/U496/Y (OAI21X1)        0.03       0.29 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/a[0] (qadd_9)
+                                                          0.00       0.29 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/A[0] (qadd_9_DW01_add_0)
+                                                          0.00       0.29 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U3/Y (AND2X1)
+                                                          0.08       0.37 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_1/YC (FAX1)
+                                                          0.09       0.46 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_2/YC (FAX1)
+                                                          0.08       0.54 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_3/YC (FAX1)
+                                                          0.08       0.62 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_4/YC (FAX1)
+                                                          0.08       0.70 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_5/YC (FAX1)
+                                                          0.08       0.78 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_6/YC (FAX1)
+                                                          0.08       0.86 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_7/YC (FAX1)
+                                                          0.08       0.94 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_8/YC (FAX1)
+                                                          0.08       1.03 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_9/YC (FAX1)
+                                                          0.08       1.11 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_10/YC (FAX1)
+                                                          0.08       1.19 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_11/YC (FAX1)
+                                                          0.08       1.27 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_12/YC (FAX1)
+                                                          0.08       1.35 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_13/YC (FAX1)
+                                                          0.08       1.43 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_14/YC (FAX1)
+                                                          0.08       1.51 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_15/YC (FAX1)
+                                                          0.08       1.60 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_16/YC (FAX1)
+                                                          0.08       1.68 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_17/YC (FAX1)
+                                                          0.08       1.76 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_18/YC (FAX1)
+                                                          0.08       1.84 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_19/YC (FAX1)
+                                                          0.08       1.92 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_20/YC (FAX1)
+                                                          0.08       2.00 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_21/YC (FAX1)
+                                                          0.08       2.08 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_22/YC (FAX1)
+                                                          0.08       2.17 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_23/YC (FAX1)
+                                                          0.08       2.25 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_24/YC (FAX1)
+                                                          0.08       2.33 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_25/YC (FAX1)
+                                                          0.08       2.41 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_26/YC (FAX1)
+                                                          0.08       2.49 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_27/YC (FAX1)
+                                                          0.08       2.57 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_28/YC (FAX1)
+                                                          0.08       2.65 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_29/YC (FAX1)
+                                                          0.08       2.73 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U1_30/YC (FAX1)
+                                                          0.08       2.81 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/U2/Y (XOR2X1)
+                                                          0.03       2.84 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/add_1686/SUM[31] (qadd_9_DW01_add_0)
+                                                          0.00       2.84 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/U47/Y (AOI22X1)
+                                                          0.03       2.87 r
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/U73/Y (INVX1)
+                                                          0.04       2.91 f
+  u_systolic_pe_matrix/pe13/u_mac/add_u1/c[31] (qadd_9)
+                                                          0.00       2.91 f
+  u_systolic_pe_matrix/pe13/u_mac/U1073/Y (AND2X1)        0.03       2.94 f
+  u_systolic_pe_matrix/pe13/u_mac/out_temp_reg[31]/D (DFFPOSX1)
+                                                          0.00       2.94 f
   data arrival time                                                  2.94
 
   clock clk (rise edge)                                   3.00       3.00
   clock network delay (ideal)                             0.00       3.00
-  u_output_logic/c_data_out_1_reg[13]/CLK (DFFPOSX1)      0.00       3.00 r
+  u_systolic_pe_matrix/pe13/u_mac/out_temp_reg[31]/CLK (DFFPOSX1)
+                                                          0.00       3.00 r
   library setup time                                     -0.06       2.94
   data required time                                                 2.94
   --------------------------------------------------------------------------

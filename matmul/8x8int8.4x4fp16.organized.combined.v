@@ -1507,7 +1507,14 @@ always @(posedge clk) begin
 end
 
 wire [8*`DWIDTH-1:0] mux3_out;
-assign mux3_out = comb_mode ? mul_out : mul_out_reg;
+//Disabling this mux. This was applicable only in the combinatorial MAC mode.
+//But with this mux in place, we get a critical path containing both the adder and
+//the multiplier. Removing the mux means we will have a flop stage in between the
+//multiplier and the adder, in the combinatorial MAC mode. So, combinatorial MAC
+//mode refers to the mode in which there are no flop stages on the IOs. There are
+//flop stages inside though.
+//assign mux3_out = comb_mode ? mul_out : mul_out_reg;
+assign mux3_out = mul_out_reg;
 
 wire [8*`DWIDTH-1:0] mux4_out;
 assign mux4_out = indiv_adder_mode ? mux2a_out : mux3_out;
@@ -1562,23 +1569,100 @@ input [4*`DWIDTH-1:0] i_multiplier;
 output [8*`DWIDTH-1:0] o_result;
 input dtype;
 
-reg [8*`DWIDTH-1:0] o_result;
-reg [8*`DWIDTH-1:0] o_result_temp;
+  //reg [8*`DWIDTH-1:0] o_result;
+  //reg [8*`DWIDTH-1:0] o_result_temp;
+  
+  //always @(*) begin
+  //  if (dtype == `DTYPE_INT8) begin
+  //    o_result[15:0]  = i_multiplicand[7:0]   * i_multiplier[7:0];
+  //    o_result[31:16] = i_multiplicand[15:8]  * i_multiplier[15:8];
+  //    o_result[47:32] = i_multiplicand[23:16] * i_multiplier[23:16];
+  //    o_result[63:48] = i_multiplicand[31:24] * i_multiplier[31:24];
+  //  end
+  //  else begin
+  //    //TODO: For now, this is just faking it. 
+  //    //Do the casting from 16 to 32 bits here
+  //    o_result_temp[31:0] = i_multiplicand[15:0] * i_multiplier[15:0];
+  //    o_result[31:0] = {15'b0, o_result_temp[15:0]};
+  //  end
+  //end
+  
+	wire [10:0] fixed_pt_mantissa_mult_inp_a;
+	wire [10:0] fixed_pt_mantissa_mult_inp_b;
+  wire [7:0] mult_shared_in_a_1;
+  wire [7:0] mult_shared_in_a_2;
+  wire [7:0] mult_shared_in_a_3;
+  wire [7:0] mult_shared_in_a_4;
+  wire [7:0] mult_shared_in_b_1;
+  wire [7:0] mult_shared_in_b_2;
+  wire [7:0] mult_shared_in_b_3;
+  wire [7:0] mult_shared_in_b_4;
+  wire [15:0] mult_shared_out_1;
+  wire [15:0] mult_shared_out_2;
+  wire [15:0] mult_shared_out_3;
+  wire [15:0] mult_shared_out_4;
 
-always @(*) begin
-  if (dtype == `DTYPE_INT8) begin
-    o_result[15:0]  = i_multiplicand[7:0]   * i_multiplier[7:0];
-    o_result[31:16] = i_multiplicand[15:8]  * i_multiplier[15:8];
-    o_result[47:32] = i_multiplicand[23:16] * i_multiplier[23:16];
-    o_result[63:48] = i_multiplicand[31:24] * i_multiplier[31:24];
-  end
-  else begin
-    //TODO: For now, this is just faking it. 
-    //Do the casting from 16 to 32 bits here
-    o_result_temp[31:0] = i_multiplicand[15:0] * i_multiplier[15:0];
-    o_result[31:0] = {15'b0, o_result_temp[15:0]};
-  end
-end
+  //These are the 4 actual multipliers. They are shared in fixed point and floating point modes.
+  //In fixed point mode, they act as 8 bit * 8 bit multipliers.
+  //In floating point mode, we only need 1 multiplier, but that is 11 bit x 11 bit. So, we split that
+  //over 4 8 bit * 8 bit multipliers. We split 11 bits into 5 bits and 6 bits.
+  assign mult_shared_out_1 = mult_shared_in_a_1 * mult_shared_in_b_1;
+  assign mult_shared_out_2 = mult_shared_in_a_2 * mult_shared_in_b_2;
+  assign mult_shared_out_3 = mult_shared_in_a_3 * mult_shared_in_b_3;
+  assign mult_shared_out_4 = mult_shared_in_a_4 * mult_shared_in_b_4;
+
+  assign mult_shared_in_a_1 = (dtype == `DTYPE_INT8) ? i_multiplicand[7:0]  : {2'b0, fixed_pt_mantissa_mult_inp_a[5:0]};
+  assign mult_shared_in_b_1 = (dtype == `DTYPE_INT8) ? i_multiplier[7:0]    : {2'b0, fixed_pt_mantissa_mult_inp_b[5:0]};
+
+  assign mult_shared_in_a_2 = (dtype == `DTYPE_INT8) ? i_multiplicand[15:8] : {3'b0, fixed_pt_mantissa_mult_inp_a[10:6]};
+  assign mult_shared_in_b_2 = (dtype == `DTYPE_INT8) ? i_multiplier[15:8]   : {3'b0, fixed_pt_mantissa_mult_inp_b[10:6]};
+
+  assign mult_shared_in_a_3 = (dtype == `DTYPE_INT8) ? i_multiplicand[23:16] : {2'b0, fixed_pt_mantissa_mult_inp_a[5:0]};
+  assign mult_shared_in_b_3 = (dtype == `DTYPE_INT8) ? i_multiplier[23:16]   : {3'b0, fixed_pt_mantissa_mult_inp_b[10:6]};
+
+  assign mult_shared_in_a_4 = (dtype == `DTYPE_INT8) ? i_multiplicand[31:24] : {3'b0, fixed_pt_mantissa_mult_inp_a[10:6]};
+  assign mult_shared_in_b_4 = (dtype == `DTYPE_INT8) ? i_multiplier[31:24]   : {2'b0, fixed_pt_mantissa_mult_inp_b[5:0]};
+
+  //Logic only for floating point mode:
+  //Now, let's add the 4 partial sums. Take only few bits that we need, not all area required. Need to shift as well.
+  //                                               6+5 bits                        6+5 bits                               5+5 bits                         6+6 bits
+  //                                           shifted by 6 bits               shifted by 6 bits                      shifted by 6+6 bits                 not shifted
+  //assign fixed_pt_mantissa_mult_out = (mult_shared_out_4[10:0] << 3'd6) + (mult_shared_out_3[10:0] << 3'd6) + (mult_shared_out_2[9:0] << 4'd12) + mult_shared_out_1[11:0]
+
+  //Let's split into smaller additions, instead of adding in one line and leaving it on synthesis tool to synthesize.
+  wire [11:0] fixed_pt_mantissa_mult_temp1;
+  assign fixed_pt_mantissa_mult_temp1 = (mult_shared_out_4[10:0] + mult_shared_out_3[10:0]);
+  wire [17:0] fixed_pt_mantissa_mult_temp2;
+  assign fixed_pt_mantissa_mult_temp2 = {fixed_pt_mantissa_mult_temp1, 6'b000000};
+  wire [21:0] fixed_pt_mantissa_mult_temp3;
+  assign fixed_pt_mantissa_mult_temp3 = {mult_shared_out_2[9:0], 12'b000000000000};
+  wire [21:0] fixed_pt_mantissa_mult_temp4;
+  assign fixed_pt_mantissa_mult_temp4 = fixed_pt_mantissa_mult_temp3 + mult_shared_out_1[11:0];
+  wire [21:0] fixed_pt_mantissa_mult_out;
+  assign fixed_pt_mantissa_mult_out = fixed_pt_mantissa_mult_temp3 + fixed_pt_mantissa_mult_temp4;
+
+  wire [4:0] fpmult_16_flags_NC;
+  wire fpmult_16_clk_NC;
+  wire fpmult_16_rst_NC;
+  wire [15:0] floating_pt_result;
+
+  FPMult_16 u_fpmult_16(
+    .clk(fpmult_16_clk_NC),
+    .rst(fpmult_16_rst_NC),
+    .a(i_multiplicand[15:0]),
+    .b(i_multiplier[15:0]),
+    .result(floating_pt_result),
+    .flags(fpmult_16_flags_NC),
+    .fixed_pt_mantissa_mult_inp_a(fixed_pt_mantissa_mult_inp_a),
+    .fixed_pt_mantissa_mult_inp_b(fixed_pt_mantissa_mult_inp_b),
+    .fixed_pt_mantissa_mult_out(fixed_pt_mantissa_mult_out)
+  );
+
+  //In fixed point, the outputs of the 8 bit multipliers above is the output.
+  //In floating point, the output comes from the FPMult instance above.
+  //TODO: Faking the conversion from fp16 to fp32 for now.
+  assign o_result = (dtype == `DTYPE_INT8) ? {mult_shared_out_4, mult_shared_out_3, mult_shared_out_2, mult_shared_out_1} : {47'b0, floating_pt_result};
+
 endmodule
 
 //4 int8 adders (actually int16 adders because we support accumulation in higher precision), one fp16 adder (actually fp32 adder)

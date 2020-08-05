@@ -4,3 +4,7 @@
 */ucli.key
 */vcdplus.vpd
 */DVEfiles/*
+*.mr
+*.pvl
+*.syn
+*.svf
