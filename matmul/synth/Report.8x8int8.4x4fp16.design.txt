@@ -1,9 +1,9 @@
  
 ****************************************
 Report : design
-Design : matmul_8x8_systolic
+Design : matmul_slice
 Version: O-2018.06-SP5
-Date   : Mon Aug  3 21:33:16 2020
+Date   : Tue Aug  4 23:48:15 2020
 ****************************************
 
 Design allows ideal nets on clock nets.

@@ -242,7 +242,6 @@ systolic_pe_matrix u_systolic_pe_matrix(
 .clk(clk),
 .reset(reset),
 .pe_reset(pe_reset),
-.start_mat_mul(start_mat_mul),
 .a_data(a_data_to_pes),
 .b_data(b_data_to_pes),
 .slice_dtype(slice_dtype),
@@ -945,7 +944,6 @@ module systolic_pe_matrix(
 clk,
 reset,
 pe_reset,
-start_mat_mul,
 a_data,
 b_data,
 slice_dtype,
@@ -960,7 +958,6 @@ output_list_from_pes
 input clk;
 input reset;
 input pe_reset;
-input start_mat_mul;
 input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data;
 input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
 input slice_dtype;
@@ -1523,7 +1520,7 @@ wire [8*`DWIDTH-1:0] add_out;
 //             64 bits       64 bits         64 bits
 qadd add_u1(.a(mux7_out), .b(mux4_out), .c(add_out), .dtype(muxed_dtype));
 
-reg [8*`DWIDTH-1:0] mux5_out;
+wire [8*`DWIDTH-1:0] mux5_out;
 assign mux5_out = indiv_mult_mode ? mul_out : add_out;
 
 always @(posedge clk) begin

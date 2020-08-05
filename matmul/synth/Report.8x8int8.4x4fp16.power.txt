@@ -6,9 +6,9 @@ Warning: Design has unannotated sequential cell outputs. (PWR-415)
 ****************************************
 Report : power
         -analysis_effort low
-Design : matmul_8x8_systolic
+Design : matmul_slice
 Version: O-2018.06-SP5
-Date   : Mon Aug  3 21:33:15 2020
+Date   : Tue Aug  4 23:48:15 2020
 ****************************************
 
 
@@ -30,12 +30,12 @@ Power-specific unit information :
     Leakage Power Units = 1nW
 
 
-  Cell Internal Power  =  31.0490 mW   (88%)
-  Net Switching Power  =   4.3135 mW   (12%)
+  Cell Internal Power  =  33.2819 mW   (84%)
+  Net Switching Power  =   6.4425 mW   (16%)
                          ---------
-Total Dynamic Power    =  35.3625 mW  (100%)
+Total Dynamic Power    =  39.7244 mW  (100%)
 
-Cell Leakage Power     =   1.2868 mW
+Cell Leakage Power     =   1.2838 mW
 
 
                  Internal         Switching           Leakage            Total
@@ -45,9 +45,9 @@ io_pad             0.0000            0.0000            0.0000            0.0000 
 memory             0.0000            0.0000            0.0000            0.0000  (   0.00%)
 black_box          0.0000            0.0000            0.0000            0.0000  (   0.00%)
 clock_network      0.0000            0.0000            0.0000            0.0000  (   0.00%)
-register          25.5152            0.6396        2.9017e+05           26.4449  (  72.16%)
-sequential         1.0431        8.9321e-03        2.5091e+04            1.0771  (   2.94%)
-combinational      4.4908            3.6649        9.7153e+05            9.1273  (  24.90%)
+register          25.5809            0.1256        2.9100e+05           25.9975  (  63.40%)
+sequential         1.0226        1.0767e-02        2.5091e+04            1.0585  (   2.58%)
+combinational      6.6784            6.3061        9.6774e+05           13.9523  (  34.02%)
 --------------------------------------------------------------------------------------------------
-Total             31.0490 mW         4.3135 mW     1.2868e+06 nW        36.6493 mW
+Total             33.2819 mW         6.4425 mW     1.2838e+06 nW        41.0082 mW
 1
