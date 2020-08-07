@@ -3,18 +3,18 @@
 Report : design
 Design : matmul_slice
 Version: O-2018.06-SP5
-Date   : Wed Aug  5 17:03:20 2020
+Date   : Fri Aug  7 15:22:45 2020
 ****************************************
 
 Design allows ideal nets on clock nets.
 
 Library(s) Used:
 
-    gscl45nm (File: /home/projects/ljohn/aarora1/FreePDK45/FreePDK45/osu_soc/lib/files/gscl45nm.db)
+    fast_vdd1v0 (File: /home/projects/ljohn/aarora1/cadence_gpdk/gsclib045_all_v4.4/lan/flow/t1u1/reference_libs/GPDK045/gsclib045_all_v4.4/gsclib045/timing/fast_vdd1v0_basicCells.modif.db)
 
 Local Link Library:
 
-    {/home/projects/ljohn/aarora1/FreePDK45/FreePDK45/osu_soc/lib/files/gscl45nm.db}
+    {/home/projects/ljohn/aarora1/cadence_gpdk/gsclib045_all_v4.4/lan/flow/t1u1/reference_libs/GPDK045/gsclib045_all_v4.4/gsclib045/timing/fast_vdd1v0_basicCells.modif.db}
 
 Flip-Flop Types:
 
@@ -27,10 +27,10 @@ Latch Types:
 Operating Conditions:
 
 
-    Operating Condition Name : typical
-    Library : gscl45nm
+    Operating Condition Name : PVT_1P1V_0C
+    Library : fast_vdd1v0
     Process :   1.00
-    Temperature :  27.00
+    Temperature :   0.00
     Voltage :   1.10
 
 Wire Loading Model:
