@@ -1497,7 +1497,7 @@ assign mux2b_out = comb_mode ? mux1b_out: b_flopped;
 
 wire [8*`DWIDTH-1:0] mul_out; //64 bits
 //                            32 bits                   32 bits              64 bits
-qmult mult_u1(.i_multiplicand(mux2a_out), .i_multiplier(mux2b_out), .o_result(mul_out), .dtype(muxed_dtype));
+qmult mult_u1(.i_multiplicand(mux2a_out), .i_multiplier(mux2b_out), .o_result(mul_out), .dtype(muxed_dtype), .dont_convert_fp16_to_fp32(indiv_mult_mode));
 
 reg [8*`DWIDTH-1:0] mul_out_reg;
 always @(posedge clk) begin
@@ -1527,7 +1527,7 @@ assign mux7_out = indiv_adder_mode ? mux2b_out : out_temp;
 
 wire [8*`DWIDTH-1:0] add_out;
 //             64 bits       64 bits         64 bits
-qadd add_u1(.a(mux7_out), .b(mux4_out), .c(add_out), .dtype(muxed_dtype));
+qadd add_u1(.a(mux7_out), .b(mux4_out), .c(add_out), .dtype(muxed_dtype), .convert_fp16_to_fp32(indiv_adder_mode));
 
 wire [8*`DWIDTH-1:0] mux5_out;
 assign mux5_out = indiv_mult_mode ? mul_out : add_out;
@@ -1548,12 +1548,45 @@ wire [31:0] fpadd_32_result;
 wire [15:0] fpadd_16_result;
 fp32_to_fp16 u_32to16 (.a(fpadd_32_result), .b(fpadd_16_result));
 
+//int16 to int8 conversion
+wire [7:0] int8_add_result0;
+wire [7:0] int8_add_result1;
+wire [7:0] int8_add_result2;
+wire [7:0] int8_add_result3;
+int16_to_int8 u_16to8_0(.a(mux6_out[15:0]),  .b(int8_add_result0));
+int16_to_int8 u_16to8_1(.a(mux6_out[31:16]), .b(int8_add_result1));
+int16_to_int8 u_16to8_2(.a(mux6_out[47:32]), .b(int8_add_result2));
+int16_to_int8 u_16to8_3(.a(mux6_out[63:48]), .b(int8_add_result3));
+
 //Reduce precision
-//TODO: For now, this is just faking it
-assign out[4*`DWIDTH-1:0] = (muxed_dtype == `DTYPE_INT8) ? {mux6_out[55:48], mux6_out[39:32], mux6_out[23:16], mux6_out[7:0]} : fpadd_16_result;
+assign out[4*`DWIDTH-1:0] = (muxed_dtype == `DTYPE_INT8) ? {int8_add_result3, int8_add_result2, int8_add_result1, int8_add_result0} : fpadd_16_result;
 
 // direct_out will go straight to the primary IO of the slice
 assign direct_out = out;
+endmodule
+
+/////////////////////////////////////////
+// Converter for int16 to int8
+/////////////////////////////////////////
+module int16_to_int8(
+  input [15:0] a,
+  output [7:0] b
+);
+
+//down cast the result
+assign b = 
+    (a[2*`DWIDTH-1] == 0) ?  //positive number
+        (
+           (|(a[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 1, that means overlfow
+             {a[2*`DWIDTH-1] , {(`DWIDTH-1){1'b1}}} : //sign bit and then all 1s
+             {a[2*`DWIDTH-1] , a[`DWIDTH-2:0]} 
+        )
+        : //negative number
+        (
+           (|(a[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 0, that means overlfow
+             {a[2*`DWIDTH-1] , a[`DWIDTH-2:0]} :
+             {a[2*`DWIDTH-1] , {(`DWIDTH-1){1'b0}}} //sign bit and then all 0s
+        );
 endmodule
 
 /////////////////////////////////////////
@@ -1570,11 +1603,12 @@ endmodule
 // in 16 bits, but that can come later.
 
 //4 int8 multipliers, one fp16 multiplier
-module qmult(i_multiplicand, i_multiplier, o_result, dtype);
+module qmult(i_multiplicand, i_multiplier, o_result, dtype, dont_convert_fp16_to_fp32);
 input [4*`DWIDTH-1:0] i_multiplicand;
 input [4*`DWIDTH-1:0] i_multiplier;
 output [8*`DWIDTH-1:0] o_result;
 input dtype;
+input dont_convert_fp16_to_fp32;
 
   //reg [8*`DWIDTH-1:0] o_result;
   //reg [8*`DWIDTH-1:0] o_result_temp;
@@ -1671,16 +1705,18 @@ input dtype;
 
   //In fixed point, the outputs of the 8 bit multipliers above is the output.
   //In floating point, the output comes from the FPMult instance above and it converted to 32bits in the module above.
-  assign o_result = (dtype == `DTYPE_INT8) ? {mult_shared_out_4, mult_shared_out_3, mult_shared_out_2, mult_shared_out_1} : {31'b0, fpmult_32_result};
+  assign o_result = (dtype == `DTYPE_INT8) ? {mult_shared_out_4, mult_shared_out_3, mult_shared_out_2, mult_shared_out_1} : 
+                    ( dont_convert_fp16_to_fp32 ? {48'b0, fpmult_16_result} :  {32'b0, fpmult_32_result} );
 
 endmodule
 
 //4 int8 adders (actually int16 adders because we support accumulation in higher precision), one fp16 adder (actually fp32 adder)
-module qadd(a, b, c, dtype);
+module qadd(a, b, c, dtype, convert_fp16_to_fp32);
 input [8*`DWIDTH-1:0] a;
 input [8*`DWIDTH-1:0] b;
 output [8*`DWIDTH-1:0] c;
 input dtype;
+input convert_fp16_to_fp32;
 
 //reg [8*`DWIDTH-1:0] c;
 //
@@ -1807,12 +1843,23 @@ wire fpadd_32_clk_NC;
 wire fpadd_32_rst_NC;
 wire [31:0] fpadd_32_result;
 
+//Convert fp16 to fp32 (in case of individual adder mode because the input that comes in is actually fp16)
+wire [31:0] fp32_in_a;
+wire [31:0] fp32_in_b;
+fp16_to_fp32 u_16to32_1 (.a(a[15:0]), .b(fp32_in_a));
+fp16_to_fp32 u_16to32_2 (.a(b[15:0]), .b(fp32_in_b));
+
+wire [31:0] actual_fp32_in_a;
+wire [31:0] actual_fp32_in_b;
+assign actual_fp32_in_a = convert_fp16_to_fp32 ? fp32_in_a : a[31:0];
+assign actual_fp32_in_b = convert_fp16_to_fp32 ? fp32_in_b : b[31:0];
+
 //Instantiation of the floating point adder block
 FPAddSub u_fpaddsub_32(
   .clk(fpadd_32_clk_NC),
   .rst(fpadd_32_rst_NC),
-  .a(a[31:0]),
-  .b(b[31:0]),
+  .a(actual_fp32_in_a),
+  .b(actual_fp32_in_b),
   .operation(1'b0), //addition
   .result(fpadd_32_result),
   .flags(fpadd_32_flags_NC), 
@@ -1865,7 +1912,10 @@ assign add_shared_b_7 = (dtype == `DTYPE_INT8) ? b[55:48] : 8'b0;
 assign add_shared_b_8 = (dtype == `DTYPE_INT8) ? b[63:56] : 8'b0;
 
 assign add_shared_cin_1 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder1_cin;
-assign add_shared_cin_2 = (dtype == `DTYPE_INT8) ? add_shared_cout_1 : fixed_pt_adder2_cin;
+//Minor hack here. In individual PE adder more, we want to expose 2 8-bit adders. 
+//So we don't want to connect the cout from LSB adder to the next one.
+//Signal convert_fp16_to_fp32 is a proxy for individual PE adder mode.
+assign add_shared_cin_2 = (dtype == `DTYPE_INT8) ? ( convert_fp16_to_fp32 ? 1'b0 : add_shared_cout_1 ) : fixed_pt_adder2_cin;
 assign add_shared_cin_3 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder5_cin;
 assign add_shared_cin_4 = (dtype == `DTYPE_INT8) ? add_shared_cout_3 : fixed_pt_adder34_cin;
 assign add_shared_cin_5 = (dtype == `DTYPE_INT8) ? 1'b0 : add_shared_cout_4;
@@ -1898,6 +1948,9 @@ assign fixed_pt_adder34_cout = add_shared_cout_6;
 
 endmodule
 
+/////////////////////////////////////////
+// Adder/Subtractor module (8bit integer)
+/////////////////////////////////////////
 module addsub_8bit(a,b,cin,out,cout,op);
 input [7:0] a;
 input [7:0] b;
