@@ -1912,10 +1912,7 @@ assign add_shared_b_7 = (dtype == `DTYPE_INT8) ? b[55:48] : 8'b0;
 assign add_shared_b_8 = (dtype == `DTYPE_INT8) ? b[63:56] : 8'b0;
 
 assign add_shared_cin_1 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder1_cin;
-//Minor hack here. In individual PE adder more, we want to expose 2 8-bit adders. 
-//So we don't want to connect the cout from LSB adder to the next one.
-//Signal convert_fp16_to_fp32 is a proxy for individual PE adder mode.
-assign add_shared_cin_2 = (dtype == `DTYPE_INT8) ? ( convert_fp16_to_fp32 ? 1'b0 : add_shared_cout_1 ) : fixed_pt_adder2_cin;
+assign add_shared_cin_2 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder2_cin;
 assign add_shared_cin_3 = (dtype == `DTYPE_INT8) ? 1'b0 : fixed_pt_adder5_cin;
 assign add_shared_cin_4 = (dtype == `DTYPE_INT8) ? add_shared_cout_3 : fixed_pt_adder34_cin;
 assign add_shared_cin_5 = (dtype == `DTYPE_INT8) ? 1'b0 : add_shared_cout_4;
