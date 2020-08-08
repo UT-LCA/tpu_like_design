@@ -115,7 +115,7 @@ module matmul_slice(
 //////////////////////////////////////////////////////////////////////////
 // Create input list for PEs by concatenating all inputs 
 //////////////////////////////////////////////////////////////////////////
-wire [463:0] input_list_to_pes;
+wire [335:0] input_list_to_pes;
 assign input_list_to_pes = {
  address_mat_a,  //448
  address_mat_b,  //432
@@ -125,8 +125,10 @@ assign input_list_to_pes = {
  address_stride_c, //368
  a_data, //304
  b_data, //240
- a_data_in, //176 <- direct_inputs_a ends at a_data_in[15] and direct_inputs_b starts at a_data_in[16]
- b_data_in, //112
+ //Can't reuse a_data_in and b_data_in because these are dedicated connections. 
+ //In individual PE mode, we want things to be able to connect to direct interconnect.
+ //a_data_in, //176 <- direct_inputs_a ends at a_data_in[15] and direct_inputs_b starts at a_data_in[16]
+ //b_data_in, //112
  c_data_in, //48
  validity_mask_a_rows, //40
  validity_mask_a_cols_b_rows, //32
@@ -139,19 +141,21 @@ assign input_list_to_pes = {
 //////////////////////////////////////////////////////////////////////////
 // Muxes for outputs 
 //////////////////////////////////////////////////////////////////////////
-wire [239:0] output_list_from_pes;
+wire [111:0] output_list_from_pes;
 wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out_internal;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out_internal;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out_internal;
+//Can't reuse a_data_in and b_data_in because these are dedicated connections. 
+//In individual PE mode, we want things to be able to connect to direct interconnect.
+//wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out_internal;
+//wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out_internal;
 wire [`AWIDTH-1:0] a_addr_internal;
 wire [`AWIDTH-1:0] b_addr_internal;
 wire [`AWIDTH-1:0] c_addr_internal;
 assign c_data_out = (slice_mode == `SLICE_MODE_MATMUL) ? c_data_out_internal : output_list_from_pes[63:0];
-assign a_data_out = (slice_mode == `SLICE_MODE_MATMUL) ? a_data_out_internal : output_list_from_pes[127:64];
-assign b_data_out = (slice_mode == `SLICE_MODE_MATMUL) ? b_data_out_internal : output_list_from_pes[191:128];
-assign a_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? a_addr_internal     : output_list_from_pes[192+`AWIDTH-1:192];
-assign b_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? b_addr_internal     : output_list_from_pes[192+2*`AWIDTH-1:192+`AWIDTH];
-assign c_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? c_addr_internal     : output_list_from_pes[192+3*`AWIDTH-1:192+2*`AWIDTH];
+//assign a_data_out = (slice_mode == `SLICE_MODE_MATMUL) ? a_data_out_internal : output_list_from_pes[127:64];
+//assign b_data_out = (slice_mode == `SLICE_MODE_MATMUL) ? b_data_out_internal : output_list_from_pes[191:128];
+assign a_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? a_addr_internal     : output_list_from_pes[64+`AWIDTH-1:64];
+assign b_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? b_addr_internal     : output_list_from_pes[64+2*`AWIDTH-1:64+`AWIDTH];
+assign c_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? c_addr_internal     : output_list_from_pes[64+3*`AWIDTH-1:64+2*`AWIDTH];
 
 //////////////////////////////////////////////////////////////////////////
 // Logic for clock counting and when to assert done
@@ -247,8 +251,8 @@ systolic_pe_matrix u_systolic_pe_matrix(
 .slice_dtype(slice_dtype),
 .slice_mode(slice_mode),
 .pe_data_out(pe_data_out),
-.a_data_out(a_data_out_internal),
-.b_data_out(b_data_out_internal),
+.a_data_out(a_data_out),
+.b_data_out(b_data_out),
 .input_list_to_pes(input_list_to_pes),
 .output_list_from_pes(output_list_from_pes)
 );
@@ -965,8 +969,8 @@ input slice_mode;
 output [511:0] pe_data_out;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out;
-input [463:0] input_list_to_pes;
-output [239:0] output_list_from_pes;
+input [335:0] input_list_to_pes;
+output [111:0] output_list_from_pes;
 
 //////////////////////////////////////////////////////////////////////////
 // Instantiations of the actual PEs
@@ -1213,25 +1217,34 @@ assign in_b_pe33 = (slice_dtype == `DTYPE_FP16) ? b2_3to3_3_fp16 : out_b_pe31;
 ///////////////////////////////////////////////////////////////////////////////////
 //Although we can reuse 4 int8 PEs and 1 fp16 from each combined processing element, 
 //we only use 2 int8 PEs and 1 fp16 from each combined processing element in the Individual PE mode.
-//
-//We have total 464 inputs. Dividing those between in_a, in_b, mode and dtype, we get:
+//Well actually, we expose:
+//1. Mult
+//1.1 int8 mode : 1 8-bit multiplier (16-bit output)
+//1.2 fp16 mode: 1 fp16 multiplier
+//2. Adder
+//2.1 int8 mode: 1 16-bit adder
+//2.2 fp16 mode: 1 fp16 adder
+
+//We have total 336 inputs. Dividing those between in_a, in_b, mode and dtype, we get:
 //Per PE: in_a = 16, in_b = 16, mode = 3, dtype = 1
-//We can expose 464/(16+16+3+1) = 12.8. That is 12 combined PEs can be exposed.
+//We can expose 336/(16+16+3+1) = 9.3. That is 9 combined PEs can be exposed.
+//But we don't have enough outputs. Total number of outputs we can reuse
+//for individual PEs is 112. From each combined PE, we have 16 bits of outputs.
+//So, PEs we can expose = 112/16 = 7.
+
 wire [255:0] direct_inputs_a;     
 wire [255:0] direct_inputs_b;    
 wire [47:0] direct_inputs_mode;
 wire [15:0] direct_inputs_dtype;
-assign direct_inputs_a[191:0]     = input_list_to_pes[12*16*1-1 : 12*16*0];
-assign direct_inputs_b[191:0]     = input_list_to_pes[12*16*2-1 : 12*16*1];
-assign direct_inputs_mode[35:0]   = input_list_to_pes[384+3*12-1 : 384];
-assign direct_inputs_dtype[11:0]  = input_list_to_pes[420+12-1: 420];
-assign direct_inputs_a[255:192]   = 64'b0;
-assign direct_inputs_b[255:192]   = 64'b0;
-assign direct_inputs_mode[47:36]  = 12'b0;
-assign direct_inputs_dtype[15:12] = 4'b0;
+assign direct_inputs_a[111:0]     = input_list_to_pes[7*16*1-1 : 7*16*0];
+assign direct_inputs_b[111:0]     = input_list_to_pes[7*16*2-1 : 7*16*1];
+assign direct_inputs_mode[20:0]   = input_list_to_pes[7*6*2+3*7-1 : 7*6*2];
+assign direct_inputs_dtype[6:0]  = input_list_to_pes[7*6*2+3*7+7-1: 7*6*2+3*7];
+assign direct_inputs_a[255:112]   = 64'b0;
+assign direct_inputs_b[255:112]   = 64'b0;
+assign direct_inputs_mode[47:21]  = 12'b0;
+assign direct_inputs_dtype[15:7] = 4'b0;
 
-//We have total 240 outputs. From each combined PE, we'll use 16 bits of outputs.
-//Since we are exposing 12 combined PEs, we need 12*16 = 192 outputs.
 wire [15:0] pe00_direct_out_NC;
 wire [15:0] pe01_direct_out_NC;
 wire [15:0] pe02_direct_out_NC;
@@ -1266,12 +1279,6 @@ wire [15:0] pe32_direct_out;
 wire [15:0] pe33_direct_out;
 
 assign output_list_from_pes = {
-  48'b0,
-  pe23_direct_out,
-  pe22_direct_out,
-  pe21_direct_out,
-  pe20_direct_out,
-  pe13_direct_out,
   pe12_direct_out,
   pe11_direct_out,
   pe10_direct_out,
