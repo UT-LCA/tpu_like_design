@@ -119,14 +119,14 @@ module matmul_slice(
 //////////////////////////////////////////////////////////////////////////
 wire [271:0] input_list_to_pes;
 assign input_list_to_pes = {
- address_mat_a,  //320 
- address_mat_b,  //304 <- direct_inputs_mode ends at address_mat_b[4]. direct_inputs_dtype starts at address_mat_b[5] and ends at address_mat_b[11]
- address_mat_c,  //288  <- direct_inputs_mode starts at address_mat_c[0] 
- address_stride_a, //272 <- direct_inputs_b ends at address_stride[15]. 
- address_stride_b, //256 
- address_stride_c, //240 
- a_data, //176 <- direct_inputs_b starts at a_data[0]
- b_data, //112 <- direct_inputs_a ends at b_data[63] 
+ address_mat_a,  //256 
+ address_mat_b,  //240 <- direct_inputs_mode ends at address_mat_b[4]. direct_inputs_dtype starts at address_mat_b[5] and ends at address_mat_b[11]
+ address_mat_c,  //224  <- direct_inputs_mode starts at address_mat_c[0] 
+ address_stride_a, //208 <- direct_inputs_b ends at address_stride[15]. 
+ address_stride_b, //192 
+ address_stride_c, //176 
+ a_data, //112 <- direct_inputs_b starts at a_data[0]
+ b_data, //48 <- direct_inputs_a ends at b_data[63] 
  //Can't reuse a_data_in and b_data_in because these are dedicated connections. 
  //In individual PE mode, we want things to be able to connect to direct interconnect.
  //a_data_in, //176 
@@ -1244,8 +1244,8 @@ wire [47:0] direct_inputs_mode;
 wire [15:0] direct_inputs_dtype;
 assign direct_inputs_a[111:0]     = input_list_to_pes[7*16*1-1 : 7*16*0];
 assign direct_inputs_b[111:0]     = input_list_to_pes[7*16*2-1 : 7*16*1];
-assign direct_inputs_mode[20:0]   = input_list_to_pes[7*6*2+3*7-1 : 7*6*2];
-assign direct_inputs_dtype[6:0]  = input_list_to_pes[7*6*2+3*7+7-1: 7*6*2+3*7];
+assign direct_inputs_mode[20:0]   = input_list_to_pes[7*16*2+3*7-1 : 7*16*2];
+assign direct_inputs_dtype[6:0]  = input_list_to_pes[7*16*2+3*7+7-1: 7*16*2+3*7];
 assign direct_inputs_a[255:112]   = 64'b0;
 assign direct_inputs_b[255:112]   = 64'b0;
 assign direct_inputs_mode[47:21]  = 12'b0;
