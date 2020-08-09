@@ -47,20 +47,20 @@ module matmul_slice(
  pe_reset,
  start_mat_mul,
  done_mat_mul,
- address_mat_a,
- address_mat_b,
- address_mat_c,
- address_stride_a,
+ address_mat_a, //Address at which matrix A is to be read from
+ address_mat_b, //Address at which matrix B is to be read from
+ address_mat_c, //Address at which matrix C (output) is to be written to 
+ address_stride_a, 
  address_stride_b,
  address_stride_c,
  a_data,
  b_data,
- a_data_in, //Data values coming in from previous matmul - systolic connections
- b_data_in,
- c_data_in, //Data values coming in from previous matmul - systolic shifting
- c_data_out, //Data values going out to next matmul - systolic shifting
- a_data_out,
- b_data_out,
+ a_data_in, //Input matrix A values coming in from previous matmul - systolic connections
+ b_data_in, //Input matrix B values coming in from previous matmul - systolic connections 
+ c_data_in, //Output values coming in from previous matmul - systolic shifting
+ c_data_out, //Output values going out to next matmul - systolic shifting or to any place that needs it like BRAM
+ a_data_out, //Input matrix A values going out to next matmul - systolic shifting
+ b_data_out, //Input matrix A values going out to next matmul - systolic shifting
  a_addr,
  b_addr,
  c_addr,
@@ -117,25 +117,25 @@ module matmul_slice(
 //////////////////////////////////////////////////////////////////////////
 wire [335:0] input_list_to_pes;
 assign input_list_to_pes = {
- address_mat_a,  //448
- address_mat_b,  //432
- address_mat_c,  //416 <- direct_inputs_mode ends at address_mat_c[3] and direct_inputs_dtype starts at address_mat_c[4]
- address_stride_a, //400
- address_stride_b, //384 <- direct_inputs_mode starts at address_stride_b[0]
- address_stride_c, //368
- a_data, //304
- b_data, //240
+ address_mat_a,  //320
+ address_mat_b,  //304
+ address_mat_c,  //288 
+ address_stride_a, //272
+ address_stride_b, //256 
+ address_stride_c, //240 <- direct_inputs_mode ends at address_stride_c[4]. direct_inputs_dtype starts at address_stride_c[5] and ends at address_stride[11]
+ a_data, //176 <- direct_inputs_b ends at a_data[47]. direct_inputs_mode starts at a_data[48]
+ b_data, //112 <- direct_inputs_b starts at b_data[0]
  //Can't reuse a_data_in and b_data_in because these are dedicated connections. 
  //In individual PE mode, we want things to be able to connect to direct interconnect.
- //a_data_in, //176 <- direct_inputs_a ends at a_data_in[15] and direct_inputs_b starts at a_data_in[16]
+ //a_data_in, //176 
  //b_data_in, //112
- c_data_in, //48
+ c_data_in, //48 <- direct_inputs_a ends at c_data_in[63]
  validity_mask_a_rows, //40
  validity_mask_a_cols_b_rows, //32
  validity_mask_b_cols, //24
  final_mat_mul_size, //16
  a_loc, //8
- b_loc  //0 <- Starting index <- direct_inputs_a starts at b_loc[0]
+ b_loc  //0 <- direct_inputs_a starts at b_loc[0]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -1231,6 +1231,7 @@ assign in_b_pe33 = (slice_dtype == `DTYPE_FP16) ? b2_3to3_3_fp16 : out_b_pe31;
 //But we don't have enough outputs. Total number of outputs we can reuse
 //for individual PEs is 112. From each combined PE, we have 16 bits of outputs.
 //So, PEs we can expose = 112/16 = 7.
+//So, total inputs used in indiv PE mode = 7 * (16+16+3+1) = 252
 
 wire [255:0] direct_inputs_a;     
 wire [255:0] direct_inputs_b;    
