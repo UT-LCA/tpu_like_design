@@ -58,7 +58,8 @@ module matmul_slice(
  a_data_in, //Input matrix A values coming in from previous matmul - systolic connections
  b_data_in, //Input matrix B values coming in from previous matmul - systolic connections 
  c_data_in, //Output values coming in from previous matmul - systolic shifting
- c_data_out, //Output values going out to next matmul - systolic shifting or to any place that needs it like BRAM
+ c_data_out, //Output values going out to any place that needs it like BRAM
+ c_data_out_dir_int, //Output values going out to next matmul - systolic shifting 
  a_data_out, //Input matrix A values going out to next matmul - systolic shifting
  b_data_out, //Input matrix A values going out to next matmul - systolic shifting
  a_addr,
@@ -92,6 +93,7 @@ module matmul_slice(
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in;
  input [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
  output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
+ output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out_dir_int;
  output [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out;
  output [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out;
  output [`AWIDTH-1:0] a_addr;
@@ -115,21 +117,21 @@ module matmul_slice(
 //////////////////////////////////////////////////////////////////////////
 // Create input list for PEs by concatenating all inputs 
 //////////////////////////////////////////////////////////////////////////
-wire [335:0] input_list_to_pes;
+wire [271:0] input_list_to_pes;
 assign input_list_to_pes = {
- address_mat_a,  //320
- address_mat_b,  //304
- address_mat_c,  //288 
- address_stride_a, //272
+ address_mat_a,  //320 
+ address_mat_b,  //304 <- direct_inputs_mode ends at address_mat_b[4]. direct_inputs_dtype starts at address_mat_b[5] and ends at address_mat_b[12]
+ address_mat_c,  //288  <- direct_inputs_mode starts at address_mat_c[0] 
+ address_stride_a, //272 <- direct_inputs_b ends at address_stride[15]. 
  address_stride_b, //256 
- address_stride_c, //240 <- direct_inputs_mode ends at address_stride_c[4]. direct_inputs_dtype starts at address_stride_c[5] and ends at address_stride[11]
- a_data, //176 <- direct_inputs_b ends at a_data[47]. direct_inputs_mode starts at a_data[48]
- b_data, //112 <- direct_inputs_b starts at b_data[0]
+ address_stride_c, //240 
+ a_data, //176 <- direct_inputs_b starts at a_data[0]
+ b_data, //112 <- direct_inputs_a ends at b_data[63] 
  //Can't reuse a_data_in and b_data_in because these are dedicated connections. 
  //In individual PE mode, we want things to be able to connect to direct interconnect.
  //a_data_in, //176 
  //b_data_in, //112
- c_data_in, //48 <- direct_inputs_a ends at c_data_in[63]
+ //c_data_in, //48 
  validity_mask_a_rows, //40
  validity_mask_a_cols_b_rows, //32
  validity_mask_b_cols, //24
@@ -156,6 +158,9 @@ assign c_data_out = (slice_mode == `SLICE_MODE_MATMUL) ? c_data_out_internal : o
 assign a_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? a_addr_internal     : output_list_from_pes[64+`AWIDTH-1:64];
 assign b_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? b_addr_internal     : output_list_from_pes[64+2*`AWIDTH-1:64+`AWIDTH];
 assign c_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? c_addr_internal     : output_list_from_pes[64+3*`AWIDTH-1:64+2*`AWIDTH];
+
+//This is the output used in direct interconnect. This can't be reused in individual PE mode.
+assign c_data_out_dir_int = c_data_out_internal;
 
 //////////////////////////////////////////////////////////////////////////
 // Logic for clock counting and when to assert done
@@ -969,7 +974,7 @@ input slice_mode;
 output [511:0] pe_data_out;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out;
-input [335:0] input_list_to_pes;
+input [271:0] input_list_to_pes;
 output [111:0] output_list_from_pes;
 
 //////////////////////////////////////////////////////////////////////////
@@ -1225,10 +1230,10 @@ assign in_b_pe33 = (slice_dtype == `DTYPE_FP16) ? b2_3to3_3_fp16 : out_b_pe31;
 //2.1 int8 mode: 1 16-bit adder
 //2.2 fp16 mode: 1 fp16 adder
 
-//We have total 336 inputs. Dividing those between in_a, in_b, mode and dtype, we get:
+//We have total 272 inputs. Dividing those between in_a, in_b, mode and dtype, we get:
 //Per PE: in_a = 16, in_b = 16, mode = 3, dtype = 1
-//We can expose 336/(16+16+3+1) = 9.3. That is 9 combined PEs can be exposed.
-//But we don't have enough outputs. Total number of outputs we can reuse
+//We can expose 272/(16+16+3+1) = 7.5. That is 7 combined PEs can be exposed.
+//Same number comes out from outputs. Total number of outputs we can reuse
 //for individual PEs is 112. From each combined PE, we have 16 bits of outputs.
 //So, PEs we can expose = 112/16 = 7.
 //So, total inputs used in indiv PE mode = 7 * (16+16+3+1) = 252
