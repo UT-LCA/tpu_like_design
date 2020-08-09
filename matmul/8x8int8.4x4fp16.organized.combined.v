@@ -120,7 +120,7 @@ module matmul_slice(
 wire [271:0] input_list_to_pes;
 assign input_list_to_pes = {
  address_mat_a,  //320 
- address_mat_b,  //304 <- direct_inputs_mode ends at address_mat_b[4]. direct_inputs_dtype starts at address_mat_b[5] and ends at address_mat_b[12]
+ address_mat_b,  //304 <- direct_inputs_mode ends at address_mat_b[4]. direct_inputs_dtype starts at address_mat_b[5] and ends at address_mat_b[11]
  address_mat_c,  //288  <- direct_inputs_mode starts at address_mat_c[0] 
  address_stride_a, //272 <- direct_inputs_b ends at address_stride[15]. 
  address_stride_b, //256 
