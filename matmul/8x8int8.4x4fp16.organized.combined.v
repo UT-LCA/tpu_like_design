@@ -1,21 +1,17 @@
 
 `timescale 1ns / 1ps
 
-`define DWIDTH 8
-`define AWIDTH 16
-`define MEM_SIZE 2048
+`define BB_DWIDTH 8
+`define BB_AWIDTH 16
+`define BB_MAT_MUL_SIZE 8
+`define BB_MASK_WIDTH 8
+`define BB_LOG2_MAT_MUL_SIZE 3
 
-`define MAT_MUL_SIZE 8
-`define MASK_WIDTH 8
-`define LOG2_MAT_MUL_SIZE 3
-
-`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
 `define NUM_CYCLES_IN_MAC 3
 `define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
 `define ADDR_STRIDE_WIDTH 16
-`define MAX_BITS_POOL 3
 `define DTYPE_INT8 0
 `define DTYPE_FP16 1
 `define SLICE_MODE_MATMUL 0
@@ -81,29 +77,29 @@ module matmul_slice(
  input pe_reset;
  input start_mat_mul;
  output done_mat_mul;
- input [`AWIDTH-1:0] address_mat_a;
- input [`AWIDTH-1:0] address_mat_b;
- input [`AWIDTH-1:0] address_mat_c;
+ input [`BB_AWIDTH-1:0] address_mat_a;
+ input [`BB_AWIDTH-1:0] address_mat_b;
+ input [`BB_AWIDTH-1:0] address_mat_c;
  input [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
  input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
  input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
- input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data;
- input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
- input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in;
- input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in;
- input [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
- output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
- output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out_dir_int;
- output [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out;
- output [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out;
- output [`AWIDTH-1:0] a_addr;
- output [`AWIDTH-1:0] b_addr;
- output [`AWIDTH-1:0] c_addr;
+ input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data;
+ input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data;
+ input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data_in;
+ input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_in;
+ input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] c_data_in;
+ output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] c_data_out;
+ output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] c_data_out_dir_int;
+ output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data_out;
+ output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_out;
+ output [`BB_AWIDTH-1:0] a_addr;
+ output [`BB_AWIDTH-1:0] b_addr;
+ output [`BB_AWIDTH-1:0] c_addr;
  output c_data_available;
 
- input [`MASK_WIDTH-1:0] validity_mask_a_rows;
- input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
- input [`MASK_WIDTH-1:0] validity_mask_b_cols;
+ input [`BB_MASK_WIDTH-1:0] validity_mask_a_rows;
+ input [`BB_MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+ input [`BB_MASK_WIDTH-1:0] validity_mask_b_cols;
  input slice_dtype;
  input slice_mode;
 
@@ -144,20 +140,20 @@ assign input_list_to_pes = {
 // Muxes for outputs 
 //////////////////////////////////////////////////////////////////////////
 wire [111:0] output_list_from_pes;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out_internal;
+wire [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] c_data_out_internal;
 //Can't reuse a_data_in and b_data_in because these are dedicated connections. 
 //In individual PE mode, we want things to be able to connect to direct interconnect.
-//wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out_internal;
-//wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out_internal;
-wire [`AWIDTH-1:0] a_addr_internal;
-wire [`AWIDTH-1:0] b_addr_internal;
-wire [`AWIDTH-1:0] c_addr_internal;
+//wire [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data_out_internal;
+//wire [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_out_internal;
+wire [`BB_AWIDTH-1:0] a_addr_internal;
+wire [`BB_AWIDTH-1:0] b_addr_internal;
+wire [`BB_AWIDTH-1:0] c_addr_internal;
 assign c_data_out = (slice_mode == `SLICE_MODE_MATMUL) ? c_data_out_internal : output_list_from_pes[63:0];
 //assign a_data_out = (slice_mode == `SLICE_MODE_MATMUL) ? a_data_out_internal : output_list_from_pes[127:64];
 //assign b_data_out = (slice_mode == `SLICE_MODE_MATMUL) ? b_data_out_internal : output_list_from_pes[191:128];
-assign a_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? a_addr_internal     : output_list_from_pes[64+`AWIDTH-1:64];
-assign b_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? b_addr_internal     : output_list_from_pes[64+2*`AWIDTH-1:64+`AWIDTH];
-assign c_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? c_addr_internal     : output_list_from_pes[64+3*`AWIDTH-1:64+2*`AWIDTH];
+assign a_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? a_addr_internal     : output_list_from_pes[64+`BB_AWIDTH-1:64];
+assign b_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? b_addr_internal     : output_list_from_pes[64+2*`BB_AWIDTH-1:64+`BB_AWIDTH];
+assign c_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? c_addr_internal     : output_list_from_pes[64+3*`BB_AWIDTH-1:64+2*`BB_AWIDTH];
 
 //This is the output used in direct interconnect. This can't be reused in individual PE mode.
 assign c_data_out_dir_int = c_data_out_internal;
@@ -204,8 +200,8 @@ always @(posedge clk) begin
   end
 end
 
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_delayed;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_delayed;
+wire [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data_delayed;
+wire [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_delayed;
 
 //////////////////////////////////////////////////////////////////////////
 // Instantiation of systolic data setup
@@ -237,8 +233,8 @@ systolic_data_setup u_systolic_data_setup(
 //////////////////////////////////////////////////////////////////////////
 // Logic to mux data_in coming from neighboring matmuls
 //////////////////////////////////////////////////////////////////////////
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_to_pes;
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_to_pes;
+wire [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data_to_pes;
+wire [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_to_pes;
 
 assign a_data_to_pes = (b_loc==0) ? a_data_delayed : a_data_in;
 assign b_data_to_pes = (a_loc==0) ? b_data_delayed : b_data_in;
@@ -308,11 +304,11 @@ input clk;
 input reset;
 input start_mat_mul;
 input done_mat_mul;
-input [`AWIDTH-1:0] address_mat_c;
+input [`BB_AWIDTH-1:0] address_mat_c;
 input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
-input [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in;
-output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out;
-output [`AWIDTH-1:0] c_addr;
+input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] c_data_in;
+output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] c_data_out;
+output [`BB_AWIDTH-1:0] c_addr;
 output c_data_available;
 input [7:0] clk_cnt;
 input [7:0] final_mat_mul_size;
@@ -323,25 +319,25 @@ wire row_latch_en;
 //////////////////////////////////////////////////////////////////////////
 // Logic to capture matrix C data from the PEs and shift it out
 //////////////////////////////////////////////////////////////////////////
-//assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 +  `NUM_CYCLES_IN_MAC - 1));
+//assign row_latch_en = (clk_cnt==(`BB_MAT_MUL_SIZE + (a_loc+b_loc) * `BB_MAT_MUL_SIZE + 10 +  `NUM_CYCLES_IN_MAC - 1));
 //Writing the line above to avoid multiplication:
-//assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
+//assign row_latch_en = (clk_cnt==(`BB_MAT_MUL_SIZE + ((a_loc+b_loc) << `BB_LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
 
 assign row_latch_en =  
                        ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size - 1 +`NUM_CYCLES_IN_MAC)));
     
 reg c_data_available;
-reg [`AWIDTH-1:0] c_addr;
+reg [`BB_AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
 integer counter;
-reg [8*`DWIDTH-1:0] c_data_out;
-reg [8*`DWIDTH-1:0] c_data_out_1;
-reg [8*`DWIDTH-1:0] c_data_out_2;
-reg [8*`DWIDTH-1:0] c_data_out_3;
-reg [8*`DWIDTH-1:0] c_data_out_4;
-reg [8*`DWIDTH-1:0] c_data_out_5;
-reg [8*`DWIDTH-1:0] c_data_out_6;
-reg [8*`DWIDTH-1:0] c_data_out_7;
+reg [8*`BB_DWIDTH-1:0] c_data_out;
+reg [8*`BB_DWIDTH-1:0] c_data_out_1;
+reg [8*`BB_DWIDTH-1:0] c_data_out_2;
+reg [8*`BB_DWIDTH-1:0] c_data_out_3;
+reg [8*`BB_DWIDTH-1:0] c_data_out_4;
+reg [8*`BB_DWIDTH-1:0] c_data_out_5;
+reg [8*`BB_DWIDTH-1:0] c_data_out_6;
+reg [8*`BB_DWIDTH-1:0] c_data_out_7;
 wire condition_to_start_shifting_output;
 assign condition_to_start_shifting_output = 
                           row_latch_en ;  
@@ -411,7 +407,7 @@ always @(posedge clk) begin
     c_data_out_6 <= 0;
     c_data_out_7 <= 0;
   end 
-  else if (counter >= `MAT_MUL_SIZE) begin
+  else if (counter >= `BB_MAT_MUL_SIZE) begin
     c_data_out <= c_data_out_1;
     c_addr <= c_addr - address_stride_c; 
 
@@ -472,20 +468,20 @@ b_loc
 input clk;
 input reset;
 input start_mat_mul;
-output [`AWIDTH-1:0] a_addr;
-output [`AWIDTH-1:0] b_addr;
-input [`AWIDTH-1:0] address_mat_a;
-input [`AWIDTH-1:0] address_mat_b;
+output [`BB_AWIDTH-1:0] a_addr;
+output [`BB_AWIDTH-1:0] b_addr;
+input [`BB_AWIDTH-1:0] address_mat_a;
+input [`BB_AWIDTH-1:0] address_mat_b;
 input [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
 input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
-input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data;
-input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
+input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data;
+input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data;
 input [7:0] clk_cnt;
-output [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_delayed;
-output [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_delayed;
-input [`MASK_WIDTH-1:0] validity_mask_a_rows;
-input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
-input [`MASK_WIDTH-1:0] validity_mask_b_cols;
+output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data_delayed;
+output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_delayed;
+input [`BB_MASK_WIDTH-1:0] validity_mask_a_rows;
+input [`BB_MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+input [`BB_MASK_WIDTH-1:0] validity_mask_b_cols;
 input slice_dtype;
 input [7:0] final_mat_mul_size;
 input [7:0] a_loc;
@@ -494,23 +490,23 @@ input [7:0] b_loc;
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate addresses to BRAM A
 //////////////////////////////////////////////////////////////////////////
-reg [`AWIDTH-1:0] a_addr;
+reg [`BB_AWIDTH-1:0] a_addr;
 reg a_mem_access; //flag that tells whether the matmul is trying to access memory or not
 
 always @(posedge clk) begin
-  //(clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
+  //(clk_cnt >= a_loc*`BB_MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
 
-  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`BB_LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
   
       a_addr <= address_mat_a-address_stride_a;
   
     a_mem_access <= 0;
   end
-  //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
+  //else if ((clk_cnt >= a_loc*`BB_MAT_MUL_SIZE) && (clk_cnt < a_loc*`BB_MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
 
-  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  else if ((clk_cnt >= (a_loc<<`BB_LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`BB_LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
   
       a_addr <= a_addr + address_stride_a;
   
@@ -561,7 +557,7 @@ assign a_data_valid =
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM A (systolic data setup)
 //////////////////////////////////////////////////////////////////////////
-wire [`MASK_WIDTH-1:0] validity_mask_a_rows_internal;
+wire [`BB_MASK_WIDTH-1:0] validity_mask_a_rows_internal;
 assign validity_mask_a_rows_internal = (slice_dtype == `DTYPE_INT8) ? 
                                       validity_mask_a_rows : 
                                      {validity_mask_a_rows[3],
@@ -573,72 +569,72 @@ assign validity_mask_a_rows_internal = (slice_dtype == `DTYPE_INT8) ?
                                       validity_mask_a_rows[0],
                                       validity_mask_a_rows[0]};
 
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_validated;
-assign a_data_validated[1*`DWIDTH-1:0*`DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[0]) ? a_data[1*`DWIDTH-1:0*`DWIDTH] : {`DWIDTH{1'b0}};
-assign a_data_validated[2*`DWIDTH-1:1*`DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[1]) ? a_data[2*`DWIDTH-1:1*`DWIDTH] : {`DWIDTH{1'b0}};
-assign a_data_validated[3*`DWIDTH-1:2*`DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[2]) ? a_data[3*`DWIDTH-1:2*`DWIDTH] : {`DWIDTH{1'b0}};
-assign a_data_validated[4*`DWIDTH-1:3*`DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[3]) ? a_data[4*`DWIDTH-1:3*`DWIDTH] : {`DWIDTH{1'b0}};
-assign a_data_validated[5*`DWIDTH-1:4*`DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[4]) ? a_data[5*`DWIDTH-1:4*`DWIDTH] : {`DWIDTH{1'b0}};
-assign a_data_validated[6*`DWIDTH-1:5*`DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[5]) ? a_data[6*`DWIDTH-1:5*`DWIDTH] : {`DWIDTH{1'b0}};
-assign a_data_validated[7*`DWIDTH-1:6*`DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[6]) ? a_data[7*`DWIDTH-1:6*`DWIDTH] : {`DWIDTH{1'b0}};
-assign a_data_validated[8*`DWIDTH-1:7*`DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[7]) ? a_data[8*`DWIDTH-1:7*`DWIDTH] : {`DWIDTH{1'b0}};
+wire [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data_validated;
+assign a_data_validated[1*`BB_DWIDTH-1:0*`BB_DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[0]) ? a_data[1*`BB_DWIDTH-1:0*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign a_data_validated[2*`BB_DWIDTH-1:1*`BB_DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[1]) ? a_data[2*`BB_DWIDTH-1:1*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign a_data_validated[3*`BB_DWIDTH-1:2*`BB_DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[2]) ? a_data[3*`BB_DWIDTH-1:2*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign a_data_validated[4*`BB_DWIDTH-1:3*`BB_DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[3]) ? a_data[4*`BB_DWIDTH-1:3*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign a_data_validated[5*`BB_DWIDTH-1:4*`BB_DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[4]) ? a_data[5*`BB_DWIDTH-1:4*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign a_data_validated[6*`BB_DWIDTH-1:5*`BB_DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[5]) ? a_data[6*`BB_DWIDTH-1:5*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign a_data_validated[7*`BB_DWIDTH-1:6*`BB_DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[6]) ? a_data[7*`BB_DWIDTH-1:6*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign a_data_validated[8*`BB_DWIDTH-1:7*`BB_DWIDTH] = (a_data_valid & validity_mask_a_rows_internal[7]) ? a_data[8*`BB_DWIDTH-1:7*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
 
 
 wire flop_rst;
 assign flop_rst = (reset || ~start_mat_mul || clk_cnt==0);
 
-wire [`DWIDTH-1:0] a_one_clk_del_int8;
-wire [`DWIDTH-1:0] a_two_clk_del_int8;
-wire [`DWIDTH-1:0] a_thr_clk_del_int8;
-wire [`DWIDTH-1:0] a_fou_clk_del_int8;
-wire [`DWIDTH-1:0] a_fiv_clk_del_int8;
-wire [`DWIDTH-1:0] a_six_clk_del_int8;
-wire [`DWIDTH-1:0] a_sev_clk_del_int8;
-wire [`DWIDTH-1:0] a_one_clk_del_fp16;
-wire [`DWIDTH-1:0] a_two_clk_del_fp16;
-wire [`DWIDTH-1:0] a_thr_clk_del_fp16;
-wire [`DWIDTH-1:0] a_fou_clk_del_fp16;
-wire [`DWIDTH-1:0] a_fiv_clk_del_fp16;
-wire [`DWIDTH-1:0] a_six_clk_del_fp16;
-wire [`DWIDTH-1:0] a_sev_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] a_one_clk_del_int8;
+wire [`BB_DWIDTH-1:0] a_two_clk_del_int8;
+wire [`BB_DWIDTH-1:0] a_thr_clk_del_int8;
+wire [`BB_DWIDTH-1:0] a_fou_clk_del_int8;
+wire [`BB_DWIDTH-1:0] a_fiv_clk_del_int8;
+wire [`BB_DWIDTH-1:0] a_six_clk_del_int8;
+wire [`BB_DWIDTH-1:0] a_sev_clk_del_int8;
+wire [`BB_DWIDTH-1:0] a_one_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] a_two_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] a_thr_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] a_fou_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] a_fiv_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] a_six_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] a_sev_clk_del_fp16;
 
-one_clk_delay    u_a_one_clk_delay     (.clk(clk), .rst(flop_rst), .in(a_data_validated[2*`DWIDTH-1:1*`DWIDTH]), .out_int8(a_one_clk_del_int8), .out_fp16(a_one_clk_del_fp16));
-two_clk_delay    u_a_two_clk_delay     (.clk(clk), .rst(flop_rst), .in(a_data_validated[3*`DWIDTH-1:2*`DWIDTH]), .out_int8(a_two_clk_del_int8), .out_fp16(a_two_clk_del_fp16));
-three_clk_delay  u_a_three_clk_delay   (.clk(clk), .rst(flop_rst), .in(a_data_validated[4*`DWIDTH-1:3*`DWIDTH]), .out_int8(a_thr_clk_del_int8), .out_fp16(a_thr_clk_del_fp16));
-four_clk_delay   u_a_four_clk_delay    (.clk(clk), .rst(flop_rst), .in(a_data_validated[5*`DWIDTH-1:4*`DWIDTH]), .out_int8(a_fou_clk_del_int8), .out_fp16(a_fou_clk_del_fp16));
-five_clk_delay   u_a_five_clk_delay    (.clk(clk), .rst(flop_rst), .in(a_data_validated[6*`DWIDTH-1:5*`DWIDTH]), .out_int8(a_fiv_clk_del_int8), .out_fp16(a_fiv_clk_del_fp16));
-six_clk_delay    u_a_six_clk_delay     (.clk(clk), .rst(flop_rst), .in(a_data_validated[7*`DWIDTH-1:6*`DWIDTH]), .out_int8(a_six_clk_del_int8), .out_fp16(a_six_clk_del_fp16));
-seven_clk_delay  u_a_seven_clk_delay   (.clk(clk), .rst(flop_rst), .in(a_data_validated[8*`DWIDTH-1:7*`DWIDTH]), .out_int8(a_sev_clk_del_int8), .out_fp16(a_sev_clk_del_fp16));
+one_clk_delay    u_a_one_clk_delay     (.clk(clk), .rst(flop_rst), .in(a_data_validated[2*`BB_DWIDTH-1:1*`BB_DWIDTH]), .out_int8(a_one_clk_del_int8), .out_fp16(a_one_clk_del_fp16));
+two_clk_delay    u_a_two_clk_delay     (.clk(clk), .rst(flop_rst), .in(a_data_validated[3*`BB_DWIDTH-1:2*`BB_DWIDTH]), .out_int8(a_two_clk_del_int8), .out_fp16(a_two_clk_del_fp16));
+three_clk_delay  u_a_three_clk_delay   (.clk(clk), .rst(flop_rst), .in(a_data_validated[4*`BB_DWIDTH-1:3*`BB_DWIDTH]), .out_int8(a_thr_clk_del_int8), .out_fp16(a_thr_clk_del_fp16));
+four_clk_delay   u_a_four_clk_delay    (.clk(clk), .rst(flop_rst), .in(a_data_validated[5*`BB_DWIDTH-1:4*`BB_DWIDTH]), .out_int8(a_fou_clk_del_int8), .out_fp16(a_fou_clk_del_fp16));
+five_clk_delay   u_a_five_clk_delay    (.clk(clk), .rst(flop_rst), .in(a_data_validated[6*`BB_DWIDTH-1:5*`BB_DWIDTH]), .out_int8(a_fiv_clk_del_int8), .out_fp16(a_fiv_clk_del_fp16));
+six_clk_delay    u_a_six_clk_delay     (.clk(clk), .rst(flop_rst), .in(a_data_validated[7*`BB_DWIDTH-1:6*`BB_DWIDTH]), .out_int8(a_six_clk_del_int8), .out_fp16(a_six_clk_del_fp16));
+seven_clk_delay  u_a_seven_clk_delay   (.clk(clk), .rst(flop_rst), .in(a_data_validated[8*`BB_DWIDTH-1:7*`BB_DWIDTH]), .out_int8(a_sev_clk_del_int8), .out_fp16(a_sev_clk_del_fp16));
 
-assign a_data_delayed[`DWIDTH-1:0]           = a_data_validated[`DWIDTH-1:0];
-assign a_data_delayed[2*`DWIDTH-1:1*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_one_clk_del_int8 : a_one_clk_del_fp16;
-assign a_data_delayed[3*`DWIDTH-1:2*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_two_clk_del_int8 : a_two_clk_del_fp16;
-assign a_data_delayed[4*`DWIDTH-1:3*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_thr_clk_del_int8 : a_thr_clk_del_fp16;
-assign a_data_delayed[5*`DWIDTH-1:4*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_fou_clk_del_int8 : a_fou_clk_del_fp16;
-assign a_data_delayed[6*`DWIDTH-1:5*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_fiv_clk_del_int8 : a_fiv_clk_del_fp16;
-assign a_data_delayed[7*`DWIDTH-1:6*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_six_clk_del_int8 : a_six_clk_del_fp16;
-assign a_data_delayed[8*`DWIDTH-1:7*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_sev_clk_del_int8 : a_sev_clk_del_fp16;
+assign a_data_delayed[`BB_DWIDTH-1:0]           = a_data_validated[`BB_DWIDTH-1:0];
+assign a_data_delayed[2*`BB_DWIDTH-1:1*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_one_clk_del_int8 : a_one_clk_del_fp16;
+assign a_data_delayed[3*`BB_DWIDTH-1:2*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_two_clk_del_int8 : a_two_clk_del_fp16;
+assign a_data_delayed[4*`BB_DWIDTH-1:3*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_thr_clk_del_int8 : a_thr_clk_del_fp16;
+assign a_data_delayed[5*`BB_DWIDTH-1:4*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_fou_clk_del_int8 : a_fou_clk_del_fp16;
+assign a_data_delayed[6*`BB_DWIDTH-1:5*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_fiv_clk_del_int8 : a_fiv_clk_del_fp16;
+assign a_data_delayed[7*`BB_DWIDTH-1:6*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_six_clk_del_int8 : a_six_clk_del_fp16;
+assign a_data_delayed[8*`BB_DWIDTH-1:7*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? a_sev_clk_del_int8 : a_sev_clk_del_fp16;
 
 
 //////////////////////////////////////////////////////////////////////////
 // Logic to generate addresses to BRAM B
 //////////////////////////////////////////////////////////////////////////
-reg [`AWIDTH-1:0] b_addr;
+reg [`BB_AWIDTH-1:0] b_addr;
 reg b_mem_access; //flag that tells whether the matmul is trying to access memory or not
 always @(posedge clk) begin
-  //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
+  //else if (clk_cnt >= b_loc*`BB_MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
 
-  if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`BB_LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 
       b_addr <= address_mat_b - address_stride_b;
   
     b_mem_access <= 0;
   end
-  //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
+  //else if ((clk_cnt >= b_loc*`BB_MAT_MUL_SIZE) && (clk_cnt < b_loc*`BB_MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
 
-  else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  else if ((clk_cnt >= (b_loc<<`BB_LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`BB_LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
 
       b_addr <= b_addr + address_stride_b;
   
@@ -688,51 +684,51 @@ assign b_data_valid =
 //////////////////////////////////////////////////////////////////////////
 // Logic to delay certain parts of the data received from BRAM B (systolic data setup)
 //////////////////////////////////////////////////////////////////////////
-wire [`MASK_WIDTH-1:0] validity_mask_b_cols_internal;
+wire [`BB_MASK_WIDTH-1:0] validity_mask_b_cols_internal;
 assign validity_mask_b_cols_internal = (slice_dtype == `DTYPE_INT8) ? validity_mask_b_cols : {validity_mask_b_cols[3],validity_mask_b_cols[3], validity_mask_b_cols[2],validity_mask_b_cols[2], validity_mask_b_cols[1],validity_mask_b_cols[1], validity_mask_b_cols[0],validity_mask_b_cols[0]};
 
-wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_validated;
-assign b_data_validated[1*`DWIDTH-1:0*`DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[0]) ? b_data[1*`DWIDTH-1:0*`DWIDTH] : {`DWIDTH{1'b0}};
-assign b_data_validated[2*`DWIDTH-1:1*`DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[1]) ? b_data[2*`DWIDTH-1:1*`DWIDTH] : {`DWIDTH{1'b0}};
-assign b_data_validated[3*`DWIDTH-1:2*`DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[2]) ? b_data[3*`DWIDTH-1:2*`DWIDTH] : {`DWIDTH{1'b0}};
-assign b_data_validated[4*`DWIDTH-1:3*`DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[3]) ? b_data[4*`DWIDTH-1:3*`DWIDTH] : {`DWIDTH{1'b0}};
-assign b_data_validated[5*`DWIDTH-1:4*`DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[4]) ? b_data[5*`DWIDTH-1:4*`DWIDTH] : {`DWIDTH{1'b0}};
-assign b_data_validated[6*`DWIDTH-1:5*`DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[5]) ? b_data[6*`DWIDTH-1:5*`DWIDTH] : {`DWIDTH{1'b0}};
-assign b_data_validated[7*`DWIDTH-1:6*`DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[6]) ? b_data[7*`DWIDTH-1:6*`DWIDTH] : {`DWIDTH{1'b0}};
-assign b_data_validated[8*`DWIDTH-1:7*`DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[7]) ? b_data[8*`DWIDTH-1:7*`DWIDTH] : {`DWIDTH{1'b0}};
+wire [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_validated;
+assign b_data_validated[1*`BB_DWIDTH-1:0*`BB_DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[0]) ? b_data[1*`BB_DWIDTH-1:0*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign b_data_validated[2*`BB_DWIDTH-1:1*`BB_DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[1]) ? b_data[2*`BB_DWIDTH-1:1*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign b_data_validated[3*`BB_DWIDTH-1:2*`BB_DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[2]) ? b_data[3*`BB_DWIDTH-1:2*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign b_data_validated[4*`BB_DWIDTH-1:3*`BB_DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[3]) ? b_data[4*`BB_DWIDTH-1:3*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign b_data_validated[5*`BB_DWIDTH-1:4*`BB_DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[4]) ? b_data[5*`BB_DWIDTH-1:4*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign b_data_validated[6*`BB_DWIDTH-1:5*`BB_DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[5]) ? b_data[6*`BB_DWIDTH-1:5*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign b_data_validated[7*`BB_DWIDTH-1:6*`BB_DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[6]) ? b_data[7*`BB_DWIDTH-1:6*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
+assign b_data_validated[8*`BB_DWIDTH-1:7*`BB_DWIDTH] = (b_data_valid & validity_mask_b_cols_internal[7]) ? b_data[8*`BB_DWIDTH-1:7*`BB_DWIDTH] : {`BB_DWIDTH{1'b0}};
 
 
-wire [`DWIDTH-1:0] b_one_clk_del_int8;
-wire [`DWIDTH-1:0] b_two_clk_del_int8;
-wire [`DWIDTH-1:0] b_thr_clk_del_int8;
-wire [`DWIDTH-1:0] b_fou_clk_del_int8;
-wire [`DWIDTH-1:0] b_fiv_clk_del_int8;
-wire [`DWIDTH-1:0] b_six_clk_del_int8;
-wire [`DWIDTH-1:0] b_sev_clk_del_int8;
-wire [`DWIDTH-1:0] b_one_clk_del_fp16;
-wire [`DWIDTH-1:0] b_two_clk_del_fp16;
-wire [`DWIDTH-1:0] b_thr_clk_del_fp16;
-wire [`DWIDTH-1:0] b_fou_clk_del_fp16;
-wire [`DWIDTH-1:0] b_fiv_clk_del_fp16;
-wire [`DWIDTH-1:0] b_six_clk_del_fp16;
-wire [`DWIDTH-1:0] b_sev_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] b_one_clk_del_int8;
+wire [`BB_DWIDTH-1:0] b_two_clk_del_int8;
+wire [`BB_DWIDTH-1:0] b_thr_clk_del_int8;
+wire [`BB_DWIDTH-1:0] b_fou_clk_del_int8;
+wire [`BB_DWIDTH-1:0] b_fiv_clk_del_int8;
+wire [`BB_DWIDTH-1:0] b_six_clk_del_int8;
+wire [`BB_DWIDTH-1:0] b_sev_clk_del_int8;
+wire [`BB_DWIDTH-1:0] b_one_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] b_two_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] b_thr_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] b_fou_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] b_fiv_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] b_six_clk_del_fp16;
+wire [`BB_DWIDTH-1:0] b_sev_clk_del_fp16;
 
-one_clk_delay   u_b_one_clk_delay     (.clk(clk), .rst(flop_rst), .in(b_data_validated[2*`DWIDTH-1:1*`DWIDTH]), .out_int8(b_one_clk_del_int8), .out_fp16(b_one_clk_del_fp16));
-two_clk_delay   u_b_two_clk_delay     (.clk(clk), .rst(flop_rst), .in(b_data_validated[3*`DWIDTH-1:2*`DWIDTH]), .out_int8(b_two_clk_del_int8), .out_fp16(b_two_clk_del_fp16));
-three_clk_delay u_b_three_clk_delay   (.clk(clk), .rst(flop_rst), .in(b_data_validated[4*`DWIDTH-1:3*`DWIDTH]), .out_int8(b_thr_clk_del_int8), .out_fp16(b_thr_clk_del_fp16));
-four_clk_delay  u_b_four_clk_delay    (.clk(clk), .rst(flop_rst), .in(b_data_validated[5*`DWIDTH-1:4*`DWIDTH]), .out_int8(b_fou_clk_del_int8), .out_fp16(b_fou_clk_del_fp16));
-five_clk_delay  u_b_five_clk_delay    (.clk(clk), .rst(flop_rst), .in(b_data_validated[6*`DWIDTH-1:5*`DWIDTH]), .out_int8(b_fiv_clk_del_int8), .out_fp16(b_fiv_clk_del_fp16));
-six_clk_delay   u_b_six_clk_delay     (.clk(clk), .rst(flop_rst), .in(b_data_validated[7*`DWIDTH-1:6*`DWIDTH]), .out_int8(b_six_clk_del_int8), .out_fp16(b_six_clk_del_fp16));
-seven_clk_delay u_b_seven_clk_delay   (.clk(clk), .rst(flop_rst), .in(b_data_validated[8*`DWIDTH-1:7*`DWIDTH]), .out_int8(b_sev_clk_del_int8), .out_fp16(b_sev_clk_del_fp16));
+one_clk_delay   u_b_one_clk_delay     (.clk(clk), .rst(flop_rst), .in(b_data_validated[2*`BB_DWIDTH-1:1*`BB_DWIDTH]), .out_int8(b_one_clk_del_int8), .out_fp16(b_one_clk_del_fp16));
+two_clk_delay   u_b_two_clk_delay     (.clk(clk), .rst(flop_rst), .in(b_data_validated[3*`BB_DWIDTH-1:2*`BB_DWIDTH]), .out_int8(b_two_clk_del_int8), .out_fp16(b_two_clk_del_fp16));
+three_clk_delay u_b_three_clk_delay   (.clk(clk), .rst(flop_rst), .in(b_data_validated[4*`BB_DWIDTH-1:3*`BB_DWIDTH]), .out_int8(b_thr_clk_del_int8), .out_fp16(b_thr_clk_del_fp16));
+four_clk_delay  u_b_four_clk_delay    (.clk(clk), .rst(flop_rst), .in(b_data_validated[5*`BB_DWIDTH-1:4*`BB_DWIDTH]), .out_int8(b_fou_clk_del_int8), .out_fp16(b_fou_clk_del_fp16));
+five_clk_delay  u_b_five_clk_delay    (.clk(clk), .rst(flop_rst), .in(b_data_validated[6*`BB_DWIDTH-1:5*`BB_DWIDTH]), .out_int8(b_fiv_clk_del_int8), .out_fp16(b_fiv_clk_del_fp16));
+six_clk_delay   u_b_six_clk_delay     (.clk(clk), .rst(flop_rst), .in(b_data_validated[7*`BB_DWIDTH-1:6*`BB_DWIDTH]), .out_int8(b_six_clk_del_int8), .out_fp16(b_six_clk_del_fp16));
+seven_clk_delay u_b_seven_clk_delay   (.clk(clk), .rst(flop_rst), .in(b_data_validated[8*`BB_DWIDTH-1:7*`BB_DWIDTH]), .out_int8(b_sev_clk_del_int8), .out_fp16(b_sev_clk_del_fp16));
 
-assign b_data_delayed[`DWIDTH-1:0]           = b_data_validated[`DWIDTH-1:0];
-assign b_data_delayed[2*`DWIDTH-1:1*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_one_clk_del_int8 : b_one_clk_del_fp16;
-assign b_data_delayed[3*`DWIDTH-1:2*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_two_clk_del_int8 : b_two_clk_del_fp16;
-assign b_data_delayed[4*`DWIDTH-1:3*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_thr_clk_del_int8 : b_thr_clk_del_fp16;
-assign b_data_delayed[5*`DWIDTH-1:4*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_fou_clk_del_int8 : b_fou_clk_del_fp16;
-assign b_data_delayed[6*`DWIDTH-1:5*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_fiv_clk_del_int8 : b_fiv_clk_del_fp16;
-assign b_data_delayed[7*`DWIDTH-1:6*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_six_clk_del_int8 : b_six_clk_del_fp16;
-assign b_data_delayed[8*`DWIDTH-1:7*`DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_sev_clk_del_int8 : b_sev_clk_del_fp16;
+assign b_data_delayed[`BB_DWIDTH-1:0]           = b_data_validated[`BB_DWIDTH-1:0];
+assign b_data_delayed[2*`BB_DWIDTH-1:1*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_one_clk_del_int8 : b_one_clk_del_fp16;
+assign b_data_delayed[3*`BB_DWIDTH-1:2*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_two_clk_del_int8 : b_two_clk_del_fp16;
+assign b_data_delayed[4*`BB_DWIDTH-1:3*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_thr_clk_del_int8 : b_thr_clk_del_fp16;
+assign b_data_delayed[5*`BB_DWIDTH-1:4*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_fou_clk_del_int8 : b_fou_clk_del_fp16;
+assign b_data_delayed[6*`BB_DWIDTH-1:5*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_fiv_clk_del_int8 : b_fiv_clk_del_fp16;
+assign b_data_delayed[7*`BB_DWIDTH-1:6*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_six_clk_del_int8 : b_six_clk_del_fp16;
+assign b_data_delayed[8*`BB_DWIDTH-1:7*`BB_DWIDTH] = (slice_dtype == `DTYPE_INT8)? b_sev_clk_del_int8 : b_sev_clk_del_fp16;
 
 endmodule
 
@@ -742,9 +738,9 @@ endmodule
 module one_clk_delay(
   input clk,
   input rst,
-  input [`DWIDTH-1:0] in,
-  output reg [`DWIDTH-1:0] out_int8,
-  output [`DWIDTH-1:0] out_fp16
+  input [`BB_DWIDTH-1:0] in,
+  output reg [`BB_DWIDTH-1:0] out_int8,
+  output [`BB_DWIDTH-1:0] out_fp16
 );
 //1 clk delay in int8, 0 clk delay in fp16
 assign out_fp16 = in;
@@ -762,12 +758,12 @@ endmodule
 module two_clk_delay(
   input clk,
   input rst,
-  input [`DWIDTH-1:0] in,
-  output reg [`DWIDTH-1:0] out_int8,
-  output [`DWIDTH-1:0] out_fp16
+  input [`BB_DWIDTH-1:0] in,
+  output reg [`BB_DWIDTH-1:0] out_int8,
+  output [`BB_DWIDTH-1:0] out_fp16
 );
 //2 clk delay in int8, 1 clk delay in fp16
-reg [`DWIDTH-1:0] in_delayed;
+reg [`BB_DWIDTH-1:0] in_delayed;
 assign out_fp16 = in_delayed;
 always @(posedge clk) begin
   if (rst) begin
@@ -785,13 +781,13 @@ endmodule
 module three_clk_delay(
   input clk,
   input rst,
-  input [`DWIDTH-1:0] in,
-  output reg [`DWIDTH-1:0] out_int8,
-  output [`DWIDTH-1:0] out_fp16
+  input [`BB_DWIDTH-1:0] in,
+  output reg [`BB_DWIDTH-1:0] out_int8,
+  output [`BB_DWIDTH-1:0] out_fp16
 );
 //3 clk delay in int8, 1 clk delay in fp16
-reg [`DWIDTH-1:0] in_delayed_1;
-reg [`DWIDTH-1:0] in_delayed_2;
+reg [`BB_DWIDTH-1:0] in_delayed_1;
+reg [`BB_DWIDTH-1:0] in_delayed_2;
 
 assign out_fp16 = in_delayed_1;
 always @(posedge clk) begin
@@ -812,14 +808,14 @@ endmodule
 module four_clk_delay(
   input clk,
   input rst,
-  input [`DWIDTH-1:0] in,
-  output reg [`DWIDTH-1:0] out_int8,
-  output [`DWIDTH-1:0] out_fp16
+  input [`BB_DWIDTH-1:0] in,
+  output reg [`BB_DWIDTH-1:0] out_int8,
+  output [`BB_DWIDTH-1:0] out_fp16
 );
 //4 clk delay in int8, 2 clk delay in fp16
-reg [`DWIDTH-1:0] in_delayed_1;
-reg [`DWIDTH-1:0] in_delayed_2;
-reg [`DWIDTH-1:0] in_delayed_3;
+reg [`BB_DWIDTH-1:0] in_delayed_1;
+reg [`BB_DWIDTH-1:0] in_delayed_2;
+reg [`BB_DWIDTH-1:0] in_delayed_3;
 
 assign out_fp16 = in_delayed_2;
 always @(posedge clk) begin
@@ -842,15 +838,15 @@ endmodule
 module five_clk_delay(
   input clk,
   input rst,
-  input [`DWIDTH-1:0] in,
-  output reg [`DWIDTH-1:0] out_int8,
-  output [`DWIDTH-1:0] out_fp16
+  input [`BB_DWIDTH-1:0] in,
+  output reg [`BB_DWIDTH-1:0] out_int8,
+  output [`BB_DWIDTH-1:0] out_fp16
 );
 //5 clk delay in int8, 2 clk delay in fp16
-reg [`DWIDTH-1:0] in_delayed_1;
-reg [`DWIDTH-1:0] in_delayed_2;
-reg [`DWIDTH-1:0] in_delayed_3;
-reg [`DWIDTH-1:0] in_delayed_4;
+reg [`BB_DWIDTH-1:0] in_delayed_1;
+reg [`BB_DWIDTH-1:0] in_delayed_2;
+reg [`BB_DWIDTH-1:0] in_delayed_3;
+reg [`BB_DWIDTH-1:0] in_delayed_4;
 
 assign out_fp16 = in_delayed_2;
 always @(posedge clk) begin
@@ -875,16 +871,16 @@ endmodule
 module six_clk_delay(
   input clk,
   input rst,
-  input [`DWIDTH-1:0] in,
-  output reg [`DWIDTH-1:0] out_int8,
-  output [`DWIDTH-1:0] out_fp16
+  input [`BB_DWIDTH-1:0] in,
+  output reg [`BB_DWIDTH-1:0] out_int8,
+  output [`BB_DWIDTH-1:0] out_fp16
 );
 //6 clk delay in int8, 3 clk delay in fp16
-reg [`DWIDTH-1:0] in_delayed_1;
-reg [`DWIDTH-1:0] in_delayed_2;
-reg [`DWIDTH-1:0] in_delayed_3;
-reg [`DWIDTH-1:0] in_delayed_4;
-reg [`DWIDTH-1:0] in_delayed_5;
+reg [`BB_DWIDTH-1:0] in_delayed_1;
+reg [`BB_DWIDTH-1:0] in_delayed_2;
+reg [`BB_DWIDTH-1:0] in_delayed_3;
+reg [`BB_DWIDTH-1:0] in_delayed_4;
+reg [`BB_DWIDTH-1:0] in_delayed_5;
 
 assign out_fp16 = in_delayed_3;
 always @(posedge clk) begin
@@ -911,17 +907,17 @@ endmodule
 module seven_clk_delay(
   input clk,
   input rst,
-  input [`DWIDTH-1:0] in,
-  output reg [`DWIDTH-1:0] out_int8,
-  output [`DWIDTH-1:0] out_fp16
+  input [`BB_DWIDTH-1:0] in,
+  output reg [`BB_DWIDTH-1:0] out_int8,
+  output [`BB_DWIDTH-1:0] out_fp16
 );
 //7 clk delay in int8, 3 clk delay in fp16
-reg [`DWIDTH-1:0] in_delayed_1;
-reg [`DWIDTH-1:0] in_delayed_2;
-reg [`DWIDTH-1:0] in_delayed_3;
-reg [`DWIDTH-1:0] in_delayed_4;
-reg [`DWIDTH-1:0] in_delayed_5;
-reg [`DWIDTH-1:0] in_delayed_6;
+reg [`BB_DWIDTH-1:0] in_delayed_1;
+reg [`BB_DWIDTH-1:0] in_delayed_2;
+reg [`BB_DWIDTH-1:0] in_delayed_3;
+reg [`BB_DWIDTH-1:0] in_delayed_4;
+reg [`BB_DWIDTH-1:0] in_delayed_5;
+reg [`BB_DWIDTH-1:0] in_delayed_6;
 
 assign out_fp16 = in_delayed_3;
 always @(posedge clk) begin
@@ -967,13 +963,13 @@ output_list_from_pes
 input clk;
 input reset;
 input pe_reset;
-input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data;
-input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
+input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data;
+input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data;
 input slice_dtype;
 input slice_mode;
 output [511:0] pe_data_out;
-output [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out;
-output [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out;
+output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data_out;
+output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_out;
 input [271:0] input_list_to_pes;
 output [111:0] output_list_from_pes;
 
@@ -983,101 +979,101 @@ output [111:0] output_list_from_pes;
 wire effective_rst;
 assign effective_rst = reset | pe_reset;
 
-wire [2*`DWIDTH-1:0] in_a_pe00;
-wire [4*`DWIDTH-1:0] in_b_pe00;
-wire [2*`DWIDTH-1:0] out_a_pe00;
-wire [4*`DWIDTH-1:0] out_b_pe00;
-wire [4*`DWIDTH-1:0] out_c_pe00;
+wire [2*`BB_DWIDTH-1:0] in_a_pe00;
+wire [4*`BB_DWIDTH-1:0] in_b_pe00;
+wire [2*`BB_DWIDTH-1:0] out_a_pe00;
+wire [4*`BB_DWIDTH-1:0] out_b_pe00;
+wire [4*`BB_DWIDTH-1:0] out_c_pe00;
 
-wire [2*`DWIDTH-1:0] in_a_pe01;
-wire [4*`DWIDTH-1:0] in_b_pe01;
-wire [2*`DWIDTH-1:0] out_a_pe01;
-wire [4*`DWIDTH-1:0] out_b_pe01;
-wire [4*`DWIDTH-1:0] out_c_pe01;
+wire [2*`BB_DWIDTH-1:0] in_a_pe01;
+wire [4*`BB_DWIDTH-1:0] in_b_pe01;
+wire [2*`BB_DWIDTH-1:0] out_a_pe01;
+wire [4*`BB_DWIDTH-1:0] out_b_pe01;
+wire [4*`BB_DWIDTH-1:0] out_c_pe01;
 
-wire [2*`DWIDTH-1:0] in_a_pe02;
-wire [4*`DWIDTH-1:0] in_b_pe02;
-wire [2*`DWIDTH-1:0] out_a_pe02;
-wire [4*`DWIDTH-1:0] out_b_pe02;
-wire [4*`DWIDTH-1:0] out_c_pe02;
+wire [2*`BB_DWIDTH-1:0] in_a_pe02;
+wire [4*`BB_DWIDTH-1:0] in_b_pe02;
+wire [2*`BB_DWIDTH-1:0] out_a_pe02;
+wire [4*`BB_DWIDTH-1:0] out_b_pe02;
+wire [4*`BB_DWIDTH-1:0] out_c_pe02;
 
-wire [2*`DWIDTH-1:0] in_a_pe03;
-wire [4*`DWIDTH-1:0] in_b_pe03;
-wire [2*`DWIDTH-1:0] out_a_pe03;
-wire [4*`DWIDTH-1:0] out_b_pe03;
-wire [4*`DWIDTH-1:0] out_c_pe03;
+wire [2*`BB_DWIDTH-1:0] in_a_pe03;
+wire [4*`BB_DWIDTH-1:0] in_b_pe03;
+wire [2*`BB_DWIDTH-1:0] out_a_pe03;
+wire [4*`BB_DWIDTH-1:0] out_b_pe03;
+wire [4*`BB_DWIDTH-1:0] out_c_pe03;
 
-wire [2*`DWIDTH-1:0] in_a_pe10;
-wire [4*`DWIDTH-1:0] in_b_pe10;
-wire [2*`DWIDTH-1:0] out_a_pe10;
-wire [4*`DWIDTH-1:0] out_b_pe10;
-wire [4*`DWIDTH-1:0] out_c_pe10;
+wire [2*`BB_DWIDTH-1:0] in_a_pe10;
+wire [4*`BB_DWIDTH-1:0] in_b_pe10;
+wire [2*`BB_DWIDTH-1:0] out_a_pe10;
+wire [4*`BB_DWIDTH-1:0] out_b_pe10;
+wire [4*`BB_DWIDTH-1:0] out_c_pe10;
 
-wire [2*`DWIDTH-1:0] in_a_pe11;
-wire [4*`DWIDTH-1:0] in_b_pe11;
-wire [2*`DWIDTH-1:0] out_a_pe11;
-wire [4*`DWIDTH-1:0] out_b_pe11;
-wire [4*`DWIDTH-1:0] out_c_pe11;
+wire [2*`BB_DWIDTH-1:0] in_a_pe11;
+wire [4*`BB_DWIDTH-1:0] in_b_pe11;
+wire [2*`BB_DWIDTH-1:0] out_a_pe11;
+wire [4*`BB_DWIDTH-1:0] out_b_pe11;
+wire [4*`BB_DWIDTH-1:0] out_c_pe11;
 
-wire [2*`DWIDTH-1:0] in_a_pe12;
-wire [4*`DWIDTH-1:0] in_b_pe12;
-wire [2*`DWIDTH-1:0] out_a_pe12;
-wire [4*`DWIDTH-1:0] out_b_pe12;
-wire [4*`DWIDTH-1:0] out_c_pe12;
+wire [2*`BB_DWIDTH-1:0] in_a_pe12;
+wire [4*`BB_DWIDTH-1:0] in_b_pe12;
+wire [2*`BB_DWIDTH-1:0] out_a_pe12;
+wire [4*`BB_DWIDTH-1:0] out_b_pe12;
+wire [4*`BB_DWIDTH-1:0] out_c_pe12;
 
-wire [2*`DWIDTH-1:0] in_a_pe13;
-wire [4*`DWIDTH-1:0] in_b_pe13;
-wire [2*`DWIDTH-1:0] out_a_pe13;
-wire [4*`DWIDTH-1:0] out_b_pe13;
-wire [4*`DWIDTH-1:0] out_c_pe13;
+wire [2*`BB_DWIDTH-1:0] in_a_pe13;
+wire [4*`BB_DWIDTH-1:0] in_b_pe13;
+wire [2*`BB_DWIDTH-1:0] out_a_pe13;
+wire [4*`BB_DWIDTH-1:0] out_b_pe13;
+wire [4*`BB_DWIDTH-1:0] out_c_pe13;
 
-wire [2*`DWIDTH-1:0] in_a_pe20;
-wire [4*`DWIDTH-1:0] in_b_pe20;
-wire [2*`DWIDTH-1:0] out_a_pe20;
-wire [4*`DWIDTH-1:0] out_b_pe20;
-wire [4*`DWIDTH-1:0] out_c_pe20;
+wire [2*`BB_DWIDTH-1:0] in_a_pe20;
+wire [4*`BB_DWIDTH-1:0] in_b_pe20;
+wire [2*`BB_DWIDTH-1:0] out_a_pe20;
+wire [4*`BB_DWIDTH-1:0] out_b_pe20;
+wire [4*`BB_DWIDTH-1:0] out_c_pe20;
 
-wire [2*`DWIDTH-1:0] in_a_pe21;
-wire [4*`DWIDTH-1:0] in_b_pe21;
-wire [2*`DWIDTH-1:0] out_a_pe21;
-wire [4*`DWIDTH-1:0] out_b_pe21;
-wire [4*`DWIDTH-1:0] out_c_pe21;
+wire [2*`BB_DWIDTH-1:0] in_a_pe21;
+wire [4*`BB_DWIDTH-1:0] in_b_pe21;
+wire [2*`BB_DWIDTH-1:0] out_a_pe21;
+wire [4*`BB_DWIDTH-1:0] out_b_pe21;
+wire [4*`BB_DWIDTH-1:0] out_c_pe21;
 
-wire [2*`DWIDTH-1:0] in_a_pe22;
-wire [4*`DWIDTH-1:0] in_b_pe22;
-wire [2*`DWIDTH-1:0] out_a_pe22;
-wire [4*`DWIDTH-1:0] out_b_pe22;
-wire [4*`DWIDTH-1:0] out_c_pe22;
+wire [2*`BB_DWIDTH-1:0] in_a_pe22;
+wire [4*`BB_DWIDTH-1:0] in_b_pe22;
+wire [2*`BB_DWIDTH-1:0] out_a_pe22;
+wire [4*`BB_DWIDTH-1:0] out_b_pe22;
+wire [4*`BB_DWIDTH-1:0] out_c_pe22;
 
-wire [2*`DWIDTH-1:0] in_a_pe23;
-wire [4*`DWIDTH-1:0] in_b_pe23;
-wire [2*`DWIDTH-1:0] out_a_pe23;
-wire [4*`DWIDTH-1:0] out_b_pe23;
-wire [4*`DWIDTH-1:0] out_c_pe23;
+wire [2*`BB_DWIDTH-1:0] in_a_pe23;
+wire [4*`BB_DWIDTH-1:0] in_b_pe23;
+wire [2*`BB_DWIDTH-1:0] out_a_pe23;
+wire [4*`BB_DWIDTH-1:0] out_b_pe23;
+wire [4*`BB_DWIDTH-1:0] out_c_pe23;
 
-wire [2*`DWIDTH-1:0] in_a_pe30;
-wire [4*`DWIDTH-1:0] in_b_pe30;
-wire [2*`DWIDTH-1:0] out_a_pe30;
-wire [4*`DWIDTH-1:0] out_b_pe30;
-wire [4*`DWIDTH-1:0] out_c_pe30;
+wire [2*`BB_DWIDTH-1:0] in_a_pe30;
+wire [4*`BB_DWIDTH-1:0] in_b_pe30;
+wire [2*`BB_DWIDTH-1:0] out_a_pe30;
+wire [4*`BB_DWIDTH-1:0] out_b_pe30;
+wire [4*`BB_DWIDTH-1:0] out_c_pe30;
 
-wire [2*`DWIDTH-1:0] in_a_pe31;
-wire [4*`DWIDTH-1:0] in_b_pe31;
-wire [2*`DWIDTH-1:0] out_a_pe31;
-wire [4*`DWIDTH-1:0] out_b_pe31;
-wire [4*`DWIDTH-1:0] out_c_pe31;
+wire [2*`BB_DWIDTH-1:0] in_a_pe31;
+wire [4*`BB_DWIDTH-1:0] in_b_pe31;
+wire [2*`BB_DWIDTH-1:0] out_a_pe31;
+wire [4*`BB_DWIDTH-1:0] out_b_pe31;
+wire [4*`BB_DWIDTH-1:0] out_c_pe31;
 
-wire [2*`DWIDTH-1:0] in_a_pe32;
-wire [4*`DWIDTH-1:0] in_b_pe32;
-wire [2*`DWIDTH-1:0] out_a_pe32;
-wire [4*`DWIDTH-1:0] out_b_pe32;
-wire [4*`DWIDTH-1:0] out_c_pe32;
+wire [2*`BB_DWIDTH-1:0] in_a_pe32;
+wire [4*`BB_DWIDTH-1:0] in_b_pe32;
+wire [2*`BB_DWIDTH-1:0] out_a_pe32;
+wire [4*`BB_DWIDTH-1:0] out_b_pe32;
+wire [4*`BB_DWIDTH-1:0] out_c_pe32;
 
-wire [2*`DWIDTH-1:0] in_a_pe33;
-wire [4*`DWIDTH-1:0] in_b_pe33;
-wire [2*`DWIDTH-1:0] out_a_pe33;
-wire [4*`DWIDTH-1:0] out_b_pe33;
-wire [4*`DWIDTH-1:0] out_c_pe33;
+wire [2*`BB_DWIDTH-1:0] in_a_pe33;
+wire [4*`BB_DWIDTH-1:0] in_b_pe33;
+wire [2*`BB_DWIDTH-1:0] out_a_pe33;
+wire [4*`BB_DWIDTH-1:0] out_b_pe33;
+wire [4*`BB_DWIDTH-1:0] out_c_pe33;
 
 assign pe_data_out =  {
                       out_c_pe33[31:0], out_c_pe32[31:0], out_c_pe31[31:0], out_c_pe30[31:0],
@@ -1095,20 +1091,20 @@ assign b_data_out = {out_b_pe33, out_b_pe23, out_b_pe13, out_b_pe03};
 assign in_a_pe00 = (slice_dtype == `DTYPE_FP16) ? a_data[15:0] : {8'b0, a_data[7:0]};
 assign in_b_pe00 = (slice_dtype == `DTYPE_FP16) ? b_data[15:0] : {b_data[7:0], b_data[15:8], b_data[23:16], b_data[31:24]};
 
-wire [2*`DWIDTH-1:0] a0_0to0_1_fp16;
-wire [1*`DWIDTH-1:0] a0_3to0_4_int8;
+wire [2*`BB_DWIDTH-1:0] a0_0to0_1_fp16;
+wire [1*`BB_DWIDTH-1:0] a0_3to0_4_int8;
 assign a0_0to0_1_fp16 = out_a_pe00;
 assign a0_3to0_4_int8 = out_a_pe00[7:0];
 assign in_a_pe01 = (slice_dtype == `DTYPE_FP16) ? a0_0to0_1_fp16 : {8'b0, a0_3to0_4_int8};
 assign in_b_pe01 = (slice_dtype == `DTYPE_FP16) ? b_data[31:16] : {b_data[39:32], b_data[47:40], b_data[55:48], b_data[63:56]};
 
-wire [2*`DWIDTH-1:0] a0_1to0_2_fp16;
+wire [2*`BB_DWIDTH-1:0] a0_1to0_2_fp16;
 assign a0_1to0_2_fp16 = out_a_pe01;
 assign in_a_pe02 = (slice_dtype == `DTYPE_FP16) ? a0_1to0_2_fp16 : {8'b0, a_data[15:8]};
 assign in_b_pe02 = (slice_dtype == `DTYPE_FP16) ? b_data[47:32] : out_b_pe00;
 
-wire [2*`DWIDTH-1:0] a0_2to0_3_fp16;
-wire [1*`DWIDTH-1:0] a1_3to1_4_int8;
+wire [2*`BB_DWIDTH-1:0] a0_2to0_3_fp16;
+wire [1*`BB_DWIDTH-1:0] a1_3to1_4_int8;
 assign a0_2to0_3_fp16 = out_a_pe02;
 assign a1_3to1_4_int8 = out_a_pe02[7:0];
 assign in_a_pe03 = (slice_dtype == `DTYPE_FP16) ? a0_2to0_3_fp16 : a1_3to1_4_int8;
@@ -1118,30 +1114,30 @@ assign in_b_pe03 = (slice_dtype == `DTYPE_FP16) ? b_data[63:48] : out_b_pe01;
 ///////////////////////////////////////////
 // Second row of PEs 
 ///////////////////////////////////////////
-wire [2*`DWIDTH-1:0] b0_0to1_0_fp16;
+wire [2*`BB_DWIDTH-1:0] b0_0to1_0_fp16;
 assign b0_0to1_0_fp16 = out_b_pe00[15:0];
 assign in_a_pe10 = (slice_dtype == `DTYPE_FP16) ? a_data[31:16] : {8'b0, a_data[23:16]};
 assign in_b_pe10 = (slice_dtype == `DTYPE_FP16) ? b0_0to1_0_fp16 : out_b_pe02;
 
-wire [2*`DWIDTH-1:0] a1_0to1_1_fp16;
-wire [1*`DWIDTH-1:0] a2_3to2_4_int8;
-wire [2*`DWIDTH-1:0] b0_1to1_1_fp16;
+wire [2*`BB_DWIDTH-1:0] a1_0to1_1_fp16;
+wire [1*`BB_DWIDTH-1:0] a2_3to2_4_int8;
+wire [2*`BB_DWIDTH-1:0] b0_1to1_1_fp16;
 assign a1_0to1_1_fp16 = out_a_pe10;
 assign a2_3to2_4_int8 = out_a_pe10[7:0];
 assign b0_1to1_1_fp16 = out_b_pe01[15:0];
 assign in_a_pe11 = (slice_dtype == `DTYPE_FP16) ? a1_0to1_1_fp16 : a2_3to2_4_int8;
 assign in_b_pe11 = (slice_dtype == `DTYPE_FP16) ? b0_1to1_1_fp16 : out_b_pe03;
 
-wire [2*`DWIDTH-1:0] a1_1to1_2_fp16;
-wire [2*`DWIDTH-1:0] b0_2to1_2_fp16;
+wire [2*`BB_DWIDTH-1:0] a1_1to1_2_fp16;
+wire [2*`BB_DWIDTH-1:0] b0_2to1_2_fp16;
 assign a1_1to1_2_fp16 = out_a_pe11;
 assign b0_2to1_2_fp16 = out_b_pe02[15:0];
 assign in_a_pe12 = (slice_dtype == `DTYPE_FP16) ? a1_1to1_2_fp16 : {8'b0, a_data[31:24]};
 assign in_b_pe12 = (slice_dtype == `DTYPE_FP16) ? b0_2to1_2_fp16 : out_b_pe10;
 
-wire [2*`DWIDTH-1:0] a1_2to1_3_fp16;
-wire [1*`DWIDTH-1:0] a3_3to3_4_int8;
-wire [2*`DWIDTH-1:0] b0_3to1_3_fp16;
+wire [2*`BB_DWIDTH-1:0] a1_2to1_3_fp16;
+wire [1*`BB_DWIDTH-1:0] a3_3to3_4_int8;
+wire [2*`BB_DWIDTH-1:0] b0_3to1_3_fp16;
 assign a1_2to1_3_fp16 = out_a_pe12;
 assign a3_3to3_4_int8 = out_a_pe12[7:0];
 assign b0_3to1_3_fp16 = out_b_pe03[15:0];
@@ -1152,30 +1148,30 @@ assign in_b_pe13 = (slice_dtype == `DTYPE_FP16) ? b0_3to1_3_fp16 : out_b_pe11;
 ///////////////////////////////////////////
 // Third row of PEs 
 ///////////////////////////////////////////
-wire [2*`DWIDTH-1:0] b1_0to2_0_fp16;
+wire [2*`BB_DWIDTH-1:0] b1_0to2_0_fp16;
 assign b1_0to2_0_fp16 = out_b_pe10[15:0];
 assign in_a_pe20 = (slice_dtype == `DTYPE_FP16) ? a_data[47:32] : {8'b0, a_data[39:32]};
 assign in_b_pe20 = (slice_dtype == `DTYPE_FP16) ? b1_0to2_0_fp16 : out_b_pe12;
 
-wire [2*`DWIDTH-1:0] a2_0to2_1_fp16;
-wire [1*`DWIDTH-1:0] a4_3to4_4_int8;
-wire [2*`DWIDTH-1:0] b1_1to2_1_fp16;
+wire [2*`BB_DWIDTH-1:0] a2_0to2_1_fp16;
+wire [1*`BB_DWIDTH-1:0] a4_3to4_4_int8;
+wire [2*`BB_DWIDTH-1:0] b1_1to2_1_fp16;
 assign a2_0to2_1_fp16 = out_a_pe20; 
 assign a4_3to4_4_int8 = out_a_pe20[7:0];
 assign b1_1to2_1_fp16 = out_b_pe11[15:0];
 assign in_a_pe21 = (slice_dtype == `DTYPE_FP16) ? a2_0to2_1_fp16 : a4_3to4_4_int8;
 assign in_b_pe21 = (slice_dtype == `DTYPE_FP16) ? b1_1to2_1_fp16 : out_b_pe13;
 
-wire [2*`DWIDTH-1:0] a2_1to2_2_fp16;
-wire [2*`DWIDTH-1:0] b1_2to2_2_fp16;
+wire [2*`BB_DWIDTH-1:0] a2_1to2_2_fp16;
+wire [2*`BB_DWIDTH-1:0] b1_2to2_2_fp16;
 assign a2_1to2_2_fp16 = out_a_pe21;
 assign b1_2to2_2_fp16 = out_b_pe12[15:0];
 assign in_a_pe22 = (slice_dtype == `DTYPE_FP16) ? a2_1to2_2_fp16 : {8'b0, a_data[47:40]};
 assign in_b_pe22 = (slice_dtype == `DTYPE_FP16) ? b1_2to2_2_fp16 : out_b_pe20;
 
-wire [2*`DWIDTH-1:0] a2_2to2_3_fp16;
-wire [1*`DWIDTH-1:0] a5_3to5_4_int8;
-wire [2*`DWIDTH-1:0] b1_3to2_3_fp16;
+wire [2*`BB_DWIDTH-1:0] a2_2to2_3_fp16;
+wire [1*`BB_DWIDTH-1:0] a5_3to5_4_int8;
+wire [2*`BB_DWIDTH-1:0] b1_3to2_3_fp16;
 assign a2_2to2_3_fp16 = out_a_pe22;
 assign a5_3to5_4_int8 = out_a_pe22[7:0];
 assign b1_3to2_3_fp16 = out_b_pe13[15:0];
@@ -1186,30 +1182,30 @@ assign in_b_pe23 = (slice_dtype == `DTYPE_FP16) ? b1_3to2_3_fp16 : out_b_pe21;
 ///////////////////////////////////////////
 // Fourth row of PEs 
 ///////////////////////////////////////////
-wire [2*`DWIDTH-1:0] b2_0to3_0_fp16;
+wire [2*`BB_DWIDTH-1:0] b2_0to3_0_fp16;
 assign b2_0to3_0_fp16 = out_b_pe20[15:0];
 assign in_a_pe30 = (slice_dtype == `DTYPE_FP16) ? a_data[63:48] : {8'b0, a_data[55:48]};
 assign in_b_pe30 = (slice_dtype == `DTYPE_FP16) ? b2_0to3_0_fp16 : out_b_pe22;
 
-wire [2*`DWIDTH-1:0] a3_0to3_1_fp16;
-wire [1*`DWIDTH-1:0] a6_3to6_4_int8;
-wire [2*`DWIDTH-1:0] b2_1to3_1_fp16;
+wire [2*`BB_DWIDTH-1:0] a3_0to3_1_fp16;
+wire [1*`BB_DWIDTH-1:0] a6_3to6_4_int8;
+wire [2*`BB_DWIDTH-1:0] b2_1to3_1_fp16;
 assign a3_0to3_1_fp16 = out_a_pe30;
 assign a6_3to6_4_int8 = out_a_pe30[7:0];
 assign b2_1to3_1_fp16 = out_b_pe21[15:0];
 assign in_a_pe31 = (slice_dtype == `DTYPE_FP16) ? a3_0to3_1_fp16 : a6_3to6_4_int8;
 assign in_b_pe31 = (slice_dtype == `DTYPE_FP16) ? b2_1to3_1_fp16 : out_b_pe23;
 
-wire [2*`DWIDTH-1:0] a3_1to3_2_fp16;
-wire [2*`DWIDTH-1:0] b2_2to3_2_fp16;
+wire [2*`BB_DWIDTH-1:0] a3_1to3_2_fp16;
+wire [2*`BB_DWIDTH-1:0] b2_2to3_2_fp16;
 assign a3_1to3_2_fp16 = out_a_pe31;
 assign b2_2to3_2_fp16 = out_b_pe22[15:0];
 assign in_a_pe32 = (slice_dtype == `DTYPE_FP16) ? a3_1to3_2_fp16 : {8'b0, a_data[63:56]};
 assign in_b_pe32 = (slice_dtype == `DTYPE_FP16) ? b2_2to3_2_fp16 : out_b_pe30;
 
-wire [2*`DWIDTH-1:0] a3_2to3_3_fp16;
-wire [1*`DWIDTH-1:0] a7_3to7_4_int8;
-wire [2*`DWIDTH-1:0] b2_3to3_3_fp16;
+wire [2*`BB_DWIDTH-1:0] a3_2to3_3_fp16;
+wire [1*`BB_DWIDTH-1:0] a7_3to7_4_int8;
+wire [2*`BB_DWIDTH-1:0] b2_3to3_3_fp16;
 assign a3_2to3_3_fp16 = out_a_pe32;
 assign a7_3to7_4_int8 = out_a_pe32[7:0];
 assign b2_3to3_3_fp16 = out_b_pe23[15:0];
@@ -1378,22 +1374,22 @@ module processing_element(
  output [15:0] out_a;
  output [31:0] out_b;
  output [31:0] out_c;
- input [4*`DWIDTH-1:0] direct_a;
- input [4*`DWIDTH-1:0] direct_b;
- output [4*`DWIDTH-1:0] direct_out;
+ input [4*`BB_DWIDTH-1:0] direct_a;
+ input [4*`BB_DWIDTH-1:0] direct_b;
+ output [4*`BB_DWIDTH-1:0] direct_out;
  input direct_dtype;
  input [2:0] direct_mode;
 
- reg [2*`DWIDTH-1:0] out_a;
- reg [4*`DWIDTH-1:0] out_b;
+ reg [2*`BB_DWIDTH-1:0] out_a;
+ reg [4*`BB_DWIDTH-1:0] out_b;
 
- wire [4*`DWIDTH-1:0] out_mac;
- wire [4*`DWIDTH-1:0] a_seq_mac;
- wire [4*`DWIDTH-1:0] b_seq_mac;
+ wire [4*`BB_DWIDTH-1:0] out_mac;
+ wire [4*`BB_DWIDTH-1:0] a_seq_mac;
+ wire [4*`BB_DWIDTH-1:0] b_seq_mac;
 
- reg [`DWIDTH-1: 0] out_a_0to1;
- reg [`DWIDTH-1: 0] out_a_1to2;
- reg [`DWIDTH-1: 0] out_a_2to3;
+ reg [`BB_DWIDTH-1: 0] out_a_0to1;
+ reg [`BB_DWIDTH-1: 0] out_a_1to2;
+ reg [`BB_DWIDTH-1: 0] out_a_2to3;
 
  assign a_seq_mac = (slice_dtype == `DTYPE_FP16) ? {16'b0, in_a[15:0]} : {in_a[7:0], out_a_0to1, out_a_1to2, out_a_2to3 };
  assign b_seq_mac = (slice_dtype == `DTYPE_FP16) ? {16'b0, in_b[15:0]} : {in_b[31:24], in_b[23:16], in_b[15:8], in_b[7:0]};
@@ -1459,14 +1455,14 @@ endmodule
 module seq_mac(clk, reset, a, b, out, dtype, mode, direct_a, direct_b, direct_out, direct_dtype, direct_mode);
 input clk;
 input reset;
-input [4*`DWIDTH-1:0] a;
-input [4*`DWIDTH-1:0] b;
-output [4*`DWIDTH-1:0] out;
+input [4*`BB_DWIDTH-1:0] a;
+input [4*`BB_DWIDTH-1:0] b;
+output [4*`BB_DWIDTH-1:0] out;
 input dtype;
 input mode;
-input [4*`DWIDTH-1:0] direct_a;
-input [4*`DWIDTH-1:0] direct_b;
-output [4*`DWIDTH-1:0] direct_out;
+input [4*`BB_DWIDTH-1:0] direct_a;
+input [4*`BB_DWIDTH-1:0] direct_b;
+output [4*`BB_DWIDTH-1:0] direct_out;
 input direct_dtype;
 input [2:0] direct_mode;
 
@@ -1485,13 +1481,13 @@ assign indiv_mult_mode = indiv_pe_mode && (~direct_mode[1]) && direct_mode[0];
 wire muxed_dtype;
 assign muxed_dtype = indiv_pe_mode ? direct_dtype : dtype;
 
-wire [4*`DWIDTH-1:0] mux1a_out; //32 bits
-wire [4*`DWIDTH-1:0] mux1b_out; //32 bits
+wire [4*`BB_DWIDTH-1:0] mux1a_out; //32 bits
+wire [4*`BB_DWIDTH-1:0] mux1b_out; //32 bits
 assign mux1a_out = (indiv_pe_mode ? direct_a : a);
 assign mux1b_out = (indiv_pe_mode ? direct_b : b);
 
-reg [4*`DWIDTH-1:0] a_flopped; //32 bits
-reg [4*`DWIDTH-1:0] b_flopped; //32 bits
+reg [4*`BB_DWIDTH-1:0] a_flopped; //32 bits
+reg [4*`BB_DWIDTH-1:0] b_flopped; //32 bits
 
 always @(posedge clk) begin
   if (reset) begin
@@ -1503,16 +1499,16 @@ always @(posedge clk) begin
   end
 end
 
-wire [4*`DWIDTH-1:0] mux2a_out; //32 bits
-wire [4*`DWIDTH-1:0] mux2b_out; //32 bits
+wire [4*`BB_DWIDTH-1:0] mux2a_out; //32 bits
+wire [4*`BB_DWIDTH-1:0] mux2b_out; //32 bits
 assign mux2a_out = comb_mode ? mux1a_out: a_flopped;
 assign mux2b_out = comb_mode ? mux1b_out: b_flopped;
 
-wire [8*`DWIDTH-1:0] mul_out; //64 bits
+wire [8*`BB_DWIDTH-1:0] mul_out; //64 bits
 //                            32 bits                   32 bits              64 bits
 qmult mult_u1(.i_multiplicand(mux2a_out), .i_multiplier(mux2b_out), .o_result(mul_out), .dtype(muxed_dtype), .dont_convert_fp16_to_fp32(indiv_mult_mode));
 
-reg [8*`DWIDTH-1:0] mul_out_reg;
+reg [8*`BB_DWIDTH-1:0] mul_out_reg;
 always @(posedge clk) begin
   if (reset) begin
     mul_out_reg <= 0;
@@ -1521,7 +1517,7 @@ always @(posedge clk) begin
   end
 end
 
-wire [8*`DWIDTH-1:0] mux3_out;
+wire [8*`BB_DWIDTH-1:0] mux3_out;
 //Disabling this mux. This was applicable only in the combinatorial MAC mode.
 //But with this mux in place, we get a critical path containing both the adder and
 //the multiplier. Removing the mux means we will have a flop stage in between the
@@ -1531,18 +1527,18 @@ wire [8*`DWIDTH-1:0] mux3_out;
 //assign mux3_out = comb_mode ? mul_out : mul_out_reg;
 assign mux3_out = mul_out_reg;
 
-wire [8*`DWIDTH-1:0] mux4_out;
+wire [8*`BB_DWIDTH-1:0] mux4_out;
 assign mux4_out = indiv_adder_mode ? mux2a_out : mux3_out;
 
-reg [8*`DWIDTH-1:0] out_temp;
-wire [8*`DWIDTH-1:0] mux7_out;
+reg [8*`BB_DWIDTH-1:0] out_temp;
+wire [8*`BB_DWIDTH-1:0] mux7_out;
 assign mux7_out = indiv_adder_mode ? mux2b_out : out_temp;
 
-wire [8*`DWIDTH-1:0] add_out;
+wire [8*`BB_DWIDTH-1:0] add_out;
 //             64 bits       64 bits         64 bits
 qadd add_u1(.a(mux7_out), .b(mux4_out), .c(add_out), .dtype(muxed_dtype), .convert_fp16_to_fp32(indiv_adder_mode));
 
-wire [8*`DWIDTH-1:0] mux5_out;
+wire [8*`BB_DWIDTH-1:0] mux5_out;
 assign mux5_out = indiv_mult_mode ? mul_out : add_out;
 
 always @(posedge clk) begin
@@ -1553,7 +1549,7 @@ always @(posedge clk) begin
   end
 end
 
-wire [8*`DWIDTH-1:0] mux6_out;
+wire [8*`BB_DWIDTH-1:0] mux6_out;
 assign mux6_out = comb_mode ? mux5_out : out_temp;
 
 //fp32 to fp16 conversion
@@ -1572,7 +1568,7 @@ int16_to_int8 u_16to8_2(.a(mux6_out[47:32]), .b(int8_add_result2));
 int16_to_int8 u_16to8_3(.a(mux6_out[63:48]), .b(int8_add_result3));
 
 //Reduce precision
-assign out[4*`DWIDTH-1:0] = (muxed_dtype == `DTYPE_INT8) ? {int8_add_result3, int8_add_result2, int8_add_result1, int8_add_result0} : fpadd_16_result;
+assign out[4*`BB_DWIDTH-1:0] = (muxed_dtype == `DTYPE_INT8) ? {int8_add_result3, int8_add_result2, int8_add_result1, int8_add_result0} : fpadd_16_result;
 
 // direct_out will go straight to the primary IO of the slice
 assign direct_out = out;
@@ -1588,17 +1584,17 @@ module int16_to_int8(
 
 //down cast the result
 assign b = 
-    (a[2*`DWIDTH-1] == 0) ?  //positive number
+    (a[2*`BB_DWIDTH-1] == 0) ?  //positive number
         (
-           (|(a[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 1, that means overlfow
-             {a[2*`DWIDTH-1] , {(`DWIDTH-1){1'b1}}} : //sign bit and then all 1s
-             {a[2*`DWIDTH-1] , a[`DWIDTH-2:0]} 
+           (|(a[2*`BB_DWIDTH-2 : `BB_DWIDTH-1])) ?  //is any bit from 14:7 is 1, that means overlfow
+             {a[2*`BB_DWIDTH-1] , {(`BB_DWIDTH-1){1'b1}}} : //sign bit and then all 1s
+             {a[2*`BB_DWIDTH-1] , a[`BB_DWIDTH-2:0]} 
         )
         : //negative number
         (
-           (|(a[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 0, that means overlfow
-             {a[2*`DWIDTH-1] , a[`DWIDTH-2:0]} :
-             {a[2*`DWIDTH-1] , {(`DWIDTH-1){1'b0}}} //sign bit and then all 0s
+           (|(a[2*`BB_DWIDTH-2 : `BB_DWIDTH-1])) ?  //is any bit from 14:7 is 0, that means overlfow
+             {a[2*`BB_DWIDTH-1] , a[`BB_DWIDTH-2:0]} :
+             {a[2*`BB_DWIDTH-1] , {(`BB_DWIDTH-1){1'b0}}} //sign bit and then all 0s
         );
 endmodule
 
@@ -1617,14 +1613,14 @@ endmodule
 
 //4 int8 multipliers, one fp16 multiplier
 module qmult(i_multiplicand, i_multiplier, o_result, dtype, dont_convert_fp16_to_fp32);
-input [4*`DWIDTH-1:0] i_multiplicand;
-input [4*`DWIDTH-1:0] i_multiplier;
-output [8*`DWIDTH-1:0] o_result;
+input [4*`BB_DWIDTH-1:0] i_multiplicand;
+input [4*`BB_DWIDTH-1:0] i_multiplier;
+output [8*`BB_DWIDTH-1:0] o_result;
 input dtype;
 input dont_convert_fp16_to_fp32;
 
-  //reg [8*`DWIDTH-1:0] o_result;
-  //reg [8*`DWIDTH-1:0] o_result_temp;
+  //reg [8*`BB_DWIDTH-1:0] o_result;
+  //reg [8*`BB_DWIDTH-1:0] o_result_temp;
   
   //always @(*) begin
   //  if (dtype == `DTYPE_INT8) begin
@@ -1725,13 +1721,13 @@ endmodule
 
 //4 int8 adders (actually int16 adders because we support accumulation in higher precision), one fp16 adder (actually fp32 adder)
 module qadd(a, b, c, dtype, convert_fp16_to_fp32);
-input [8*`DWIDTH-1:0] a;
-input [8*`DWIDTH-1:0] b;
-output [8*`DWIDTH-1:0] c;
+input [8*`BB_DWIDTH-1:0] a;
+input [8*`BB_DWIDTH-1:0] b;
+output [8*`BB_DWIDTH-1:0] c;
 input dtype;
 input convert_fp16_to_fp32;
 
-//reg [8*`DWIDTH-1:0] c;
+//reg [8*`BB_DWIDTH-1:0] c;
 //
 //always @(*) begin
 //  if (dtype == `DTYPE_INT8) begin

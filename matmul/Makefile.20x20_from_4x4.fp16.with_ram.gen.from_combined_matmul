@@ -1,0 +1,34 @@
+export VCS_HOME /usr/local/packages/synopsys_2018/vcs-mx/O-2018.09-SP1
+
+all: compile run
+
+
+compile:
+	$(VCS_HOME)/bin/vcs -full64 \
+	/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/16_bit/fp16_multiplier_modif.v \
+	/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/32_bit/Stratix10/DSP_Slice/FpAddSub_single.modif.v \
+	/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/converter_fp/fp16_to_fp32.v \
+	/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/converter_fp/fp32_to_fp16.v \
+    20x20_from_4x4.fp16.with_ram.gen.from_combined_matmul.v \
+    8x8int8.4x4fp16.organized.combined.v \
+	-sverilog \
+	-debug_access+all \
+  -y /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
+  -v /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
+	+libext+.v
+
+
+run:
+	./simv
+
+waves:
+	$(VCS_HOME)/bin/dve -vpd vcdplus.vpd
+
+clean:
+	\rm -rf csrc DVEFiles simv.daidir simv ucli.key vcdplus.vpd *.syn *.pvl *.mr *.svf command.log
+
+#Paths when not using LRC machines
+#export VCS_HOME /home/tools/vcs/mx-2017.12-SP1-1
+#-y /home/tools/synopsys/syn_2017.09/dw/sim_ver \
+#-v /home/tools/synopsys/syn_2017.09/dw/sim_ver \
+
