@@ -1,0 +1,24 @@
+digraph {
+Node0x3412eb0[label="  %fusion.indvar.dim.02 = phi i64 [ %6, ..."];
+Node0x3412eb0 -> Node0x3412eb0[label="D:0.00ns L:0",color=blue];
+Node0x3412eb0 -> Node0x3412eb0[label="D:0.00ns L:0",color=blue];
+Node0x3412eb0 -> Node0x3412eb0[label="D:0.00ns L:0",color=blue];
+Node0x3412eb0 -> Node0x3412eb0[label="D:0.00ns L:0",color=blue];
+Node0x3412f90[label="  %scevgep = getelementptr [8 x float]* ..."];
+Node0x3412f90 -> Node0x3412f90[label="D:6.00ns L:0",color=blue];
+Node0x3413070[label="  %scevgep3 = getelementptr [1 x [8 x fl..."];
+Node0x3413070 -> Node0x3413070[label="D:6.00ns L:0",color=blue];
+Node0x3413150[label="  %scevgep4 = getelementptr [8 x float]*..."];
+Node0x3413150 -> Node0x3413150[label="D:6.00ns L:0",color=blue];
+Node0x3413230[label="  %3 = load volatile float* %scevgep4, a..."];
+Node0x3413230 -> Node0x3413230[label="D:0.00ns L:2",color=blue];
+Node0x3413310[label="  %4 = load float* %scevgep3, align 4"];
+Node0x3413310 -> Node0x3413310[label="D:0.00ns L:2",color=blue];
+Node0x34133f0[label="  %5 = fadd float %3, %4"];
+Node0x34133f0 -> Node0x34133f0[label="D:2.16ns L:14",color=blue];
+Node0x34135b0[label="  %6 = add nuw nsw i64 %fusion.indvar.di..."];
+Node0x34135b0 -> Node0x34135b0[label="D:2.12ns L:0",color=blue];
+Node0x34135b0 -> Node0x34135b0[label="D:2.12ns L:0",color=blue];
+Node0x3413690[label="  %exitcond2 = icmp eq i64 %6, 8"];
+Node0x3413690 -> Node0x3413690[label="D:1.73ns L:0",color=blue];
+}

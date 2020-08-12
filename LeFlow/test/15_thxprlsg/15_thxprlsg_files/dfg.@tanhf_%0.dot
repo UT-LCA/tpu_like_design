@@ -1,0 +1,14 @@
+digraph {
+Node0x25b5e00[label="  %1 = bitcast float %x to i32"];
+Node0x25b5e00 -> Node0x25b5e00[label="D:0.00ns L:0",color=blue];
+Node0x25b5e00 -> Node0x25b5e00[label="D:0.00ns L:0",color=blue];
+Node0x25b5e00 -> Node0x25b5e00[label="D:0.00ns L:0",color=blue];
+Node0x25aecf0[label="  %2 = and i32 %1, 2147483647"];
+Node0x25aecf0 -> Node0x25aecf0[label="D:0.00ns L:0",color=blue];
+Node0x25aecf0 -> Node0x25aecf0[label="D:0.00ns L:0",color=blue];
+Node0x25aecf0 -> Node0x25aecf0[label="D:0.00ns L:0",color=blue];
+Node0x25aecf0 -> Node0x25aecf0[label="D:0.00ns L:0",color=blue];
+Node0x25aecf0 -> Node0x25aecf0[label="D:0.00ns L:0",color=blue];
+Node0x2584ae0[label="  %3 = icmp ult i32 %2, 2139095040"];
+Node0x2584ae0 -> Node0x2584ae0[label="D:1.77ns L:0",color=blue];
+}

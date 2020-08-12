@@ -1,0 +1,11 @@
+// memory data file (do not edit the following line - required for mem load use)
+// instance=/main_tb/top_inst/memory_controller_inst/temp1/ram
+// format=hex addressradix=h dataradix=h version=1.0 wordsperline=1 noaddress
+3f127251
+3e9af8e3
+3f2e0939
+3e29a039
+3f7b5664
+3f17e021
+3f46f971
+3e083e74

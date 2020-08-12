@@ -1,0 +1,11 @@
+Depth = 4;
+Width = 32;
+Address_radix = dec;
+Data_radix = hex;
+Content
+Begin
+0: 00000000;	-- temp0[0] = 0
+1: 00000000;	-- temp0[1] = 0
+2: 00000000;	-- temp0[2] = 0
+3: 00000000;	-- temp0[3] = 0
+End;

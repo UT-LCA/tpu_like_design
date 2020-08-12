@@ -1,0 +1,10 @@
+digraph {
+Node0x25ee6a0[label="  %78 = add i32 %73, 838860800"];
+Node0x25ee6a0 -> Node0x25ee6a0[label="D:1.59ns L:0",color=blue];
+Node0x25ee780[label="  %79 = add i32 %72, %78"];
+Node0x25ee780 -> Node0x25ee780[label="D:1.59ns L:0",color=blue];
+Node0x25ee860[label="  %80 = bitcast i32 %79 to float"];
+Node0x25ee860 -> Node0x25ee860[label="D:0.00ns L:0",color=blue];
+Node0x25ee940[label="  %81 = fmul float %80, 0x39B00000000000..."];
+Node0x25ee940 -> Node0x25ee940[label="D:1.97ns L:11",color=blue];
+}

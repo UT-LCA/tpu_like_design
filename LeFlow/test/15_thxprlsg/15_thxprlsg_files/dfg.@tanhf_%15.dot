@@ -1,0 +1,6 @@
+digraph {
+Node0x25ceb80[label="  %16 = fadd float %x, 1.000000e+00"];
+Node0x25ceb80 -> Node0x25ceb80[label="D:2.16ns L:14",color=blue];
+Node0x25cec60[label="  %17 = fmul float %16, %x"];
+Node0x25cec60 -> Node0x25cec60[label="D:1.97ns L:11",color=blue];
+}

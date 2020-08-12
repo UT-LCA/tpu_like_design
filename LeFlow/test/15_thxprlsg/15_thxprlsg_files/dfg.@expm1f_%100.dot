@@ -1,0 +1,4 @@
+digraph {
+Node0x254b980[label="  %101 = icmp slt i32 %k.1, 23"];
+Node0x254b980 -> Node0x254b980[label="D:1.82ns L:0",color=blue];
+}

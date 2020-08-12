@@ -1,0 +1,545 @@
+\documentclass[landscape]{article}
+\usepackage{gantt}
+\pagestyle{empty}
+\begin{document}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{4}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  \%dot.indvar.rhs.122 = phi i64 [ 0, \%dot.loop\_body.rhs.1.lr.ph ], [ \%6, \%d...}{1}{1}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  \%scevgep23 = getelementptr [1 x [10 x float]]* @temp0, i64 0, i64 0, i64 \%do...}{1}{1}
+\ganttbar{  br label \%dot.loop\_body.reduction}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{12}{29}
+\begin{ganttitle}
+\numtitle{0}{1}{28}{1}
+\end{ganttitle}
+\ganttbar{  \%0 = phi float [ 0.000000e+00, \%dot.loop\_body.reduction.lr.ph ], [ \%4, \%d...}{1}{1}
+\ganttcon{2}{1}{14}{11}
+\ganttbar{  \%dot.indvar.reduction20 = phi i64 [ 0, \%dot.loop\_body.reduction.lr.ph ], [ ...}{1}{1}
+\ganttcon{2}{2}{1}{7}
+\ganttcon{2}{2}{1}{4}
+\ganttcon{2}{2}{1}{3}
+\ganttbar{  \%scevgep19 = getelementptr [784 x [10 x float]]* @param1, i64 0, i64 \%dot.in...}{1}{1}
+\ganttcon{2}{3}{1}{6}
+\ganttbar{  \%scevgep20 = getelementptr [1 x [784 x float]]* @param2, i64 0, i64 0, i64 \%...}{1}{1}
+\ganttcon{2}{4}{1}{5}
+\ganttbar{  \%1 = load volatile float* \%scevgep20, align 4}{1}{2}
+\ganttcon{3}{5}{3}{10}
+\ganttbar{  \%2 = load volatile float* \%scevgep19, align 4}{1}{2}
+\ganttcon{3}{6}{3}{10}
+\ganttbar{  \%5 = add nuw nsw i64 \%dot.indvar.reduction20, 1}{1}{1}
+\ganttcon{2}{7}{1}{8}
+\ganttcon{2}{7}{1}{2}
+\ganttbar{  \%exitcond18 = icmp eq i64 \%5, 784}{1}{1}
+\ganttcon{2}{8}{1}{9}
+\ganttbar{  br i1 \%exitcond18, label \%dot.loop\_exit.reduction, label \%dot.loop\_body.r...}{1}{1}
+\ganttbar{  \%3 = fmul float \%1, \%2}{3}{11}
+\ganttcon{14}{10}{14}{11}
+\ganttbar{  \%4 = fadd float \%0, \%3}{14}{14}
+\ganttcon{28}{11}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{5}{3}
+\begin{ganttitle}
+\numtitle{0}{1}{2}{1}
+\end{ganttitle}
+\ganttbar{  store float \%4, float* \%scevgep23, align 4}{1}{1}
+\ganttbar{  \%6 = add nuw nsw i64 \%dot.indvar.rhs.122, 1}{1}{1}
+\ganttcon{2}{2}{1}{3}
+\ganttbar{  \%exitcond21 = icmp eq i64 \%6, 10}{1}{1}
+\ganttcon{2}{3}{1}{4}
+\ganttbar{  br i1 \%exitcond21, label \%fusion.2.loop\_body.dim.1.preheader, label \%dot.l...}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{2}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  br label \%fusion.2.loop\_body.dim.1}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{12}{19}
+\begin{ganttitle}
+\numtitle{0}{1}{18}{1}
+\end{ganttitle}
+\ganttbar{  \%fusion.2.indvar.dim.116 = phi i64 [ \%10, \%fusion.2.loop\_body.dim.1 ], [ 0...}{1}{1}
+\ganttcon{2}{1}{1}{7}
+\ganttcon{2}{1}{1}{4}
+\ganttcon{2}{1}{1}{3}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  \%scevgep15 = getelementptr [1 x [10 x float]]* @temp1, i64 0, i64 0, i64 \%fu...}{1}{1}
+\ganttcon{2}{2}{17}{11}
+\ganttbar{  \%scevgep16 = getelementptr [10 x float]* @param0, i64 0, i64 \%fusion.2.indva...}{1}{1}
+\ganttcon{2}{3}{1}{6}
+\ganttbar{  \%scevgep17 = getelementptr [1 x [10 x float]]* @temp0, i64 0, i64 0, i64 \%fu...}{1}{1}
+\ganttcon{2}{4}{1}{5}
+\ganttbar{  \%7 = load float* \%scevgep17, align 4}{1}{2}
+\ganttcon{3}{5}{3}{10}
+\ganttbar{  \%8 = load volatile float* \%scevgep16, align 4}{1}{2}
+\ganttcon{3}{6}{3}{10}
+\ganttbar{  \%10 = add nuw nsw i64 \%fusion.2.indvar.dim.116, 1}{1}{1}
+\ganttcon{2}{7}{1}{8}
+\ganttcon{2}{7}{1}{1}
+\ganttbar{  \%exitcond14 = icmp eq i64 \%10, 10}{1}{1}
+\ganttcon{2}{8}{1}{9}
+\ganttbar{  br i1 \%exitcond14, label \%reduce.inner.loop\_body.reduction\_dim.1.preheader...}{1}{1}
+\ganttbar{  \%9 = fadd float \%7, \%8}{3}{14}
+\ganttcon{17}{10}{17}{11}
+\ganttbar{  store float \%9, float* \%scevgep15, align 4}{17}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{2}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  br label \%reduce.inner.loop\_body.reduction\_dim.1}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{12}{5}
+\begin{ganttitle}
+\numtitle{0}{1}{4}{1}
+\end{ganttitle}
+\ganttbar{  \%11 = phi float [ \%16, \%reduce.inner.loop\_body.reduction\_dim.1 ], [ 0xFFF...}{1}{1}
+\ganttcon{2}{1}{4}{11}
+\ganttcon{2}{1}{1}{5}
+\ganttcon{2}{1}{3}{9}
+\ganttbar{  \%reduce.inner.indvar.reduction\_dim.112 = phi i64 [ \%17, \%reduce.inner.loop...}{1}{1}
+\ganttcon{2}{2}{1}{6}
+\ganttcon{2}{2}{1}{3}
+\ganttbar{  \%scevgep13 = getelementptr [1 x [10 x float]]* @temp1, i64 0, i64 0, i64 \%re...}{1}{1}
+\ganttcon{2}{3}{1}{4}
+\ganttbar{  \%12 = load float* \%scevgep13, align 4}{1}{2}
+\ganttcon{3}{4}{4}{11}
+\ganttcon{3}{4}{3}{9}
+\ganttbar{  \%14 = fcmp ueq float \%11, 0.000000e+00}{1}{1}
+\ganttcon{2}{5}{4}{10}
+\ganttbar{  \%17 = add nuw nsw i64 \%reduce.inner.indvar.reduction\_dim.112, 1}{1}{1}
+\ganttcon{2}{6}{1}{7}
+\ganttcon{2}{6}{1}{2}
+\ganttbar{  \%exitcond12 = icmp eq i64 \%17, 10}{1}{1}
+\ganttcon{2}{7}{1}{8}
+\ganttbar{  br i1 \%exitcond12, label \%fusion.1.loop\_body.dim.1.preheader, label \%reduc...}{1}{1}
+\ganttbar{  \%13 = fcmp oge float \%11, \%12}{3}{1}
+\ganttcon{4}{9}{4}{10}
+\ganttbar{  \%15 = or i1 \%13, \%14}{4}{1}
+\ganttcon{5}{10}{4}{11}
+\ganttbar{  \%16 = select i1 \%15, float \%11, float \%12}{4}{1}
+\ganttcon{5}{11}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{2}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  br label \%fusion.1.loop\_body.dim.1}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{16}{32}
+\begin{ganttitle}
+\numtitle{0}{1}{31}{1}
+\end{ganttitle}
+\ganttbar{  \%lo.i.i.0 = phi float [ \%lo.i.i.3, \%expf.exit ], [ undef, \%fusion.1.loop\_...}{1}{1}
+\ganttbar{  \%hi.i.i.0 = phi float [ \%hi.i.i.3, \%expf.exit ], [ undef, \%fusion.1.loop\_...}{1}{1}
+\ganttbar{  \%fusion.1.indvar.dim.18 = phi i64 [ \%102, \%expf.exit ], [ 0, \%fusion.1.loo...}{1}{1}
+\ganttcon{2}{3}{1}{6}
+\ganttcon{2}{3}{1}{5}
+\ganttcon{2}{3}{1}{4}
+\ganttbar{  \%scevgep5 = getelementptr [1 x [10 x float]]* @temp1, i64 0, i64 0, i64 \%fus...}{1}{1}
+\ganttbar{  \%scevgep6 = getelementptr [10 x float]* @param0, i64 0, i64 \%fusion.1.indvar...}{1}{1}
+\ganttcon{2}{5}{1}{8}
+\ganttbar{  \%scevgep7 = getelementptr [1 x [10 x float]]* @temp0, i64 0, i64 0, i64 \%fus...}{1}{1}
+\ganttcon{2}{6}{1}{7}
+\ganttbar{  \%18 = load float* \%scevgep7, align 4}{1}{2}
+\ganttcon{3}{7}{3}{9}
+\ganttbar{  \%19 = load volatile float* \%scevgep6, align 4}{1}{2}
+\ganttcon{3}{8}{3}{9}
+\ganttbar{  \%20 = fadd float \%18, \%19}{3}{14}
+\ganttcon{17}{9}{17}{10}
+\ganttbar{  \%21 = fsub float \%20, \%16}{17}{14}
+\ganttcon{31}{10}{31}{11}
+\ganttbar{  \%22 = bitcast float \%21 to i32}{31}{1}
+\ganttcon{32}{11}{31}{13}
+\ganttcon{32}{11}{31}{12}
+\ganttbar{  \%23 = lshr i32 \%22, 31}{31}{1}
+\ganttbar{  \%24 = and i32 \%22, 2147483647}{31}{1}
+\ganttcon{32}{13}{31}{14}
+\ganttbar{  \%25 = icmp ugt i32 \%24, 2139095040}{31}{1}
+\ganttcon{32}{14}{31}{15}
+\ganttbar{  br i1 \%25, label \%26, label \%28}{31}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{3}{16}
+\begin{ganttitle}
+\numtitle{0}{1}{15}{1}
+\end{ganttitle}
+\ganttbar{  \%27 = fadd float \%21, \%21}{1}{14}
+\ganttbar{  br label \%expf.exit}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{3}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  \%29 = icmp eq i32 \%24, 2139095040}{1}{1}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  br i1 \%29, label \%30, label \%32}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{4}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  \%31 = icmp eq i32 \%23, 0}{1}{1}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  \%. = select i1 \%31, float \%21, float 0.000000e+00}{1}{1}
+\ganttbar{  br label \%expf.exit}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{3}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  \%33 = icmp sgt i32 \%22, 1118925335}{1}{1}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  br i1 \%33, label \%expf.exit, label \%34}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{5}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  \%35 = icmp slt i32 \%22, 0}{1}{1}
+\ganttcon{2}{1}{1}{3}
+\ganttbar{  \%36 = icmp ugt i32 \%24, 1120924085}{1}{1}
+\ganttcon{2}{2}{1}{3}
+\ganttbar{  \%or.cond = and i1 \%35, \%36}{1}{1}
+\ganttcon{2}{3}{1}{4}
+\ganttbar{  br i1 \%or.cond, label \%expf.exit, label \%thread-pre-split}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{3}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  \%37 = icmp ugt i32 \%24, 1051816472}{1}{1}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  br i1 \%37, label \%38, label \%60}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{3}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  \%39 = icmp ult i32 \%24, 1065686418}{1}{1}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  br i1 \%39, label \%40, label \%48}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{9}{4}
+\begin{ganttitle}
+\numtitle{0}{1}{3}{1}
+\end{ganttitle}
+\ganttbar{  \%41 = zext i32 \%23 to i64}{1}{1}
+\ganttcon{2}{1}{1}{4}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  \%42 = getelementptr inbounds [2 x float]* @ln2HI31, i64 0, i64 \%41}{1}{1}
+\ganttcon{2}{2}{1}{3}
+\ganttbar{  \%43 = load float* \%42, align 4}{1}{2}
+\ganttbar{  \%44 = getelementptr inbounds [2 x float]* @ln2LO32, i64 0, i64 \%41}{1}{1}
+\ganttcon{2}{4}{1}{5}
+\ganttbar{  \%45 = load float* \%44, align 4}{1}{2}
+\ganttbar{  \%46 = xor i32 \%23, 1}{1}{1}
+\ganttcon{2}{6}{1}{7}
+\ganttbar{  \%47 = sub nsw i32 \%46, \%23}{1}{1}
+\ganttbar{  br label \%58}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{11}{51}
+\begin{ganttitle}
+\numtitle{0}{1}{50}{1}
+\end{ganttitle}
+\ganttbar{  \%49 = fmul float \%21, 0x3FF7154760000000}{1}{11}
+\ganttcon{12}{1}{12}{6}
+\ganttbar{  \%50 = zext i32 \%23 to i64}{1}{1}
+\ganttcon{2}{2}{1}{3}
+\ganttbar{  \%51 = getelementptr inbounds [2 x float]* @halF33, i64 0, i64 \%50}{1}{1}
+\ganttcon{2}{3}{1}{4}
+\ganttbar{  \%52 = load float* \%51, align 4}{1}{2}
+\ganttcon{3}{4}{12}{6}
+\ganttbar{  br label \%58}{1}{1}
+\ganttbar{  \%53 = fadd float \%49, \%52}{12}{14}
+\ganttcon{26}{6}{26}{7}
+\ganttbar{  \%54 = fptosi float \%53 to i32}{26}{6}
+\ganttcon{32}{7}{32}{8}
+\ganttbar{  \%55 = sitofp i32 \%54 to float}{32}{6}
+\ganttcon{38}{8}{39}{10}
+\ganttcon{38}{8}{38}{9}
+\ganttbar{  \%56 = fmul float \%55, 0x3FE62E3000000000}{38}{11}
+\ganttbar{  \%57 = fmul float \%55, 0x3EE2FEFA20000000}{39}{11}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{7}{30}
+\begin{ganttitle}
+\numtitle{0}{1}{29}{1}
+\end{ganttitle}
+\ganttbar{  \%k.i.i.0 = phi i32 [ \%47, \%40 ], [ \%54, \%48 ]}{1}{1}
+\ganttbar{  \%lo.i.i.1 = phi float [ \%45, \%40 ], [ \%57, \%48 ]}{1}{1}
+\ganttcon{2}{2}{15}{6}
+\ganttbar{  \%.pn = phi float [ \%43, \%40 ], [ \%56, \%48 ]}{1}{1}
+\ganttcon{2}{3}{1}{4}
+\ganttbar{  \%hi.i.i.1 = fsub float \%21, \%.pn}{1}{14}
+\ganttcon{15}{4}{15}{6}
+\ganttbar{  br label \%66}{1}{1}
+\ganttbar{  \%59 = fsub float \%hi.i.i.1, \%lo.i.i.1}{15}{14}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{6}{17}
+\begin{ganttitle}
+\numtitle{0}{1}{16}{1}
+\end{ganttitle}
+\ganttbar{  \%61 = icmp ult i32 \%24, 830472192}{1}{1}
+\ganttcon{2}{1}{16}{4}
+\ganttbar{  \%62 = fadd float \%21, 0x46293E5940000000}{1}{14}
+\ganttcon{15}{2}{15}{3}
+\ganttbar{  \%63 = fcmp ogt float \%62, 1.000000e+00}{15}{1}
+\ganttcon{16}{3}{16}{4}
+\ganttbar{  \%or.cond54 = and i1 \%61, \%63}{16}{1}
+\ganttcon{17}{4}{16}{5}
+\ganttbar{  br i1 \%or.cond54, label \%64, label \%66}{16}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{3}{16}
+\begin{ganttitle}
+\numtitle{0}{1}{15}{1}
+\end{ganttitle}
+\ganttbar{  \%65 = fadd float \%21, 1.000000e+00}{1}{14}
+\ganttbar{  br label \%expf.exit}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{19}{149}
+\begin{ganttitle}
+\numtitle{0}{1}{148}{1}
+\end{ganttitle}
+\ganttbar{  \%k.i.i.1 = phi i32 [ \%k.i.i.0, \%58 ], [ 0, \%60 ]}{1}{1}
+\ganttcon{2}{1}{1}{6}
+\ganttbar{  \%lo.i.i.2 = phi float [ \%lo.i.i.1, \%58 ], [ \%lo.i.i.0, \%60 ]}{1}{1}
+\ganttbar{  \%hi.i.i.2 = phi float [ \%hi.i.i.1, \%58 ], [ \%hi.i.i.0, \%60 ]}{1}{1}
+\ganttbar{  \%.048 = phi float [ \%59, \%58 ], [ \%21, \%60 ]}{1}{1}
+\ganttcon{2}{4}{137}{18}
+\ganttcon{2}{4}{123}{17}
+\ganttcon{2}{4}{1}{5}
+\ganttcon{2}{4}{1}{5}
+\ganttbar{  \%67 = fmul float \%.048, \%.048}{1}{11}
+\ganttcon{12}{5}{112}{16}
+\ganttcon{12}{5}{87}{14}
+\ganttcon{12}{5}{62}{12}
+\ganttcon{12}{5}{37}{10}
+\ganttcon{12}{5}{12}{8}
+\ganttbar{  \%78 = icmp eq i32 \%k.i.i.1, 0}{1}{1}
+\ganttcon{2}{6}{1}{7}
+\ganttbar{  br i1 \%78, label \%80, label \%85}{1}{1}
+\ganttbar{  \%68 = fmul float \%67, 0x3E66376980000000}{12}{11}
+\ganttcon{23}{8}{23}{9}
+\ganttbar{  \%69 = fadd float \%68, 0xBEBBBD41C0000000}{23}{14}
+\ganttcon{37}{9}{37}{10}
+\ganttbar{  \%70 = fmul float \%67, \%69}{37}{11}
+\ganttcon{48}{10}{48}{11}
+\ganttbar{  \%71 = fadd float \%70, 0x3F11566AA0000000}{48}{14}
+\ganttcon{62}{11}{62}{12}
+\ganttbar{  \%72 = fmul float \%67, \%71}{62}{11}
+\ganttcon{73}{12}{73}{13}
+\ganttbar{  \%73 = fadd float \%72, 0xBF66C16C20000000}{73}{14}
+\ganttcon{87}{13}{87}{14}
+\ganttbar{  \%74 = fmul float \%67, \%73}{87}{11}
+\ganttcon{98}{14}{98}{15}
+\ganttbar{  \%75 = fadd float \%74, 0x3FC5555560000000}{98}{14}
+\ganttcon{112}{15}{112}{16}
+\ganttbar{  \%76 = fmul float \%67, \%75}{112}{11}
+\ganttcon{123}{16}{123}{17}
+\ganttbar{  \%77 = fsub float \%.048, \%76}{123}{14}
+\ganttcon{137}{17}{137}{18}
+\ganttbar{  \%79 = fmul float \%.048, \%77}{137}{11}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{6}{77}
+\begin{ganttitle}
+\numtitle{0}{1}{76}{1}
+\end{ganttitle}
+\ganttbar{  \%81 = fadd float \%77, -2.000000e+00}{1}{14}
+\ganttcon{15}{1}{15}{3}
+\ganttbar{  br label \%expf.exit}{1}{1}
+\ganttbar{  \%82 = fdiv float \%79, \%81}{15}{33}
+\ganttcon{48}{3}{48}{4}
+\ganttbar{  \%83 = fsub float \%82, \%.048}{48}{14}
+\ganttcon{62}{4}{62}{5}
+\ganttbar{  \%84 = fsub float 1.000000e+00, \%83}{62}{14}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{10}{91}
+\begin{ganttitle}
+\numtitle{0}{1}{90}{1}
+\end{ganttitle}
+\ganttbar{  \%86 = fsub float 2.000000e+00, \%77}{1}{14}
+\ganttcon{15}{1}{15}{5}
+\ganttbar{  \%91 = icmp sgt i32 \%k.i.i.1, -126}{1}{1}
+\ganttcon{2}{2}{1}{4}
+\ganttbar{  \%93 = shl i32 \%k.i.i.1, 23}{1}{1}
+\ganttbar{  br i1 \%91, label \%94, label \%97}{1}{1}
+\ganttbar{  \%87 = fdiv float \%79, \%86}{15}{33}
+\ganttcon{48}{5}{48}{6}
+\ganttbar{  \%88 = fsub float \%lo.i.i.2, \%87}{48}{14}
+\ganttcon{62}{6}{62}{7}
+\ganttbar{  \%89 = fsub float \%88, \%hi.i.i.2}{62}{14}
+\ganttcon{76}{7}{76}{8}
+\ganttbar{  \%90 = fsub float 1.000000e+00, \%89}{76}{14}
+\ganttcon{90}{8}{90}{9}
+\ganttbar{  \%92 = bitcast float \%90 to i32}{90}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{4}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  \%95 = add i32 \%92, \%93}{1}{1}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  \%96 = bitcast i32 \%95 to float}{1}{1}
+\ganttbar{  br label \%expf.exit}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{6}{13}
+\begin{ganttitle}
+\numtitle{0}{1}{12}{1}
+\end{ganttitle}
+\ganttbar{  \%98 = add i32 \%93, 838860800}{1}{1}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  \%99 = add i32 \%92, \%98}{1}{1}
+\ganttcon{2}{2}{1}{3}
+\ganttbar{  \%100 = bitcast i32 \%99 to float}{1}{1}
+\ganttcon{2}{3}{1}{4}
+\ganttbar{  \%101 = fmul float \%100, 0x39B0000000000000}{1}{11}
+\ganttbar{  br label \%expf.exit}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{8}{3}
+\begin{ganttitle}
+\numtitle{0}{1}{2}{1}
+\end{ganttitle}
+\ganttbar{  \%lo.i.i.3 = phi float [ \%lo.i.i.0, \%26 ], [ \%lo.i.i.2, \%80 ], [ \%lo.i.i....}{1}{1}
+\ganttbar{  \%hi.i.i.3 = phi float [ \%hi.i.i.0, \%26 ], [ \%hi.i.i.2, \%80 ], [ \%hi.i.i....}{1}{1}
+\ganttbar{  \%.0 = phi float [ \%27, \%26 ], [ \%84, \%80 ], [ \%96, \%94 ], [ \%101, \%97...}{1}{1}
+\ganttcon{2}{3}{1}{4}
+\ganttbar{  store float \%.0, float* \%scevgep5, align 4}{1}{1}
+\ganttbar{  \%102 = add nuw nsw i64 \%fusion.1.indvar.dim.18, 1}{1}{1}
+\ganttcon{2}{5}{1}{6}
+\ganttbar{  \%exitcond4 = icmp eq i64 \%102, 10}{1}{1}
+\ganttcon{2}{6}{1}{7}
+\ganttbar{  br i1 \%exitcond4, label \%reduce.1.inner.loop\_body.reduction\_dim.1.preheade...}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{2}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  br label \%reduce.1.inner.loop\_body.reduction\_dim.1}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{9}{18}
+\begin{ganttitle}
+\numtitle{0}{1}{17}{1}
+\end{ganttitle}
+\ganttbar{  \%103 = phi float [ \%105, \%reduce.1.inner.loop\_body.reduction\_dim.1 ], [ 0...}{1}{1}
+\ganttcon{2}{1}{3}{8}
+\ganttbar{  \%reduce.1.inner.indvar.reduction\_dim.14 = phi i64 [ \%106, \%reduce.1.inner....}{1}{1}
+\ganttcon{2}{2}{1}{5}
+\ganttcon{2}{2}{1}{3}
+\ganttbar{  \%scevgep3 = getelementptr [1 x [10 x float]]* @temp1, i64 0, i64 0, i64 \%red...}{1}{1}
+\ganttcon{2}{3}{1}{4}
+\ganttbar{  \%104 = load float* \%scevgep3, align 4}{1}{2}
+\ganttcon{3}{4}{3}{8}
+\ganttbar{  \%106 = add nuw nsw i64 \%reduce.1.inner.indvar.reduction\_dim.14, 1}{1}{1}
+\ganttcon{2}{5}{1}{6}
+\ganttcon{2}{5}{1}{2}
+\ganttbar{  \%exitcond = icmp eq i64 \%106, 10}{1}{1}
+\ganttcon{2}{6}{1}{7}
+\ganttbar{  br i1 \%exitcond, label \%fusion.loop\_body.dim.0.preheader, label \%reduce.1....}{1}{1}
+\ganttbar{  \%105 = fadd float \%103, \%104}{3}{14}
+\ganttcon{17}{8}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{2}{2}
+\begin{ganttitle}
+\numtitle{0}{1}{1}{1}
+\end{ganttitle}
+\ganttbar{  br label \%fusion.loop\_body.dim.0}{1}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{10}{38}
+\begin{ganttitle}
+\numtitle{0}{1}{37}{1}
+\end{ganttitle}
+\ganttbar{  \%fusion.indvar.dim.02 = phi i64 [ \%109, \%fusion.loop\_body.dim.0 ], [ 0, \%...}{1}{1}
+\ganttcon{2}{1}{1}{5}
+\ganttcon{2}{1}{1}{3}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  \%scevgep = getelementptr [10 x float]* @temp3, i64 0, i64 \%fusion.indvar.dim...}{1}{1}
+\ganttcon{2}{2}{36}{9}
+\ganttbar{  \%scevgep2 = getelementptr [1 x [10 x float]]* @temp1, i64 0, i64 0, i64 \%fus...}{1}{1}
+\ganttcon{2}{3}{1}{4}
+\ganttbar{  \%107 = load float* \%scevgep2, align 4}{1}{2}
+\ganttcon{3}{4}{3}{8}
+\ganttbar{  \%109 = add nuw nsw i64 \%fusion.indvar.dim.02, 1}{1}{1}
+\ganttcon{2}{5}{1}{6}
+\ganttcon{2}{5}{1}{1}
+\ganttbar{  \%exitcond1 = icmp eq i64 \%109, 10}{1}{1}
+\ganttcon{2}{6}{1}{7}
+\ganttbar{  br i1 \%exitcond1, label \%fusion.loop\_exit.dim.0, label \%fusion.loop\_body....}{1}{1}
+\ganttbar{  \%108 = fdiv float \%107, \%105}{3}{33}
+\ganttcon{36}{8}{36}{9}
+\ganttbar{  store volatile float \%108, float* \%scevgep, align 4}{36}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{3}{4}
+\begin{ganttitle}
+\numtitle{0}{1}{3}{1}
+\end{ganttitle}
+\ganttbar{  \%leflow\_retval = load volatile float* getelementptr inbounds ([10 x float]* ...}{1}{2}
+\ganttcon{3}{1}{3}{2}
+\ganttbar{  ret float \%leflow\_retval}{3}{1}
+\end{gantt}
+\end{figure}
+\end{document}

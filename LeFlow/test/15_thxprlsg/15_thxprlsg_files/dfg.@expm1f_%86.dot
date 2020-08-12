@@ -1,0 +1,8 @@
+digraph {
+Node0x254a350[label="  %87 = fsub float %.062, %75"];
+Node0x254a350 -> Node0x254a350[label="D:2.07ns L:14",color=blue];
+Node0x2547680[label="  %88 = fmul float %87, 2.000000e+00"];
+Node0x2547680 -> Node0x2547680[label="D:1.97ns L:11",color=blue];
+Node0x2547790[label="  %89 = fadd float %88, 1.000000e+00"];
+Node0x2547790 -> Node0x2547790[label="D:2.16ns L:14",color=blue];
+}

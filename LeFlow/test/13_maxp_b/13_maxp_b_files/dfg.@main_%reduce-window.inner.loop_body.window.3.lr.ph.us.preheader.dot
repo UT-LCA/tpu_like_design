@@ -1,0 +1,9 @@
+digraph {
+Node0x2f2fc80[label="  %2 = phi float [ 0xFFF0000000000000, %..."];
+Node0x2f2fc80 -> Node0x2f2fc80[label="D:0.00ns L:0",color=blue];
+Node0x2f2fd60[label="  %reduce-window.inner.indvar.window.119..."];
+Node0x2f2fd60 -> Node0x2f2fd60[label="D:0.00ns L:0",color=blue];
+Node0x2f2fd60 -> Node0x2f2fd60[label="D:0.00ns L:0",color=blue];
+Node0x2f2fe40[label="  %3 = add i64 %0, %reduce-window.inner...."];
+Node0x2f2fe40 -> Node0x2f2fe40[label="D:2.12ns L:0",color=blue];
+}

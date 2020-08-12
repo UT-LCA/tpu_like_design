@@ -1,0 +1,13 @@
+digraph {
+Node0x25cf600[label="  %28 = fmul float %20, -2.000000e+00"];
+Node0x25cf600 -> Node0x25cf600[label="D:1.97ns L:11",color=blue];
+Node0x25cf6e0[label="  %29 = call fastcc float @expm1f(float ..."];
+Node0x25cf6e0 -> Node0x25cf6e0[label="D:0.00ns L:1",color=blue];
+Node0x25cf6e0 -> Node0x25cf6e0[label="D:0.00ns L:1",color=blue];
+Node0x25cf7c0[label="  %30 = fsub float -0.000000e+00, %29"];
+Node0x25cf7c0 -> Node0x25cf7c0[label="D:2.07ns L:14",color=blue];
+Node0x25cf8a0[label="  %31 = fadd float %29, 2.000000e+00"];
+Node0x25cf8a0 -> Node0x25cf8a0[label="D:2.16ns L:14",color=blue];
+Node0x25cf980[label="  %32 = fdiv float %30, %31"];
+Node0x25cf980 -> Node0x25cf980[label="D:2.94ns L:33",color=blue];
+}

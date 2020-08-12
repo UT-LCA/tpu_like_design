@@ -1,0 +1,22 @@
+digraph {
+Node0x254c400[label="  %113 = sub nsw i32 127, %k.1"];
+Node0x254c400 -> Node0x254c400[label="D:1.62ns L:0",color=blue];
+Node0x254c4e0[label="  %114 = shl i32 %113, 23"];
+Node0x254c4e0 -> Node0x254c4e0[label="D:0.00ns L:0",color=blue];
+Node0x254c5c0[label="  %115 = bitcast i32 %114 to float"];
+Node0x254c5c0 -> Node0x254c5c0[label="D:0.00ns L:0",color=blue];
+Node0x254c6a0[label="  %116 = fadd float %75, %115"];
+Node0x254c6a0 -> Node0x254c6a0[label="D:2.16ns L:14",color=blue];
+Node0x254c780[label="  %117 = fsub float %.062, %116"];
+Node0x254c780 -> Node0x254c780[label="D:2.07ns L:14",color=blue];
+Node0x254c860[label="  %118 = fadd float %117, 1.000000e+00"];
+Node0x254c860 -> Node0x254c860[label="D:2.16ns L:14",color=blue];
+Node0x254c940[label="  %119 = bitcast float %118 to i32"];
+Node0x254c940 -> Node0x254c940[label="D:0.00ns L:0",color=blue];
+Node0x254ca20[label="  %120 = shl i32 %k.1, 23"];
+Node0x254ca20 -> Node0x254ca20[label="D:0.00ns L:0",color=blue];
+Node0x254cb00[label="  %121 = add nsw i32 %119, %120"];
+Node0x254cb00 -> Node0x254cb00[label="D:1.59ns L:0",color=blue];
+Node0x254cbe0[label="  %122 = bitcast i32 %121 to float"];
+Node0x254cbe0 -> Node0x254cbe0[label="D:0.00ns L:0",color=blue];
+}

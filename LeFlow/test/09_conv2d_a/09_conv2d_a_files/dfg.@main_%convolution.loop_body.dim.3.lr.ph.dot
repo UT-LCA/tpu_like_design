@@ -1,0 +1,11 @@
+digraph {
+Node0x281b5c0[label="  %convolution.indvar.dim.223 = phi i64 ..."];
+Node0x281b5c0 -> Node0x281b5c0[label="D:0.00ns L:0",color=blue];
+Node0x281b5c0 -> Node0x281b5c0[label="D:0.00ns L:0",color=blue];
+Node0x281b5c0 -> Node0x281b5c0[label="D:0.00ns L:0",color=blue];
+Node0x281b5c0 -> Node0x281b5c0[label="D:0.00ns L:0",color=blue];
+Node0x281b6a0[label="  %1 = add i64 %convolution.indvar.dim.2..."];
+Node0x281b6a0 -> Node0x281b6a0[label="D:2.12ns L:0",color=blue];
+Node0x281b780[label="  %2 = add i64 %convolution.indvar.dim.2..."];
+Node0x281b780 -> Node0x281b780[label="D:2.12ns L:0",color=blue];
+}

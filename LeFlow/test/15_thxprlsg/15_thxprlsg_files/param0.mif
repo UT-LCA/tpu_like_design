@@ -1,0 +1,15 @@
+Depth = 8;
+Width = 32;
+Address_radix = dec;
+Data_radix = hex;
+Content
+Begin
+0: 3ED528B5;
+1: 3ED704E7;
+2: 3F5DB5B9;
+3: 3F1DE195;
+4: 3F53E970;
+5: 3F7691E8;
+6: 3F168342;
+7: 3F7FC5B7;
+End;

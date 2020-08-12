@@ -1,0 +1,26 @@
+digraph {
+Node0x29ae1c0[label="  %0 = phi float [ 0.000000e+00, %dot.lo..."];
+Node0x29ae1c0 -> Node0x29ae1c0[label="D:0.00ns L:0",color=blue];
+Node0x29ae2a0[label="  %dot.indvar.reduction20 = phi i64 [ 0,..."];
+Node0x29ae2a0 -> Node0x29ae2a0[label="D:0.00ns L:0",color=blue];
+Node0x29ae2a0 -> Node0x29ae2a0[label="D:0.00ns L:0",color=blue];
+Node0x29ae2a0 -> Node0x29ae2a0[label="D:0.00ns L:0",color=blue];
+Node0x29ae380[label="  %scevgep19 = getelementptr [784 x [10 ..."];
+Node0x29ae380 -> Node0x29ae380[label="D:6.00ns L:0",color=blue];
+Node0x29ae460[label="  %scevgep20 = getelementptr [1 x [784 x..."];
+Node0x29ae460 -> Node0x29ae460[label="D:6.00ns L:0",color=blue];
+Node0x29ae540[label="  %1 = load volatile float* %scevgep20, ..."];
+Node0x29ae540 -> Node0x29ae540[label="D:0.00ns L:2",color=blue];
+Node0x29ae620[label="  %2 = load volatile float* %scevgep19, ..."];
+Node0x29ae620 -> Node0x29ae620[label="D:0.00ns L:2",color=blue];
+Node0x29b17d0[label="  %3 = fmul float %1, %2"];
+Node0x29b17d0 -> Node0x29b17d0[label="D:1.97ns L:11",color=blue];
+Node0x29b18b0[label="  %4 = fadd float %0, %3"];
+Node0x29b18b0 -> Node0x29b18b0[label="D:2.16ns L:14",color=blue];
+Node0x29b18b0 -> Node0x29b18b0[label="D:2.16ns L:14",color=blue];
+Node0x29b1990[label="  %5 = add nuw nsw i64 %dot.indvar.reduc..."];
+Node0x29b1990 -> Node0x29b1990[label="D:2.12ns L:0",color=blue];
+Node0x29b1990 -> Node0x29b1990[label="D:2.12ns L:0",color=blue];
+Node0x29b1aa0[label="  %exitcond18 = icmp eq i64 %5, 784"];
+Node0x29b1aa0 -> Node0x29b1aa0[label="D:1.73ns L:0",color=blue];
+}

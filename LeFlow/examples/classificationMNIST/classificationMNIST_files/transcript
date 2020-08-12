@@ -1,0 +1,100 @@
+# vsim -c -do "run 7000000000000000ns; exit;" work.main_tb 
+# Start time: 11:46:23 on Aug 12,2020
+# Loading work.main_tb
+# Loading work.top
+# Loading work.memory_controller
+# Loading work.ram_dual_port
+# Loading work.ALTERA_MF_MEMORY_INITIALIZATION
+# Loading work.rom_dual_port
+# Loading work.main
+# Loading work.altfp_multiplier_11
+# Loading work.altfp_multiplier_altfp_mult_4do
+# Loading work.lpm_add_sub
+# Loading work.lpm_mult
+# Loading work.LPM_HINT_EVALUATION
+# Loading work.altfp_adder_14
+# Loading work.altfp_adder_altfp_add_sub_dmj
+# Loading work.altfp_adder_altbarrel_shift_h0e
+# Loading work.altfp_adder_altbarrel_shift_n3g
+# Loading work.altfp_adder_altpriority_encoder_ou8
+# Loading work.altfp_adder_altpriority_encoder_uv8
+# Loading work.altfp_adder_altpriority_encoder_be8
+# Loading work.altfp_adder_altpriority_encoder_6e8
+# Loading work.altfp_adder_altpriority_encoder_3e8
+# Loading work.altfp_adder_altpriority_encoder_bv7
+# Loading work.altfp_adder_altpriority_encoder_6v7
+# Loading work.altfp_adder_altpriority_encoder_3v7
+# Loading work.altfp_adder_altpriority_encoder_ue9
+# Loading work.altfp_adder_altpriority_encoder_cna
+# Loading work.altfp_adder_altpriority_encoder_ii9
+# Loading work.altfp_adder_altpriority_encoder_vh8
+# Loading work.altfp_adder_altpriority_encoder_qh8
+# Loading work.altfp_adder_altpriority_encoder_nh8
+# Loading work.altfp_adder_altpriority_encoder_i39
+# Loading work.altfp_adder_altpriority_encoder_v28
+# Loading work.altfp_adder_altpriority_encoder_q28
+# Loading work.altfp_adder_altpriority_encoder_n28
+# Loading work.lpm_compare
+# Loading work.altfp_subtractor_14
+# Loading work.altfp_subtractor_altfp_add_sub_enj
+# Loading work.altfp_subtractor_altbarrel_shift_h0e
+# Loading work.altfp_subtractor_altbarrel_shift_n3g
+# Loading work.altfp_subtractor_altpriority_encoder_ou8
+# Loading work.altfp_subtractor_altpriority_encoder_uv8
+# Loading work.altfp_subtractor_altpriority_encoder_be8
+# Loading work.altfp_subtractor_altpriority_encoder_6e8
+# Loading work.altfp_subtractor_altpriority_encoder_3e8
+# Loading work.altfp_subtractor_altpriority_encoder_bv7
+# Loading work.altfp_subtractor_altpriority_encoder_6v7
+# Loading work.altfp_subtractor_altpriority_encoder_3v7
+# Loading work.altfp_subtractor_altpriority_encoder_ue9
+# Loading work.altfp_subtractor_altpriority_encoder_cna
+# Loading work.altfp_subtractor_altpriority_encoder_ii9
+# Loading work.altfp_subtractor_altpriority_encoder_vh8
+# Loading work.altfp_subtractor_altpriority_encoder_qh8
+# Loading work.altfp_subtractor_altpriority_encoder_nh8
+# Loading work.altfp_subtractor_altpriority_encoder_i39
+# Loading work.altfp_subtractor_altpriority_encoder_v28
+# Loading work.altfp_subtractor_altpriority_encoder_q28
+# Loading work.altfp_subtractor_altpriority_encoder_n28
+# Loading work.altfp_divider_33
+# Loading work.altfp_divider_altfp_div_kth
+# Loading work.altfp_divider_altfp_div_csa_gvc
+# Loading work.altfp_divider_altfp_div_srt_ext_73f
+# Loading work.altfp_divider_altfp_div_csa_72c
+# Loading work.altfp_divider_altfp_div_csa_j0f
+# Loading work.altfp_divider_altfp_div_csa_c3c
+# Loading work.altfp_divider_srt_block_int_2fk
+# Loading work.altfp_divider_altfp_div_csa_a2c
+# Loading work.altfp_divider_altfp_div_csa_b3c
+# Loading work.lpm_mux
+# Loading work.altfp_divider_qds_block_7o8
+# Loading work.altfp_divider_srt_block_int_ahk
+# Loading work.altfp_divider_qds_block_6a7
+# Loading work.altfp_divider_srt_block_int_hbk
+# Loading work.altfp_fptosi32_6
+# Loading work.altfp_fptosi32_altfp_convert_fhn
+# Loading work.altfp_fptosi32_altbarrel_shift_grf
+# Loading work.altfp_sitofp32_6
+# Loading work.altfp_sitofp32_altfp_convert_fhn
+# Loading work.altfp_sitofp32_altbarrel_shift_brf
+# Loading work.altfp_sitofp32_altpriority_encoder_qb6
+# Loading work.altfp_sitofp32_altpriority_encoder_rf8
+# Loading work.altfp_sitofp32_altpriority_encoder_be8
+# Loading work.altfp_sitofp32_altpriority_encoder_6e8
+# Loading work.altfp_sitofp32_altpriority_encoder_3e8
+# Loading work.altfp_sitofp32_altpriority_encoder_r08
+# Loading work.altfp_sitofp32_altpriority_encoder_bv7
+# Loading work.altfp_sitofp32_altpriority_encoder_6v7
+# Loading work.altfp_sitofp32_altpriority_encoder_3v7
+# Loading work.altfp_compare32_1
+# Loading work.altfp_compare32_altfp_compare_lke
+# ** Warning: Design size of 11013 statements exceeds ModelSim Altera Starter recommended capacity.
+# Expect performance to be adversely affected.
+# run 7000000000000000ns
+# At t=          4471850000 clk=1 finish=1 return_val= 927635078
+# Cycles:               223590
+# ** Note: $finish    : classificationMNIST.v(6359)
+#    Time: 4471850 ns  Iteration: 2  Instance: /main_tb
+# End time: 11:56:16 on Aug 12,2020, Elapsed time: 0:09:53
+# Errors: 0, Warnings: 1

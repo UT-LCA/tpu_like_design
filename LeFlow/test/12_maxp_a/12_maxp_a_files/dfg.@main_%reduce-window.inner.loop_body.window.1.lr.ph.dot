@@ -1,0 +1,10 @@
+digraph {
+Node0x412e850[label="  %2 = phi i64 [ 0, %reduce-window.loop_..."];
+Node0x412e850 -> Node0x412e850[label="D:0.00ns L:0",color=blue];
+Node0x412e850 -> Node0x412e850[label="D:0.00ns L:0",color=blue];
+Node0x412e850 -> Node0x412e850[label="D:0.00ns L:0",color=blue];
+Node0x412e930[label="  %scevgep5 = getelementptr [1 x [2 x [2..."];
+Node0x412e930 -> Node0x412e930[label="D:6.00ns L:0",color=blue];
+Node0x412ea50[label="  %3 = mul i64 %2, 3"];
+Node0x412ea50 -> Node0x412ea50[label="D:5.89ns L:1",color=blue];
+}

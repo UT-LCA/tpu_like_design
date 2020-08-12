@@ -1,0 +1,6 @@
+digraph {
+Node0x35bc900[label="  %74 = add i32 %71, %72"];
+Node0x35bc900 -> Node0x35bc900[label="D:1.59ns L:0",color=blue];
+Node0x35bc9e0[label="  %75 = bitcast i32 %74 to float"];
+Node0x35bc9e0 -> Node0x35bc9e0[label="D:0.00ns L:0",color=blue];
+}

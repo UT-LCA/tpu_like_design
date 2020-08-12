@@ -1,0 +1,20 @@
+# vsim -c -do "run 7000000000000000ns; exit;" work.main_tb 
+# Start time: 21:35:18 on Aug 11,2020
+# Loading work.main_tb
+# Loading work.top
+# Loading work.memory_controller
+# Loading work.ram_dual_port
+# Loading work.ALTERA_MF_MEMORY_INITIALIZATION
+# Loading work.main
+# Loading work.altfp_compare32_1
+# Loading work.altfp_compare32_altfp_compare_lke
+# Loading work.lpm_compare
+# ** Warning: Design size of 41504 statements exceeds ModelSim Altera Starter recommended capacity.
+# Expect performance to be adversely affected.
+# run 7000000000000000ns
+# At t=            10090000 clk=1 finish=1 return_val=1060322841
+# Cycles:                  502
+# ** Note: $finish    : 14_maxp_b_f.v(99122)
+#    Time: 10090 ns  Iteration: 2  Instance: /main_tb
+# End time: 21:36:18 on Aug 11,2020, Elapsed time: 0:01:00
+# Errors: 0, Warnings: 1

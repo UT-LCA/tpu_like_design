@@ -1,0 +1,31 @@
+digraph {
+Node0x2f30030[label="  %4 = phi float [ %10, %reduce-window.i..."];
+Node0x2f30030 -> Node0x2f30030[label="D:0.00ns L:0",color=blue];
+Node0x2f30030 -> Node0x2f30030[label="D:0.00ns L:0",color=blue];
+Node0x2f30030 -> Node0x2f30030[label="D:0.00ns L:0",color=blue];
+Node0x2f30110[label="  %reduce-window.inner.indvar.window.24...."];
+Node0x2f30110 -> Node0x2f30110[label="D:0.00ns L:0",color=blue];
+Node0x2f30110 -> Node0x2f30110[label="D:0.00ns L:0",color=blue];
+Node0x2f301f0[label="  %5 = add i64 %1, %reduce-window.inner...."];
+Node0x2f301f0 -> Node0x2f301f0[label="D:2.12ns L:0",color=blue];
+Node0x2f302d0[label="  %scevgep = getelementptr [1 x [32 x [3..."];
+Node0x2f302d0 -> Node0x2f302d0[label="D:6.00ns L:0",color=blue];
+Node0x2f303b0[label="  %6 = load volatile float* %scevgep, al..."];
+Node0x2f303b0 -> Node0x2f303b0[label="D:0.00ns L:2",color=blue];
+Node0x2f303b0 -> Node0x2f303b0[label="D:0.00ns L:2",color=blue];
+Node0x2f30490[label="  %7 = fcmp oge float %4, %6"];
+Node0x2f30490 -> Node0x2f30490[label="D:2.16ns L:1",color=blue];
+Node0x2f305a0[label="  %8 = fcmp ueq float %4, 0.000000e+00"];
+Node0x2f305a0 -> Node0x2f305a0[label="D:1.76ns L:1",color=blue];
+Node0x2f30680[label="  %9 = or i1 %7, %8"];
+Node0x2f30680 -> Node0x2f30680[label="D:0.00ns L:0",color=blue];
+Node0x2f30760[label="  %10 = select i1 %9, float %4, float %6"];
+Node0x2f30760 -> Node0x2f30760[label="D:2.39ns L:0",color=blue];
+Node0x2f30760 -> Node0x2f30760[label="D:2.39ns L:0",color=blue];
+Node0x2f30760 -> Node0x2f30760[label="D:2.39ns L:0",color=blue];
+Node0x2f30870[label="  %11 = add nuw nsw i64 %reduce-window.i..."];
+Node0x2f30870 -> Node0x2f30870[label="D:2.12ns L:0",color=blue];
+Node0x2f30870 -> Node0x2f30870[label="D:2.12ns L:0",color=blue];
+Node0x2f30950[label="  %exitcond1 = icmp eq i64 %11, 3"];
+Node0x2f30950 -> Node0x2f30950[label="D:1.73ns L:0",color=blue];
+}

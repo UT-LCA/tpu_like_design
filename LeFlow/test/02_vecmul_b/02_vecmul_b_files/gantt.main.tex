@@ -1,0 +1,46 @@
+\documentclass[landscape]{article}
+\usepackage{gantt}
+\pagestyle{empty}
+\begin{document}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{12}{16}
+\begin{ganttitle}
+\numtitle{0}{1}{15}{1}
+\end{ganttitle}
+\ganttbar{  \%multiply.indvar.dim.02 = phi i64 [ 0, \%multiply.loop\_body.dim.0.lr.ph ], [...}{1}{1}
+\ganttcon{2}{1}{1}{7}
+\ganttcon{2}{1}{1}{4}
+\ganttcon{2}{1}{1}{3}
+\ganttcon{2}{1}{1}{2}
+\ganttbar{  \%scevgep = getelementptr [64 x float]* @temp0, i64 0, i64 \%multiply.indvar.d...}{1}{1}
+\ganttcon{2}{2}{14}{11}
+\ganttbar{  \%scevgep2 = getelementptr [64 x float]* @param0, i64 0, i64 \%multiply.indvar...}{1}{1}
+\ganttcon{2}{3}{1}{6}
+\ganttbar{  \%scevgep3 = getelementptr [64 x float]* @param1, i64 0, i64 \%multiply.indvar...}{1}{1}
+\ganttcon{2}{4}{1}{5}
+\ganttbar{  \%0 = load volatile float* \%scevgep3, align 4}{1}{2}
+\ganttcon{3}{5}{3}{10}
+\ganttbar{  \%1 = load volatile float* \%scevgep2, align 4}{1}{2}
+\ganttcon{3}{6}{3}{10}
+\ganttbar{  \%3 = add nuw nsw i64 \%multiply.indvar.dim.02, 1}{1}{1}
+\ganttcon{2}{7}{1}{8}
+\ganttcon{2}{7}{1}{1}
+\ganttbar{  \%exitcond1 = icmp eq i64 \%3, 64}{1}{1}
+\ganttcon{2}{8}{1}{9}
+\ganttbar{  br i1 \%exitcond1, label \%multiply.loop\_exit.dim.0, label \%multiply.loop\_b...}{1}{1}
+\ganttbar{  \%2 = fmul float \%0, \%1}{3}{11}
+\ganttcon{14}{10}{14}{11}
+\ganttbar{  store volatile float \%2, float* \%scevgep, align 4}{14}{1}
+\end{gantt}
+\end{figure}
+\begin{figure}
+\begin{gantt}[fontsize=\scriptsize]{3}{4}
+\begin{ganttitle}
+\numtitle{0}{1}{3}{1}
+\end{ganttitle}
+\ganttbar{  \%leflow\_retval = load volatile float* getelementptr inbounds ([64 x float]* ...}{1}{2}
+\ganttcon{3}{1}{3}{2}
+\ganttbar{  ret float \%leflow\_retval}{3}{1}
+\end{gantt}
+\end{figure}
+\end{document}

@@ -1,0 +1,22 @@
+digraph {
+Node0x35b52a0[label="  %1 = bitcast float %x to i32"];
+Node0x35b52a0 -> Node0x35b52a0[label="D:0.00ns L:0",color=blue];
+Node0x35b52a0 -> Node0x35b52a0[label="D:0.00ns L:0",color=blue];
+Node0x35b52a0 -> Node0x35b52a0[label="D:0.00ns L:0",color=blue];
+Node0x35b52a0 -> Node0x35b52a0[label="D:0.00ns L:0",color=blue];
+Node0x35b57d0[label="  %2 = lshr i32 %1, 31"];
+Node0x35b57d0 -> Node0x35b57d0[label="D:0.00ns L:0",color=blue];
+Node0x35b57d0 -> Node0x35b57d0[label="D:0.00ns L:0",color=blue];
+Node0x35b57d0 -> Node0x35b57d0[label="D:0.00ns L:0",color=blue];
+Node0x35b57d0 -> Node0x35b57d0[label="D:0.00ns L:0",color=blue];
+Node0x35b57d0 -> Node0x35b57d0[label="D:0.00ns L:0",color=blue];
+Node0x35b58e0[label="  %3 = and i32 %1, 2147483647"];
+Node0x35b58e0 -> Node0x35b58e0[label="D:0.00ns L:0",color=blue];
+Node0x35b58e0 -> Node0x35b58e0[label="D:0.00ns L:0",color=blue];
+Node0x35b58e0 -> Node0x35b58e0[label="D:0.00ns L:0",color=blue];
+Node0x35b58e0 -> Node0x35b58e0[label="D:0.00ns L:0",color=blue];
+Node0x35b58e0 -> Node0x35b58e0[label="D:0.00ns L:0",color=blue];
+Node0x35b58e0 -> Node0x35b58e0[label="D:0.00ns L:0",color=blue];
+Node0x35b59c0[label="  %4 = icmp ugt i32 %3, 2139095040"];
+Node0x35b59c0 -> Node0x35b59c0[label="D:1.80ns L:0",color=blue];
+}

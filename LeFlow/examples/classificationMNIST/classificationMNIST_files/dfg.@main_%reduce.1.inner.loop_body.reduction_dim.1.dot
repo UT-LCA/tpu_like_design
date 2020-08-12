@@ -1,0 +1,19 @@
+digraph {
+Node0x29ba530[label="  %103 = phi float [ %105, %reduce.1.inn..."];
+Node0x29ba530 -> Node0x29ba530[label="D:0.00ns L:0",color=blue];
+Node0x29ba610[label="  %reduce.1.inner.indvar.reduction_dim.1..."];
+Node0x29ba610 -> Node0x29ba610[label="D:0.00ns L:0",color=blue];
+Node0x29ba610 -> Node0x29ba610[label="D:0.00ns L:0",color=blue];
+Node0x29ba6f0[label="  %scevgep3 = getelementptr [1 x [10 x f..."];
+Node0x29ba6f0 -> Node0x29ba6f0[label="D:6.00ns L:0",color=blue];
+Node0x29ba7d0[label="  %104 = load float* %scevgep3, align 4"];
+Node0x29ba7d0 -> Node0x29ba7d0[label="D:0.00ns L:2",color=blue];
+Node0x29ba8b0[label="  %105 = fadd float %103, %104"];
+Node0x29ba8b0 -> Node0x29ba8b0[label="D:2.16ns L:14",color=blue];
+Node0x29ba8b0 -> Node0x29ba8b0[label="D:2.16ns L:14",color=blue];
+Node0x29ba990[label="  %106 = add nuw nsw i64 %reduce.1.inner..."];
+Node0x29ba990 -> Node0x29ba990[label="D:2.12ns L:0",color=blue];
+Node0x29ba990 -> Node0x29ba990[label="D:2.12ns L:0",color=blue];
+Node0x29baa70[label="  %exitcond = icmp eq i64 %106, 10"];
+Node0x29baa70 -> Node0x29baa70[label="D:1.73ns L:0",color=blue];
+}

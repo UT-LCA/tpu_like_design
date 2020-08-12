@@ -1,0 +1,4 @@
+digraph {
+Node0x35b5c60[label="  %6 = fadd float %x, %x"];
+Node0x35b5c60 -> Node0x35b5c60[label="D:2.16ns L:14",color=blue];
+}

@@ -1,0 +1,14 @@
+digraph {
+Node0x253ced0[label="  %k.i.i.0 = phi i32 [ %34, %27 ], [ %41..."];
+Node0x253ced0 -> Node0x253ced0[label="D:0.00ns L:0",color=blue];
+Node0x253cfb0[label="  %lo.i.i.1 = phi float [ %32, %27 ], [ ..."];
+Node0x253cfb0 -> Node0x253cfb0[label="D:0.00ns L:0",color=blue];
+Node0x253cfb0 -> Node0x253cfb0[label="D:0.00ns L:0",color=blue];
+Node0x253d090[label="  %.pn = phi float [ %30, %27 ], [ %43, ..."];
+Node0x253d090 -> Node0x253d090[label="D:0.00ns L:0",color=blue];
+Node0x253d170[label="  %hi.i.i.1 = fsub float %8, %.pn"];
+Node0x253d170 -> Node0x253d170[label="D:2.07ns L:14",color=blue];
+Node0x253d170 -> Node0x253d170[label="D:2.07ns L:14",color=blue];
+Node0x253d250[label="  %46 = fsub float %hi.i.i.1, %lo.i.i.1"];
+Node0x253d250 -> Node0x253d250[label="D:2.07ns L:14",color=blue];
+}

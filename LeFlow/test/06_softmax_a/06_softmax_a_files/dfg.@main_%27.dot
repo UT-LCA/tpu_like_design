@@ -1,0 +1,17 @@
+digraph {
+Node0x253ba80[label="  %28 = zext i32 %10 to i64"];
+Node0x253ba80 -> Node0x253ba80[label="D:0.00ns L:0",color=blue];
+Node0x253ba80 -> Node0x253ba80[label="D:0.00ns L:0",color=blue];
+Node0x253bb60[label="  %29 = getelementptr inbounds [2 x floa..."];
+Node0x253bb60 -> Node0x253bb60[label="D:6.00ns L:0",color=blue];
+Node0x253bc40[label="  %30 = load float* %29, align 4"];
+Node0x253bc40 -> Node0x253bc40[label="D:0.00ns L:2",color=blue];
+Node0x253bd20[label="  %31 = getelementptr inbounds [2 x floa..."];
+Node0x253bd20 -> Node0x253bd20[label="D:6.00ns L:0",color=blue];
+Node0x253be00[label="  %32 = load float* %31, align 4"];
+Node0x253be00 -> Node0x253be00[label="D:0.00ns L:2",color=blue];
+Node0x253bee0[label="  %33 = xor i32 %10, 1"];
+Node0x253bee0 -> Node0x253bee0[label="D:1.25ns L:0",color=blue];
+Node0x2536f40[label="  %34 = sub nsw i32 %33, %10"];
+Node0x2536f40 -> Node0x2536f40[label="D:1.62ns L:0",color=blue];
+}

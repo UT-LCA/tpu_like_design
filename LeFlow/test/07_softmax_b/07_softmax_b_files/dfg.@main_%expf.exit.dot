@@ -1,0 +1,13 @@
+digraph {
+Node0x2f48560[label="  %lo.i.i.3 = phi float [ %lo.i.i.0, %13..."];
+Node0x2f48560 -> Node0x2f48560[label="D:0.00ns L:0",color=blue];
+Node0x2f48640[label="  %hi.i.i.3 = phi float [ %hi.i.i.0, %13..."];
+Node0x2f48640 -> Node0x2f48640[label="D:0.00ns L:0",color=blue];
+Node0x2f48720[label="  %.0 = phi float [ %14, %13 ], [ %71, %..."];
+Node0x2f48720 -> Node0x2f48720[label="D:0.00ns L:0",color=blue];
+Node0x2f488e0[label="  %89 = add nuw nsw i64 %fusion.1.indvar..."];
+Node0x2f488e0 -> Node0x2f488e0[label="D:2.12ns L:0",color=blue];
+Node0x2f488e0 -> Node0x2f488e0[label="D:2.12ns L:0",color=blue];
+Node0x2f489c0[label="  %exitcond6 = icmp eq i64 %89, 64"];
+Node0x2f489c0 -> Node0x2f489c0[label="D:1.73ns L:0",color=blue];
+}

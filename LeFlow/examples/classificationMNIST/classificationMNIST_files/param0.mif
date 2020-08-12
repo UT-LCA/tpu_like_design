@@ -1,0 +1,17 @@
+Depth = 10;
+Width = 32;
+Address_radix = dec;
+Data_radix = hex;
+Content
+Begin
+0: BEC8254F;
+1: 3EB3FF1C;
+2: 3DD5C6B3;
+3: BE8C3467;
+4: 3CE1169F;
+5: 3FA17CEF;
+6: BD93610D;
+7: 3F24B323;
+8: BFB6D9BB;
+9: BE6486B3;
+End;

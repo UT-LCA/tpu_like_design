@@ -1,0 +1,8 @@
+digraph {
+Node0x2f2e430[label="  %reduce-window.indvar.dim.130 = phi i6..."];
+Node0x2f2e430 -> Node0x2f2e430[label="D:0.00ns L:0",color=blue];
+Node0x2f2e430 -> Node0x2f2e430[label="D:0.00ns L:0",color=blue];
+Node0x2f2e430 -> Node0x2f2e430[label="D:0.00ns L:0",color=blue];
+Node0x2f2e540[label="  %0 = mul i64 %reduce-window.indvar.dim..."];
+Node0x2f2e540 -> Node0x2f2e540[label="D:5.89ns L:1",color=blue];
+}

@@ -1,0 +1,22 @@
+digraph {
+Node0x2537150[label="  %36 = fmul float %8, 0x3FF715476000000..."];
+Node0x2537150 -> Node0x2537150[label="D:1.97ns L:11",color=blue];
+Node0x2537230[label="  %37 = zext i32 %10 to i64"];
+Node0x2537230 -> Node0x2537230[label="D:0.00ns L:0",color=blue];
+Node0x253c7d0[label="  %38 = getelementptr inbounds [2 x floa..."];
+Node0x253c7d0 -> Node0x253c7d0[label="D:6.00ns L:0",color=blue];
+Node0x253c8b0[label="  %39 = load float* %38, align 4"];
+Node0x253c8b0 -> Node0x253c8b0[label="D:0.00ns L:2",color=blue];
+Node0x253c990[label="  %40 = fadd float %36, %39"];
+Node0x253c990 -> Node0x253c990[label="D:2.16ns L:14",color=blue];
+Node0x253ca70[label="  %41 = fptosi float %40 to i32"];
+Node0x253ca70 -> Node0x253ca70[label="D:1.69ns L:6",color=blue];
+Node0x253ca70 -> Node0x253ca70[label="D:1.69ns L:6",color=blue];
+Node0x253cb50[label="  %42 = sitofp i32 %41 to float"];
+Node0x253cb50 -> Node0x253cb50[label="D:2.15ns L:6",color=blue];
+Node0x253cb50 -> Node0x253cb50[label="D:2.15ns L:6",color=blue];
+Node0x253cc30[label="  %43 = fmul float %42, 0x3FE62E30000000..."];
+Node0x253cc30 -> Node0x253cc30[label="D:1.97ns L:11",color=blue];
+Node0x253cd10[label="  %44 = fmul float %42, 0x3EE2FEFA200000..."];
+Node0x253cd10 -> Node0x253cd10[label="D:1.97ns L:11",color=blue];
+}

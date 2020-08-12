@@ -1,0 +1,7 @@
+digraph {
+Node0x2598a00[label="  %5 = icmp sgt i32 %1, -1"];
+Node0x2598a00 -> Node0x2598a00[label="D:1.81ns L:0",color=blue];
+Node0x25968e0[label="  %6 = fdiv float 1.000000e+00, %x"];
+Node0x25968e0 -> Node0x25968e0[label="D:2.94ns L:33",color=blue];
+Node0x25968e0 -> Node0x25968e0[label="D:2.94ns L:33",color=blue];
+}

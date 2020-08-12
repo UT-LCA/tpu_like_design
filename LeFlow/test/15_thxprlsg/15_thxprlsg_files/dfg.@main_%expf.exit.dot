@@ -1,0 +1,28 @@
+digraph {
+Node0x25eeb00[label="  %lo.i.i.3 = phi float [ %lo.i.i.0, %6 ..."];
+Node0x25eeb00 -> Node0x25eeb00[label="D:0.00ns L:0",color=blue];
+Node0x25eebe0[label="  %hi.i.i.3 = phi float [ %hi.i.i.0, %6 ..."];
+Node0x25eebe0 -> Node0x25eebe0[label="D:0.00ns L:0",color=blue];
+Node0x25eecc0[label="  %.0 = phi float [ %7, %6 ], [ %64, %60..."];
+Node0x25eecc0 -> Node0x25eecc0[label="D:0.00ns L:0",color=blue];
+Node0x25eecc0 -> Node0x25eecc0[label="D:0.00ns L:0",color=blue];
+Node0x25eeda0[label="  %82 = fcmp ole float %.0, 0.000000e+00"];
+Node0x25eeda0 -> Node0x25eeda0[label="D:2.15ns L:1",color=blue];
+Node0x25f2540[label="  %.op = fmul float %.0, 5.000000e-01"];
+Node0x25f2540 -> Node0x25f2540[label="D:1.97ns L:11",color=blue];
+Node0x25f2620[label="  %83 = select i1 %82, float 0.000000e+0..."];
+Node0x25f2620 -> Node0x25f2620[label="D:2.39ns L:0",color=blue];
+Node0x25f2700[label="  %84 = call fastcc float @tanhf(float %..."];
+Node0x25f2700 -> Node0x25f2700[label="D:0.00ns L:1",color=blue];
+Node0x25f29a0[label="  store volatile float %86, float* %scev..."];
+Node0x25f2700 -> Node0x25f29a0[label="D:0.00ns L:1",color=red];
+Node0x25f27e0[label="  %85 = fmul float %84, 5.000000e-01"];
+Node0x25f27e0 -> Node0x25f27e0[label="D:1.97ns L:11",color=blue];
+Node0x25f28c0[label="  %86 = fadd float %85, 5.000000e-01"];
+Node0x25f28c0 -> Node0x25f28c0[label="D:2.16ns L:14",color=blue];
+Node0x25f2a80[label="  %87 = add nuw nsw i64 %fusion.indvar.d..."];
+Node0x25f2a80 -> Node0x25f2a80[label="D:2.12ns L:0",color=blue];
+Node0x25f2a80 -> Node0x25f2a80[label="D:2.12ns L:0",color=blue];
+Node0x25f2b60[label="  %exitcond1 = icmp eq i64 %87, 8"];
+Node0x25f2b60 -> Node0x25f2b60[label="D:1.73ns L:0",color=blue];
+}

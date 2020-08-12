@@ -1,0 +1,23 @@
+digraph {
+Node0x3410d70[label="  %dot.indvar.rhs.16 = phi i64 [ 0, %dot..."];
+Node0x3410d70 -> Node0x3410d70[label="D:0.00ns L:0",color=blue];
+Node0x3410d70 -> Node0x3410d70[label="D:0.00ns L:0",color=blue];
+Node0x3410d70 -> Node0x3410d70[label="D:0.00ns L:0",color=blue];
+Node0x3412390[label="  %scevgep5 = getelementptr [1 x [8 x fl..."];
+Node0x3412390 -> Node0x3412390[label="D:6.00ns L:0",color=blue];
+Node0x3412530[label="  %.phi.trans.insert = getelementptr [1 ..."];
+Node0x3412530 -> Node0x3412530[label="D:6.00ns L:0",color=blue];
+Node0x3412610[label="  %.pre = load volatile float* %.phi.tra..."];
+Node0x3412610 -> Node0x3412610[label="D:0.00ns L:2",color=blue];
+Node0x3412720[label="  %.pre10 = load volatile float* @param2..."];
+Node0x3412720 -> Node0x3412720[label="D:0.00ns L:2",color=blue];
+Node0x3412800[label="  %0 = fmul float %.pre10, %.pre"];
+Node0x3412800 -> Node0x3412800[label="D:1.97ns L:11",color=blue];
+Node0x3412910[label="  %1 = fadd float %0, 0.000000e+00"];
+Node0x3412910 -> Node0x3412910[label="D:2.16ns L:14",color=blue];
+Node0x3412b00[label="  %2 = add nuw nsw i64 %dot.indvar.rhs.1..."];
+Node0x3412b00 -> Node0x3412b00[label="D:2.12ns L:0",color=blue];
+Node0x3412b00 -> Node0x3412b00[label="D:2.12ns L:0",color=blue];
+Node0x3412be0[label="  %exitcond = icmp eq i64 %2, 8"];
+Node0x3412be0 -> Node0x3412be0[label="D:1.73ns L:0",color=blue];
+}
