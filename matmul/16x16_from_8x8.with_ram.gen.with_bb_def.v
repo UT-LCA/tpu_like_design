@@ -2373,7 +2373,7 @@ module processing_element(
  assign out_c = out_mac[`DWIDTH-1:0];
 
  //seq_mac u_mac(.a(in_a), .b(in_b), .out(out_mac), .reset(reset), .clk(clk));
- int_mac u_mac(.a({10'b0,in_a}), .b({11'b0,in_b}), .out(out_mac), .reset(reset), .clk(clk));
+ mac_int u_mac(.a({10'b0,in_a}), .b({11'b0,in_b}), .out(out_mac), .reset(reset), .clk(clk));
 
  always @(posedge clk)begin
     if(reset) begin
