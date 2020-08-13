@@ -22,7 +22,6 @@
 `define REG_MATRIX_A_STRIDE_ADDR 32'h28
 `define REG_MATRIX_B_STRIDE_ADDR 32'h32
 `define REG_MATRIX_C_STRIDE_ADDR 32'h3
-
   module matrix_multiplication(
   input clk,
   input clk_mem,
@@ -530,7 +529,11 @@ module matmul_16x16_systolic(
   wire done_mat_mul_1_0;
   wire done_mat_mul_1_1;
 
-  assign done_mat_mul = done_mat_mul_0_0;  /////////////////////////////////////////////////
+  assign done_mat_mul = done_mat_mul_0_0;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_1_NC;
+    
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_1_NC;
+      /////////////////////////////////////////////////
   // Matmul 0_0
   /////////////////////////////////////////////////
 
@@ -540,10 +543,11 @@ module matmul_16x16_systolic(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_0_0_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_0_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_0_to_0_1;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_0_to_0_1_NC;
   wire [`AWIDTH-1:0] c_addr_0_0_NC;
   wire c_data_0_0_available_NC;
 
-matmul_8x8_systolic u_matmul_8x8_systolic_0_0(
+matmul_slice u_matmul_8x8_systolic_0_0(
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),
@@ -560,7 +564,8 @@ matmul_8x8_systolic u_matmul_8x8_systolic_0_0(
   .a_data_in(a_data_in_0_0_NC),
   .b_data_in(b_data_in_0_0_NC),
   .c_data_in(c_data_in_0_0_NC),
-  .c_data_out(c_data_0_0_to_0_1),
+  .c_data_out(c_data_0_0_to_0_1_NC),
+  .c_data_out_dir_int(c_data_0_0_to_0_1),
   .a_data_out(a_data_0_0_to_0_1),
   .b_data_out(b_data_0_0_to_1_0),
   .a_addr(a_addr_0_0),
@@ -571,6 +576,10 @@ matmul_8x8_systolic u_matmul_8x8_systolic_0_0(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
+        
+  .slice_mode(1'b0), //0 is SLICE_MODE_MATMUL
+  .slice_dtype(1'b0), //0 is INT8      
+        
   .final_mat_mul_size(8'd16),
   .a_loc(8'd0),
   .b_loc(8'd0)
@@ -586,7 +595,7 @@ matmul_8x8_systolic u_matmul_8x8_systolic_0_0(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_1_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_1_NC;
 
-matmul_8x8_systolic u_matmul_8x8_systolic_0_1(
+matmul_slice u_matmul_8x8_systolic_0_1(
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),
@@ -604,6 +613,7 @@ matmul_8x8_systolic u_matmul_8x8_systolic_0_1(
   .b_data_in(b_data_in_0_1_NC),
   .c_data_in(c_data_0_0_to_0_1),
   .c_data_out(c_data_0_1),
+  .c_data_out_dir_int(c_data_0_1_NC),
   .a_data_out(a_data_0_1_to_0_2),
   .b_data_out(b_data_0_1_to_1_1),
   .a_addr(a_addr_0_1_NC),
@@ -614,6 +624,10 @@ matmul_8x8_systolic u_matmul_8x8_systolic_0_1(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
+        
+  .slice_mode(1'b0), //0 is SLICE_MODE_MATMUL
+  .slice_dtype(1'b0), //0 is INT8      
+        
   .final_mat_mul_size(8'd16),
   .a_loc(8'd0),
   .b_loc(8'd1)
@@ -630,10 +644,11 @@ matmul_8x8_systolic u_matmul_8x8_systolic_0_1(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_1_0_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_1_0_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_0_to_1_1;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_0_to_1_1_NC;
   wire [`AWIDTH-1:0] c_addr_1_0_NC;
   wire c_data_1_0_available_NC;
 
-matmul_8x8_systolic u_matmul_8x8_systolic_1_0(
+matmul_slice u_matmul_8x8_systolic_1_0(
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),
@@ -650,7 +665,8 @@ matmul_8x8_systolic u_matmul_8x8_systolic_1_0(
   .a_data_in(a_data_in_1_0_NC),
   .b_data_in(b_data_0_0_to_1_0),
   .c_data_in(c_data_in_1_0_NC),
-  .c_data_out(c_data_1_0_to_1_1),
+  .c_data_out(c_data_1_0_to_1_1_NC),
+  .c_data_out_dir_int(c_data_1_0_to_1_1),
   .a_data_out(a_data_1_0_to_1_1),
   .b_data_out(b_data_1_0_to_2_0),
   .a_addr(a_addr_1_0),
@@ -661,6 +677,10 @@ matmul_8x8_systolic u_matmul_8x8_systolic_1_0(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
+        
+  .slice_mode(1'b0), //0 is SLICE_MODE_MATMUL
+  .slice_dtype(1'b0), //0 is INT8      
+        
   .final_mat_mul_size(8'd16),
   .a_loc(8'd1),
   .b_loc(8'd0)
@@ -677,7 +697,7 @@ matmul_8x8_systolic u_matmul_8x8_systolic_1_0(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_1_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_1_NC;
 
-matmul_8x8_systolic u_matmul_8x8_systolic_1_1(
+matmul_slice u_matmul_8x8_systolic_1_1(
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),
@@ -695,6 +715,7 @@ matmul_8x8_systolic u_matmul_8x8_systolic_1_1(
   .b_data_in(b_data_0_1_to_1_1),
   .c_data_in(c_data_1_0_to_1_1),
   .c_data_out(c_data_1_1),
+  .c_data_out_dir_int(c_data_1_1_NC),
   .a_data_out(a_data_1_1_to_1_2),
   .b_data_out(b_data_1_1_to_2_1),
   .a_addr(a_addr_1_1_NC),
@@ -705,6 +726,10 @@ matmul_8x8_systolic u_matmul_8x8_systolic_1_1(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
+        
+  .slice_mode(1'b0), //0 is SLICE_MODE_MATMUL
+  .slice_dtype(1'b0), //0 is INT8      
+        
   .final_mat_mul_size(8'd16),
   .a_loc(8'd1),
   .b_loc(8'd1)

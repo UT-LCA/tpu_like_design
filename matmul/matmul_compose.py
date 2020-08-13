@@ -5,18 +5,8 @@ import pdb
 import math
 import argparse
 
-data_width = 8
-address_width = 11
+address_width = 16
 mem_size = 2048
-
-def ceiling_div(a, b):
-  if(a == 0):
-    return 0
-  
-  if(a % b == 0):
-    return a//b
-  
-  return a//b + 1
 
 def write_with_ram(file, basic_block_size, final_block_size):
   #write the top module
@@ -38,9 +28,9 @@ def write_with_ram(file, basic_block_size, final_block_size):
   file.write('  output reg                        PREADY,\n')
   file.write('  input  [7:0] bram_select,\n')
   file.write('  input  [`AWIDTH-1:0] bram_addr_ext,\n')
-  file.write('  output reg [`DESIGN_SIZE*`DWIDTH-1:0] bram_rdata_ext,\n')
-  file.write('  input  [`DESIGN_SIZE*`DWIDTH-1:0] bram_wdata_ext,\n')
-  file.write('  input  [`DESIGN_SIZE-1:0] bram_we_ext\n')
+  file.write('  output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_ext,\n')
+  file.write('  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_ext,\n')
+  file.write('  input  [`MAT_MUL_SIZE-1:0] bram_we_ext\n')
   file.write(');\n\n')
 
   file.write("""
@@ -290,9 +280,9 @@ always @(posedge PCLK) begin
     validity_mask_a_rows <= {`MASK_WIDTH{1'b1}};
     validity_mask_a_cols_b_rows <= {`MASK_WIDTH{1'b1}};
     validity_mask_b_cols <= {`MASK_WIDTH{1'b1}};
-    address_stride_a <= `DESIGN_SIZE;
-    address_stride_b <= `DESIGN_SIZE;
-    address_stride_c <= `DESIGN_SIZE;
+    address_stride_a <= `MAT_MUL_SIZE;
+    address_stride_b <= `MAT_MUL_SIZE;
+    address_stride_c <= `MAT_MUL_SIZE;
   end
 
   else begin
@@ -438,9 +428,8 @@ assign pe_reset = ~pe_resetn;
 endmodule
   """)
 
-def write_systolic_matmul(file, basic_block_size, final_block_size):
+def write_systolic_matmul(file, basic_block_size, final_block_size, precision):
   num_of_bram = int(final_block_size/basic_block_size)
-  num_of_IO   = ceiling_div(num_of_bram*num_of_bram, 4)
   #systolic impplementation
   file.write('\n/////////////////////////////////////////////////\n'
   	     '// The {0}x{0} matmul definition\n'
@@ -467,15 +456,15 @@ module matmul_{0}x{0}_systolic{1}(
 
   for i in range(num_of_bram):
     file.write("""
-  input [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_{0}_0,
+  input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_{0}_0,
   output [`AWIDTH-1:0] a_addr_{0}_0,
-  input [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_{0},
+  input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_{0},
   output [`AWIDTH-1:0] b_addr_0_{0},
   """.format(i))
   
   for i in range(num_of_bram):
     file.write("""
-  output [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_{0}_{1},
+  output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_{0}_{1},
   output [`AWIDTH-1:0] c_addr_{0}_{1},
   output c_data_{0}_{1}_available,
     """.format(i,num_of_bram-1))
@@ -505,15 +494,14 @@ module matmul_{0}x{0}_systolic{1}(
   #    else:
   #      file.write('  done_mat_mul_{0}_{1} || '.format(i, j))
   
-  #instaniate 4x4 matmul
   for i in range(num_of_bram):
     for j in range(num_of_bram):
       file.write('  /////////////////////////////////////////////////\n'
   		 '  // Matmul {0}_{1}\n'
   		 '  /////////////////////////////////////////////////\n\n'.format(i, j))
       #declare wire
-      file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_{a}_{b}_to_{a}_{c};\n'
-  		 '  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_{a}_{b}_to_{d}_{b};\n'.format(a=i,b=j,c=j+1,d=i+1))
+      file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_{a}_{b}_to_{a}_{c};\n'
+  		 '  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_{a}_{b}_to_{d}_{b};\n'.format(a=i,b=j,c=j+1,d=i+1))
   
       if(j != 0):
         file.write('  wire [`AWIDTH-1:0] a_addr_{0}_{1}_NC;\n'.format(i, j))
@@ -521,18 +509,18 @@ module matmul_{0}x{0}_systolic{1}(
         file.write('  wire [`AWIDTH-1:0] b_addr_{0}_{1}_NC;\n'.format(i, j))
   
       if(j != 0):
-        file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_{0}_{1}_NC;\n'.format(i,j))
+        file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_{0}_{1}_NC;\n'.format(i,j))
       if(i != 0):
-        file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_{0}_{1}_NC;\n'.format(i,j))
+        file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_{0}_{1}_NC;\n'.format(i,j))
   
       if(j == 0):
-        file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_{0}_{1}_NC;\n'.format(i,j))
-        file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_{0}_{1}_NC;\n'.format(i,j))
+        file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_{0}_{1}_NC;\n'.format(i,j))
+        file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_{0}_{1}_NC;\n'.format(i,j))
       if(i == 0):
-        file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_{0}_{1}_NC;\n'.format(i,j))
+        file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_{0}_{1}_NC;\n'.format(i,j))
   
       if(j != num_of_bram - 1):
-        file.write('  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_{a}_{b}_to_{c}_{d};\n'.format(a = i, b = j, c = i, d = j+1))
+        file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_{a}_{b}_to_{c}_{d};\n'.format(a = i, b = j, c = i, d = j+1))
         file.write('  wire [`AWIDTH-1:0] c_addr_{a}_{b}_NC;\n'.format(a = i, b = j))
 
       if(j != num_of_bram - 1):
@@ -615,8 +603,6 @@ module matmul_{0}x{0}_systolic{1}(
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),""")
 
-  		#Sep 1
-  		#file.write(	'  .c_addr(c_addr_{0}_{1}),\n'
       file.write(	'\n  .final_mat_mul_size(8\'d{2}),\n'
   					'  .a_loc(8\'d{0}),\n'
   					'  .b_loc(8\'d{1})\n'
@@ -643,12 +629,12 @@ module ram (
 
 input [`AWIDTH-1:0] addr0;
 input [`AWIDTH-1:0] addr1;
-input [`DESIGN_SIZE*`DWIDTH-1:0] d0;
-input [`DESIGN_SIZE*`DWIDTH-1:0] d1;
-input [`DESIGN_SIZE-1:0] we0;
-input [`DESIGN_SIZE-1:0] we1;
-output reg [`DESIGN_SIZE*`DWIDTH-1:0] q0;
-output reg [`DESIGN_SIZE*`DWIDTH-1:0] q1;
+input [`MAT_MUL_SIZE*`DWIDTH-1:0] d0;
+input [`MAT_MUL_SIZE*`DWIDTH-1:0] d1;
+input [`MAT_MUL_SIZE-1:0] we0;
+input [`MAT_MUL_SIZE-1:0] we1;
+output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
+output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
 input clk;
 
 `ifdef VCS
@@ -657,20 +643,20 @@ integer i;
 
 always @(posedge clk)  
 begin 
-    for (i = 0; i < `DESIGN_SIZE; i=i+1) begin
+    for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
         if (we0[i]) ram[addr0+i] <= d0[i*`DWIDTH +: `DWIDTH]; 
     end    
-    for (i = 0; i < `DESIGN_SIZE; i=i+1) begin
+    for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
         q0[i*`DWIDTH +: `DWIDTH] <= ram[addr0+i];
     end    
 end
 
 always @(posedge clk)  
 begin 
-    for (i = 0; i < `DESIGN_SIZE; i=i+1) begin
+    for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
         if (we1[i]) ram[addr0+i] <= d1[i*`DWIDTH +: `DWIDTH]; 
     end    
-    for (i = 0; i < `DESIGN_SIZE; i=i+1) begin
+    for (i = 0; i < `MAT_MUL_SIZE; i=i+1) begin
         q1[i*`DWIDTH +: `DWIDTH] <= ram[addr1+i];
     end    
 end
@@ -722,6 +708,11 @@ def main():
                       action='store',
                       default='out.v',
                       help='name of the output file')
+  parser.add_argument("-p",
+                      "--precision",
+                      action='store',
+                      default='int8',
+                      help='precision int8 or fp16')
   parser.add_argument("-nr",
                       "--no_ram",
                       action='store_true',
@@ -732,6 +723,11 @@ def main():
   final_block_size = args.final_size
   output_filename = args.outfile
   with_ram = not(args.no_ram)
+  precision = args.precision
+  if precision == "int8":
+    data_width = 8
+  else:
+    data_width = 16
   
   try:
     file = open(output_filename, 'w+')
@@ -749,19 +745,28 @@ def main():
 `define MAT_MUL_SIZE {}
 `define MASK_WIDTH {}
 `define LOG2_MAT_MUL_SIZE {}
-`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
 `define NUM_CYCLES_IN_MAC 3
 `define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
-`define ADDR_STRIDE_WIDTH 8
+`define ADDR_STRIDE_WIDTH 16
+`define REG_STDN_TPU_ADDR 32'h4
+`define REG_MATRIX_A_ADDR 32'he
+`define REG_MATRIX_B_ADDR 32'h12
+`define REG_MATRIX_C_ADDR 32'h16
+`define REG_VALID_MASK_A_ROWS_ADDR 32'h20
+`define REG_VALID_MASK_A_COLS_B_ROWS_ADDR 32'h20
+`define REG_VALID_MASK_B_COLS_ADDR 32'h20
+`define REG_MATRIX_A_STRIDE_ADDR 32'h28
+`define REG_MATRIX_B_STRIDE_ADDR 32'h32
+`define REG_MATRIX_C_STRIDE_ADDR 32'h3
   """.format(data_width, address_width, mem_size, final_block_size, basic_block_size, basic_block_size, str(int(math.log2(basic_block_size)))))
   
   #with bram module
   if(with_ram == True):
     write_with_ram(file, basic_block_size, final_block_size)
   
-  write_systolic_matmul(file, basic_block_size, final_block_size)
+  write_systolic_matmul(file, basic_block_size, final_block_size, precision)
 
   if(with_ram == True):
     write_ram_module(file)

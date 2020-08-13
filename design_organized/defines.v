@@ -46,7 +46,6 @@
 `define LOG2_DESIGN_SIZE 5
 `endif
 
-`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
 `define NUM_CYCLES_IN_MAC 3
 `define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32

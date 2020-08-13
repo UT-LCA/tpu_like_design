@@ -1,8 +1,8 @@
 
 `timescale 1ns / 1ps
-
+/*
 `define DWIDTH 8
-`define AWIDTH 11
+`define AWIDTH 16
 `define MEM_SIZE 2048
 
 `define MAT_MUL_SIZE 8
@@ -14,9 +14,9 @@
 `define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
-`define ADDR_STRIDE_WIDTH 8
+`define ADDR_STRIDE_WIDTH 16
 `define MAX_BITS_POOL 3
-
+*/
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -1604,9 +1604,10 @@ input reset;
 input clk;
 output [`DWIDTH-1:0] out;
 
-reg [`DWIDTH-1:0] out;
+
+reg [2*`DWIDTH-1:0] out_temp;
 wire [`DWIDTH-1:0] mul_out;
-wire [`DWIDTH-1:0] add_out;
+wire [2*`DWIDTH-1:0] add_out;
 
 reg [`DWIDTH-1:0] a_flopped;
 reg [`DWIDTH-1:0] b_flopped;
@@ -1635,33 +1636,33 @@ always @(posedge clk) begin
   end
 end
 
-//down cast the result
-assign mul_out = 
-    (mul_out_temp_reg[2*`DWIDTH-1] == 0) ?  //positive number
-        (
-           (|(mul_out_temp_reg[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 1, that means overlfow
-             {mul_out_temp_reg[2*`DWIDTH-1] , {(`DWIDTH-1){1'b1}}} : //sign bit and then all 1s
-             {mul_out_temp_reg[2*`DWIDTH-1] , mul_out_temp_reg[`DWIDTH-2:0]} 
-        )
-        : //negative number
-        (
-           (|(mul_out_temp_reg[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 0, that means overlfow
-             {mul_out_temp_reg[2*`DWIDTH-1] , mul_out_temp_reg[`DWIDTH-2:0]} :
-             {mul_out_temp_reg[2*`DWIDTH-1] , {(`DWIDTH-1){1'b0}}} //sign bit and then all 0s
-        );
-
-
 //we just truncate the higher bits of the product
 //assign add_out = mul_out + out;
-qadd add_u1(.a(out), .b(mul_out), .c(add_out));
+qadd add_u1(.a(out), .b(mul_out_temp_reg), .c(add_out));
 
 always @(posedge clk) begin
   if (reset) begin
-    out <= 0;
+    out_temp <= 0;
   end else begin
-    out <= add_out;
+    out_temp <= add_out;
   end
 end
+
+//down cast the result
+assign out = 
+    (out_temp[2*`DWIDTH-1] == 0) ?  //positive number
+        (
+           (|(out_temp[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 1, that means overlfow
+             {out_temp[2*`DWIDTH-1] , {(`DWIDTH-1){1'b1}}} : //sign bit and then all 1s
+             {out_temp[2*`DWIDTH-1] , out_temp[`DWIDTH-2:0]} 
+        )
+        : //negative number
+        (
+           (|(out_temp[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 0, that means overlfow
+             {out_temp[2*`DWIDTH-1] , out_temp[`DWIDTH-2:0]} :
+             {out_temp[2*`DWIDTH-1] , {(`DWIDTH-1){1'b0}}} //sign bit and then all 0s
+        );
+
 
 endmodule
 
@@ -1676,9 +1677,9 @@ assign o_result = i_multiplicand * i_multiplier;
 endmodule
 
 module qadd(a,b,c);
-input [`DWIDTH-1:0] a;
-input [`DWIDTH-1:0] b;
-output [`DWIDTH-1:0] c;
+input [2*`DWIDTH-1:0] a;
+input [2*`DWIDTH-1:0] b;
+output [2*`DWIDTH-1:0] c;
 
 assign c = a + b;
 //DW01_add #(`DWIDTH) u_add(.A(a), .B(b), .CI(1'b0), .SUM(c), .CO());

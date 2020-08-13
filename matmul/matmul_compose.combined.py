@@ -8,15 +8,6 @@ import argparse
 address_width = 16
 mem_size = 2048
 
-def ceiling_div(a, b):
-  if(a == 0):
-    return 0
-  
-  if(a % b == 0):
-    return a//b
-  
-  return a//b + 1
-
 def write_with_ram(file, basic_block_size, final_block_size):
   #write the top module
   num_of_bram = int(int(final_block_size)/int(basic_block_size))
@@ -37,9 +28,9 @@ def write_with_ram(file, basic_block_size, final_block_size):
   file.write('  output reg                        PREADY,\n')
   file.write('  input  [7:0] bram_select,\n')
   file.write('  input  [`AWIDTH-1:0] bram_addr_ext,\n')
-  file.write('  output reg [`DESIGN_SIZE*`DWIDTH-1:0] bram_rdata_ext,\n')
-  file.write('  input  [`DESIGN_SIZE*`DWIDTH-1:0] bram_wdata_ext,\n')
-  file.write('  input  [`DESIGN_SIZE-1:0] bram_we_ext\n')
+  file.write('  output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_ext,\n')
+  file.write('  input  [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_ext,\n')
+  file.write('  input  [`MAT_MUL_SIZE-1:0] bram_we_ext\n')
   file.write(');\n\n')
 
   file.write("""
@@ -289,9 +280,9 @@ always @(posedge PCLK) begin
     validity_mask_a_rows <= {`MASK_WIDTH{1'b1}};
     validity_mask_a_cols_b_rows <= {`MASK_WIDTH{1'b1}};
     validity_mask_b_cols <= {`MASK_WIDTH{1'b1}};
-    address_stride_a <= `DESIGN_SIZE;
-    address_stride_b <= `DESIGN_SIZE;
-    address_stride_c <= `DESIGN_SIZE;
+    address_stride_a <= `MAT_MUL_SIZE;
+    address_stride_b <= `MAT_MUL_SIZE;
+    address_stride_c <= `MAT_MUL_SIZE;
   end
 
   else begin
@@ -439,7 +430,6 @@ endmodule
 
 def write_systolic_matmul(file, basic_block_size, final_block_size, precision):
   num_of_bram = int(final_block_size/basic_block_size)
-  num_of_IO   = ceiling_div(num_of_bram*num_of_bram, 4)
   #systolic impplementation
   file.write('\n/////////////////////////////////////////////////\n'
   	     '// The {0}x{0} matmul definition\n'
