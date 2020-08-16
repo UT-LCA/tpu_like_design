@@ -291,6 +291,6 @@
 //applied to both input matrices - A and B.
 //---------------------------------------
 `define REG_VALID_MASK_A_ROWS_ADDR 32'h20
-`define REG_VALID_MASK_A_COLS_B_ROWS_ADDR 32'h20
-`define REG_VALID_MASK_B_COLS_ADDR 32'h20
+`define REG_VALID_MASK_A_COLS_B_ROWS_ADDR 32'h54
+`define REG_VALID_MASK_B_COLS_ADDR 32'h58
 //Bit `MASK_WIDTH-1:0 validity_mask

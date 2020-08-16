@@ -51,7 +51,7 @@ f.write("""
 
 f.write("""
 `define DWIDTH 8
-`define AWIDTH 11
+`define AWIDTH 16
 `define MEM_SIZE 2048
 
 `define MAT_MUL_SIZE {}
@@ -63,7 +63,7 @@ f.write("""
 `define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
-`define ADDR_STRIDE_WIDTH 8
+`define ADDR_STRIDE_WIDTH 16
 `define MAX_BITS_POOL 3
 """.format(systolic_size, systolic_size,int(math.log2(int(systolic_size)))))
 

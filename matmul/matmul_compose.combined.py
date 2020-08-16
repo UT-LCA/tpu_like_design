@@ -45,7 +45,7 @@ def write_with_ram(file, basic_block_size, final_block_size):
   for i in range(num_of_bram):
     file.write("""
   reg [`AWIDTH-1:0] bram_addr_a_{}_0_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_{}_0_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_{}_0_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_{}_0_ext;
   reg [`MASK_WIDTH-1:0] bram_we_a_{}_0_ext;
     """.format(i,i,i,i))
@@ -53,7 +53,7 @@ def write_with_ram(file, basic_block_size, final_block_size):
   for i in range(num_of_bram):
     file.write("""
   reg [`AWIDTH-1:0] bram_addr_b_0_{}_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_{}_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_{}_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_0_{}_ext;
   reg [`MASK_WIDTH-1:0] bram_we_b_0_{}_ext;
     """.format(i,i,i,i))
@@ -61,7 +61,7 @@ def write_with_ram(file, basic_block_size, final_block_size):
   for i in range(num_of_bram):
     file.write("""
   reg [`AWIDTH-1:0] bram_addr_c_{0}_{1}_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_{0}_{1}_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_{0}_{1}_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_{0}_{1}_ext;
   reg [`MASK_WIDTH-1:0] bram_we_c_{0}_{1}_ext;
     """.format(i,num_of_bram-1))
@@ -669,11 +669,13 @@ input [`MAT_MUL_SIZE*`DWIDTH-1:0] d0;
 input [`MAT_MUL_SIZE*`DWIDTH-1:0] d1;
 input [`MAT_MUL_SIZE-1:0] we0;
 input [`MAT_MUL_SIZE-1:0] we1;
-output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
-output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
+output [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
+output [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
 input clk;
 
 `ifdef VCS
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
 reg [7:0] ram[((1<<`AWIDTH)-1):0];
 integer i;
 
@@ -791,8 +793,8 @@ def main():
 `define REG_MATRIX_B_ADDR 32'h12
 `define REG_MATRIX_C_ADDR 32'h16
 `define REG_VALID_MASK_A_ROWS_ADDR 32'h20
-`define REG_VALID_MASK_A_COLS_B_ROWS_ADDR 32'h20
-`define REG_VALID_MASK_B_COLS_ADDR 32'h20
+`define REG_VALID_MASK_A_COLS_B_ROWS_ADDR 32'h54
+`define REG_VALID_MASK_B_COLS_ADDR 32'h58
 `define REG_MATRIX_A_STRIDE_ADDR 32'h28
 `define REG_MATRIX_B_STRIDE_ADDR 32'h32
 `define REG_MATRIX_C_STRIDE_ADDR 32'h3

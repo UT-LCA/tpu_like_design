@@ -17,8 +17,8 @@
 `define REG_MATRIX_B_ADDR 32'h12
 `define REG_MATRIX_C_ADDR 32'h16
 `define REG_VALID_MASK_A_ROWS_ADDR 32'h20
-`define REG_VALID_MASK_A_COLS_B_ROWS_ADDR 32'h20
-`define REG_VALID_MASK_B_COLS_ADDR 32'h20
+`define REG_VALID_MASK_A_COLS_B_ROWS_ADDR 32'h54
+`define REG_VALID_MASK_B_COLS_ADDR 32'h58
 `define REG_MATRIX_A_STRIDE_ADDR 32'h28
 `define REG_MATRIX_B_STRIDE_ADDR 32'h32
 `define REG_MATRIX_C_STRIDE_ADDR 32'h3
@@ -51,32 +51,32 @@
   reg [`REG_DATAWIDTH-1:0] reg_dummy;
   
   reg [`AWIDTH-1:0] bram_addr_a_0_0_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_0_0_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_0_0_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_0_0_ext;
   reg [`MASK_WIDTH-1:0] bram_we_a_0_0_ext;
     
   reg [`AWIDTH-1:0] bram_addr_a_1_0_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_1_0_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_1_0_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_1_0_ext;
   reg [`MASK_WIDTH-1:0] bram_we_a_1_0_ext;
     
   reg [`AWIDTH-1:0] bram_addr_b_0_0_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_0_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_0_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_0_0_ext;
   reg [`MASK_WIDTH-1:0] bram_we_b_0_0_ext;
     
   reg [`AWIDTH-1:0] bram_addr_b_0_1_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_1_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_1_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_0_1_ext;
   reg [`MASK_WIDTH-1:0] bram_we_b_0_1_ext;
     
   reg [`AWIDTH-1:0] bram_addr_c_0_1_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_0_1_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_0_1_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_0_1_ext;
   reg [`MASK_WIDTH-1:0] bram_we_c_0_1_ext;
     
   reg [`AWIDTH-1:0] bram_addr_c_1_1_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_1_1_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_1_1_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_1_1_ext;
   reg [`MASK_WIDTH-1:0] bram_we_c_1_1_ext;
     
@@ -733,11 +733,13 @@ input [`MAT_MUL_SIZE*`DWIDTH-1:0] d0;
 input [`MAT_MUL_SIZE*`DWIDTH-1:0] d1;
 input [`MAT_MUL_SIZE-1:0] we0;
 input [`MAT_MUL_SIZE-1:0] we1;
-output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
-output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
+output [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
+output [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
 input clk;
 
 `ifdef VCS
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
 reg [7:0] ram[((1<<`AWIDTH)-1):0];
 integer i;
 
