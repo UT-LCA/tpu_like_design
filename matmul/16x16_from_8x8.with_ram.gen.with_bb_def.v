@@ -1291,7 +1291,6 @@ systolic_pe_matrix u_systolic_pe_matrix(
 .clk(clk),
 .reset(reset),
 .pe_reset(pe_reset),
-.start_mat_mul(start_mat_mul),
 .a0(a0),
 .a1(a1),
 .a2(a2),
@@ -2079,7 +2078,6 @@ module systolic_pe_matrix(
 clk,
 reset,
 pe_reset,
-start_mat_mul,
 a0,
 a1,
 a2,
@@ -2168,7 +2166,6 @@ b_data_out
 input clk;
 input reset;
 input pe_reset;
-input start_mat_mul;
 input [`DWIDTH-1:0] a0;
 input [`DWIDTH-1:0] a1;
 input [`DWIDTH-1:0] a2;
