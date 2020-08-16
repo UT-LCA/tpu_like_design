@@ -514,7 +514,7 @@ if accum_code:
   
   f.write("\n\n")
 
-
+f.write("wire row_latch_en;")
 if accum_code:
   f.write("""
 //////////////////////////////////////////////////////////////////////////
@@ -1410,7 +1410,6 @@ module systolic_pe_matrix(
 clk,
 reset,
 pe_reset,
-start_mat_mul,
 """)
 for i in range(int(systolic_size)):
   f.write("a" + str(i) + ",\n")
@@ -1427,7 +1426,6 @@ b_data_out
 input clk;
 input reset;
 input pe_reset;
-input start_mat_mul;
 """)
 for i in range(int(systolic_size)):
   f.write("input [`DWIDTH-1:0] a" + str(i) + ";\n")

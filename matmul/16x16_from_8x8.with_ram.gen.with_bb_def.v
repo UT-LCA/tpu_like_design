@@ -126,35 +126,35 @@
       bram_rdata_ext = bram_rdata_a_0_0_ext;
       end
     
-      0: begin
+      1: begin
       bram_addr_a_1_0_ext = bram_addr_ext;
       bram_wdata_a_1_0_ext = bram_wdata_ext;
       bram_we_a_1_0_ext = bram_we_ext;
       bram_rdata_ext = bram_rdata_a_1_0_ext;
       end
     
-      1: begin
+      2: begin
       bram_addr_b_0_0_ext = bram_addr_ext;
       bram_wdata_b_0_0_ext = bram_wdata_ext;
       bram_we_b_0_0_ext = bram_we_ext;
       bram_rdata_ext = bram_rdata_b_0_0_ext;
       end
     
-      1: begin
+      3: begin
       bram_addr_b_0_1_ext = bram_addr_ext;
       bram_wdata_b_0_1_ext = bram_wdata_ext;
       bram_we_b_0_1_ext = bram_we_ext;
       bram_rdata_ext = bram_rdata_b_0_1_ext;
       end
     
-      2: begin
+      4: begin
       bram_addr_c_0_1_ext = bram_addr_ext;
       bram_wdata_c_0_1_ext = bram_wdata_ext;
       bram_we_c_0_1_ext = bram_we_ext;
       bram_rdata_ext = bram_rdata_c_0_1_ext;
       end
     
-      2: begin
+      5: begin
       bram_addr_c_1_1_ext = bram_addr_ext;
       bram_wdata_c_1_1_ext = bram_wdata_ext;
       bram_we_c_1_1_ext = bram_we_ext;
@@ -1194,6 +1194,8 @@ wire [`DWIDTH-1:0] matrixC7_5;
 wire [`DWIDTH-1:0] matrixC7_6;
 wire [`DWIDTH-1:0] matrixC7_7;
 
+
+wire row_latch_en;
 
 //////////////////////////////////////////////////////////////////////////
 // Instantiation of the output logic

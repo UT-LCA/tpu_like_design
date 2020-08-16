@@ -108,7 +108,7 @@ def write_with_ram(file, basic_block_size, final_block_size):
       bram_rdata_ext = bram_rdata_a_{1}_0_ext;
       end
     """.format(tot,i))
-  tot += 1
+    tot += 1
 
   for i in range(num_of_bram): 
     file.write("""
@@ -119,7 +119,7 @@ def write_with_ram(file, basic_block_size, final_block_size):
       bram_rdata_ext = bram_rdata_b_0_{1}_ext;
       end
     """.format(tot,i))
-  tot += 1
+    tot += 1
   
   for i in range(num_of_bram): 
     file.write("""
@@ -130,6 +130,7 @@ def write_with_ram(file, basic_block_size, final_block_size):
       bram_rdata_ext = bram_rdata_c_{1}_{2}_ext;
       end
     """.format(tot,i,num_of_bram-1))
+    tot += 1
 
   file.write("""
       default: begin
