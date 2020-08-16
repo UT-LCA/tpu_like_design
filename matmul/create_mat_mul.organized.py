@@ -601,7 +601,6 @@ systolic_pe_matrix u_systolic_pe_matrix(
 .clk(clk),
 .reset(reset),
 .pe_reset(pe_reset),
-.start_mat_mul(start_mat_mul),
 """)
 
 for i in range(int(systolic_size)):
