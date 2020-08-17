@@ -49,7 +49,7 @@ initial begin
 end
 
 reg [`DWIDTH-1:0] a[16][16] = 
-'{{8'd1,8'd2,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd2,8'd1},  // -> goes to matrix_A_0_0.ram
+'{{8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  // -> goes to matrix_A_0_0.ram
   {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  // -> goes to matrix_A_0_0.ram
   {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  // -> goes to matrix_A_0_0.ram
   {8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1,8'd1},  // -> goes to matrix_A_0_0.ram

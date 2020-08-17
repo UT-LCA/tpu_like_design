@@ -511,14 +511,19 @@ module matmul_{0}x{0}_systolic{1}(
   
       if(j != 0):
         file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_{0}_{1}_NC;\n'.format(i,j))
+        file.write('  assign a_data_{0}_{1}_NC = 0;\n'.format(i,j))
       if(i != 0):
         file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_{0}_{1}_NC;\n'.format(i,j))
+        file.write('  assign b_data_{0}_{1}_NC = 0;\n'.format(i,j))
   
       if(j == 0):
         file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_{0}_{1}_NC;\n'.format(i,j))
+        file.write('  assign a_data_in_{0}_{1}_NC = 0;\n'.format(i,j))
         file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_{0}_{1}_NC;\n'.format(i,j))
+        file.write('  assign c_data_in_{0}_{1}_NC = 0;\n'.format(i,j))
       if(i == 0):
         file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_{0}_{1}_NC;\n'.format(i,j))
+        file.write('  assign b_data_in_{0}_{1}_NC = 0;\n'.format(i,j))
   
       if(j != num_of_bram - 1):
         file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_{a}_{b}_to_{c}_{d};\n'.format(a = i, b = j, c = i, d = j+1))

@@ -1082,8 +1082,10 @@ assign pe_data_out =  {
                       out_c_pe03[31:0], out_c_pe02[31:0], out_c_pe01[31:0], out_c_pe00[31:0]
                       };
                                               
-assign a_data_out = {out_a_pe33, out_a_pe23, out_a_pe13, out_a_pe03};
-assign b_data_out = {out_b_pe33, out_b_pe23, out_b_pe13, out_b_pe03};
+assign a_data_out = (slice_dtype == `DTYPE_FP16) ? {out_a_pe33, out_a_pe23, out_a_pe13, out_a_pe03} : 
+                    {out_a_pe33[7:0], out_a_pe31[7:0], out_a_pe23[7:0], out_a_pe21[7:0], out_a_pe13[7:0], out_a_pe11[7:0], out_a_pe03[7:0], out_a_pe01[7:0]};
+assign b_data_out = (slice_dtype == `DTYPE_FP16) ? {out_b_pe30[15:0], out_b_pe31[15:0], out_b_pe32[15:0], out_b_pe33[15:0]} :
+                    {out_b_pe33[7:0], out_b_pe33[15:8], out_b_pe33[23:16], out_b_pe33[31:24], out_b_pe32[7:0], out_b_pe32[15:8], out_b_pe32[23:16], out_b_pe32[31:24]};
 
 ///////////////////////////////////////////
 // First row of PEs 
