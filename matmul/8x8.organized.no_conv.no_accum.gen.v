@@ -1638,7 +1638,7 @@ end
 
 //we just truncate the higher bits of the product
 //assign add_out = mul_out + out;
-qadd add_u1(.a(out), .b(mul_out_temp_reg), .c(add_out));
+qadd add_u1(.a(out_temp), .b(mul_out_temp_reg), .c(add_out));
 
 always @(posedge clk) begin
   if (reset) begin
