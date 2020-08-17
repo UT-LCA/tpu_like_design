@@ -17,8 +17,8 @@
 `define REG_MATRIX_B_ADDR 32'h12
 `define REG_MATRIX_C_ADDR 32'h16
 `define REG_VALID_MASK_A_ROWS_ADDR 32'h20
-`define REG_VALID_MASK_A_COLS_B_ROWS_ADDR 32'h20
-`define REG_VALID_MASK_B_COLS_ADDR 32'h20
+`define REG_VALID_MASK_A_COLS_B_ROWS_ADDR 32'h54
+`define REG_VALID_MASK_B_COLS_ADDR 32'h58
 `define REG_MATRIX_A_STRIDE_ADDR 32'h28
 `define REG_MATRIX_B_STRIDE_ADDR 32'h32
 `define REG_MATRIX_C_STRIDE_ADDR 32'h3
@@ -51,32 +51,32 @@
   reg [`REG_DATAWIDTH-1:0] reg_dummy;
   
   reg [`AWIDTH-1:0] bram_addr_a_0_0_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_0_0_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_0_0_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_0_0_ext;
   reg [`MASK_WIDTH-1:0] bram_we_a_0_0_ext;
     
   reg [`AWIDTH-1:0] bram_addr_a_1_0_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_1_0_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_a_1_0_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_a_1_0_ext;
   reg [`MASK_WIDTH-1:0] bram_we_a_1_0_ext;
     
   reg [`AWIDTH-1:0] bram_addr_b_0_0_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_0_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_0_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_0_0_ext;
   reg [`MASK_WIDTH-1:0] bram_we_b_0_0_ext;
     
   reg [`AWIDTH-1:0] bram_addr_b_0_1_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_1_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0_1_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_0_1_ext;
   reg [`MASK_WIDTH-1:0] bram_we_b_0_1_ext;
     
   reg [`AWIDTH-1:0] bram_addr_c_0_1_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_0_1_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_0_1_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_0_1_ext;
   reg [`MASK_WIDTH-1:0] bram_we_c_0_1_ext;
     
   reg [`AWIDTH-1:0] bram_addr_c_1_1_ext;
-  reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_1_1_ext;
+  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_c_1_1_ext;
   reg [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_c_1_1_ext;
   reg [`MASK_WIDTH-1:0] bram_we_c_1_1_ext;
     
@@ -126,35 +126,35 @@
       bram_rdata_ext = bram_rdata_a_0_0_ext;
       end
     
-      0: begin
+      1: begin
       bram_addr_a_1_0_ext = bram_addr_ext;
       bram_wdata_a_1_0_ext = bram_wdata_ext;
       bram_we_a_1_0_ext = bram_we_ext;
       bram_rdata_ext = bram_rdata_a_1_0_ext;
       end
     
-      1: begin
+      2: begin
       bram_addr_b_0_0_ext = bram_addr_ext;
       bram_wdata_b_0_0_ext = bram_wdata_ext;
       bram_we_b_0_0_ext = bram_we_ext;
       bram_rdata_ext = bram_rdata_b_0_0_ext;
       end
     
-      1: begin
+      3: begin
       bram_addr_b_0_1_ext = bram_addr_ext;
       bram_wdata_b_0_1_ext = bram_wdata_ext;
       bram_we_b_0_1_ext = bram_we_ext;
       bram_rdata_ext = bram_rdata_b_0_1_ext;
       end
     
-      2: begin
+      4: begin
       bram_addr_c_0_1_ext = bram_addr_ext;
       bram_wdata_c_0_1_ext = bram_wdata_ext;
       bram_we_c_0_1_ext = bram_we_ext;
       bram_rdata_ext = bram_rdata_c_0_1_ext;
       end
     
-      2: begin
+      5: begin
       bram_addr_c_1_1_ext = bram_addr_ext;
       bram_wdata_c_1_1_ext = bram_wdata_ext;
       bram_we_c_1_1_ext = bram_we_ext;
@@ -537,8 +537,11 @@ module matmul_16x16_systolic(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_0_to_0_1;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_0_to_1_0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_0_0_NC;
+  assign a_data_in_0_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_0_0_NC;
+  assign c_data_in_0_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_0_NC;
+  assign b_data_in_0_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_0_to_0_1;
   wire [`AWIDTH-1:0] c_addr_0_0_NC;
   wire c_data_0_0_available_NC;
@@ -584,7 +587,9 @@ matmul_8x8_systolic u_matmul_8x8_systolic_0_0(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_1_to_1_1;
   wire [`AWIDTH-1:0] a_addr_0_1_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_1_NC;
+  assign a_data_0_1_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_1_NC;
+  assign b_data_in_0_1_NC = 0;
 
 matmul_8x8_systolic u_matmul_8x8_systolic_0_1(
   .clk(clk),
@@ -627,8 +632,11 @@ matmul_8x8_systolic u_matmul_8x8_systolic_0_1(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_0_to_2_0;
   wire [`AWIDTH-1:0] b_addr_1_0_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_0_NC;
+  assign b_data_1_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_1_0_NC;
+  assign a_data_in_1_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_1_0_NC;
+  assign c_data_in_1_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_0_to_1_1;
   wire [`AWIDTH-1:0] c_addr_1_0_NC;
   wire c_data_1_0_available_NC;
@@ -675,7 +683,9 @@ matmul_8x8_systolic u_matmul_8x8_systolic_1_0(
   wire [`AWIDTH-1:0] a_addr_1_1_NC;
   wire [`AWIDTH-1:0] b_addr_1_1_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_1_NC;
+  assign a_data_1_1_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_1_NC;
+  assign b_data_1_1_NC = 0;
 
 matmul_8x8_systolic u_matmul_8x8_systolic_1_1(
   .clk(clk),
@@ -733,11 +743,13 @@ input [`MAT_MUL_SIZE*`DWIDTH-1:0] d0;
 input [`MAT_MUL_SIZE*`DWIDTH-1:0] d1;
 input [`MAT_MUL_SIZE-1:0] we0;
 input [`MAT_MUL_SIZE-1:0] we1;
-output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
-output reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
+output [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
+output [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
 input clk;
 
 `ifdef VCS
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
+reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
 reg [7:0] ram[((1<<`AWIDTH)-1):0];
 integer i;
 
@@ -788,3 +800,4 @@ dual_port_ram u_dual_port_ram(
 endmodule
 
   
+
