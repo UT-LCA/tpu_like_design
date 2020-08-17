@@ -540,8 +540,11 @@ module matmul_16x16_systolic(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_0_to_0_1;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_0_to_1_0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_0_0_NC;
+  assign a_data_in_0_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_0_0_NC;
+  assign c_data_in_0_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_0_NC;
+  assign b_data_in_0_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_0_to_0_1;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_0_to_0_1_NC;
   wire [`AWIDTH-1:0] c_addr_0_0_NC;
@@ -593,7 +596,9 @@ matmul_slice u_matmul_8x8_systolic_0_0(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_1_to_1_1;
   wire [`AWIDTH-1:0] a_addr_0_1_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_1_NC;
+  assign a_data_0_1_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_1_NC;
+  assign b_data_in_0_1_NC = 0;
 
 matmul_slice u_matmul_8x8_systolic_0_1(
   .clk(clk),
@@ -641,8 +646,11 @@ matmul_slice u_matmul_8x8_systolic_0_1(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_0_to_2_0;
   wire [`AWIDTH-1:0] b_addr_1_0_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_0_NC;
+  assign b_data_1_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_1_0_NC;
+  assign a_data_in_1_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_1_0_NC;
+  assign c_data_in_1_0_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_0_to_1_1;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_0_to_1_1_NC;
   wire [`AWIDTH-1:0] c_addr_1_0_NC;
@@ -695,7 +703,9 @@ matmul_slice u_matmul_8x8_systolic_1_0(
   wire [`AWIDTH-1:0] a_addr_1_1_NC;
   wire [`AWIDTH-1:0] b_addr_1_1_NC;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_1_NC;
+  assign a_data_1_1_NC = 0;
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_1_NC;
+  assign b_data_1_1_NC = 0;
 
 matmul_slice u_matmul_8x8_systolic_1_1(
   .clk(clk),
