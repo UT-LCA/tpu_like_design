@@ -1,8 +1,8 @@
 
 `timescale 1ns/1ns
 `define DWIDTH 8
-`define AWIDTH 16
-`define MEM_SIZE 2048
+`define AWIDTH 10
+`define MEM_SIZE 1024
 `define DESIGN_SIZE 16
 `define MAT_MUL_SIZE 8
 `define MASK_WIDTH 8
@@ -28,7 +28,6 @@
   input clk_mem,
   input resetn,
   input pe_resetn,
-  input                             PCLK,
   input                             PRESETn,
   input        [`REG_ADDRWIDTH-1:0] PADDR,
   input                             PWRITE,
@@ -44,7 +43,8 @@
   input  [`MAT_MUL_SIZE-1:0] bram_we_ext
 );
 
-
+  wire PCLK;
+  assign PCLK = clk;
   reg start_reg;
   reg clear_done_reg;
   //Dummy register to sync all other invalid/unimplemented addresses

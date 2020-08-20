@@ -5,8 +5,8 @@ import pdb
 import math
 import argparse
 
-address_width = 16
-mem_size = 2048
+address_width = 10
+mem_size = 1024
 
 def write_with_ram(file, basic_block_size, final_block_size):
   #write the top module
@@ -17,7 +17,6 @@ def write_with_ram(file, basic_block_size, final_block_size):
   file.write('  input clk_mem,\n')
   file.write('  input resetn,\n')
   file.write('  input pe_resetn,\n')
-  file.write('  input                             PCLK,\n')
   file.write('  input                             PRESETn,\n')
   file.write('  input        [`REG_ADDRWIDTH-1:0] PADDR,\n')
   file.write('  input                             PWRITE,\n')
@@ -34,6 +33,8 @@ def write_with_ram(file, basic_block_size, final_block_size):
   file.write(');\n\n')
 
   file.write("""
+  wire PCLK;
+  assign PCLK = clk;
   reg start_reg;
   reg clear_done_reg;
   //Dummy register to sync all other invalid/unimplemented addresses

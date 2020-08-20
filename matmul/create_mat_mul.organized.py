@@ -51,8 +51,8 @@ f.write("""
 
 f.write("""
 `define DWIDTH 8
-`define AWIDTH 16
-`define MEM_SIZE 2048
+`define AWIDTH 10
+`define MEM_SIZE 1024
 
 `define MAT_MUL_SIZE {}
 `define MASK_WIDTH {}
@@ -1610,7 +1610,7 @@ end
 
 //we just truncate the higher bits of the product
 //assign add_out = mul_out + out;
-qadd add_u1(.a(out), .b(mul_out_temp_reg), .c(add_out));
+qadd add_u1(.a(out_temp), .b(mul_out_temp_reg), .c(add_out));
 
 always @(posedge clk) begin
   if (reset) begin
