@@ -21,7 +21,7 @@
 `define REG_VALID_MASK_B_COLS_ADDR 32'h58
 `define REG_MATRIX_A_STRIDE_ADDR 32'h28
 `define REG_MATRIX_B_STRIDE_ADDR 32'h32
-`define REG_MATRIX_C_STRIDE_ADDR 32'h3
+`define REG_MATRIX_C_STRIDE_ADDR 32'h36
 
   module matrix_multiplication(
   input clk,
@@ -486,7 +486,7 @@ endmodule
 /////////////////////////////////////////////////
 
 
-module matmul_16x16_systolic(
+module matmul_16x16_systolic_composed_from_8x8(
   input clk,
   input reset,
   input pe_reset,
@@ -500,21 +500,21 @@ module matmul_16x16_systolic(
   input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b,
   input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c,
   
-  input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_0,
+  input [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_0,
   output [`AWIDTH-1:0] a_addr_0_0,
-  input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_0,
+  input [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_0,
   output [`AWIDTH-1:0] b_addr_0_0,
   
-  input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_0,
+  input [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_0,
   output [`AWIDTH-1:0] a_addr_1_0,
-  input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_1,
+  input [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_1,
   output [`AWIDTH-1:0] b_addr_0_1,
   
-  output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_1,
+  output [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_1,
   output [`AWIDTH-1:0] c_addr_0_1,
   output c_data_0_1_available,
     
-  output [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_1,
+  output [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_1,
   output [`AWIDTH-1:0] c_addr_1_1,
   output c_data_1_1_available,
     
@@ -534,15 +534,12 @@ module matmul_16x16_systolic(
   // Matmul 0_0
   /////////////////////////////////////////////////
 
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_0_to_0_1;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_0_to_1_0;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_0_0_NC;
-  assign a_data_in_0_0_NC = 0;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_0_0_NC;
-  assign c_data_in_0_0_NC = 0;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_0_NC;
-  assign b_data_in_0_0_NC = 0;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_0_to_0_1;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_0_to_0_1;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_0_to_1_0;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_0_0_NC;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_0_0_NC;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_0_NC;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_0_0_to_0_1;
   wire [`AWIDTH-1:0] c_addr_0_0_NC;
   wire c_data_0_0_available_NC;
 
@@ -583,13 +580,11 @@ matmul_8x8_systolic u_matmul_8x8_systolic_0_0(
   // Matmul 0_1
   /////////////////////////////////////////////////
 
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_1_to_0_2;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_1_to_1_1;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_1_to_0_2;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_0_1_to_1_1;
   wire [`AWIDTH-1:0] a_addr_0_1_NC;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_1_NC;
-  assign a_data_0_1_NC = 0;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_1_NC;
-  assign b_data_in_0_1_NC = 0;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_0_1_NC;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_1_NC;
 
 matmul_8x8_systolic u_matmul_8x8_systolic_0_1(
   .clk(clk),
@@ -628,16 +623,13 @@ matmul_8x8_systolic u_matmul_8x8_systolic_0_1(
   // Matmul 1_0
   /////////////////////////////////////////////////
 
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_0_to_1_1;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_0_to_2_0;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_0_to_1_1;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_0_to_2_0;
   wire [`AWIDTH-1:0] b_addr_1_0_NC;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_0_NC;
-  assign b_data_1_0_NC = 0;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_1_0_NC;
-  assign a_data_in_1_0_NC = 0;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_1_0_NC;
-  assign c_data_in_1_0_NC = 0;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_0_to_1_1;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_0_NC;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in_1_0_NC;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_in_1_0_NC;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_1_0_to_1_1;
   wire [`AWIDTH-1:0] c_addr_1_0_NC;
   wire c_data_1_0_available_NC;
 
@@ -678,14 +670,12 @@ matmul_8x8_systolic u_matmul_8x8_systolic_1_0(
   // Matmul 1_1
   /////////////////////////////////////////////////
 
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_1_to_1_2;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_1_to_2_1;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_1_to_1_2;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_1_to_2_1;
   wire [`AWIDTH-1:0] a_addr_1_1_NC;
   wire [`AWIDTH-1:0] b_addr_1_1_NC;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_1_NC;
-  assign a_data_1_1_NC = 0;
-  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_1_NC;
-  assign b_data_1_1_NC = 0;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_1_1_NC;
+  wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_1_NC;
 
 matmul_8x8_systolic u_matmul_8x8_systolic_1_1(
   .clk(clk),

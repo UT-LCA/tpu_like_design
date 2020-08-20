@@ -1,6 +1,6 @@
 `define DWIDTH 8
-`define AWIDTH 11
-`define MEM_SIZE 2048
+`define AWIDTH 10
+`define MEM_SIZE 1024
 
 `ifdef MATMUL_SIZE_4
 `define MAT_MUL_SIZE 4
@@ -50,7 +50,7 @@
 `define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
-`define ADDR_STRIDE_WIDTH 8
+`define ADDR_STRIDE_WIDTH 16
 `define MAX_BITS_POOL 3
 
 /////////////////////////////////////////////////

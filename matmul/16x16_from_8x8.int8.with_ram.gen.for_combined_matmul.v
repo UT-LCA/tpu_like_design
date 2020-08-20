@@ -21,7 +21,7 @@
 `define REG_VALID_MASK_B_COLS_ADDR 32'h58
 `define REG_MATRIX_A_STRIDE_ADDR 32'h28
 `define REG_MATRIX_B_STRIDE_ADDR 32'h32
-`define REG_MATRIX_C_STRIDE_ADDR 32'h3
+`define REG_MATRIX_C_STRIDE_ADDR 32'h36
   module matrix_multiplication(
   input clk,
   input clk_mem,

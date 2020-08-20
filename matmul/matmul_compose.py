@@ -768,7 +768,7 @@ def main():
 `define REG_VALID_MASK_B_COLS_ADDR 32'h58
 `define REG_MATRIX_A_STRIDE_ADDR 32'h28
 `define REG_MATRIX_B_STRIDE_ADDR 32'h32
-`define REG_MATRIX_C_STRIDE_ADDR 32'h3
+`define REG_MATRIX_C_STRIDE_ADDR 32'h36
   """.format(data_width, address_width, mem_size, final_block_size, basic_block_size, basic_block_size, str(int(math.log2(basic_block_size)))))
   
   #with bram module
