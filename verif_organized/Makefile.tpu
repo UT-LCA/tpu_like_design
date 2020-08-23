@@ -2,7 +2,7 @@ export VCS_HOME /usr/local/packages/synopsys_2018/vcs-mx/O-2018.09-SP1
 
 all: compile run
 
-size?=16
+size?=32
 
 ifeq ($(size),8)
 	FILES=../design_organized/8x8.organized.no_conv.no_accum.gen.v
