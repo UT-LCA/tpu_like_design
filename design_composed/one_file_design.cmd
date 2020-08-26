@@ -25,7 +25,7 @@ echo "//$i \n" >> $output_file
 echo "//////////////////////////\n" >> $output_file
 cat $i >> $output_file
 echo "\n" >> $output_file
-#perl -i -pe 's/d`MAT_MUL_SIZE/d16/g;' $output_file
+perl -i -pe 's/d`DESIGN_SIZE/d16/g;' $output_file
 perl -i -pe 's/matmul_slice/matmul_fp16/g;' $output_file
 end
 
@@ -56,7 +56,7 @@ echo "//$i \n" >> $output_file
 echo "//////////////////////////\n" >> $output_file
 cat $i >> $output_file
 echo "\n" >> $output_file
-#perl -i -pe 's/d`MAT_MUL_SIZE/d16/g;' $output_file
+perl -i -pe 's/d`DESIGN_SIZE/d16/g;' $output_file
 end
 
 

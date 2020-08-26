@@ -3606,7 +3606,7 @@ matmul_4x4_systolic u_matmul(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
-  .final_mat_mul_size(8'd`DESIGN_SIZE),
+  .final_mat_mul_size(8'd16),
   .a_loc(8'd0),
   .b_loc(8'd0)
 );

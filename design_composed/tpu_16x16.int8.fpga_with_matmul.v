@@ -409,7 +409,7 @@ module matmul_16x16_systolic_composed_from_8x8(
   wire [`AWIDTH-1:0] c_addr_0_0_NC;
   wire c_data_0_0_available_NC;
 
-matmul_fp16 u_matmul_8x8_systolic_0_0(
+matmul_slice u_matmul_8x8_systolic_0_0(
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),
@@ -459,7 +459,7 @@ matmul_fp16 u_matmul_8x8_systolic_0_0(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_in_0_1_NC;
   assign b_data_in_0_1_NC = 0;
 
-matmul_fp16 u_matmul_8x8_systolic_0_1(
+matmul_slice u_matmul_8x8_systolic_0_1(
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),
@@ -515,7 +515,7 @@ matmul_fp16 u_matmul_8x8_systolic_0_1(
   wire [`AWIDTH-1:0] c_addr_1_0_NC;
   wire c_data_1_0_available_NC;
 
-matmul_fp16 u_matmul_8x8_systolic_1_0(
+matmul_slice u_matmul_8x8_systolic_1_0(
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),
@@ -566,7 +566,7 @@ matmul_fp16 u_matmul_8x8_systolic_1_0(
   wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_1_1_NC;
   assign b_data_1_1_NC = 0;
 
-matmul_fp16 u_matmul_8x8_systolic_1_1(
+matmul_slice u_matmul_8x8_systolic_1_1(
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),
@@ -1971,7 +1971,7 @@ matmul_4x4_systolic u_matmul(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
-  .final_mat_mul_size(8'd`DESIGN_SIZE),
+  .final_mat_mul_size(8'd16),
   .a_loc(8'd0),
   .b_loc(8'd0)
 );
