@@ -261,6 +261,7 @@ matmul_slice u_matmul_8x8(
   .c_data_out(bram_wdata_c),
   .a_data_out(a_data_out_NC),
   .b_data_out(b_data_out_NC),
+  .flags(),
   .a_addr(bram_addr_a),
   .b_addr(bram_addr_b),
   .c_addr(bram_addr_c),
