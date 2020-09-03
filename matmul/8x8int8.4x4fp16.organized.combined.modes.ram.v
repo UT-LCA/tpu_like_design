@@ -271,6 +271,7 @@ matmul_slice u_matmul_8x8(
   .slice_dtype(slice_dtype),
   .slice_mode(slice_mode),
   .op(2'b01),
+  .preload(1'b0),
   .final_mat_mul_size(final_mat_mul_size),
   .a_loc(a_loc),
   .b_loc(b_loc)

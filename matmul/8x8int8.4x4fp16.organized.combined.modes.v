@@ -43,7 +43,7 @@
 module matmul_slice(
  clk,
  reset,
- pe_reset,
+ pe_reset, //this can also be called accumulate
  start_mat_mul,
  done_mat_mul,
  address_mat_a, //Address at which matrix A is to be read from
@@ -57,7 +57,7 @@ module matmul_slice(
  a_data_in, //Input matrix A values coming in from previous matmul - systolic connections
  b_data_in, //Input matrix B values coming in from previous matmul - systolic connections 
  c_data_in, //Output values coming in from previous matmul - systolic shifting
- c_data_out, //Output values going out to any place that needs it like BRAM
+ c_data_out, //Output values going out to any place that needs it like BRAM or next matmul
  a_data_out, //Input matrix A values going out to next matmul - systolic shifting
  b_data_out, //Input matrix A values going out to next matmul - systolic shifting
  a_addr,
@@ -70,6 +70,7 @@ module matmul_slice(
  slice_dtype,  //which data type/precision : 1 = fp16 or 0 = int8
  slice_mode,   //which mode : 0 as a matmul or 1 as individual PEs
  op, //Decides between eltwise mode vs matrix mode. In eltwise, decides between mul, add, sub
+ preload,
  final_mat_mul_size,
  a_loc,
  b_loc
@@ -98,12 +99,13 @@ module matmul_slice(
  output [`BB_AWIDTH-1:0] b_addr;
  output [`BB_AWIDTH-1:0] c_addr;
  output c_data_available;
- input [1:0] op;
  input [`BB_MASK_WIDTH-1:0] validity_mask_a_rows;
  input [`BB_MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
  input [`BB_MASK_WIDTH-1:0] validity_mask_b_cols;
  input slice_dtype;
  input slice_mode;
+ input [1:0] op;
+ input preload;
 
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
 //In fact, these will get optimized out by the synthesis tool, because
@@ -191,6 +193,7 @@ reg [7:0] clk_cnt;
 wire [7:0] clk_cnt_for_done;
 
 assign clk_cnt_for_done = 
+                          (preload) ? (final_mat_mul_size):
                           (eltwise_mode) ? ((final_mat_mul_size<<1) + 1):
                           (((final_mat_mul_size<<2) - 2 + `NUM_CYCLES_IN_MAC));  
     
@@ -225,6 +228,7 @@ systolic_data_setup u_systolic_data_setup(
 .reset(reset),
 .start_mat_mul(start_mat_mul),
 .eltwise_mode(eltwise_mode),
+.preload(preload),
 .a_addr(a_addr_internal),
 .b_addr(b_addr_internal),
 .address_mat_a(address_mat_a),
@@ -271,6 +275,7 @@ systolic_pe_matrix u_systolic_pe_matrix(
 .slice_mode(slice_mode),
 .op(op),
 .ready_for_eltwise_op(ready_for_eltwise_op),
+.preload(preload),
 .pe_data_out(pe_data_out),
 .a_data_out(a_data_out),
 .b_data_out(b_data_out),
@@ -295,6 +300,7 @@ output_logic u_output_logic(
 .pe_data_out(pe_data_out),
 .slice_dtype(slice_dtype),
 .eltwise_mode(eltwise_mode),
+.preload(preload),
 .clk(clk),
 .reset(reset)
 );
@@ -318,6 +324,7 @@ final_mat_mul_size,
 pe_data_out,
 slice_dtype,
 eltwise_mode,
+preload,
 clk,
 reset
 );
@@ -337,6 +344,7 @@ input [7:0] final_mat_mul_size;
 input [511:0] pe_data_out;
 input slice_dtype;
 input eltwise_mode;
+input preload;
 wire row_latch_en;
 
 //////////////////////////////////////////////////////////////////////////
@@ -347,6 +355,7 @@ wire row_latch_en;
 //assign row_latch_en = (clk_cnt==(`BB_MAT_MUL_SIZE + ((a_loc+b_loc) << `BB_LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
 
 assign row_latch_en =  
+                       (preload) ? 1'b0 : 
                        (eltwise_mode) ? ((clk_cnt == (final_mat_mul_size + 1 ))) :
                        ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size - 1 +`NUM_CYCLES_IN_MAC)));
     
@@ -470,6 +479,7 @@ clk,
 reset,
 start_mat_mul,
 eltwise_mode,
+preload,
 a_addr,
 b_addr,
 address_mat_a,
@@ -494,6 +504,7 @@ input clk;
 input reset;
 input start_mat_mul;
 input eltwise_mode;
+input preload;
 output [`BB_AWIDTH-1:0] a_addr;
 output [`BB_AWIDTH-1:0] b_addr;
 input [`BB_AWIDTH-1:0] address_mat_a;
@@ -635,13 +646,13 @@ seven_clk_delay  u_a_seven_clk_delay   (.clk(clk), .rst(flop_rst), .in(a_data_va
 //If the eltwise_mode bit is 1, that means we are doing matrix addition. In that case, we don't
 //need to do any systolic shifting. Just send the data as it was read from BRAM
 assign a_data_delayed[`BB_DWIDTH-1:0]              = a_data_validated[`BB_DWIDTH-1:0];
-assign a_data_delayed[2*`BB_DWIDTH-1:1*`BB_DWIDTH] = (eltwise_mode) ? a_data_validated[2*`BB_DWIDTH-1:1*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_one_clk_del_int8 : a_one_clk_del_fp16);
-assign a_data_delayed[3*`BB_DWIDTH-1:2*`BB_DWIDTH] = (eltwise_mode) ? a_data_validated[3*`BB_DWIDTH-1:2*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_two_clk_del_int8 : a_two_clk_del_fp16);
-assign a_data_delayed[4*`BB_DWIDTH-1:3*`BB_DWIDTH] = (eltwise_mode) ? a_data_validated[4*`BB_DWIDTH-1:3*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_thr_clk_del_int8 : a_thr_clk_del_fp16);
-assign a_data_delayed[5*`BB_DWIDTH-1:4*`BB_DWIDTH] = (eltwise_mode) ? a_data_validated[5*`BB_DWIDTH-1:4*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_fou_clk_del_int8 : a_fou_clk_del_fp16);
-assign a_data_delayed[6*`BB_DWIDTH-1:5*`BB_DWIDTH] = (eltwise_mode) ? a_data_validated[6*`BB_DWIDTH-1:5*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_fiv_clk_del_int8 : a_fiv_clk_del_fp16);
-assign a_data_delayed[7*`BB_DWIDTH-1:6*`BB_DWIDTH] = (eltwise_mode) ? a_data_validated[7*`BB_DWIDTH-1:6*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_six_clk_del_int8 : a_six_clk_del_fp16);
-assign a_data_delayed[8*`BB_DWIDTH-1:7*`BB_DWIDTH] = (eltwise_mode) ? a_data_validated[8*`BB_DWIDTH-1:7*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_sev_clk_del_int8 : a_sev_clk_del_fp16);
+assign a_data_delayed[2*`BB_DWIDTH-1:1*`BB_DWIDTH] = (eltwise_mode|preload) ? a_data_validated[2*`BB_DWIDTH-1:1*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_one_clk_del_int8 : a_one_clk_del_fp16);
+assign a_data_delayed[3*`BB_DWIDTH-1:2*`BB_DWIDTH] = (eltwise_mode|preload) ? a_data_validated[3*`BB_DWIDTH-1:2*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_two_clk_del_int8 : a_two_clk_del_fp16);
+assign a_data_delayed[4*`BB_DWIDTH-1:3*`BB_DWIDTH] = (eltwise_mode|preload) ? a_data_validated[4*`BB_DWIDTH-1:3*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_thr_clk_del_int8 : a_thr_clk_del_fp16);
+assign a_data_delayed[5*`BB_DWIDTH-1:4*`BB_DWIDTH] = (eltwise_mode|preload) ? a_data_validated[5*`BB_DWIDTH-1:4*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_fou_clk_del_int8 : a_fou_clk_del_fp16);
+assign a_data_delayed[6*`BB_DWIDTH-1:5*`BB_DWIDTH] = (eltwise_mode|preload) ? a_data_validated[6*`BB_DWIDTH-1:5*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_fiv_clk_del_int8 : a_fiv_clk_del_fp16);
+assign a_data_delayed[7*`BB_DWIDTH-1:6*`BB_DWIDTH] = (eltwise_mode|preload) ? a_data_validated[7*`BB_DWIDTH-1:6*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_six_clk_del_int8 : a_six_clk_del_fp16);
+assign a_data_delayed[8*`BB_DWIDTH-1:7*`BB_DWIDTH] = (eltwise_mode|preload) ? a_data_validated[8*`BB_DWIDTH-1:7*`BB_DWIDTH] : ((slice_dtype == `DTYPE_INT8)? a_sev_clk_del_int8 : a_sev_clk_del_fp16);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -659,10 +670,11 @@ always @(posedge clk) begin
   
     b_mem_access <= 0;
   end
+  //We only preload one input. A. So, no need to read B when preloading
   //else if ((clk_cnt >= b_loc*`BB_MAT_MUL_SIZE) && (clk_cnt < b_loc*`BB_MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
 
-  else if ((clk_cnt >= (b_loc<<`BB_LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`BB_LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  else if ((clk_cnt >= (b_loc<<`BB_LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`BB_LOG2_MAT_MUL_SIZE)+final_mat_mul_size) && (~preload)) begin
 
       b_addr <= b_addr + address_stride_b;
   
@@ -985,6 +997,7 @@ slice_dtype,
 slice_mode,
 op,
 ready_for_eltwise_op,
+preload,
 pe_data_out,
 a_data_out,
 b_data_out,
@@ -1001,6 +1014,7 @@ input slice_dtype;
 input slice_mode;
 input [1:0] op;
 input ready_for_eltwise_op;
+input preload;
 output [511:0] pe_data_out;
 output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data_out;
 output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_out;
@@ -1326,23 +1340,23 @@ assign output_list_from_pes = {
   pe00_direct_out
 };
 
-//                                                                                                                                                                     16 bits               32 bits           16 bits             32 bits          32 bits               32 bits                                             32 bits                                    32 bits                                                                                                                           
-processing_element pe00(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe00), .in_b(in_b_pe00), .out_a(out_a_pe00), .out_b(out_b_pe00), .out_c(out_c_pe00), .direct_a({16'b0, direct_inputs_a[16*1 -1:16*0 ]}), .direct_b({16'b0, direct_inputs_b[16*1 -1:16*0 ]}), .direct_out({pe00_direct_out_NC, pe00_direct_out}), .direct_dtype(direct_inputs_dtype[0 ]), .direct_mode(direct_inputs_mode[2:0]));
-processing_element pe01(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe01), .in_b(in_b_pe01), .out_a(out_a_pe01), .out_b(out_b_pe01), .out_c(out_c_pe01), .direct_a({16'b0, direct_inputs_a[16*2 -1:16*1 ]}), .direct_b({16'b0, direct_inputs_b[16*2 -1:16*1 ]}), .direct_out({pe01_direct_out_NC, pe01_direct_out}), .direct_dtype(direct_inputs_dtype[1 ]), .direct_mode(direct_inputs_mode[5:3]));
-processing_element pe02(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe02), .in_b(in_b_pe02), .out_a(out_a_pe02), .out_b(out_b_pe02), .out_c(out_c_pe02), .direct_a({16'b0, direct_inputs_a[16*3 -1:16*2 ]}), .direct_b({16'b0, direct_inputs_b[16*3 -1:16*2 ]}), .direct_out({pe02_direct_out_NC, pe02_direct_out}), .direct_dtype(direct_inputs_dtype[2 ]), .direct_mode(direct_inputs_mode[8:6]));
-processing_element pe03(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe03), .in_b(in_b_pe03), .out_a(out_a_pe03), .out_b(out_b_pe03), .out_c(out_c_pe03), .direct_a({16'b0, direct_inputs_a[16*4 -1:16*3 ]}), .direct_b({16'b0, direct_inputs_b[16*4 -1:16*3 ]}), .direct_out({pe03_direct_out_NC, pe03_direct_out}), .direct_dtype(direct_inputs_dtype[3 ]), .direct_mode(direct_inputs_mode[11:9]));
-processing_element pe10(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe10), .in_b(in_b_pe10), .out_a(out_a_pe10), .out_b(out_b_pe10), .out_c(out_c_pe10), .direct_a({16'b0, direct_inputs_a[16*5 -1:16*4 ]}), .direct_b({16'b0, direct_inputs_b[16*5 -1:16*4 ]}), .direct_out({pe10_direct_out_NC, pe10_direct_out}), .direct_dtype(direct_inputs_dtype[4 ]), .direct_mode(direct_inputs_mode[14:12]));
-processing_element pe11(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe11), .in_b(in_b_pe11), .out_a(out_a_pe11), .out_b(out_b_pe11), .out_c(out_c_pe11), .direct_a({16'b0, direct_inputs_a[16*6 -1:16*5 ]}), .direct_b({16'b0, direct_inputs_b[16*6 -1:16*5 ]}), .direct_out({pe11_direct_out_NC, pe11_direct_out}), .direct_dtype(direct_inputs_dtype[5 ]), .direct_mode(direct_inputs_mode[17:15]));
-processing_element pe12(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe12), .in_b(in_b_pe12), .out_a(out_a_pe12), .out_b(out_b_pe12), .out_c(out_c_pe12), .direct_a({16'b0, direct_inputs_a[16*7 -1:16*6 ]}), .direct_b({16'b0, direct_inputs_b[16*7 -1:16*6 ]}), .direct_out({pe12_direct_out_NC, pe12_direct_out}), .direct_dtype(direct_inputs_dtype[6 ]), .direct_mode(direct_inputs_mode[20:18]));
-processing_element pe13(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe13), .in_b(in_b_pe13), .out_a(out_a_pe13), .out_b(out_b_pe13), .out_c(out_c_pe13), .direct_a({16'b0, direct_inputs_a[16*8 -1:16*7 ]}), .direct_b({16'b0, direct_inputs_b[16*8 -1:16*7 ]}), .direct_out({pe13_direct_out_NC, pe13_direct_out}), .direct_dtype(direct_inputs_dtype[7 ]), .direct_mode(direct_inputs_mode[23:21]));
-processing_element pe20(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe20), .in_b(in_b_pe20), .out_a(out_a_pe20), .out_b(out_b_pe20), .out_c(out_c_pe20), .direct_a({16'b0, direct_inputs_a[16*9 -1:16*8 ]}), .direct_b({16'b0, direct_inputs_b[16*9 -1:16*8 ]}), .direct_out({pe20_direct_out_NC, pe20_direct_out}), .direct_dtype(direct_inputs_dtype[8 ]), .direct_mode(direct_inputs_mode[26:24]));
-processing_element pe21(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe21), .in_b(in_b_pe21), .out_a(out_a_pe21), .out_b(out_b_pe21), .out_c(out_c_pe21), .direct_a({16'b0, direct_inputs_a[16*10-1:16*9 ]}), .direct_b({16'b0, direct_inputs_b[16*10-1:16*9 ]}), .direct_out({pe21_direct_out_NC, pe21_direct_out}), .direct_dtype(direct_inputs_dtype[9 ]), .direct_mode(direct_inputs_mode[29:27]));
-processing_element pe22(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe22), .in_b(in_b_pe22), .out_a(out_a_pe22), .out_b(out_b_pe22), .out_c(out_c_pe22), .direct_a({16'b0, direct_inputs_a[16*11-1:16*10]}), .direct_b({16'b0, direct_inputs_b[16*11-1:16*10]}), .direct_out({pe22_direct_out_NC, pe22_direct_out}), .direct_dtype(direct_inputs_dtype[10]), .direct_mode(direct_inputs_mode[32:30]));
-processing_element pe23(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe23), .in_b(in_b_pe23), .out_a(out_a_pe23), .out_b(out_b_pe23), .out_c(out_c_pe23), .direct_a({16'b0, direct_inputs_a[16*12-1:16*11]}), .direct_b({16'b0, direct_inputs_b[16*12-1:16*11]}), .direct_out({pe23_direct_out_NC, pe23_direct_out}), .direct_dtype(direct_inputs_dtype[11]), .direct_mode(direct_inputs_mode[35:33]));
-processing_element pe30(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe30), .in_b(in_b_pe30), .out_a(out_a_pe30), .out_b(out_b_pe30), .out_c(out_c_pe30), .direct_a({16'b0, direct_inputs_a[16*13-1:16*12]}), .direct_b({16'b0, direct_inputs_b[16*13-1:16*12]}), .direct_out({pe30_direct_out_NC, pe30_direct_out}), .direct_dtype(direct_inputs_dtype[12]), .direct_mode(direct_inputs_mode[38:36]));
-processing_element pe31(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe31), .in_b(in_b_pe31), .out_a(out_a_pe31), .out_b(out_b_pe31), .out_c(out_c_pe31), .direct_a({16'b0, direct_inputs_a[16*14-1:16*13]}), .direct_b({16'b0, direct_inputs_b[16*14-1:16*13]}), .direct_out({pe31_direct_out_NC, pe31_direct_out}), .direct_dtype(direct_inputs_dtype[13]), .direct_mode(direct_inputs_mode[41:39]));
-processing_element pe32(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe32), .in_b(in_b_pe32), .out_a(out_a_pe32), .out_b(out_b_pe32), .out_c(out_c_pe32), .direct_a({16'b0, direct_inputs_a[16*15-1:16*14]}), .direct_b({16'b0, direct_inputs_b[16*15-1:16*14]}), .direct_out({pe32_direct_out_NC, pe32_direct_out}), .direct_dtype(direct_inputs_dtype[14]), .direct_mode(direct_inputs_mode[44:42]));
-processing_element pe33(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .in_a(in_a_pe33), .in_b(in_b_pe33), .out_a(out_a_pe33), .out_b(out_b_pe33), .out_c(out_c_pe33), .direct_a({16'b0, direct_inputs_a[16*16-1:16*15]}), .direct_b({16'b0, direct_inputs_b[16*16-1:16*15]}), .direct_out({pe33_direct_out_NC, pe33_direct_out}), .direct_dtype(direct_inputs_dtype[15]), .direct_mode(direct_inputs_mode[47:45]));
+//                                                                                                                                                                                           16 bits               32 bits           16 bits             32 bits          32 bits               32 bits                                             32 bits                                    32 bits                                                                                                                           
+processing_element pe00(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe00), .in_b(in_b_pe00), .out_a(out_a_pe00), .out_b(out_b_pe00), .out_c(out_c_pe00), .direct_a({16'b0, direct_inputs_a[16*1 -1:16*0 ]}), .direct_b({16'b0, direct_inputs_b[16*1 -1:16*0 ]}), .direct_out({pe00_direct_out_NC, pe00_direct_out}), .direct_dtype(direct_inputs_dtype[0 ]), .direct_mode(direct_inputs_mode[2:0]));
+processing_element pe01(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe01), .in_b(in_b_pe01), .out_a(out_a_pe01), .out_b(out_b_pe01), .out_c(out_c_pe01), .direct_a({16'b0, direct_inputs_a[16*2 -1:16*1 ]}), .direct_b({16'b0, direct_inputs_b[16*2 -1:16*1 ]}), .direct_out({pe01_direct_out_NC, pe01_direct_out}), .direct_dtype(direct_inputs_dtype[1 ]), .direct_mode(direct_inputs_mode[5:3]));
+processing_element pe02(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe02), .in_b(in_b_pe02), .out_a(out_a_pe02), .out_b(out_b_pe02), .out_c(out_c_pe02), .direct_a({16'b0, direct_inputs_a[16*3 -1:16*2 ]}), .direct_b({16'b0, direct_inputs_b[16*3 -1:16*2 ]}), .direct_out({pe02_direct_out_NC, pe02_direct_out}), .direct_dtype(direct_inputs_dtype[2 ]), .direct_mode(direct_inputs_mode[8:6]));
+processing_element pe03(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe03), .in_b(in_b_pe03), .out_a(out_a_pe03), .out_b(out_b_pe03), .out_c(out_c_pe03), .direct_a({16'b0, direct_inputs_a[16*4 -1:16*3 ]}), .direct_b({16'b0, direct_inputs_b[16*4 -1:16*3 ]}), .direct_out({pe03_direct_out_NC, pe03_direct_out}), .direct_dtype(direct_inputs_dtype[3 ]), .direct_mode(direct_inputs_mode[11:9]));
+processing_element pe10(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe10), .in_b(in_b_pe10), .out_a(out_a_pe10), .out_b(out_b_pe10), .out_c(out_c_pe10), .direct_a({16'b0, direct_inputs_a[16*5 -1:16*4 ]}), .direct_b({16'b0, direct_inputs_b[16*5 -1:16*4 ]}), .direct_out({pe10_direct_out_NC, pe10_direct_out}), .direct_dtype(direct_inputs_dtype[4 ]), .direct_mode(direct_inputs_mode[14:12]));
+processing_element pe11(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe11), .in_b(in_b_pe11), .out_a(out_a_pe11), .out_b(out_b_pe11), .out_c(out_c_pe11), .direct_a({16'b0, direct_inputs_a[16*6 -1:16*5 ]}), .direct_b({16'b0, direct_inputs_b[16*6 -1:16*5 ]}), .direct_out({pe11_direct_out_NC, pe11_direct_out}), .direct_dtype(direct_inputs_dtype[5 ]), .direct_mode(direct_inputs_mode[17:15]));
+processing_element pe12(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe12), .in_b(in_b_pe12), .out_a(out_a_pe12), .out_b(out_b_pe12), .out_c(out_c_pe12), .direct_a({16'b0, direct_inputs_a[16*7 -1:16*6 ]}), .direct_b({16'b0, direct_inputs_b[16*7 -1:16*6 ]}), .direct_out({pe12_direct_out_NC, pe12_direct_out}), .direct_dtype(direct_inputs_dtype[6 ]), .direct_mode(direct_inputs_mode[20:18]));
+processing_element pe13(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe13), .in_b(in_b_pe13), .out_a(out_a_pe13), .out_b(out_b_pe13), .out_c(out_c_pe13), .direct_a({16'b0, direct_inputs_a[16*8 -1:16*7 ]}), .direct_b({16'b0, direct_inputs_b[16*8 -1:16*7 ]}), .direct_out({pe13_direct_out_NC, pe13_direct_out}), .direct_dtype(direct_inputs_dtype[7 ]), .direct_mode(direct_inputs_mode[23:21]));
+processing_element pe20(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe20), .in_b(in_b_pe20), .out_a(out_a_pe20), .out_b(out_b_pe20), .out_c(out_c_pe20), .direct_a({16'b0, direct_inputs_a[16*9 -1:16*8 ]}), .direct_b({16'b0, direct_inputs_b[16*9 -1:16*8 ]}), .direct_out({pe20_direct_out_NC, pe20_direct_out}), .direct_dtype(direct_inputs_dtype[8 ]), .direct_mode(direct_inputs_mode[26:24]));
+processing_element pe21(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe21), .in_b(in_b_pe21), .out_a(out_a_pe21), .out_b(out_b_pe21), .out_c(out_c_pe21), .direct_a({16'b0, direct_inputs_a[16*10-1:16*9 ]}), .direct_b({16'b0, direct_inputs_b[16*10-1:16*9 ]}), .direct_out({pe21_direct_out_NC, pe21_direct_out}), .direct_dtype(direct_inputs_dtype[9 ]), .direct_mode(direct_inputs_mode[29:27]));
+processing_element pe22(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe22), .in_b(in_b_pe22), .out_a(out_a_pe22), .out_b(out_b_pe22), .out_c(out_c_pe22), .direct_a({16'b0, direct_inputs_a[16*11-1:16*10]}), .direct_b({16'b0, direct_inputs_b[16*11-1:16*10]}), .direct_out({pe22_direct_out_NC, pe22_direct_out}), .direct_dtype(direct_inputs_dtype[10]), .direct_mode(direct_inputs_mode[32:30]));
+processing_element pe23(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe23), .in_b(in_b_pe23), .out_a(out_a_pe23), .out_b(out_b_pe23), .out_c(out_c_pe23), .direct_a({16'b0, direct_inputs_a[16*12-1:16*11]}), .direct_b({16'b0, direct_inputs_b[16*12-1:16*11]}), .direct_out({pe23_direct_out_NC, pe23_direct_out}), .direct_dtype(direct_inputs_dtype[11]), .direct_mode(direct_inputs_mode[35:33]));
+processing_element pe30(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe30), .in_b(in_b_pe30), .out_a(out_a_pe30), .out_b(out_b_pe30), .out_c(out_c_pe30), .direct_a({16'b0, direct_inputs_a[16*13-1:16*12]}), .direct_b({16'b0, direct_inputs_b[16*13-1:16*12]}), .direct_out({pe30_direct_out_NC, pe30_direct_out}), .direct_dtype(direct_inputs_dtype[12]), .direct_mode(direct_inputs_mode[38:36]));
+processing_element pe31(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe31), .in_b(in_b_pe31), .out_a(out_a_pe31), .out_b(out_b_pe31), .out_c(out_c_pe31), .direct_a({16'b0, direct_inputs_a[16*14-1:16*13]}), .direct_b({16'b0, direct_inputs_b[16*14-1:16*13]}), .direct_out({pe31_direct_out_NC, pe31_direct_out}), .direct_dtype(direct_inputs_dtype[13]), .direct_mode(direct_inputs_mode[41:39]));
+processing_element pe32(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe32), .in_b(in_b_pe32), .out_a(out_a_pe32), .out_b(out_b_pe32), .out_c(out_c_pe32), .direct_a({16'b0, direct_inputs_a[16*15-1:16*14]}), .direct_b({16'b0, direct_inputs_b[16*15-1:16*14]}), .direct_out({pe32_direct_out_NC, pe32_direct_out}), .direct_dtype(direct_inputs_dtype[14]), .direct_mode(direct_inputs_mode[44:42]));
+processing_element pe33(.reset(effective_rst), .clk(clk),  .slice_dtype(slice_dtype), .slice_mode(slice_mode), .op(op), .ready_for_eltwise_op(ready_for_eltwise_op), .preload(preload), .in_a(in_a_pe33), .in_b(in_b_pe33), .out_a(out_a_pe33), .out_b(out_b_pe33), .out_c(out_c_pe33), .direct_a({16'b0, direct_inputs_a[16*16-1:16*15]}), .direct_b({16'b0, direct_inputs_b[16*16-1:16*15]}), .direct_out({pe33_direct_out_NC, pe33_direct_out}), .direct_dtype(direct_inputs_dtype[15]), .direct_mode(direct_inputs_mode[47:45]));
 endmodule
 
 // This PE acts as one fp16 PE and 4 int8 PEs (connected horizontally)
@@ -1353,6 +1367,7 @@ module processing_element(
  slice_mode,
  op,
  ready_for_eltwise_op,
+ preload,
  in_a,
  in_b,
  out_a,
@@ -1371,6 +1386,7 @@ module processing_element(
  input slice_mode;
  input [1:0] op;
  input ready_for_eltwise_op;
+ input preload;
  // Total number of bits:
  // fp16 (one PE):
  // 16 bits of in_a
@@ -1463,6 +1479,7 @@ assign eltwise_sub  =  ( op[1]  &   op[0]);
                 .eltwise_add(eltwise_add),
                 .eltwise_sub(eltwise_sub),
                 .eltwise_mul(eltwise_mul),
+                .preload(preload),
                 .direct_a(direct_a),
                 .direct_b(direct_b),
                 .direct_out(direct_out),
@@ -1515,7 +1532,7 @@ endmodule
 //        [2]
 //          0 : Combinatorial  
 //          1 : Sequential 
-module seq_mac(clk, reset, a, b, out, dtype, mode, eltwise_mode, eltwise_add, eltwise_sub, eltwise_mul, direct_a, direct_b, direct_out, direct_dtype, direct_mode);
+module seq_mac(clk, reset, a, b, out, dtype, mode, eltwise_mode, eltwise_add, eltwise_sub, eltwise_mul, preload, direct_a, direct_b, direct_out, direct_dtype, direct_mode);
 input clk;
 input reset;
 input [4*`BB_DWIDTH-1:0] a;
@@ -1527,6 +1544,7 @@ input eltwise_mode;
 input eltwise_add;
 input eltwise_sub;
 input eltwise_mul;
+input preload;
 input [4*`BB_DWIDTH-1:0] direct_a;
 input [4*`BB_DWIDTH-1:0] direct_b;
 output [4*`BB_DWIDTH-1:0] direct_out;
@@ -1617,11 +1635,14 @@ qadd add_u1(.a(mux7_out), .b(mux4_out), .c(add_out), .dtype(muxed_dtype), .op(qa
 wire [8*`BB_DWIDTH-1:0] mux5_out;
 assign mux5_out = indiv_mult_mode ? mul_out : add_out;
 
+wire [8*`BB_DWIDTH-1:0] mux8_out;
+assign mux5_out = preload ? {8'b0, a[31:24], 8'b0, a[23:16], 8'b0, a[15:8], 8'b0, a[7:0]} : mux5_out;
+
 always @(posedge clk) begin
   if (reset) begin
     out_temp <= 0;
   end else begin
-    out_temp <= mux5_out;
+    out_temp <= mux8_out;
   end
 end
 
