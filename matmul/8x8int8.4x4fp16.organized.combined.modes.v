@@ -58,7 +58,6 @@ module matmul_slice(
  b_data_in, //Input matrix B values coming in from previous matmul - systolic connections 
  c_data_in, //Output values coming in from previous matmul - systolic shifting
  c_data_out, //Output values going out to any place that needs it like BRAM
- c_data_out_dir_int, //Output values going out to next matmul - systolic shifting 
  a_data_out, //Input matrix A values going out to next matmul - systolic shifting
  b_data_out, //Input matrix A values going out to next matmul - systolic shifting
  a_addr,
@@ -93,7 +92,6 @@ module matmul_slice(
  input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_in;
  input [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] c_data_in;
  output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] c_data_out;
- output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] c_data_out_dir_int;
  output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data_out;
  output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_out;
  output [`BB_AWIDTH-1:0] a_addr;
@@ -172,9 +170,6 @@ assign c_data_out = (slice_mode == `SLICE_MODE_MATMUL) ? c_data_out_internal : o
 assign a_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? a_addr_internal     : output_list_from_pes[64+`BB_AWIDTH-1:64];
 assign b_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? b_addr_internal     : output_list_from_pes[64+2*`BB_AWIDTH-1:64+`BB_AWIDTH];
 assign c_addr     = (slice_mode == `SLICE_MODE_MATMUL) ? c_addr_internal     : output_list_from_pes[64+3*`BB_AWIDTH-1:64+2*`BB_AWIDTH];
-
-//This is the output used in direct interconnect. This can't be reused in individual PE mode.
-assign c_data_out_dir_int = c_data_out_internal;
 
 //////////////////////////////////////////////////////////////////////////
 // Logic for clock counting and when to assert done

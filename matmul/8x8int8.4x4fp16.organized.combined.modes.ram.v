@@ -235,7 +235,6 @@ wire c_data_available;
   
 wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] a_data_out_NC;
 wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] b_data_out_NC;
-wire [`BB_MAT_MUL_SIZE*`DWIDTH-1:0] c_data_out_dir_int_NC;
 
 wire reset;
 assign reset = ~resetn;
@@ -260,7 +259,6 @@ matmul_slice u_matmul_8x8(
   .b_data_in(b_data_in),
   .c_data_in(c_data_in),
   .c_data_out(bram_wdata_c),
-  .c_data_out_dir_int(c_data_out_dir_int_NC),
   .a_data_out(a_data_out_NC),
   .b_data_out(b_data_out_NC),
   .a_addr(bram_addr_a),
