@@ -66,7 +66,8 @@ module matmul_slice(
  c_addr,
  c_data_available,
  validity_mask_a_rows,
- validity_mask_a_cols_b_rows,
+ validity_mask_a_cols,
+ validity_mask_b_rows,
  validity_mask_b_cols,
  slice_dtype,  //which data type/precision : 1 = fp16 or 0 = int8
  slice_mode,   //which mode : 0 as a matmul or 1 as individual PEs
@@ -102,7 +103,8 @@ module matmul_slice(
  output [`BB_AWIDTH-1:0] c_addr;
  output c_data_available;
  input [`BB_MASK_WIDTH-1:0] validity_mask_a_rows;
- input [`BB_MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+ input [`BB_MASK_WIDTH-1:0] validity_mask_a_cols;
+ input [`BB_MASK_WIDTH-1:0] validity_mask_b_rows;
  input [`BB_MASK_WIDTH-1:0] validity_mask_b_cols;
  input slice_dtype;
  input slice_mode;
@@ -149,7 +151,7 @@ assign input_list_to_pes = {
  //b_data_in, //112
  //c_data_in, //48 
  validity_mask_a_rows, //40
- validity_mask_a_cols_b_rows, //32
+ validity_mask_a_cols, //32
  validity_mask_b_cols, //24
  final_mat_mul_size, //16
  a_loc, //8
@@ -241,7 +243,8 @@ systolic_data_setup u_systolic_data_setup(
 .a_data_delayed(a_data_delayed),
 .b_data_delayed(b_data_delayed),
 .validity_mask_a_rows(validity_mask_a_rows),
-.validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+.validity_mask_a_cols(validity_mask_a_cols),
+.validity_mask_b_rows(validity_mask_b_rows),
 .validity_mask_b_cols(validity_mask_b_cols),
 .slice_dtype(slice_dtype),
 .final_mat_mul_size(final_mat_mul_size),
@@ -278,8 +281,8 @@ systolic_pe_matrix u_systolic_pe_matrix(
 .preload(preload),
 .pe_data_out(pe_data_out),
 .flags(flags),
-.a_data_out(a_data_out),
-.b_data_out(b_data_out),
+.a_data_out(a_data_out_internal),
+.b_data_out(b_data_out_internal),
 .input_list_to_pes(input_list_to_pes),
 .output_list_from_pes(output_list_from_pes)
 );
@@ -493,7 +496,8 @@ clk_cnt,
 a_data_delayed,
 b_data_delayed,
 validity_mask_a_rows,
-validity_mask_a_cols_b_rows,
+validity_mask_a_cols,
+validity_mask_b_rows,
 validity_mask_b_cols,
 slice_dtype,
 final_mat_mul_size,
@@ -518,7 +522,8 @@ input [7:0] clk_cnt;
 output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] a_data_delayed;
 output [`BB_MAT_MUL_SIZE*`BB_DWIDTH-1:0] b_data_delayed;
 input [`BB_MASK_WIDTH-1:0] validity_mask_a_rows;
-input [`BB_MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+input [`BB_MASK_WIDTH-1:0] validity_mask_a_cols;
+input [`BB_MASK_WIDTH-1:0] validity_mask_b_rows;
 input [`BB_MASK_WIDTH-1:0] validity_mask_b_cols;
 input slice_dtype;
 input [7:0] final_mat_mul_size;
@@ -570,17 +575,17 @@ end
 
 wire a_data_valid_part1;
 assign a_data_valid_part1 = 
-     ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==1) ||
-      (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==2) ||
-      (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==3) ||
-      (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==4));
+     ((validity_mask_a_cols[0]==1'b0 && a_mem_access_counter==1) ||
+      (validity_mask_a_cols[1]==1'b0 && a_mem_access_counter==2) ||
+      (validity_mask_a_cols[2]==1'b0 && a_mem_access_counter==3) ||
+      (validity_mask_a_cols[3]==1'b0 && a_mem_access_counter==4));
 
 wire a_data_valid_part2;
 assign a_data_valid_part2 = 
-     ((validity_mask_a_cols_b_rows[4]==1'b0 && a_mem_access_counter==5) ||
-      (validity_mask_a_cols_b_rows[5]==1'b0 && a_mem_access_counter==6) ||
-      (validity_mask_a_cols_b_rows[6]==1'b0 && a_mem_access_counter==7) ||
-      (validity_mask_a_cols_b_rows[7]==1'b0 && a_mem_access_counter==8));
+     ((validity_mask_a_cols[4]==1'b0 && a_mem_access_counter==5) ||
+      (validity_mask_a_cols[5]==1'b0 && a_mem_access_counter==6) ||
+      (validity_mask_a_cols[6]==1'b0 && a_mem_access_counter==7) ||
+      (validity_mask_a_cols[7]==1'b0 && a_mem_access_counter==8));
 
 
 wire a_data_valid; //flag that tells whether the data from memory is valid
@@ -701,17 +706,17 @@ end
 
 wire b_data_valid_part1;
 assign b_data_valid_part1 = 
-     ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==1) ||
-      (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==2) ||
-      (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==3) ||
-      (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==4));
+     ((validity_mask_b_rows[0]==1'b0 && b_mem_access_counter==1) ||
+      (validity_mask_b_rows[1]==1'b0 && b_mem_access_counter==2) ||
+      (validity_mask_b_rows[2]==1'b0 && b_mem_access_counter==3) ||
+      (validity_mask_b_rows[3]==1'b0 && b_mem_access_counter==4));
 
 wire b_data_valid_part2;
 assign b_data_valid_part2 = 
-     ((validity_mask_a_cols_b_rows[4]==1'b0 && b_mem_access_counter==5) ||
-      (validity_mask_a_cols_b_rows[5]==1'b0 && b_mem_access_counter==6) ||
-      (validity_mask_a_cols_b_rows[6]==1'b0 && b_mem_access_counter==7) ||
-      (validity_mask_a_cols_b_rows[7]==1'b0 && b_mem_access_counter==8));
+     ((validity_mask_b_rows[4]==1'b0 && b_mem_access_counter==5) ||
+      (validity_mask_b_rows[5]==1'b0 && b_mem_access_counter==6) ||
+      (validity_mask_b_rows[6]==1'b0 && b_mem_access_counter==7) ||
+      (validity_mask_b_rows[7]==1'b0 && b_mem_access_counter==8));
 
 
 wire b_data_valid; //flag that tells whether the data from memory is valid
@@ -1715,7 +1720,7 @@ wire [8*`BB_DWIDTH-1:0] mux5_out;
 assign mux5_out = indiv_mult_mode ? mul_out : add_out;
 
 wire [8*`BB_DWIDTH-1:0] mux8_out;
-assign mux5_out = preload ? {8'b0, a[31:24], 8'b0, a[23:16], 8'b0, a[15:8], 8'b0, a[7:0]} : mux5_out;
+assign mux8_out = preload ? {8'b0, a[31:24], 8'b0, a[23:16], 8'b0, a[15:8], 8'b0, a[7:0]} : mux5_out;
 
 always @(posedge clk) begin
   if (reset) begin
@@ -1726,7 +1731,7 @@ always @(posedge clk) begin
 end
 
 wire [8*`BB_DWIDTH-1:0] mux6_out;
-assign mux6_out = comb_mode ? mux5_out : out_temp;
+assign mux6_out = comb_mode ? mux8_out : out_temp;
 
 //fp32 to fp16 conversion
 wire [15:0] fpadd_16_result;
@@ -1893,7 +1898,8 @@ input dont_convert_fp16_to_fp32;
   //In fixed point, the outputs of the 8 bit multipliers above is the output.
   //In floating point, the output comes from the FPMult instance above and it converted to 32bits in the module above.
   assign o_result = (dtype == `DTYPE_INT8) ? {mult_shared_out_4, mult_shared_out_3, mult_shared_out_2, mult_shared_out_1} : 
-                    ( dont_convert_fp16_to_fp32 ? {fpmult_16_flags[4], fpmult_16_flags[3], fpmult_16_flags[1], fpmult_16_flags[0], 44'b0, fpmult_16_result} :  {fpmult_16_flags[4], fpmult_16_flags[3], fpmult_16_flags[1], fpmult_16_flags[0], 28'b0, fpmult_32_result} ); //connect flags to MSB bits. we don't want the div_by_zero flag
+                    ( dont_convert_fp16_to_fp32 ? {48'b0, fpmult_16_result} :  {32'b0, fpmult_32_result} ); //connect flags to MSB bits. we don't want the div_by_zero flag
+                    //( dont_convert_fp16_to_fp32 ? {fpmult_16_flags[4], fpmult_16_flags[3], fpmult_16_flags[1], fpmult_16_flags[0], 44'b0, fpmult_16_result} :  {fpmult_16_flags[4], fpmult_16_flags[3], fpmult_16_flags[1], fpmult_16_flags[0], 28'b0, fpmult_32_result} ); //connect flags to MSB bits. we don't want the div_by_zero flag
 
 endmodule
 
@@ -2120,7 +2126,8 @@ assign add_shared_op_8 = (dtype == `DTYPE_INT8) ? op : 1'b0;
 assign c[15:0 ] = (dtype == `DTYPE_INT8) ? {add_shared_out_2, add_shared_out_1} : fpadd_32_result[15:0];
 assign c[31:16] = (dtype == `DTYPE_INT8) ? {add_shared_out_4, add_shared_out_3} : fpadd_32_result[31:16];
 assign c[47:32] = (dtype == `DTYPE_INT8) ? {add_shared_out_6, add_shared_out_5} : 15'b0; 
-assign c[63:48] = (dtype == `DTYPE_INT8) ? {add_shared_out_8, add_shared_out_7} : {fpadd_32_flags[4],fpadd_32_flags[3],fpadd_32_flags[1],fpadd_32_flags[0],11'b0}; //send flags on MSB bits. we don't want the div_by_zero flag
+//assign c[63:48] = (dtype == `DTYPE_INT8) ? {add_shared_out_8, add_shared_out_7} : {fpadd_32_flags[4],fpadd_32_flags[3],fpadd_32_flags[1],fpadd_32_flags[0],11'b0}; //send flags on MSB bits. we don't want the div_by_zero flag
+assign c[63:48] = (dtype == `DTYPE_INT8) ? {add_shared_out_8, add_shared_out_7} : 15'b0; //send flags on MSB bits. we don't want the div_by_zero flag
 
 assign fixed_pt_adder1_out = add_shared_out_1;
 assign fixed_pt_adder1_cout = add_shared_cout_1;
