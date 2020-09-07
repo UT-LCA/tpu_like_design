@@ -564,7 +564,7 @@ matmul_slice u_matmul_4x4_systolic_0_1(
   .preload(1'b0),
   .final_mat_mul_size(8'd8),
   .a_loc(8'd0),
-  .b_loc(8'd1)
+  .b_loc(8'd0)
 );
 
 endmodule

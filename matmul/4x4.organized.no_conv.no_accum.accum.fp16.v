@@ -880,9 +880,9 @@ input reset;
 input clk;
 output [`DWIDTH-1:0] out;
 
-reg [`DWIDTH-1:0] out;
-wire [`DWIDTH-1:0] mul_out;
-wire [`DWIDTH-1:0] add_out;
+reg [2*`DWIDTH-1:0] out_temp;
+wire [2*`DWIDTH-1:0] mul_out;
+wire [2*`DWIDTH-1:0] add_out;
 
 reg [`DWIDTH-1:0] a_flopped;
 reg [`DWIDTH-1:0] b_flopped;
@@ -911,33 +911,21 @@ always @(posedge clk) begin
   end
 end
 
-//down cast the result
-assign mul_out = 
-    (mul_out_temp_reg[2*`DWIDTH-1] == 0) ?  //positive number
-        (
-           (|(mul_out_temp_reg[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 1, that means overlfow
-             {mul_out_temp_reg[2*`DWIDTH-1] , {(`DWIDTH-1){1'b1}}} : //sign bit and then all 1s
-             {mul_out_temp_reg[2*`DWIDTH-1] , mul_out_temp_reg[`DWIDTH-2:0]} 
-        )
-        : //negative number
-        (
-           (|(mul_out_temp_reg[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 0, that means overlfow
-             {mul_out_temp_reg[2*`DWIDTH-1] , mul_out_temp_reg[`DWIDTH-2:0]} :
-             {mul_out_temp_reg[2*`DWIDTH-1] , {(`DWIDTH-1){1'b0}}} //sign bit and then all 0s
-        );
+assign mul_out = mul_out_temp_reg;
 
-
-//we just truncate the higher bits of the product
-//assign add_out = mul_out + out;
-qadd add_u1(.a(out), .b(mul_out), .c(add_out));
+qadd add_u1(.a(out_temp), .b(mul_out), .c(add_out));
 
 always @(posedge clk) begin
   if (reset) begin
-    out <= 0;
+    out_temp <= 0;
   end else begin
-    out <= add_out;
+    out_temp <= add_out;
   end
 end
+
+//fp32 to fp16 conversion
+wire [15:0] fpadd_16_result;
+fp32_to_fp16 u_32to16 (.a(out_temp), .b(out));
 
 endmodule
 
@@ -950,8 +938,25 @@ input [`DWIDTH-1:0] i_multiplicand;
 input [`DWIDTH-1:0] i_multiplier;
 output [2*`DWIDTH-1:0] o_result;
 
-assign o_result = i_multiplicand * i_multiplier;
+//assign o_result = i_multiplicand * i_multiplier;
 //DW02_mult #(`DWIDTH,`DWIDTH) u_mult(.A(i_multiplicand), .B(i_multiplier), .TC(1'b1), .PRODUCT(o_result));
+
+wire fpmult_16_clk_NC;
+wire fpmult_16_rst_NC;
+wire [15:0] fpmult_16_result;
+wire [4:0] fpmult_16_flags;
+
+ FPMult_16 u_fpmult_16(
+    .clk(fpmult_16_clk_NC),
+    .rst(fpmult_16_rst_NC),
+    .a(i_multiplicand[15:0]),
+    .b(i_multiplier[15:0]),
+    .result(fpmult_16_result),
+    .flags(fpmult_16_flags)
+  );
+
+  //Convert fp16 to fp32
+  fp16_to_fp32 u_16to32 (.a(fpmult_16_result), .b(o_result));
 
 endmodule
 
@@ -960,10 +965,24 @@ endmodule
 // Adder
 //////////////////////////////////////////////////////////////////////////
 module qadd(a,b,c);
-input [`DWIDTH-1:0] a;
-input [`DWIDTH-1:0] b;
-output [`DWIDTH-1:0] c;
+input [2*`DWIDTH-1:0] a;
+input [2*`DWIDTH-1:0] b;
+output [2*`DWIDTH-1:0] c;
 
-assign c = a + b;
+//assign c = a + b;
 //DW01_add #(`DWIDTH) u_add(.A(a), .B(b), .CI(1'b0), .SUM(c), .CO());
+
+wire fpadd_32_clk_NC;
+wire fpadd_32_rst_NC;
+wire [4:0] fpadd_32_flags;
+
+FPAddSub_single u_fpaddsub_32(
+  .clk(fpadd_32_clk_NC),
+  .rst(fpadd_32_rst_NC),
+  .a(a),
+  .b(b),
+  .operation(1'b0), 
+  .result(c),
+  .flags(fpadd_32_flags));
+
 endmodule

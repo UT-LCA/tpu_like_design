@@ -8,7 +8,7 @@ import argparse
 address_width = 10
 mem_size = 1024
 
-def write_with_ram(file, basic_block_size, final_block_size):
+def write_with_ram(file, basic_block_size, final_block_size, precision):
   #write the top module
   num_of_bram = int(int(final_block_size)/int(basic_block_size))
   file.write('module matrix_multiplication(\n')
@@ -424,7 +424,8 @@ assign pe_reset = ~pe_resetn;
 
   file.write("""
   .validity_mask_a_rows(validity_mask_a_rows),
-  .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+  .validity_mask_a_cols(validity_mask_a_cols),
+  .validity_mask_b_rows(validity_mask_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols)
 );
 endmodule
@@ -473,7 +474,8 @@ module matmul_{0}x{0}_systolic{1}(
 
   file.write("""
   input [`MASK_WIDTH-1:0] validity_mask_a_rows,
-  input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows,
+  input [`MASK_WIDTH-1:0] validity_mask_a_cols,
+  input [`MASK_WIDTH-1:0] validity_mask_b_rows,
   input [`MASK_WIDTH-1:0] validity_mask_b_cols
 );
   """)
@@ -506,7 +508,8 @@ module matmul_{0}x{0}_systolic{1}(
     for j in range(num_of_bram):
       file.write('  /////////////////////////////////////////////////\n'
   		 '  // Matmul {0}_{1}\n'
-  		 '  /////////////////////////////////////////////////\n\n'.format(i, j))
+  		 '  /////////////////////////////////////////////////\n\n'
+       '  wire [3:0] flags_NC_{0}_{1};\n'.format(i, j))
       #declare wire
       file.write('  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_{a}_{b}_to_{a}_{c};\n'
   		 '  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data_{a}_{b}_to_{d}_{b};\n'.format(a=i,b=j,c=j+1,d=i+1))
@@ -587,11 +590,11 @@ module matmul_{0}x{0}_systolic{1}(
       if(j == num_of_bram - 1):
         #since this is a terminal matmul, we take output from c_data_out and the c_data_out_dir_int remains unconnected
         file.write('  .c_data_out(c_data_{0}_{1}),\n'.format(i,j))
-        file.write('  .c_data_out_dir_int(c_data_{0}_{1}_NC),\n'.format(i,j))
+        #file.write('  .c_data_out_dir_int(c_data_{0}_{1}_NC),\n'.format(i,j))
       else:
         #since this is a non-terminal matmul, c_data_out_dir_int connects to next matmul and c_data_out remains unconnected
         file.write('  .c_data_out(c_data_{a}_{b}_to_{c}_{d}_NC),\n'.format(a = i, b = j, c = i, d = j+1))
-        file.write('  .c_data_out_dir_int(c_data_{a}_{b}_to_{c}_{d}),\n'.format(a = i, b = j, c = i, d = j+1))
+        #file.write('  .c_data_out_dir_int(c_data_{a}_{b}_to_{c}_{d}),\n'.format(a = i, b = j, c = i, d = j+1))
 
       file.write(  '  .a_data_out(a_data_{a}_{b}_to_{a}_{c}),\n'
   					'  .b_data_out(b_data_{a}_{b}_to_{d}_{b}),\n'
@@ -616,17 +619,19 @@ module matmul_{0}x{0}_systolic{1}(
         file.write('  .c_data_available(c_data_{0}_{1}_available),\n'.format(i,j))
       else:
         file.write('  .c_data_available(c_data_{a}_{b}_available_NC),\n'.format(a = i, b = j))
-  
+      file.write('  .flags(flags_NC_{0}_{1}),\n'.format(i,j))
       if precision == "int8":
         file.write("""
   .validity_mask_a_rows(validity_mask_a_rows),
-  .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+  .validity_mask_a_cols(validity_mask_a_cols),
+  .validity_mask_b_rows(validity_mask_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
         """)
       else:
         file.write("""
   .validity_mask_a_rows({4'b0,validity_mask_a_rows}),
-  .validity_mask_a_cols_b_rows({4'b0,validity_mask_a_cols_b_rows}),
+  .validity_mask_a_cols({4'b0,validity_mask_a_cols}),
+  .validity_mask_b_rows({4'b0,validity_mask_b_rows}),
   .validity_mask_b_cols({4'b0,validity_mask_b_cols}),
         """)
 
@@ -645,12 +650,15 @@ module matmul_{0}x{0}_systolic{1}(
         print("Precision {} not supported".format(precision))
         raise SystemExit(1)
 
+      file.write("""
+  .op(2'b00), //matmul mode
+  .preload(1'b0),
+      """)
       file.write(	'\n  .final_mat_mul_size(8\'d{2}),\n'
   					'  .a_loc(8\'d{0}),\n'
   					'  .b_loc(8\'d{1})\n'
   					');\n\n'
   					.format(i, j, final_block_size))
-  
   file.write('endmodule\n\n')
 
 def write_ram_module(file):
@@ -808,7 +816,7 @@ def main():
   
   #with bram module
   if(with_ram == True):
-    write_with_ram(file, basic_block_size, final_block_size)
+    write_with_ram(file, basic_block_size, final_block_size, precision)
   
   write_systolic_matmul(file, basic_block_size, final_block_size, precision)
 

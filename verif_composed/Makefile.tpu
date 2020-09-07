@@ -45,6 +45,35 @@ ifeq ($(size),32)
 	TEST_FILES=../verif_organized/layer_test.v 
 endif
 
+ifeq ($(size),32_from_combined)
+	FILES=../design_composed/32x32_from_8x8.int8.no_ram.gen.for_combined_matmul.v
+	FILES+=../design_composed/32x32_from_8x8.wrap.v 
+	FILES+=../matmul/8x8int8.4x4fp16.organized.combined.modes.v 
+  FILES+=/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/16_bit/fp16_multiplier_modif.v 
+  FILES+=/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/32_bit/Stratix10/DSP_Slice/FpAddSub_single.modif.v 
+  FILES+=/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/converter_fp/fp16_to_fp32.v 
+  FILES+=/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/converter_fp/fp32_to_fp16.v 
+	DEFINES=+define+MATMUL_SIZE_8 +define+DESIGN_SIZE_32
+	TEST_FILES=../verif_organized/layer_test.v 
+endif
+
+ifeq ($(size),32_from_combined.matmul.one_file)
+	FILES=../design_composed/tpu_32x32.int8.fpga_with_matmul.v
+	FILES+=../matmul/8x8int8.4x4fp16.organized.combined.modes.v 
+  FILES+=/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/16_bit/fp16_multiplier_modif.v 
+  FILES+=/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/32_bit/Stratix10/DSP_Slice/FpAddSub_single.modif.v 
+  FILES+=/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/converter_fp/fp16_to_fp32.v 
+  FILES+=/home/projects/ljohn/aarora1/samidh_internship2020/Internship_2020/floating_point/converter_fp/fp32_to_fp16.v 
+	DEFINES=+define+MATMUL_SIZE_8 +define+DESIGN_SIZE_32
+	TEST_FILES=../verif_organized/layer_test.v 
+endif
+
+ifeq ($(size),32_from_combined.dsp.one_file)
+	FILES=../design_composed/tpu_32x32.int8.fpga_with_dsp.v
+	DEFINES=+define+MATMUL_SIZE_8 +define+DESIGN_SIZE_32
+	TEST_FILES=../verif_organized/layer_test.v 
+endif
+
 compile:
 	$(VCS_HOME)/bin/vcs -full64 \
 	$(DEFINES) \

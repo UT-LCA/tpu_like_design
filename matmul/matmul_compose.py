@@ -262,7 +262,8 @@ reg [`AWIDTH-1:0] address_mat_a;
 reg [`AWIDTH-1:0] address_mat_b;
 reg [`AWIDTH-1:0] address_mat_c;
 reg [`MASK_WIDTH-1:0] validity_mask_a_rows;
-reg [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+reg [`MASK_WIDTH-1:0] validity_mask_a_cols;
+reg [`MASK_WIDTH-1:0] validity_mask_b_rows;
 reg [`MASK_WIDTH-1:0] validity_mask_b_cols;
 reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
 reg [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
@@ -280,7 +281,8 @@ always @(posedge PCLK) begin
     address_mat_b <= 0;
     address_mat_c <= 0;
     validity_mask_a_rows <= {`MASK_WIDTH{1'b1}};
-    validity_mask_a_cols_b_rows <= {`MASK_WIDTH{1'b1}};
+    validity_mask_a_cols <= {`MASK_WIDTH{1'b1}};
+    validity_mask_b_rows <= {`MASK_WIDTH{1'b1}};
     validity_mask_b_cols <= {`MASK_WIDTH{1'b1}};
     address_stride_a <= `MAT_MUL_SIZE;
     address_stride_b <= `MAT_MUL_SIZE;
@@ -315,8 +317,11 @@ always @(posedge PCLK) begin
           `REG_VALID_MASK_A_ROWS_ADDR: begin
                                 validity_mask_a_rows <= PWDATA[`MASK_WIDTH-1:0];
                                 end
-          `REG_VALID_MASK_A_COLS_B_ROWS_ADDR: begin
-                                validity_mask_a_cols_b_rows <= PWDATA[`MASK_WIDTH-1:0];
+          `REG_VALID_MASK_A_COLS_ADDR: begin
+                                validity_mask_a_cols <= PWDATA[`MASK_WIDTH-1:0];
+                                end
+          `REG_VALID_MASK_B_ROWS_ADDR: begin
+                                validity_mask_b_rows <= PWDATA[`MASK_WIDTH-1:0];
                                 end
           `REG_VALID_MASK_B_COLS_ADDR: begin
                                 validity_mask_b_cols <= PWDATA[`MASK_WIDTH-1:0];
@@ -340,7 +345,8 @@ always @(posedge PCLK) begin
           `REG_MATRIX_B_ADDR    : PRDATA <= address_mat_b;
           `REG_MATRIX_C_ADDR    : PRDATA <= address_mat_c;
           `REG_VALID_MASK_A_ROWS_ADDR: PRDATA <= validity_mask_a_rows;
-          `REG_VALID_MASK_A_COLS_B_ROWS_ADDR: PRDATA <= validity_mask_a_cols_b_rows;
+          `REG_VALID_MASK_A_COLS_ADDR: PRDATA <= validity_mask_a_cols;
+          `REG_VALID_MASK_B_ROWS_ADDR: PRDATA <= validity_mask_b_rows;
           `REG_VALID_MASK_B_COLS_ADDR: PRDATA <= validity_mask_b_cols;
           `REG_MATRIX_A_STRIDE_ADDR : PRDATA <= address_stride_a;
           `REG_MATRIX_B_STRIDE_ADDR : PRDATA <= address_stride_b;
@@ -424,7 +430,8 @@ assign pe_reset = ~pe_resetn;
 
   file.write("""
   .validity_mask_a_rows(validity_mask_a_rows),
-  .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+  .validity_mask_a_cols(validity_mask_a_cols),
+  .validity_mask_b_rows(validity_mask_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols)
 );
 endmodule
@@ -473,7 +480,8 @@ module matmul_{0}x{0}_systolic{1}(
 
   file.write("""
   input [`MASK_WIDTH-1:0] validity_mask_a_rows,
-  input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows,
+  input [`MASK_WIDTH-1:0] validity_mask_a_cols,
+  input [`MASK_WIDTH-1:0] validity_mask_b_rows,
   input [`MASK_WIDTH-1:0] validity_mask_b_cols
 );
   """)
@@ -607,7 +615,7 @@ module matmul_{0}x{0}_systolic{1}(
   
       file.write("""
   .validity_mask_a_rows(validity_mask_a_rows),
-  .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+  .validity_mask_a_cols_b_rows(validity_mask_a_cols),
   .validity_mask_b_cols(validity_mask_b_cols),""")
 
       file.write(	'\n  .final_mat_mul_size(8\'d{2}),\n'

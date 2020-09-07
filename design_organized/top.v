@@ -63,7 +63,8 @@ wire [`AWIDTH-1:0] address_mat_a;
 wire [`AWIDTH-1:0] address_mat_b;
 wire [`AWIDTH-1:0] address_mat_c;
 wire [`MASK_WIDTH-1:0] validity_mask_a_rows;
-wire [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+wire [`MASK_WIDTH-1:0] validity_mask_a_cols;
+wire [`MASK_WIDTH-1:0] validity_mask_b_rows;
 wire [`MASK_WIDTH-1:0] validity_mask_b_cols;
 wire save_output_to_accum;
 wire add_accum_to_output;
@@ -184,7 +185,8 @@ cfg u_cfg(
   .address_mat_b(address_mat_b),
   .address_mat_c(address_mat_c),
   .validity_mask_a_rows(validity_mask_a_rows),
-  .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+  .validity_mask_a_cols(validity_mask_a_cols),
+  .validity_mask_b_rows(validity_mask_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
   .save_output_to_accum(save_output_to_accum),
   .add_accum_to_output(add_accum_to_output),
@@ -257,7 +259,8 @@ matmul_4x4_systolic u_matmul(
   .c_addr(bram_addr_c_NC),
   .c_data_available(matmul_c_data_available),
   .validity_mask_a_rows(validity_mask_a_rows),
-  .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+  .validity_mask_a_cols(validity_mask_a_cols),
+  .validity_mask_b_rows(validity_mask_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
   .final_mat_mul_size(8'd`DESIGN_SIZE),
   .a_loc(8'd0),

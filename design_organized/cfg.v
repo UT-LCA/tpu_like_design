@@ -24,7 +24,8 @@ module cfg(
     output reg [`AWIDTH-1:0] address_mat_b,
     output reg [`AWIDTH-1:0] address_mat_c,
     output reg [`MASK_WIDTH-1:0] validity_mask_a_rows,
-    output reg [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows,
+    output reg [`MASK_WIDTH-1:0] validity_mask_a_cols,
+    output reg [`MASK_WIDTH-1:0] validity_mask_b_rows,
     output reg [`MASK_WIDTH-1:0] validity_mask_b_cols,
     output reg save_output_to_accum,
     output reg add_accum_to_output,
@@ -83,7 +84,8 @@ always @(posedge PCLK) begin
     address_mat_b <= 0;
     address_mat_c <= 0;
     validity_mask_a_rows <= {`MASK_WIDTH{1'b1}};
-    validity_mask_a_cols_b_rows <= {`MASK_WIDTH{1'b1}};
+    validity_mask_a_cols <= {`MASK_WIDTH{1'b1}};
+    validity_mask_b_rows <= {`MASK_WIDTH{1'b1}};
     validity_mask_b_cols <= {`MASK_WIDTH{1'b1}};
     save_output_to_accum <= 0;
     add_accum_to_output <= 0;
@@ -148,8 +150,11 @@ always @(posedge PCLK) begin
           `REG_VALID_MASK_A_ROWS_ADDR: begin
                                 validity_mask_a_rows <= PWDATA[`MASK_WIDTH-1:0];
                                 end
-          `REG_VALID_MASK_A_COLS_B_ROWS_ADDR: begin
-                                validity_mask_a_cols_b_rows <= PWDATA[`MASK_WIDTH-1:0];
+          `REG_VALID_MASK_A_COLS_ADDR: begin
+                                validity_mask_a_cols <= PWDATA[`MASK_WIDTH-1:0];
+                                end
+          `REG_VALID_MASK_B_ROWS_ADDR: begin
+                                validity_mask_b_rows <= PWDATA[`MASK_WIDTH-1:0];
                                 end
           `REG_VALID_MASK_B_COLS_ADDR: begin
                                 validity_mask_b_cols <= PWDATA[`MASK_WIDTH-1:0];
@@ -205,7 +210,8 @@ always @(posedge PCLK) begin
           `REG_MATRIX_B_ADDR  : PRDATA <= address_mat_b;
           `REG_MATRIX_C_ADDR  : PRDATA <= address_mat_c;
           `REG_VALID_MASK_A_ROWS_ADDR: PRDATA <= validity_mask_a_rows;
-          `REG_VALID_MASK_A_COLS_B_ROWS_ADDR: PRDATA <= validity_mask_a_cols_b_rows;
+          `REG_VALID_MASK_A_COLS_ADDR: PRDATA <= validity_mask_a_cols;
+          `REG_VALID_MASK_B_ROWS_ADDR: PRDATA <= validity_mask_b_rows;
           `REG_VALID_MASK_B_COLS_ADDR: PRDATA <= validity_mask_b_cols;
           `REG_POOL_WINDOW_ADDR : PRDATA <= pool_window_size;
 					`REG_ACCUM_ACTIONS_ADDR: PRDATA <= {30'b0, add_accum_to_output, save_output_to_accum};

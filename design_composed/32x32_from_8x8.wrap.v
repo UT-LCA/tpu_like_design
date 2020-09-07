@@ -24,7 +24,8 @@ module matmul_32x32_systolic(
  c_data_available,
 
  validity_mask_a_rows,
- validity_mask_a_cols_b_rows,
+ validity_mask_a_cols,
+ validity_mask_b_rows,
  validity_mask_b_cols,
   
 final_mat_mul_size,
@@ -58,7 +59,8 @@ final_mat_mul_size,
  output c_data_available;
 
  input [`MASK_WIDTH-1:0] validity_mask_a_rows;
- input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+ input [`MASK_WIDTH-1:0] validity_mask_a_cols;
+ input [`MASK_WIDTH-1:0] validity_mask_b_rows;
  input [`MASK_WIDTH-1:0] validity_mask_b_cols;
 
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
@@ -376,7 +378,8 @@ assign c_addr = bram_addr_c_0_3;
   .c_data_3_3_available(c_data_3_3_available),
    		
   .validity_mask_a_rows(validity_mask_a_rows),
-  .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+  .validity_mask_a_cols(validity_mask_a_cols),
+  .validity_mask_b_rows(validity_mask_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols)
 );
 
