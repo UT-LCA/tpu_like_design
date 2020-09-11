@@ -615,7 +615,8 @@ module matmul_{0}x{0}_systolic{1}(
   
       file.write("""
   .validity_mask_a_rows(validity_mask_a_rows),
-  .validity_mask_a_cols_b_rows(validity_mask_a_cols),
+  .validity_mask_a_cols(validity_mask_a_cols),
+  .validity_mask_b_rows(validity_mask_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),""")
 
       file.write(	'\n  .final_mat_mul_size(8\'d{2}),\n'
