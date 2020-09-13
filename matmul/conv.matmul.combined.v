@@ -23,9 +23,9 @@
 `define REG_MATRIX_A_STRIDE_ADDR 32'h28
 `define REG_MATRIX_B_STRIDE_ADDR 32'h32
 `define REG_MATRIX_C_STRIDE_ADDR 32'h36
-`define ADDRESS_BASE_A 10'd10
-`define ADDRESS_BASE_B 10'd100
-`define ADDRESS_BASE_C 10'd500
+`define ADDRESS_BASE_A 10'd0
+`define ADDRESS_BASE_B 10'd0
+`define ADDRESS_BASE_C 10'd0
   module conv(
   input clk,
   input clk_mem,
@@ -296,6 +296,7 @@ assign pe_reset = ~pe_resetn;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_0;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_0;
 	  wire [`MASK_WIDTH-1:0] bram_we_b_0;
+	  wire bram_en_b_0;
 
     
 
@@ -319,6 +320,7 @@ assign pe_reset = ~pe_resetn;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_1;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_1;
 	  wire [`MASK_WIDTH-1:0] bram_we_b_1;
+	  wire bram_en_b_1;
 
     
 
@@ -342,6 +344,7 @@ assign pe_reset = ~pe_resetn;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_2;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_2;
 	  wire [`MASK_WIDTH-1:0] bram_we_b_2;
+	  wire bram_en_b_2;
 
     
 
@@ -365,6 +368,7 @@ assign pe_reset = ~pe_resetn;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_3;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_3;
 	  wire [`MASK_WIDTH-1:0] bram_we_b_3;
+	  wire bram_en_b_3;
 
     
 
@@ -388,6 +392,7 @@ assign pe_reset = ~pe_resetn;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_4;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_4;
 	  wire [`MASK_WIDTH-1:0] bram_we_b_4;
+	  wire bram_en_b_4;
 
     
 
@@ -411,6 +416,7 @@ assign pe_reset = ~pe_resetn;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_5;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_5;
 	  wire [`MASK_WIDTH-1:0] bram_we_b_5;
+	  wire bram_en_b_5;
 
     
 
@@ -434,6 +440,7 @@ assign pe_reset = ~pe_resetn;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_6;
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_6;
 	  wire [`MASK_WIDTH-1:0] bram_we_b_6;
+	  wire bram_en_b_6;
 
     
 
@@ -855,19 +862,103 @@ reg [4:0] vertical_count;
         done <= 0;
         
 
-        start_mat_mul_0 <= 1'b0;
+      slice_0_op <= 0;
+      start_mat_mul_0 <= 0;
+      address_mat_a_0 <= 0;
+      address_mat_b_0 <= 0;
+      address_mat_c_0 <= 0;
+      address_stride_a_0 <= 0;
+      address_stride_b_0 <= 0;
+      address_stride_c_0 <= 0;
+      validity_mask_a_0_rows <= 0;
+      validity_mask_a_0_cols <= 0;
+      validity_mask_b_0_rows <= 0;
+      validity_mask_b_0_cols <= 0;
+    
 
-        start_mat_mul_1 <= 1'b0;
+      slice_1_op <= 0;
+      start_mat_mul_1 <= 0;
+      address_mat_a_1 <= 0;
+      address_mat_b_1 <= 0;
+      address_mat_c_1 <= 0;
+      address_stride_a_1 <= 0;
+      address_stride_b_1 <= 0;
+      address_stride_c_1 <= 0;
+      validity_mask_a_1_rows <= 0;
+      validity_mask_a_1_cols <= 0;
+      validity_mask_b_1_rows <= 0;
+      validity_mask_b_1_cols <= 0;
+    
 
-        start_mat_mul_2 <= 1'b0;
+      slice_2_op <= 0;
+      start_mat_mul_2 <= 0;
+      address_mat_a_2 <= 0;
+      address_mat_b_2 <= 0;
+      address_mat_c_2 <= 0;
+      address_stride_a_2 <= 0;
+      address_stride_b_2 <= 0;
+      address_stride_c_2 <= 0;
+      validity_mask_a_2_rows <= 0;
+      validity_mask_a_2_cols <= 0;
+      validity_mask_b_2_rows <= 0;
+      validity_mask_b_2_cols <= 0;
+    
 
-        start_mat_mul_3 <= 1'b0;
+      slice_3_op <= 0;
+      start_mat_mul_3 <= 0;
+      address_mat_a_3 <= 0;
+      address_mat_b_3 <= 0;
+      address_mat_c_3 <= 0;
+      address_stride_a_3 <= 0;
+      address_stride_b_3 <= 0;
+      address_stride_c_3 <= 0;
+      validity_mask_a_3_rows <= 0;
+      validity_mask_a_3_cols <= 0;
+      validity_mask_b_3_rows <= 0;
+      validity_mask_b_3_cols <= 0;
+    
 
-        start_mat_mul_4 <= 1'b0;
+      slice_4_op <= 0;
+      start_mat_mul_4 <= 0;
+      address_mat_a_4 <= 0;
+      address_mat_b_4 <= 0;
+      address_mat_c_4 <= 0;
+      address_stride_a_4 <= 0;
+      address_stride_b_4 <= 0;
+      address_stride_c_4 <= 0;
+      validity_mask_a_4_rows <= 0;
+      validity_mask_a_4_cols <= 0;
+      validity_mask_b_4_rows <= 0;
+      validity_mask_b_4_cols <= 0;
+    
 
-        start_mat_mul_5 <= 1'b0;
+      slice_5_op <= 0;
+      start_mat_mul_5 <= 0;
+      address_mat_a_5 <= 0;
+      address_mat_b_5 <= 0;
+      address_mat_c_5 <= 0;
+      address_stride_a_5 <= 0;
+      address_stride_b_5 <= 0;
+      address_stride_c_5 <= 0;
+      validity_mask_a_5_rows <= 0;
+      validity_mask_a_5_cols <= 0;
+      validity_mask_b_5_rows <= 0;
+      validity_mask_b_5_cols <= 0;
+    
 
-        start_mat_mul_6 <= 1'b0;
+      slice_6_op <= 0;
+      start_mat_mul_6 <= 0;
+      address_mat_a_6 <= 0;
+      address_mat_b_6 <= 0;
+      address_mat_c_6 <= 0;
+      address_stride_a_6 <= 0;
+      address_stride_b_6 <= 0;
+      address_stride_c_6 <= 0;
+      validity_mask_a_6_rows <= 0;
+      validity_mask_a_6_cols <= 0;
+      validity_mask_b_6_rows <= 0;
+      validity_mask_b_6_cols <= 0;
+    
 
         count <= 0;
         vertical_count <= 0;
@@ -1029,6 +1120,13 @@ start_mat_mul_6 <= 1'b0;
     state <= 5'd2;
 
 
+  end
+end
+
+
+    5'd2: begin
+
+
     start_mat_mul_0 <= 1'b0;
 
     start_mat_mul_1 <= 1'b0;
@@ -1043,11 +1141,11 @@ start_mat_mul_6 <= 1'b0;
 
     start_mat_mul_6 <= 1'b0;
 
+    state <= 5'd3;
   end
-end
 
 
-    5'd2: begin
+    5'd3: begin
 
 
       slice_4_op <= 2'b10;
@@ -1062,7 +1160,6 @@ end
       validity_mask_a_4_cols <= 4'b1111; //constant
       validity_mask_b_4_rows <= 4'b1111; //constant
       validity_mask_b_4_cols <= 4'b0111; //constant
-      state <= 5'd3;
     
 
       slice_5_op <= 2'b10;
@@ -1077,7 +1174,6 @@ end
       validity_mask_a_5_cols <= 4'b1111; //constant
       validity_mask_b_5_rows <= 4'b1111; //constant
       validity_mask_b_5_cols <= 4'b0111; //constant
-      state <= 5'd3;
     
 
       slice_6_op <= 2'b10;
@@ -1092,21 +1188,23 @@ end
       validity_mask_a_6_cols <= 4'b1111; //constant
       validity_mask_b_6_rows <= 4'b1111; //constant
       validity_mask_b_6_cols <= 4'b0111; //constant
-      state <= 5'd3;
     
 
-end
-    5'd3: begin
       if (done_eltwise_add_phase_1 == 1'b1) begin
         state <= 5'd4;
-        start_mat_mul_4 <= 1'b0;
-        start_mat_mul_5 <= 1'b0;
-        start_mat_mul_6 <= 1'b0;
       end
 
 
 end
     5'd4: begin
+        start_mat_mul_4 <= 1'b0;
+        start_mat_mul_5 <= 1'b0;
+        start_mat_mul_6 <= 1'b0;
+        state <= 5'd5;
+
+
+end
+    5'd5: begin
 
 
       slice_5_op <= 2'b10;
@@ -1121,7 +1219,6 @@ end
       validity_mask_a_5_cols <= 4'b1111; //constant
       validity_mask_b_5_rows <= 4'b1111; //constant
       validity_mask_b_5_cols <= 4'b0111; //constant
-      state <= 5'd5;
     
 
       slice_6_op <= 2'b10;
@@ -1136,20 +1233,22 @@ end
       validity_mask_a_6_cols <= 4'b1111; //constant
       validity_mask_b_6_rows <= 4'b1111; //constant
       validity_mask_b_6_cols <= 4'b0111; //constant
-      state <= 5'd5;
     
 
-end
-    5'd5: begin
       if (done_eltwise_add_phase_2 == 1'b1) begin
         state <= 5'd6;
-        start_mat_mul_5 <= 1'b0;
-        start_mat_mul_6 <= 1'b0;
       end
 
 
 end
     5'd6: begin
+        state <= 5'd7;
+        start_mat_mul_5 <= 1'b0;
+        start_mat_mul_6 <= 1'b0;
+
+
+end
+    5'd7: begin
 
 
       slice_6_op <= 2'b10;
@@ -1164,19 +1263,21 @@ end
       validity_mask_a_6_cols <= 4'b1111; //constant
       validity_mask_b_6_rows <= 4'b1111; //constant
       validity_mask_b_6_cols <= 4'b0111; //constant
-      state <= 5'd7;
     
 
-end
-    5'd7: begin
       if (done_eltwise_add_phase_3 == 1'b1) begin
         state <= 5'd8;
-        start_mat_mul_6 <= 1'b0;
       end
 end
 
 
     5'd8: begin
+        state <= 5'd9;
+        start_mat_mul_6 <= 1'b0;
+end
+
+
+    5'd9: begin
     if (vertical_count == 5'd16) begin
       done <= 1'b1;
       state <= 5'd0;
@@ -1225,7 +1326,7 @@ end
       .slice_dtype(1'b1), //1 is FP16
       .op(slice_0_op), 
       .preload(1'b0),
-      .final_mat_mul_size(8'd8),
+      .final_mat_mul_size(8'd4),
       .a_loc(8'd0),
       .b_loc(8'd0)
     );
@@ -1265,7 +1366,7 @@ end
       .slice_dtype(1'b1), //1 is FP16
       .op(slice_1_op), 
       .preload(1'b0),
-      .final_mat_mul_size(8'd8),
+      .final_mat_mul_size(8'd4),
       .a_loc(8'd0),
       .b_loc(8'd0)
     );
@@ -1305,7 +1406,7 @@ end
       .slice_dtype(1'b1), //1 is FP16
       .op(slice_2_op), 
       .preload(1'b0),
-      .final_mat_mul_size(8'd8),
+      .final_mat_mul_size(8'd4),
       .a_loc(8'd0),
       .b_loc(8'd0)
     );
@@ -1345,7 +1446,7 @@ end
       .slice_dtype(1'b1), //1 is FP16
       .op(slice_3_op), 
       .preload(1'b0),
-      .final_mat_mul_size(8'd8),
+      .final_mat_mul_size(8'd4),
       .a_loc(8'd0),
       .b_loc(8'd0)
     );
@@ -1385,7 +1486,7 @@ end
       .slice_dtype(1'b1), //1 is FP16
       .op(slice_4_op), 
       .preload(1'b0),
-      .final_mat_mul_size(8'd8),
+      .final_mat_mul_size(8'd4),
       .a_loc(8'd0),
       .b_loc(8'd0)
     );
@@ -1425,7 +1526,7 @@ end
       .slice_dtype(1'b1), //1 is FP16
       .op(slice_5_op), 
       .preload(1'b0),
-      .final_mat_mul_size(8'd8),
+      .final_mat_mul_size(8'd4),
       .a_loc(8'd0),
       .b_loc(8'd0)
     );
@@ -1465,7 +1566,7 @@ end
       .slice_dtype(1'b1), //1 is FP16
       .op(slice_6_op), 
       .preload(1'b0),
-      .final_mat_mul_size(8'd8),
+      .final_mat_mul_size(8'd4),
       .a_loc(8'd0),
       .b_loc(8'd0)
     );
@@ -1500,7 +1601,7 @@ output [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
 input clk;
 
-`ifdef VCS
+`ifdef SYNTHESIS
 reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
 reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
 reg [7:0] ram[((1<<`AWIDTH)-1):0];

@@ -23,9 +23,9 @@ print("""
 `define REG_MATRIX_A_STRIDE_ADDR 32'h28
 `define REG_MATRIX_B_STRIDE_ADDR 32'h32
 `define REG_MATRIX_C_STRIDE_ADDR 32'h36
-`define ADDRESS_BASE_A 10'd10
-`define ADDRESS_BASE_B 10'd100
-`define ADDRESS_BASE_C 10'd500
+`define ADDRESS_BASE_A 10'd0
+`define ADDRESS_BASE_B 10'd0
+`define ADDRESS_BASE_C 10'd0
   module conv(
   input clk,
   input clk_mem,
@@ -108,6 +108,7 @@ for horizontal in range(7):
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_rdata_b_{iter};
 	  wire [`MAT_MUL_SIZE*`DWIDTH-1:0] bram_wdata_b_{iter};
 	  wire [`MASK_WIDTH-1:0] bram_we_b_{iter};
+	  wire bram_en_b_{iter};
 
     """.format(iter=horizontal))
 
@@ -225,9 +226,25 @@ reg [4:0] vertical_count;
         done <= 0;
         """.format(state_width=state_width))
 
-for iter in range(7):
-  print("""
-        start_mat_mul_{iter} <= 1'b0;""".format(iter=iter))
+for horizontal in range(7):
+    print("""
+      slice_{horiz}_op <= 0;
+      start_mat_mul_{horiz} <= 0;
+      address_mat_a_{horiz} <= 0;
+      address_mat_b_{horiz} <= 0;
+      address_mat_c_{horiz} <= 0;
+      address_stride_a_{horiz} <= 0;
+      address_stride_b_{horiz} <= 0;
+      address_stride_c_{horiz} <= 0;
+      validity_mask_a_{horiz}_rows <= 0;
+      validity_mask_a_{horiz}_cols <= 0;
+      validity_mask_b_{horiz}_rows <= 0;
+      validity_mask_b_{horiz}_cols <= 0;
+    """.format(horiz=horizontal, \
+      state_width=state_width, \
+      state=state, \
+      awidth=addr_width, \
+      stride_width=addr_stride_width))
 
 print("""
         count <= 0;
@@ -287,19 +304,26 @@ print("""
     count <= 4'b0;
     state <= {state_width}'d{state};
 """.format(state=state, state_width=state_width))
-    
-for horizontal in range(7):
-    print("""
-    start_mat_mul_{horiz} <= 1'b0;""".format(horiz=horizontal))
 print("""
   end
 end
 """.format(state=state, state_width=state_width))
-
+    
 print("""
     {state_width}'d{state}: begin
 """.format(state_width=state_width, state=state))
+next_state = state+1
+for horizontal in range(7):
+    print("""
+    start_mat_mul_{horiz} <= 1'b0;""".format(horiz=horizontal))
+print("""
+    state <= {state_width}'d{next_state};
+  end
+""".format(next_state=next_state, state_width=state_width))
 state += 1
+print("""
+    {state_width}'d{state}: begin
+""".format(state_width=state_width, state=state))
 for horizontal in [4,5,6]:
     print("""
       slice_{horiz}_op <= 2'b10;
@@ -314,7 +338,6 @@ for horizontal in [4,5,6]:
       validity_mask_a_{horiz}_cols <= 4'b1111; //constant
       validity_mask_b_{horiz}_rows <= 4'b1111; //constant
       validity_mask_b_{horiz}_cols <= 4'b0111; //constant
-      state <= {state_width}'d{state};
     """.format(horiz=horizontal, \
       state_width=state_width, \
       state=state, \
@@ -322,22 +345,26 @@ for horizontal in [4,5,6]:
       stride_width=addr_stride_width))
 next_state = state+1
 print("""
-end
-    {state_width}'d{state}: begin
       if (done_eltwise_add_phase_1 == 1'b1) begin
         state <= {state_width}'d{next_state};
-        start_mat_mul_4 <= 1'b0;
-        start_mat_mul_5 <= 1'b0;
-        start_mat_mul_6 <= 1'b0;
       end
 """.format(state_width=state_width, state=state, next_state=next_state))
 
+state += 1
+next_state = state+1
+print("""
+end
+    {state_width}'d{state}: begin
+        start_mat_mul_4 <= 1'b0;
+        start_mat_mul_5 <= 1'b0;
+        start_mat_mul_6 <= 1'b0;
+        state <= {state_width}'d{next_state};
+""".format(state_width=state_width, state=state, next_state=next_state))
 state += 1
 print("""
 end
     {state_width}'d{state}: begin
 """.format(state_width=state_width, state=state))
-state += 1
 for horizontal in [5,6]:
     print("""
       slice_{horiz}_op <= 2'b10;
@@ -352,7 +379,6 @@ for horizontal in [5,6]:
       validity_mask_a_{horiz}_cols <= 4'b1111; //constant
       validity_mask_b_{horiz}_rows <= 4'b1111; //constant
       validity_mask_b_{horiz}_cols <= 4'b0111; //constant
-      state <= {state_width}'d{state};
     """.format(horiz=horizontal, \
       state_width=state_width, \
       state=state, \
@@ -360,13 +386,19 @@ for horizontal in [5,6]:
       stride_width=addr_stride_width))
 next_state = state+1
 print("""
+      if (done_eltwise_add_phase_2 == 1'b1) begin
+        state <= {state_width}'d{next_state};
+      end
+""".format(state_width=state_width, state=state, next_state=next_state))
+
+state += 1
+next_state = state +1
+print("""
 end
     {state_width}'d{state}: begin
-      if (done_eltwise_add_phase_2 == 1'b1) begin
         state <= {state_width}'d{next_state};
         start_mat_mul_5 <= 1'b0;
         start_mat_mul_6 <= 1'b0;
-      end
 """.format(state_width=state_width, state=state, next_state=next_state))
 
 state += 1
@@ -374,7 +406,6 @@ print("""
 end
     {state_width}'d{state}: begin
 """.format(state_width=state_width, state=state))
-state += 1
 for horizontal in [6]:
     print("""
       slice_{horiz}_op <= 2'b10;
@@ -389,7 +420,6 @@ for horizontal in [6]:
       validity_mask_a_{horiz}_cols <= 4'b1111; //constant
       validity_mask_b_{horiz}_rows <= 4'b1111; //constant
       validity_mask_b_{horiz}_cols <= 4'b0111; //constant
-      state <= {state_width}'d{state};
     """.format(horiz=horizontal, \
       state_width=state_width, \
       state=state, \
@@ -397,12 +427,17 @@ for horizontal in [6]:
       stride_width=addr_stride_width))
 next_state = state+1
 print("""
-end
-    {state_width}'d{state}: begin
       if (done_eltwise_add_phase_3 == 1'b1) begin
         state <= {state_width}'d{next_state};
-        start_mat_mul_6 <= 1'b0;
       end
+end
+""".format(state_width=state_width, state=state, next_state=next_state))
+state+=1
+next_state = state +1
+print("""
+    {state_width}'d{state}: begin
+        state <= {state_width}'d{next_state};
+        start_mat_mul_6 <= 1'b0;
 end
 """.format(state_width=state_width, state=state, next_state=next_state))
 state += 1
@@ -462,7 +497,7 @@ for horiz in range(7):
       .slice_dtype(1'b1), //1 is FP16
       .op(slice_{iter}_op), 
       .preload(1'b0),
-      .final_mat_mul_size(8'd8),
+      .final_mat_mul_size(8'd4),
       .a_loc(8'd0),
       .b_loc(8'd0)
     );
@@ -498,7 +533,7 @@ output [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
 output [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
 input clk;
 
-`ifdef VCS
+`ifdef SYNTHESIS
 reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
 reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
 reg [7:0] ram[((1<<`AWIDTH)-1):0];
