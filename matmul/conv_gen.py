@@ -278,11 +278,11 @@ for horizontal in range(7):
       address_mat_a_{horiz} <=  vertical_count + `ADDRESS_BASE_A +{awidth}'d{horiz_addr_a}; //will change horizontally
       address_mat_b_{horiz} <=  vertical_count + `ADDRESS_BASE_B +{awidth}'d{horiz_addr_b}; //will change horizontally
       address_mat_c_{horiz} <=  vertical_count + `ADDRESS_BASE_A +{awidth}'d192; //will stay constant horizontally
-      if (count==4'd4) begin
-        address_stride_a_{horiz} <= {stride_width}'d8;
-      end else begin
+      //if (count==4'd4) begin
+      // address_stride_a_{horiz} <= {stride_width}'d8;
+      //end else begin
         address_stride_a_{horiz} <= {stride_width}'d1; 
-      end
+      //end
       address_stride_b_{horiz} <= {stride_width}'d3; //constant horiz
       address_stride_c_{horiz} <= {stride_width}'d64; //constant horiz
       validity_mask_a_{horiz}_rows <= 4'b1111; //constant
@@ -301,7 +301,6 @@ print("""
   count <= count + 1;
 
   if (done_mat_mul == 1'b1) begin
-    count <= 4'b0;
     state <= {state_width}'d{state};
 """.format(state=state, state_width=state_width))
 print("""
@@ -311,6 +310,7 @@ end
     
 print("""
     {state_width}'d{state}: begin
+    count <= 4'b0;
 """.format(state_width=state_width, state=state))
 next_state = state+1
 for horizontal in range(7):
