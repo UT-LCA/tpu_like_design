@@ -39,8 +39,23 @@
 //   |--- activation            u_activation(block that applies activation - relu or tanh)
 
 //////////////////////////////////////
-// Supported architectures
+// Tested architectures
 //////////////////////////////////////
+// This design has been tested with:
+// 1. The VTR flagship 40nm architecture. Example: arch/timing/k6_frac_N10_frac_chain_mem32K_40nm.xml
+//    Properties of this design on this architecture:
+//      Critical path delay: 12.5 ns               
+//      Clock frequency: 80 MHz
+//      Logic area (used): 7.28085e+08 MWTAs
+//      Resource usage: 5522 LBs, 16 RAMs, 1065 Multipliers
+//      Runtime (on Intel Xeon E5-2430 2.5GHz with single thread): 11500 sec
+// 2. 22nm architectures generated from COFFE. Example: arch/COFFE_22nm/stratix10_arch.xml
+//    Properties of this design on this architecture:
+//      Critical path delay: 15.4 ns             
+//      Clock frequency: 65 MHz
+//      Logic area (used): 1.81004e+08 MWTAs
+//      Resource usage: 5394 LBs, 26 RAMs, 1073 Multipliers
+//      Runtime (on Intel Xeon E5-2430 2.5GHz with single thread): 12500 sec
 
 //////////////////////////////////////
 // Parameters
@@ -7090,7 +7105,7 @@ assign row_latch_en =
 reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
 reg start_capturing_c_data;
-integer counter;
+reg [31:0] counter;
 reg [32*`DWIDTH-1:0] c_data_out;
 reg [32*`DWIDTH-1:0] c_data_out_1;
 reg [32*`DWIDTH-1:0] c_data_out_2;
@@ -14244,9 +14259,6 @@ module cfg(
     output reg enable_pool,
     output reg enable_activation,
     output reg enable_conv_mode,
-    //TODO: We need to change the precision of compute to a larger 
-    //number. For now, using the DWIDTH variable, but we need a 
-    //HIGH_PRECISION_DWIDTH kind of thing
     output reg [`DWIDTH-1:0] mean,
     output reg [`DWIDTH-1:0] inv_var,
 		output reg [`MAX_BITS_POOL-1:0] pool_window_size,
@@ -14529,8 +14541,8 @@ assign done_norm = (enable_norm) ? done_norm_internal : 1'b1;
 //loc = 3;
 //PA[loc -:4] = PA[loc+1 +:4];  // equivalent to PA[3:0] = PA[7:4];
 
-integer cycle_count;
-integer i;
+reg [31:0] cycle_count;
+reg [31:0] i;
 always @(posedge clk) begin
     if ((reset || ~enable_norm)) begin
         mean_applied_data <= 0;
@@ -14616,10 +14628,10 @@ output reg [`DESIGN_SIZE*`DWIDTH-1:0] q0;
 output reg [`DESIGN_SIZE*`DWIDTH-1:0] q1;
 input clk;
 
-`ifdef SIMULATION
+`ifdef VCS
 
 reg [7:0] ram[((1<<`AWIDTH)-1):0];
-integer i;
+reg [31:0] i;
 
 always @(posedge clk)  
 begin 
@@ -14812,8 +14824,8 @@ module pool(
 reg [`DESIGN_SIZE*`DWIDTH-1:0] out_data_temp;
 reg done_pool_temp;
 reg out_data_available_temp;
-integer i,j;
-integer cycle_count;
+reg [31:0] i,j;
+reg [31:0] cycle_count;
 
 always @(posedge clk) begin
 	if (reset || ~enable_pool || ~in_data_available) begin
@@ -14883,8 +14895,8 @@ wire [`DESIGN_SIZE*`DWIDTH-1:0] out_data_internal;
 reg [`DESIGN_SIZE*`DWIDTH-1:0] slope_applied_data_internal;
 reg [`DESIGN_SIZE*`DWIDTH-1:0] intercept_applied_data_internal;
 reg [`DESIGN_SIZE*`DWIDTH-1:0] relu_applied_data_internal;
-integer i;
-integer cycle_count;
+reg [31:0] i;
+reg [31:0] cycle_count;
 reg activation_in_progress;
 
 reg [(`DESIGN_SIZE*4)-1:0] address;
@@ -15276,8 +15288,7 @@ cfg u_cfg(
   .done_tpu(done_tpu)
 );
 
-//TODO: We want to move the data setup part
-//and the interface to BRAM_A and BRAM_B outside
+//TODO: We want to move the interface to BRAM_A and BRAM_B outside
 //into its own modules. For now, it is all inside
 //the matmul block
 
@@ -15286,18 +15297,7 @@ cfg u_cfg(
 //Note: the ports on this module to write data to bram c
 //are not used in this top module. 
 ////////////////////////////////////////////////////////////////
-`ifdef DESIGN_SIZE_32
 matmul_32x32_systolic u_matmul(
-`endif
-`ifdef DESIGN_SIZE_16
-matmul_16x16_systolic u_matmul(
-`endif
-`ifdef DESIGN_SIZE_8
-matmul_8x8_systolic u_matmul(
-`endif
-`ifdef DESIGN_SIZE_4
-matmul_4x4_systolic u_matmul(
-`endif
   .clk(clk),
   .reset(reset),
   .pe_reset(pe_reset),

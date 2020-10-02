@@ -107,13 +107,13 @@ help:
 
 compile_one_file_design:
 	$(VCS_HOME)/bin/vcs -full64  \
-	+define+SIMULATION \
+	+define+VCS \
   $(DEFINES) \
 	$(FILES) \
 	$(TEST_FILES) \
 	../verif_organized/top_tb.v \
 	-sverilog \
-	-debug_access+all \
+  -debug_access+all \
 	-y /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
 	-v /misc/linuxws/packages/synopsys_2018/syn/O-2018.06-SP5/dw/sim_ver \
 	+libext+.v
