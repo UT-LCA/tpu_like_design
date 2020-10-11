@@ -279,6 +279,10 @@
 `define REG_VALID_MASK_B_COLS_ADDR 32'h58
 //Bit `MASK_WIDTH-1:0 validity_mask
 
+//This used to be a normal signal, but changing it to a `define.
+//That's because it's not required to be a variable in this design.
+//And ODIN doesn't seem to propagate constants properly.
+`define final_mat_mul_size 32
 
 /////////////////////////////////////
 // Matrix multiplication unit
@@ -334,7 +338,7 @@ module matmul_32x32_systolic(
  validity_mask_b_rows,
  validity_mask_b_cols,
   
-final_mat_mul_size,
+ final_mat_mul_size,
   
  a_loc,
  b_loc
@@ -397,7 +401,7 @@ reg [7:0] clk_cnt;
 wire [7:0] clk_cnt_for_done;
 
 assign clk_cnt_for_done = 
-                          ((final_mat_mul_size<<2) - 2 + `NUM_CYCLES_IN_MAC);  
+                          ((`final_mat_mul_size<<2) - 2 + `NUM_CYCLES_IN_MAC);  
     
 always @(posedge clk) begin
   if (reset || ~start_mat_mul) begin
@@ -7100,7 +7104,7 @@ wire row_latch_en;
 //assign row_latch_en = (clk_cnt==(`MAT_MUL_SIZE + ((a_loc+b_loc) << `LOG2_MAT_MUL_SIZE) + 10 +  `NUM_CYCLES_IN_MAC - 1));
 
 assign row_latch_en =  
-                       ((clk_cnt == ((final_mat_mul_size<<2) - final_mat_mul_size - 1 +`NUM_CYCLES_IN_MAC)));
+                       ((clk_cnt == ((`final_mat_mul_size<<2) - `final_mat_mul_size - 1 +`NUM_CYCLES_IN_MAC)));
     
 reg c_data_available;
 reg [`AWIDTH-1:0] c_addr;
@@ -7591,7 +7595,7 @@ always @(posedge clk) begin
   //(clk_cnt >= a_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
 
-  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  if (reset || ~start_mat_mul || (clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)+`final_mat_mul_size)) begin
   
       a_addr <= address_mat_a-address_stride_a;
   
@@ -7600,7 +7604,7 @@ always @(posedge clk) begin
   //else if ((clk_cnt >= a_loc*`MAT_MUL_SIZE) && (clk_cnt < a_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
 
-  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  else if ((clk_cnt >= (a_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (a_loc<<`LOG2_MAT_MUL_SIZE)+`final_mat_mul_size)) begin
   
       a_addr <= a_addr + address_stride_a;
   
@@ -9205,7 +9209,7 @@ always @(posedge clk) begin
   //else if (clk_cnt >= b_loc*`MAT_MUL_SIZE+final_mat_mul_size) begin
   //Writing the line above to avoid multiplication:
 
-  if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  if ((reset || ~start_mat_mul) || (clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)+`final_mat_mul_size)) begin
 
       b_addr <= address_mat_b - address_stride_b;
   
@@ -9214,7 +9218,7 @@ always @(posedge clk) begin
   //else if ((clk_cnt >= b_loc*`MAT_MUL_SIZE) && (clk_cnt < b_loc*`MAT_MUL_SIZE+final_mat_mul_size)) begin
   //Writing the line above to avoid multiplication:
 
-  else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+final_mat_mul_size)) begin
+  else if ((clk_cnt >= (b_loc<<`LOG2_MAT_MUL_SIZE)) && (clk_cnt < (b_loc<<`LOG2_MAT_MUL_SIZE)+`final_mat_mul_size)) begin
 
       b_addr <= b_addr + address_stride_b;
   
@@ -14525,8 +14529,8 @@ reg done_norm_internal;
 reg norm_in_progress;
 
 //Muxing logic to handle the case when this block is disabled
-assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
-assign out_data = (enable_norm) ? out_data_internal : inp_data;
+assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available_flopped;
+assign out_data = (enable_norm) ? out_data_internal : inp_data_flopped;
 assign done_norm = (enable_norm) ? done_norm_internal : 1'b1;
 
 //inp_data will have multiple elements in it. the number of elements is the same as size of the matmul.
@@ -14541,6 +14545,9 @@ assign done_norm = (enable_norm) ? done_norm_internal : 1'b1;
 //loc = 3;
 //PA[loc -:4] = PA[loc+1 +:4];  // equivalent to PA[3:0] = PA[7:4];
 
+reg in_data_available_flopped;
+reg [`DESIGN_SIZE*`DWIDTH-1:0] inp_data_flopped;
+
 reg [31:0] cycle_count;
 reg [31:0] i;
 always @(posedge clk) begin
@@ -14551,6 +14558,8 @@ always @(posedge clk) begin
         cycle_count <= 0;
         done_norm_internal <= 0;
         norm_in_progress <= 0;
+        in_data_available_flopped <= in_data_available;
+        inp_data_flopped <= inp_data;
     end else if (in_data_available || norm_in_progress) begin
         cycle_count = cycle_count + 1;
         //Let's apply mean and variance as the input data comes in.
@@ -14628,7 +14637,7 @@ output reg [`DESIGN_SIZE*`DWIDTH-1:0] q0;
 output reg [`DESIGN_SIZE*`DWIDTH-1:0] q1;
 input clk;
 
-`ifdef VCS
+`ifdef SIMULATION
 
 reg [7:0] ram[((1<<`AWIDTH)-1):0];
 reg [31:0] i;
@@ -14821,6 +14830,9 @@ module pool(
     input reset
 );
 
+reg in_data_available_flopped;
+reg [`DESIGN_SIZE*`DWIDTH-1:0] inp_data_flopped;
+
 reg [`DESIGN_SIZE*`DWIDTH-1:0] out_data_temp;
 reg done_pool_temp;
 reg out_data_available_temp;
@@ -14833,6 +14845,8 @@ always @(posedge clk) begin
 		done_pool_temp <= 0;
 		out_data_available_temp <= 0;
 		cycle_count <= 0;
+    in_data_available_flopped <= in_data_available;
+    inp_data_flopped <= inp_data;
 	end
 
 	else if (in_data_available) begin
@@ -14862,8 +14876,8 @@ always @(posedge clk) begin
 	end
 end
 
-assign out_data = enable_pool ? out_data_temp : inp_data; 
-assign out_data_available = enable_pool ? out_data_available_temp : in_data_available;
+assign out_data = enable_pool ? out_data_temp : inp_data_flopped; 
+assign out_data_available = enable_pool ? out_data_available_temp : in_data_available_flopped;
 assign done_pool = enable_pool ? done_pool_temp : 1'b1;
 
 //Adding a dummy signal to use validity_mask input, to make ODIN happy
@@ -14901,13 +14915,27 @@ reg activation_in_progress;
 
 reg [(`DESIGN_SIZE*4)-1:0] address;
 reg [(`DESIGN_SIZE*8)-1:0] data_slope;
+reg [(`DESIGN_SIZE*8)-1:0] data_slope_flopped;
 reg [(`DESIGN_SIZE*8)-1:0] data_intercept;
 reg [(`DESIGN_SIZE*8)-1:0] data_intercept_delayed;
 
+reg in_data_available_flopped;
+reg [`DESIGN_SIZE*`DWIDTH-1:0] inp_data_flopped;
+
+always @(posedge clk) begin
+  if (reset) begin
+    inp_data_flopped <= 0;
+    data_slope_flopped <= 0;
+  end else begin
+    inp_data_flopped <= inp_data;
+    data_slope_flopped <= data_slope;
+  end
+end
+
 // If the activation block is not enabled, just forward the input data
-assign out_data             = enable_activation ? out_data_internal : inp_data;
+assign out_data             = enable_activation ? out_data_internal : inp_data_flopped;
 assign done_activation      = enable_activation ? done_activation_internal : 1'b1;
-assign out_data_available   = enable_activation ? out_data_available_internal : in_data_available;
+assign out_data_available   = enable_activation ? out_data_available_internal : in_data_available_flopped;
 
 always @(posedge clk) begin
    if (reset || ~enable_activation) begin
@@ -14919,12 +14947,13 @@ always @(posedge clk) begin
       out_data_available_internal <= 0;
       cycle_count                 <= 0;
       activation_in_progress      <= 0;
+      in_data_available_flopped <= in_data_available;
    end else if(in_data_available || activation_in_progress) begin
       cycle_count = cycle_count + 1;
 
       for (i = 0; i < `DESIGN_SIZE; i=i+1) begin
          if(activation_type==1'b1) begin // tanH
-            slope_applied_data_internal[i*`DWIDTH +:`DWIDTH] <= data_slope[i*8 +: 8] * inp_data[i*`DWIDTH +:`DWIDTH];
+            slope_applied_data_internal[i*`DWIDTH +:`DWIDTH] <= data_slope_flopped[i*8 +: 8] * inp_data_flopped[i*`DWIDTH +:`DWIDTH];
             data_intercept_delayed[i*8 +: 8] <= data_intercept[i*8 +: 8];
             intercept_applied_data_internal[i*`DWIDTH +:`DWIDTH] <= slope_applied_data_internal[i*`DWIDTH +:`DWIDTH] + data_intercept_delayed[i*8 +: 8];
          end else begin // ReLU
@@ -15288,7 +15317,8 @@ cfg u_cfg(
   .done_tpu(done_tpu)
 );
 
-//TODO: We want to move the interface to BRAM_A and BRAM_B outside
+//TODO: We want to move the data setup part
+//and the interface to BRAM_A and BRAM_B outside
 //into its own modules. For now, it is all inside
 //the matmul block
 
@@ -15385,40 +15415,19 @@ activation u_activation(
 //block that could potentially write the output.
 always @(posedge clk) begin
   if (reset) begin
-    if (enable_conv_mode) begin
-      bram_wdata_a <= 0;
-      bram_addr_a_for_writing <= address_mat_c - (out_img_height*out_img_width);
-      bram_a_wdata_available <= 0;
-    end
-    else begin
       bram_wdata_a <= 0;
       bram_addr_a_for_writing <= address_mat_c + address_stride_c;
       bram_a_wdata_available <= 0;
-    end
   end
   else if (activation_out_data_available) begin
-    if (enable_conv_mode) begin
-      bram_wdata_a <= activation_data_out;
-      bram_addr_a_for_writing <= bram_addr_a_for_writing + (out_img_height*out_img_width);
-      bram_a_wdata_available <= activation_out_data_available;
-    end
-    else begin
       bram_wdata_a <= activation_data_out;
       bram_addr_a_for_writing <= bram_addr_a_for_writing - address_stride_c;
       bram_a_wdata_available <= activation_out_data_available;
-    end
   end
   else begin
-    if (enable_conv_mode) begin
-      bram_wdata_a <= 0;
-      bram_addr_a_for_writing <= address_mat_c - (out_img_height*out_img_width);
-      bram_a_wdata_available <= 0;
-    end
-    else begin
       bram_wdata_a <= 0;
       bram_addr_a_for_writing <= address_mat_c + address_stride_c;
       bram_a_wdata_available <= 0;
-    end
   end
 end  
 
