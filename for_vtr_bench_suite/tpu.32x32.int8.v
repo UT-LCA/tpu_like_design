@@ -158,8 +158,6 @@
 `define REG_MATRIX_C_ADDR 32'h16
 //Bit `AWIDTH-1:0 address_mat_c
 
-
-
 //---------------------------------------
 //Addr 24: Register that controls the accumulation logic
 //---------------------------------------
@@ -14527,6 +14525,8 @@ reg [`DESIGN_SIZE*`DWIDTH-1:0] mean_applied_data;
 reg [`DESIGN_SIZE*`DWIDTH-1:0] variance_applied_data;
 reg done_norm_internal;
 reg norm_in_progress;
+reg in_data_available_flopped;
+reg [`DESIGN_SIZE*`DWIDTH-1:0] inp_data_flopped;
 
 //Muxing logic to handle the case when this block is disabled
 assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available_flopped;
@@ -14544,9 +14544,6 @@ assign done_norm = (enable_norm) ? done_norm_internal : 1'b1;
 //another example:
 //loc = 3;
 //PA[loc -:4] = PA[loc+1 +:4];  // equivalent to PA[3:0] = PA[7:4];
-
-reg in_data_available_flopped;
-reg [`DESIGN_SIZE*`DWIDTH-1:0] inp_data_flopped;
 
 reg [31:0] cycle_count;
 reg [31:0] i;
@@ -14820,7 +14817,7 @@ endmodule
 module pool(
     input enable_pool,
     input in_data_available,
-	input [`MAX_BITS_POOL-1:0] pool_window_size,
+	  input [`MAX_BITS_POOL-1:0] pool_window_size,
     input [`DESIGN_SIZE*`DWIDTH-1:0] inp_data,
     output [`DESIGN_SIZE*`DWIDTH-1:0] out_data,
     output out_data_available,
@@ -14850,7 +14847,7 @@ always @(posedge clk) begin
 	end
 
 	else if (in_data_available) begin
-        cycle_count = cycle_count + 1;
+    cycle_count = cycle_count + 1;
 		out_data_available_temp <= 1;
 
 		case (pool_window_size)
@@ -14918,6 +14915,7 @@ reg [(`DESIGN_SIZE*8)-1:0] data_slope;
 reg [(`DESIGN_SIZE*8)-1:0] data_slope_flopped;
 reg [(`DESIGN_SIZE*8)-1:0] data_intercept;
 reg [(`DESIGN_SIZE*8)-1:0] data_intercept_delayed;
+reg [(`DESIGN_SIZE*8)-1:0] data_intercept_flopped;
 
 reg in_data_available_flopped;
 reg [`DESIGN_SIZE*`DWIDTH-1:0] inp_data_flopped;
@@ -14943,6 +14941,7 @@ always @(posedge clk) begin
       intercept_applied_data_internal <= 0; 
       relu_applied_data_internal      <= 0; 
       data_intercept_delayed      <= 0;
+      data_intercept_flopped      <= 0;
       done_activation_internal    <= 0;
       out_data_available_internal <= 0;
       cycle_count                 <= 0;
@@ -14954,7 +14953,8 @@ always @(posedge clk) begin
       for (i = 0; i < `DESIGN_SIZE; i=i+1) begin
          if(activation_type==1'b1) begin // tanH
             slope_applied_data_internal[i*`DWIDTH +:`DWIDTH] <= data_slope_flopped[i*8 +: 8] * inp_data_flopped[i*`DWIDTH +:`DWIDTH];
-            data_intercept_delayed[i*8 +: 8] <= data_intercept[i*8 +: 8];
+            data_intercept_flopped[i*8 +: 8] <= data_intercept[i*8 +: 8];
+            data_intercept_delayed[i*8 +: 8] <= data_intercept_flopped[i*8 +: 8];
             intercept_applied_data_internal[i*`DWIDTH +:`DWIDTH] <= slope_applied_data_internal[i*`DWIDTH +:`DWIDTH] + data_intercept_delayed[i*8 +: 8];
          end else begin // ReLU
             relu_applied_data_internal[i*`DWIDTH +:`DWIDTH] <= inp_data[i*`DWIDTH] ? {`DWIDTH{1'b0}} : inp_data[i*`DWIDTH +:`DWIDTH];
@@ -14963,18 +14963,18 @@ always @(posedge clk) begin
 
       //TANH needs 1 extra cycle
       if (activation_type==1'b1) begin
-         if (cycle_count==2) begin
+         if (cycle_count==3) begin
             out_data_available_internal <= 1;
          end
       end else begin
-         if (cycle_count==1) begin
+         if (cycle_count==2) begin
            out_data_available_internal <= 1;
          end
       end
 
       //TANH needs 1 extra cycle
       if (activation_type==1'b1) begin
-        if(cycle_count==(`DESIGN_SIZE+1)) begin
+        if(cycle_count==(`DESIGN_SIZE+2)) begin
            done_activation_internal <= 1'b1;
            activation_in_progress <= 0;
         end
@@ -14982,7 +14982,7 @@ always @(posedge clk) begin
            activation_in_progress <= 1;
         end
       end else begin
-        if(cycle_count==(`DESIGN_SIZE)) begin
+        if(cycle_count==(`DESIGN_SIZE+1)) begin
            done_activation_internal <= 1'b1;
            activation_in_progress <= 0;
         end
@@ -14996,6 +14996,7 @@ always @(posedge clk) begin
       intercept_applied_data_internal <= 0; 
       relu_applied_data_internal      <= 0; 
       data_intercept_delayed      <= 0;
+      data_intercept_flopped      <= 0;
       done_activation_internal    <= 0;
       out_data_available_internal <= 0;
       cycle_count                 <= 0;
@@ -15432,5 +15433,3 @@ always @(posedge clk) begin
 end  
 
 endmodule
-
-

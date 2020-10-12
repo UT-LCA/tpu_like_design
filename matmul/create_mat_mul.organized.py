@@ -143,7 +143,8 @@ if conv_code:
   """)
 f.write("""
  validity_mask_a_rows,
- validity_mask_a_cols_b_rows,
+ validity_mask_a_cols,
+ validity_mask_b_rows,
  validity_mask_b_cols,
   """)
 if not hard_counts:
@@ -205,7 +206,8 @@ if conv_code:
   """)
 f.write("""
  input [`MASK_WIDTH-1:0] validity_mask_a_rows;
- input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+ input [`MASK_WIDTH-1:0] validity_mask_a_cols;
+ input [`MASK_WIDTH-1:0] validity_mask_b_rows;
  input [`MASK_WIDTH-1:0] validity_mask_b_cols;
 """)
 if not hard_counts:
@@ -409,7 +411,8 @@ for i in range(1,int(systolic_size)):
 
 f.write("""
 .validity_mask_a_rows(validity_mask_a_rows),
-.validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+.validity_mask_a_cols(validity_mask_a_cols),
+.validity_mask_b_rows(validity_mask_b_rows),
 .validity_mask_b_cols(validity_mask_b_cols),
 """)
 
@@ -895,7 +898,8 @@ for i in range(1,int(systolic_size)):
 
 f.write("""
 validity_mask_a_rows,
-validity_mask_a_cols_b_rows,
+validity_mask_a_cols,
+validity_mask_b_rows,
 validity_mask_b_cols,
 """)
 
@@ -959,7 +963,8 @@ input [15:0] inp_img_width;
 
 f.write("""
 input [`MASK_WIDTH-1:0] validity_mask_a_rows;
-input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+input [`MASK_WIDTH-1:0] validity_mask_a_cols;
+input [`MASK_WIDTH-1:0] validity_mask_b_rows;
 input [`MASK_WIDTH-1:0] validity_mask_b_cols;
 """)
 if not hard_counts:
@@ -1062,11 +1067,11 @@ assign a_data_valid =
 """)
 for i in range(int(systolic_size)):
   if i==0:
-    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i+1) + ") ||\n")
+    f.write("     ((validity_mask_a_cols[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i+1) + ") ||\n")
   elif i==(int(systolic_size)-1):
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i+1) + ")) ?\n")
+    f.write("      (validity_mask_a_cols[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i+1) + ")) ?\n")
   else:
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i+1) + ") ||\n")
+    f.write("      (validity_mask_a_cols[" + str(i) +"]==1'b0 && a_mem_access_counter==" + str(i+1) + ") ||\n")
 f.write("""    
     1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
@@ -1200,11 +1205,11 @@ assign b_data_valid =
 """)
 for i in range(int(systolic_size)):
   if i==0:
-    f.write("     ((validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i+1) + ") ||\n")
+    f.write("     ((validity_mask_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i+1) + ") ||\n")
   elif i==(int(systolic_size)-1):
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i+1) + ")) ?\n")
+    f.write("      (validity_mask_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i+1) + ")) ?\n")
   else:
-    f.write("      (validity_mask_a_cols_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i+1) + ") ||\n")
+    f.write("      (validity_mask_b_rows[" + str(i) +"]==1'b0 && b_mem_access_counter==" + str(i+1) + ") ||\n")
 f.write("""    
         1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
 

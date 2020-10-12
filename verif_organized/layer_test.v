@@ -266,13 +266,22 @@ reg [`DWIDTH-1:0] c[16][16] =
 
 `ifdef DESIGN_SIZE_32
 integer a_start_addr = 0;
-integer b_start_addr = 300;
+integer b_start_addr = 0;
 integer c_start_addr = 700;
 integer problem_size = 32;
 reg [`DWIDTH-1:0] a[32][32];
 reg [`DWIDTH-1:0] b[32][32];
 reg [`DWIDTH-1:0] c[32][32];
-//TODO: Need to provide actual values and verify
+
+initial begin
+   for (int i=0; i<problem_size; i++) begin
+       for (int j=0; j<problem_size; j++) begin
+           a[j][i] = 8'b1;
+           b[i][j] = 8'b1;
+       end
+   end
+end
+
 `endif
 
 ////////////////////////////////////////////
@@ -311,7 +320,11 @@ begin
        for (int j=0; j<problem_size; j++) begin
            address = c_start_addr+problem_size*i+j;
            observed = u_top.matrix_A.ram[address];
-           expected = (c[j][i] - mean) * inv_var;
+           if ($test$plusargs("norm_disabled")) begin
+             expected = (c[j][i]);
+           end else begin  
+             expected = (c[j][i] - mean) * inv_var;
+           end  
            if (expected != observed) begin
              $display("Mismatch found. Address = %0d, Expected = %0d, Observed = %0d", address, expected, observed);
              fail = 1;

@@ -75,9 +75,15 @@ ifeq ($(size),32_from_combined.dsp.one_file)
 	TEST_FILES=../verif_organized/layer_test.v 
 endif
 
+ifeq ($(size),16.one_file)
+	FILES=tpu.16x16.int8.v
+	DEFINES=+define+MATMUL_SIZE_8 +define+DESIGN_SIZE_16 +define+SIMULATION
+	TEST_FILES=../verif_organized/layer_test.v 
+endif
+
 ifeq ($(size),32.one_file)
 	FILES=tpu.32x32.int8.v
-	DEFINES=+define+MATMUL_SIZE_8 +define+DESIGN_SIZE_32
+	DEFINES=+define+MATMUL_SIZE_8 +define+DESIGN_SIZE_32 +define+SIMULATION
 	TEST_FILES=../verif_organized/layer_test.v 
 endif
 
@@ -119,7 +125,7 @@ compile_one_file_design:
 	+libext+.v
 
 run:
-	./simv +layer_test +pool_disabled +activation_disabled
+	./simv +layer_test +pool_disabled +activation_disabled +norm_disabled
 
 run_all_enabled:
 	./simv +layer_test 
