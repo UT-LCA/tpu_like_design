@@ -46,7 +46,7 @@
 //    Properties of this design on this architecture:
 //      Critical path delay: 8.32 ns               
 //      Clock frequency: 120.19 MHz
-//      Critical path: Includes the multiplier in the MAC in a PE
+//      Critical path: Includes the multiplier in the MAC in a PE and inter-CLB routing
 //      Logic area (used): 1.97532e+08 MWTAs
 //      Resource usage: 1556 LBs, 8 RAMs, 276 Multipliers
 //      Runtime (on Intel Xeon E5-2430 2.5GHz with single thread): 3200 sec
@@ -54,7 +54,7 @@
 //    Properties of this design on this architecture:
 //      Critical path delay: 9.24 ns             
 //      Clock frequency: 108.17 MHz
-//      Critical path: Includes the multiplier in the MAC in a PE
+//      Critical path: Includes the multiplier in the MAC in a PE and inter-CLB routing
 //      Logic area (used): 4.95598e+07 MWTAs
 //      Resource usage: 1477 LBs, 14 RAMs, 280 Multipliers
 //      Runtime (on Intel Xeon E5-2430 2.5GHz with single thread): 3400 sec
