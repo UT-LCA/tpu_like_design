@@ -44,17 +44,19 @@
 // This design has been tested with:
 // 1. The VTR flagship 40nm architecture. Example: arch/timing/k6_frac_N10_frac_chain_mem32K_40nm.xml
 //    Properties of this design on this architecture:
-//      Critical path delay: 12.5 ns               
-//      Clock frequency: 80 MHz
-//      Logic area (used): 7.28085e+08 MWTAs
-//      Resource usage: 5522 LBs, 16 RAMs, 1065 Multipliers
+//      Critical path delay: 11.79 ns               
+//      Clock frequency: 84.76 MHz
+//      Critical path: Includes the multiplier in the MAC in a PE
+//      Logic area (used): 7.08397e+08 MWTAs
+//      Resource usage: 5164 LBs, 16 RAMs, 1064 Multipliers
 //      Runtime (on Intel Xeon E5-2430 2.5GHz with single thread): 11500 sec
 // 2. 22nm architectures generated from COFFE. Example: arch/COFFE_22nm/stratix10_arch.xml
 //    Properties of this design on this architecture:
-//      Critical path delay: 15.4 ns             
-//      Clock frequency: 65 MHz
-//      Logic area (used): 1.81004e+08 MWTAs
-//      Resource usage: 5394 LBs, 26 RAMs, 1073 Multipliers
+//      Critical path delay: 12.01 ns             
+//      Clock frequency: 83.22 MHz
+//      Critical path: Includes the multiplier in the MAC in a PE
+//      Logic area (used): 1.71295e+08 MWTAs
+//      Resource usage: 4986 LBs, 26 RAMs, 1072 Multipliers
 //      Runtime (on Intel Xeon E5-2430 2.5GHz with single thread): 12500 sec
 
 //////////////////////////////////////
