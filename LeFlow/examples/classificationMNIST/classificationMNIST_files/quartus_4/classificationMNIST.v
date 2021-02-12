@@ -12,31 +12,31 @@
 // Number of RAM elements: 9
 `define MEMORY_CONTROLLER_TAG_SIZE 9
 // @halF33 = internal unnamed_addr constant [2 x float] [float 5.000000e-01, float -5.000000e-01], align 4
-`define TAG_g_halF33 `MEMORY_CONTROLLER_TAG_SIZE'd10
+`define TAG_g_halF33 9'd10
 `define TAG_g_halF33_a {`TAG_g_halF33, 55'd0}
 // @ln2HI31 = internal unnamed_addr constant [2 x float] [float 0x3FE62E3000000000, float 0xBFE62E3000000000], align 4
-`define TAG_g_ln2HI31 `MEMORY_CONTROLLER_TAG_SIZE'd8
+`define TAG_g_ln2HI31 9'd8
 `define TAG_g_ln2HI31_a {`TAG_g_ln2HI31, 55'd0}
 // @ln2LO32 = internal unnamed_addr constant [2 x float] [float 0x3EE2FEFA20000000, float 0xBEE2FEFA20000000], align 4
-`define TAG_g_ln2LO32 `MEMORY_CONTROLLER_TAG_SIZE'd9
+`define TAG_g_ln2LO32 9'd9
 `define TAG_g_ln2LO32_a {`TAG_g_ln2LO32, 55'd0}
 // @param0 = internal global [10 x float] zeroinitializer, align 8
-`define TAG_g_param0 `MEMORY_CONTROLLER_TAG_SIZE'd7
+`define TAG_g_param0 9'd7
 `define TAG_g_param0_a {`TAG_g_param0, 55'd0}
 // @param1 = internal global [784 x [10 x float]] zeroinitializer, align 8
-`define TAG_g_param1 `MEMORY_CONTROLLER_TAG_SIZE'd6
+`define TAG_g_param1 9'd6
 `define TAG_g_param1_a {`TAG_g_param1, 55'd0}
 // @param2 = internal global [1 x [784 x float]] zeroinitializer, align 8
-`define TAG_g_param2 `MEMORY_CONTROLLER_TAG_SIZE'd5
+`define TAG_g_param2 9'd5
 `define TAG_g_param2_a {`TAG_g_param2, 55'd0}
 // @temp0 = internal unnamed_addr global [1 x [10 x float]] zeroinitializer, align 8
-`define TAG_g_temp0 `MEMORY_CONTROLLER_TAG_SIZE'd4
+`define TAG_g_temp0 9'd4
 `define TAG_g_temp0_a {`TAG_g_temp0, 55'd0}
 // @temp1 = internal unnamed_addr global [1 x [10 x float]] zeroinitializer, align 8
-`define TAG_g_temp1 `MEMORY_CONTROLLER_TAG_SIZE'd3
+`define TAG_g_temp1 9'd3
 `define TAG_g_temp1_a {`TAG_g_temp1, 55'd0}
 // @temp3 = internal global [10 x float] zeroinitializer, align 8
-`define TAG_g_temp3 `MEMORY_CONTROLLER_TAG_SIZE'd2
+`define TAG_g_temp3 9'd2
 `define TAG_g_temp3_a {`TAG_g_temp3, 55'd0}
 
 // Turn off warning 'ignoring unsupported system task'
@@ -140,11 +140,11 @@ module memory_controller
 	memory_controller_out_reg_b
 );
 
-parameter latency = 2;
+//parameter latency = 2;
 
-parameter ram_latency = latency-1;
+//parameter 1 = 1;
 
-integer j;
+reg [31:0] j;
 
 input clk;
 input memory_controller_waitrequest;
@@ -178,10 +178,13 @@ reg [31:0] temp3_in_b;
 wire [31:0] temp3_out_a;
 wire [31:0] temp3_out_b;
 
+wire memory_controller_waitrequest_n;
+assign memory_controller_waitrequest_n = ~memory_controller_waitrequest;
+
 // @temp3 = internal global [10 x float] zeroinitializer, align 8
-ram_dual_port temp3 (
+ram_dual_port_4 temp3 (
 	.clk( clk ),
-	.clken( !memory_controller_waitrequest ),
+	.clken( memory_controller_waitrequest_n ),
 	.address_a( temp3_address_a ),
 	.address_b( temp3_address_b ),
 	.wren_a( temp3_write_enable_a ),
@@ -193,6 +196,7 @@ ram_dual_port temp3 (
 	.q_a( temp3_out_a ),
 	.q_b( temp3_out_b)
 );
+/*
 defparam temp3.width_a = 32;
 defparam temp3.width_b = 32;
 defparam temp3.widthad_a = 4;
@@ -201,8 +205,9 @@ defparam temp3.width_be_a = 1;
 defparam temp3.width_be_b = 1;
 defparam temp3.numwords_a = 10;
 defparam temp3.numwords_b = 10;
-defparam temp3.latency = ram_latency;
-defparam temp3.init_file = "temp3.mif";
+defparam temp3.latency = 1;
+//defparam temp3.init_file = "temp3.mif";
+*/
 
 reg [3:0] temp1_address_a;
 reg [3:0] temp1_address_b;
@@ -214,9 +219,9 @@ wire [31:0] temp1_out_a;
 wire [31:0] temp1_out_b;
 
 // @temp1 = internal unnamed_addr global [1 x [10 x float]] zeroinitializer, align 8
-ram_dual_port temp1 (
+ram_dual_port_4 temp1 (
 	.clk( clk ),
-	.clken( !memory_controller_waitrequest ),
+	.clken( memory_controller_waitrequest_n ),
 	.address_a( temp1_address_a ),
 	.address_b( temp1_address_b ),
 	.wren_a( temp1_write_enable_a ),
@@ -228,6 +233,7 @@ ram_dual_port temp1 (
 	.q_a( temp1_out_a ),
 	.q_b( temp1_out_b)
 );
+/*
 defparam temp1.width_a = 32;
 defparam temp1.width_b = 32;
 defparam temp1.widthad_a = 4;
@@ -236,9 +242,9 @@ defparam temp1.width_be_a = 1;
 defparam temp1.width_be_b = 1;
 defparam temp1.numwords_a = 10;
 defparam temp1.numwords_b = 10;
-defparam temp1.latency = ram_latency;
-defparam temp1.init_file = "temp1.mif";
-
+defparam temp1.latency = 1;
+//defparam temp1.init_file = "temp1.mif";
+*/
 reg [3:0] temp0_address_a;
 reg [3:0] temp0_address_b;
 reg temp0_write_enable_a;
@@ -249,9 +255,9 @@ wire [31:0] temp0_out_a;
 wire [31:0] temp0_out_b;
 
 // @temp0 = internal unnamed_addr global [1 x [10 x float]] zeroinitializer, align 8
-ram_dual_port temp0 (
+ram_dual_port_4 temp0 (
 	.clk( clk ),
-	.clken( !memory_controller_waitrequest ),
+	.clken( memory_controller_waitrequest_n ),
 	.address_a( temp0_address_a ),
 	.address_b( temp0_address_b ),
 	.wren_a( temp0_write_enable_a ),
@@ -263,6 +269,7 @@ ram_dual_port temp0 (
 	.q_a( temp0_out_a ),
 	.q_b( temp0_out_b)
 );
+/*
 defparam temp0.width_a = 32;
 defparam temp0.width_b = 32;
 defparam temp0.widthad_a = 4;
@@ -271,9 +278,9 @@ defparam temp0.width_be_a = 1;
 defparam temp0.width_be_b = 1;
 defparam temp0.numwords_a = 10;
 defparam temp0.numwords_b = 10;
-defparam temp0.latency = ram_latency;
-defparam temp0.init_file = "temp0.mif";
-
+defparam temp0.latency = 1;
+//defparam temp0.init_file = "temp0.mif";
+*/
 reg [9:0] param2_address_a;
 reg [9:0] param2_address_b;
 reg param2_write_enable_a;
@@ -284,9 +291,9 @@ wire [31:0] param2_out_a;
 wire [31:0] param2_out_b;
 
 // @param2 = internal global [1 x [784 x float]] zeroinitializer, align 8
-ram_dual_port param2 (
+ram_dual_port_10 param2 (
 	.clk( clk ),
-	.clken( !memory_controller_waitrequest ),
+	.clken( memory_controller_waitrequest_n ),
 	.address_a( param2_address_a ),
 	.address_b( param2_address_b ),
 	.wren_a( param2_write_enable_a ),
@@ -298,6 +305,7 @@ ram_dual_port param2 (
 	.q_a( param2_out_a ),
 	.q_b( param2_out_b)
 );
+/*
 defparam param2.width_a = 32;
 defparam param2.width_b = 32;
 defparam param2.widthad_a = 10;
@@ -306,8 +314,9 @@ defparam param2.width_be_a = 1;
 defparam param2.width_be_b = 1;
 defparam param2.numwords_a = 784;
 defparam param2.numwords_b = 784;
-defparam param2.latency = ram_latency;
-defparam param2.init_file = "param2.mif";
+defparam param2.latency = 1;
+//defparam param2.init_file = "param2.mif";
+*/
 
 reg [12:0] param1_address_a;
 reg [12:0] param1_address_b;
@@ -319,9 +328,9 @@ wire [31:0] param1_out_a;
 wire [31:0] param1_out_b;
 
 // @param1 = internal global [784 x [10 x float]] zeroinitializer, align 8
-ram_dual_port param1 (
+ram_dual_port_13 param1 (
 	.clk( clk ),
-	.clken( !memory_controller_waitrequest ),
+	.clken( memory_controller_waitrequest_n ),
 	.address_a( param1_address_a ),
 	.address_b( param1_address_b ),
 	.wren_a( param1_write_enable_a ),
@@ -333,6 +342,7 @@ ram_dual_port param1 (
 	.q_a( param1_out_a ),
 	.q_b( param1_out_b)
 );
+/*
 defparam param1.width_a = 32;
 defparam param1.width_b = 32;
 defparam param1.widthad_a = 13;
@@ -341,9 +351,9 @@ defparam param1.width_be_a = 1;
 defparam param1.width_be_b = 1;
 defparam param1.numwords_a = 7840;
 defparam param1.numwords_b = 7840;
-defparam param1.latency = ram_latency;
-defparam param1.init_file = "param1.mif";
-
+defparam param1.latency = 1;
+//defparam param1.init_file = "param1.mif";
+*/
 reg [3:0] param0_address_a;
 reg [3:0] param0_address_b;
 reg param0_write_enable_a;
@@ -354,9 +364,9 @@ wire [31:0] param0_out_a;
 wire [31:0] param0_out_b;
 
 // @param0 = internal global [10 x float] zeroinitializer, align 8
-ram_dual_port param0 (
+ram_dual_port_4 param0 (
 	.clk( clk ),
-	.clken( !memory_controller_waitrequest ),
+	.clken( memory_controller_waitrequest_n ),
 	.address_a( param0_address_a ),
 	.address_b( param0_address_b ),
 	.wren_a( param0_write_enable_a ),
@@ -368,6 +378,7 @@ ram_dual_port param0 (
 	.q_a( param0_out_a ),
 	.q_b( param0_out_b)
 );
+/*
 defparam param0.width_a = 32;
 defparam param0.width_b = 32;
 defparam param0.widthad_a = 4;
@@ -376,9 +387,9 @@ defparam param0.width_be_a = 1;
 defparam param0.width_be_b = 1;
 defparam param0.numwords_a = 10;
 defparam param0.numwords_b = 10;
-defparam param0.latency = ram_latency;
-defparam param0.init_file = "param0.mif";
-
+defparam param0.latency = 1;
+//defparam param0.init_file = "param0.mif";
+*/
 reg [0:0] ln2HI31_address_a;
 reg [0:0] ln2HI31_address_b;
 reg ln2HI31_write_enable_a;
@@ -389,23 +400,24 @@ wire [31:0] ln2HI31_out_a;
 wire [31:0] ln2HI31_out_b;
 
 // @ln2HI31 = internal unnamed_addr constant [2 x float] [float 0x3FE62E3000000000, float 0xBFE62E3000000000], align 4
-rom_dual_port ln2HI31 (
+rom_dual_port_1 ln2HI31 (
 	.clk( clk ),
-	.clken( !memory_controller_waitrequest ),
+	.clken( memory_controller_waitrequest_n ),
 	.address_a( ln2HI31_address_a ),
 	.address_b( ln2HI31_address_b ),
 	.q_a( ln2HI31_out_a ),
 	.q_b( ln2HI31_out_b)
 );
+/*
 defparam ln2HI31.width_a = 32;
 defparam ln2HI31.width_b = 32;
 defparam ln2HI31.widthad_a = 1;
 defparam ln2HI31.widthad_b = 1;
 defparam ln2HI31.numwords_a = 2;
 defparam ln2HI31.numwords_b = 2;
-defparam ln2HI31.latency = ram_latency;
-defparam ln2HI31.init_file = "ln2HI31.mif";
-
+defparam ln2HI31.latency = 1;
+//defparam ln2HI31.init_file = "ln2HI31.mif";
+*/
 reg [0:0] ln2LO32_address_a;
 reg [0:0] ln2LO32_address_b;
 reg ln2LO32_write_enable_a;
@@ -416,23 +428,24 @@ wire [31:0] ln2LO32_out_a;
 wire [31:0] ln2LO32_out_b;
 
 // @ln2LO32 = internal unnamed_addr constant [2 x float] [float 0x3EE2FEFA20000000, float 0xBEE2FEFA20000000], align 4
-rom_dual_port ln2LO32 (
+rom_dual_port_1 ln2LO32 (
 	.clk( clk ),
-	.clken( !memory_controller_waitrequest ),
+	.clken( memory_controller_waitrequest_n ),
 	.address_a( ln2LO32_address_a ),
 	.address_b( ln2LO32_address_b ),
 	.q_a( ln2LO32_out_a ),
 	.q_b( ln2LO32_out_b)
 );
+/*
 defparam ln2LO32.width_a = 32;
 defparam ln2LO32.width_b = 32;
 defparam ln2LO32.widthad_a = 1;
 defparam ln2LO32.widthad_b = 1;
 defparam ln2LO32.numwords_a = 2;
 defparam ln2LO32.numwords_b = 2;
-defparam ln2LO32.latency = ram_latency;
-defparam ln2LO32.init_file = "ln2LO32.mif";
-
+defparam ln2LO32.latency = 1;
+//defparam ln2LO32.init_file = "ln2LO32.mif";
+*/
 reg [0:0] halF33_address_a;
 reg [0:0] halF33_address_b;
 reg halF33_write_enable_a;
@@ -443,22 +456,24 @@ wire [31:0] halF33_out_a;
 wire [31:0] halF33_out_b;
 
 // @halF33 = internal unnamed_addr constant [2 x float] [float 5.000000e-01, float -5.000000e-01], align 4
-rom_dual_port halF33 (
+rom_dual_port_1 halF33 (
 	.clk( clk ),
-	.clken( !memory_controller_waitrequest ),
+	.clken( memory_controller_waitrequest_n ),
 	.address_a( halF33_address_a ),
 	.address_b( halF33_address_b ),
 	.q_a( halF33_out_a ),
 	.q_b( halF33_out_b)
 );
+/*
 defparam halF33.width_a = 32;
 defparam halF33.width_b = 32;
 defparam halF33.widthad_a = 1;
 defparam halF33.widthad_b = 1;
 defparam halF33.numwords_a = 2;
 defparam halF33.numwords_b = 2;
-defparam halF33.latency = ram_latency;
-defparam halF33.init_file = "halF33.mif";
+defparam halF33.latency = 1;
+//defparam halF33.init_file = "halF33.mif";
+*/
 wire [`MEMORY_CONTROLLER_TAG_SIZE-1:0] tag_a;
 assign tag_a = memory_controller_address_a[`MEMORY_CONTROLLER_ADDR_SIZE-1:`MEMORY_CONTROLLER_ADDR_SIZE-`MEMORY_CONTROLLER_TAG_SIZE];
 reg [2:0] prevAddr_a;
@@ -466,7 +481,7 @@ reg [1:0] prevSize_a;
 reg [2:0] prevSize_a_and;
 
 always @(posedge clk)
-if (!memory_controller_waitrequest)
+if (memory_controller_waitrequest_n)
 begin
 	prevAddr_a <= memory_controller_address_a[2:0];
 	prevSize_a <= memory_controller_size_a;
@@ -478,7 +493,7 @@ reg [1:0] prevSize_b;
 reg [2:0] prevSize_b_and;
 
 always @(posedge clk)
-if (!memory_controller_waitrequest)
+if (memory_controller_waitrequest_n)
 begin
 	prevAddr_b <= memory_controller_address_b[2:0];
 	prevSize_b <= memory_controller_size_b;
@@ -487,58 +502,58 @@ end
 reg [2:0] select_not_struct_a;
 
 wire select_temp3_a;
-assign select_temp3_a = (tag_a == `TAG_g_temp3);
-reg [ram_latency:0] select_temp3_reg_a;
+assign select_temp3_a = (tag_a == `TAG_g_temp3) ? 1'b1 : 1'b0;
+reg [1:0] select_temp3_reg_a;
 wire [31:0] memory_controller_temp3_out_a;
-assign memory_controller_temp3_out_a = {32{ select_temp3_reg_a[ram_latency]}} & temp3_out_a;
+assign memory_controller_temp3_out_a = {32{ select_temp3_reg_a[1]}} & temp3_out_a;
 
 wire select_temp1_a;
-assign select_temp1_a = (tag_a == `TAG_g_temp1);
-reg [ram_latency:0] select_temp1_reg_a;
+assign select_temp1_a = (tag_a == `TAG_g_temp1) ? 1'b1 : 1'b0;
+reg [1:0] select_temp1_reg_a;
 wire [31:0] memory_controller_temp1_out_a;
-assign memory_controller_temp1_out_a = {32{ select_temp1_reg_a[ram_latency]}} & temp1_out_a;
+assign memory_controller_temp1_out_a = {32{ select_temp1_reg_a[1]}} & temp1_out_a;
 
 wire select_temp0_a;
-assign select_temp0_a = (tag_a == `TAG_g_temp0);
-reg [ram_latency:0] select_temp0_reg_a;
+assign select_temp0_a = (tag_a == `TAG_g_temp0) ? 1'b1 : 1'b0;
+reg [1:0] select_temp0_reg_a;
 wire [31:0] memory_controller_temp0_out_a;
-assign memory_controller_temp0_out_a = {32{ select_temp0_reg_a[ram_latency]}} & temp0_out_a;
+assign memory_controller_temp0_out_a = {32{ select_temp0_reg_a[1]}} & temp0_out_a;
 
 wire select_param2_a;
-assign select_param2_a = (tag_a == `TAG_g_param2);
-reg [ram_latency:0] select_param2_reg_a;
+assign select_param2_a = (tag_a == `TAG_g_param2) ? 1'b1 : 1'b0;
+reg [1:0] select_param2_reg_a;
 wire [31:0] memory_controller_param2_out_a;
-assign memory_controller_param2_out_a = {32{ select_param2_reg_a[ram_latency]}} & param2_out_a;
+assign memory_controller_param2_out_a = {32{ select_param2_reg_a[1]}} & param2_out_a;
 
 wire select_param1_a;
-assign select_param1_a = (tag_a == `TAG_g_param1);
-reg [ram_latency:0] select_param1_reg_a;
+assign select_param1_a = (tag_a == `TAG_g_param1) ? 1'b1 : 1'b0;
+reg [1:0] select_param1_reg_a;
 wire [31:0] memory_controller_param1_out_a;
-assign memory_controller_param1_out_a = {32{ select_param1_reg_a[ram_latency]}} & param1_out_a;
+assign memory_controller_param1_out_a = {32{ select_param1_reg_a[1]}} & param1_out_a;
 
 wire select_param0_a;
-assign select_param0_a = (tag_a == `TAG_g_param0);
-reg [ram_latency:0] select_param0_reg_a;
+assign select_param0_a = (tag_a == `TAG_g_param0) ? 1'b1 : 1'b0;
+reg [1:0] select_param0_reg_a;
 wire [31:0] memory_controller_param0_out_a;
-assign memory_controller_param0_out_a = {32{ select_param0_reg_a[ram_latency]}} & param0_out_a;
+assign memory_controller_param0_out_a = {32{ select_param0_reg_a[1]}} & param0_out_a;
 
 wire select_ln2HI31_a;
-assign select_ln2HI31_a = (tag_a == `TAG_g_ln2HI31);
-reg [ram_latency:0] select_ln2HI31_reg_a;
+assign select_ln2HI31_a = (tag_a == `TAG_g_ln2HI31) ? 1'b1 : 1'b0;
+reg [1:0] select_ln2HI31_reg_a;
 wire [31:0] memory_controller_ln2HI31_out_a;
-assign memory_controller_ln2HI31_out_a = {32{ select_ln2HI31_reg_a[ram_latency]}} & ln2HI31_out_a;
+assign memory_controller_ln2HI31_out_a = {32{ select_ln2HI31_reg_a[1]}} & ln2HI31_out_a;
 
 wire select_ln2LO32_a;
-assign select_ln2LO32_a = (tag_a == `TAG_g_ln2LO32);
-reg [ram_latency:0] select_ln2LO32_reg_a;
+assign select_ln2LO32_a = (tag_a == `TAG_g_ln2LO32) ? 1'b1 : 1'b0;
+reg [1:0] select_ln2LO32_reg_a;
 wire [31:0] memory_controller_ln2LO32_out_a;
-assign memory_controller_ln2LO32_out_a = {32{ select_ln2LO32_reg_a[ram_latency]}} & ln2LO32_out_a;
+assign memory_controller_ln2LO32_out_a = {32{ select_ln2LO32_reg_a[1]}} & ln2LO32_out_a;
 
 wire select_halF33_a;
-assign select_halF33_a = (tag_a == `TAG_g_halF33);
-reg [ram_latency:0] select_halF33_reg_a;
+assign select_halF33_a = (tag_a == `TAG_g_halF33) ? 1'b1 : 1'b0;
+reg [1:0] select_halF33_reg_a;
 wire [31:0] memory_controller_halF33_out_a;
-assign memory_controller_halF33_out_a = {32{ select_halF33_reg_a[ram_latency]}} & halF33_out_a;
+assign memory_controller_halF33_out_a = {32{ select_halF33_reg_a[1]}} & halF33_out_a;
 
 always @(*)
 begin
@@ -579,50 +594,48 @@ begin
 	halF33_in_a [32-1:0] = memory_controller_in_a[32-1:0];
 
 end
+wire memory_controller_enable_reg_a_n;
+assign memory_controller_enable_reg_a_n = ~memory_controller_enable_reg_a;
 always @(*)
 begin
-	select_not_struct_a [2:0] = 3'b0 | {2{select_temp3_reg_a[ram_latency]}} | {2{select_temp1_reg_a[ram_latency]}} | {2{select_temp0_reg_a[ram_latency]}} | {2{select_param2_reg_a[ram_latency]}} | {2{select_param1_reg_a[ram_latency]}} | {2{select_param0_reg_a[ram_latency]}} | {2{select_ln2HI31_reg_a[ram_latency]}} | {2{select_ln2LO32_reg_a[ram_latency]}} | {2{select_halF33_reg_a[ram_latency]}};
-	if (prevAddr_a[2:0] & select_not_struct_a[2:0] != 0 && memory_controller_enable_a)
-	begin
-		$display("Error: memory address not aligned to ram word size!");
-		$finish;
-	end
+	//select_not_struct_a [2:0] = 3'b0 | {2{select_temp3_reg_a[1]}} | {2{select_temp1_reg_a[1]}} | {2{select_temp0_reg_a[1]}} | {2{select_param2_reg_a[1]}} | {2{select_param1_reg_a[1]}} | {2{select_param0_reg_a[1]}} | {2{select_ln2HI31_reg_a[1]}} | {2{select_ln2LO32_reg_a[1]}} | {2{select_halF33_reg_a[1]}};
+	//if (prevAddr_a[2:0] & select_not_struct_a[2:0] != 0 && memory_controller_enable_a)
+	//begin
+	//	$display("Error: memory address not aligned to ram word size!");
+	//	
+	//end
 
 	prevSize_a_and[0] = prevSize_a[1] | prevSize_a[0];
 	prevSize_a_and[1] = prevSize_a[1];
 	prevSize_a_and[2] = prevSize_a[1] & prevSize_a[0];
-	if ((prevAddr_a & prevSize_a_and) != 0 && memory_controller_enable_a)
-	begin
-		$display("Error: memory address not aligned to ram word size!");
-		$finish;
-	end
-	memory_controller_out_prev_a = memory_controller_out_reg_a & { 64{!memory_controller_enable_reg_a}};
+	//if ((prevAddr_a & prevSize_a_and) != 0 && memory_controller_enable_a)
+	//begin
+	//	$display("Error: memory address not aligned to ram word size!");
+	//	
+	//end
+	
+	memory_controller_out_prev_a = memory_controller_out_reg_a & { 64{memory_controller_enable_reg_a_n}};
 	memory_controller_out_a = 1'b0 | memory_controller_out_prev_a | memory_controller_temp3_out_a | memory_controller_temp1_out_a | memory_controller_temp0_out_a | memory_controller_param2_out_a | memory_controller_param1_out_a | memory_controller_param0_out_a | memory_controller_ln2HI31_out_a | memory_controller_ln2LO32_out_a | memory_controller_halF33_out_a;
 end
 
 always @(posedge clk)
-if (!memory_controller_waitrequest)
+if (memory_controller_waitrequest_n)
 begin
 memory_controller_out_reg_a <= memory_controller_out_a;
 memory_controller_enable_reg_a <= memory_controller_enable_a;
 end
 
-always @(posedge clk)
-if (!memory_controller_waitrequest)
-for (j = 0; j < ram_latency; j=j+1)
-begin
-select_temp3_reg_a[j+1] <= select_temp3_reg_a[j];
-select_temp1_reg_a[j+1] <= select_temp1_reg_a[j];
-select_temp0_reg_a[j+1] <= select_temp0_reg_a[j];
-select_param2_reg_a[j+1] <= select_param2_reg_a[j];
-select_param1_reg_a[j+1] <= select_param1_reg_a[j];
-select_param0_reg_a[j+1] <= select_param0_reg_a[j];
-select_ln2HI31_reg_a[j+1] <= select_ln2HI31_reg_a[j];
-select_ln2LO32_reg_a[j+1] <= select_ln2LO32_reg_a[j];
-select_halF33_reg_a[j+1] <= select_halF33_reg_a[j];
-end
-always @(*)
-begin
+always @(posedge clk) begin
+if (memory_controller_waitrequest_n)
+select_temp3_reg_a[1] <= select_temp3_reg_a[0];
+select_temp1_reg_a[1] <= select_temp1_reg_a[0];
+select_temp0_reg_a[1] <= select_temp0_reg_a[0];
+select_param2_reg_a[1] <= select_param2_reg_a[0];
+select_param1_reg_a[1] <= select_param1_reg_a[0];
+select_param0_reg_a[1] <= select_param0_reg_a[0];
+select_ln2HI31_reg_a[1] <= select_ln2HI31_reg_a[0];
+select_ln2LO32_reg_a[1] <= select_ln2LO32_reg_a[0];
+select_halF33_reg_a[1] <= select_halF33_reg_a[0];
 select_temp3_reg_a[0] <= select_temp3_a;
 select_temp1_reg_a[0] <= select_temp1_a;
 select_temp0_reg_a[0] <= select_temp0_a;
@@ -637,58 +650,58 @@ end
 reg [2:0] select_not_struct_b;
 
 wire select_temp3_b;
-assign select_temp3_b = (tag_b == `TAG_g_temp3);
-reg [ram_latency:0] select_temp3_reg_b;
+assign select_temp3_b = (tag_b == `TAG_g_temp3) ? 1'b1 : 1'b0;
+reg [1:0] select_temp3_reg_b;
 wire [31:0] memory_controller_temp3_out_b;
-assign memory_controller_temp3_out_b = {32{ select_temp3_reg_b[ram_latency]}} & temp3_out_b;
+assign memory_controller_temp3_out_b = {32{ select_temp3_reg_b[1]}} & temp3_out_b;
 
 wire select_temp1_b;
-assign select_temp1_b = (tag_b == `TAG_g_temp1);
-reg [ram_latency:0] select_temp1_reg_b;
+assign select_temp1_b = (tag_b == `TAG_g_temp1) ? 1'b1 : 1'b0;
+reg [1:0] select_temp1_reg_b;
 wire [31:0] memory_controller_temp1_out_b;
-assign memory_controller_temp1_out_b = {32{ select_temp1_reg_b[ram_latency]}} & temp1_out_b;
+assign memory_controller_temp1_out_b = {32{ select_temp1_reg_b[1]}} & temp1_out_b;
 
 wire select_temp0_b;
-assign select_temp0_b = (tag_b == `TAG_g_temp0);
-reg [ram_latency:0] select_temp0_reg_b;
+assign select_temp0_b = (tag_b == `TAG_g_temp0) ? 1'b1 : 1'b0;
+reg [1:0] select_temp0_reg_b;
 wire [31:0] memory_controller_temp0_out_b;
-assign memory_controller_temp0_out_b = {32{ select_temp0_reg_b[ram_latency]}} & temp0_out_b;
+assign memory_controller_temp0_out_b = {32{ select_temp0_reg_b[1]}} & temp0_out_b;
 
 wire select_param2_b;
-assign select_param2_b = (tag_b == `TAG_g_param2);
-reg [ram_latency:0] select_param2_reg_b;
+assign select_param2_b = (tag_b == `TAG_g_param2) ? 1'b1 : 1'b0;
+reg [1:0] select_param2_reg_b;
 wire [31:0] memory_controller_param2_out_b;
-assign memory_controller_param2_out_b = {32{ select_param2_reg_b[ram_latency]}} & param2_out_b;
+assign memory_controller_param2_out_b = {32{ select_param2_reg_b[1]}} & param2_out_b;
 
 wire select_param1_b;
-assign select_param1_b = (tag_b == `TAG_g_param1);
-reg [ram_latency:0] select_param1_reg_b;
+assign select_param1_b = (tag_b == `TAG_g_param1) ? 1'b1 : 1'b0;
+reg [1:0] select_param1_reg_b;
 wire [31:0] memory_controller_param1_out_b;
-assign memory_controller_param1_out_b = {32{ select_param1_reg_b[ram_latency]}} & param1_out_b;
+assign memory_controller_param1_out_b = {32{ select_param1_reg_b[1]}} & param1_out_b;
 
 wire select_param0_b;
-assign select_param0_b = (tag_b == `TAG_g_param0);
-reg [ram_latency:0] select_param0_reg_b;
+assign select_param0_b = (tag_b == `TAG_g_param0) ? 1'b1 : 1'b0;
+reg [1:0] select_param0_reg_b;
 wire [31:0] memory_controller_param0_out_b;
-assign memory_controller_param0_out_b = {32{ select_param0_reg_b[ram_latency]}} & param0_out_b;
+assign memory_controller_param0_out_b = {32{ select_param0_reg_b[1]}} & param0_out_b;
 
 wire select_ln2HI31_b;
-assign select_ln2HI31_b = (tag_b == `TAG_g_ln2HI31);
-reg [ram_latency:0] select_ln2HI31_reg_b;
+assign select_ln2HI31_b = (tag_b == `TAG_g_ln2HI31) ? 1'b1 : 1'b0;
+reg [1:0] select_ln2HI31_reg_b;
 wire [31:0] memory_controller_ln2HI31_out_b;
-assign memory_controller_ln2HI31_out_b = {32{ select_ln2HI31_reg_b[ram_latency]}} & ln2HI31_out_b;
+assign memory_controller_ln2HI31_out_b = {32{ select_ln2HI31_reg_b[1]}} & ln2HI31_out_b;
 
 wire select_ln2LO32_b;
-assign select_ln2LO32_b = (tag_b == `TAG_g_ln2LO32);
-reg [ram_latency:0] select_ln2LO32_reg_b;
+assign select_ln2LO32_b = (tag_b == `TAG_g_ln2LO32) ? 1'b1 : 1'b0;
+reg [1:0] select_ln2LO32_reg_b;
 wire [31:0] memory_controller_ln2LO32_out_b;
-assign memory_controller_ln2LO32_out_b = {32{ select_ln2LO32_reg_b[ram_latency]}} & ln2LO32_out_b;
+assign memory_controller_ln2LO32_out_b = {32{ select_ln2LO32_reg_b[1]}} & ln2LO32_out_b;
 
 wire select_halF33_b;
-assign select_halF33_b = (tag_b == `TAG_g_halF33);
-reg [ram_latency:0] select_halF33_reg_b;
+assign select_halF33_b = (tag_b == `TAG_g_halF33) ? 1'b1 : 1'b0;
+reg [1:0] select_halF33_reg_b;
 wire [31:0] memory_controller_halF33_out_b;
-assign memory_controller_halF33_out_b = {32{ select_halF33_reg_b[ram_latency]}} & halF33_out_b;
+assign memory_controller_halF33_out_b = {32{ select_halF33_reg_b[1]}} & halF33_out_b;
 
 always @(*)
 begin
@@ -729,50 +742,48 @@ begin
 	halF33_in_b [32-1:0] = memory_controller_in_b[32-1:0];
 
 end
+
+wire memory_controller_enable_reg_b_n;
+assign memory_controller_enable_reg_b_n = ~memory_controller_enable_reg_b;
 always @(*)
 begin
-	select_not_struct_b [2:0] = 3'b0 | {2{select_temp3_reg_b[ram_latency]}} | {2{select_temp1_reg_b[ram_latency]}} | {2{select_temp0_reg_b[ram_latency]}} | {2{select_param2_reg_b[ram_latency]}} | {2{select_param1_reg_b[ram_latency]}} | {2{select_param0_reg_b[ram_latency]}} | {2{select_ln2HI31_reg_b[ram_latency]}} | {2{select_ln2LO32_reg_b[ram_latency]}} | {2{select_halF33_reg_b[ram_latency]}};
-	if (prevAddr_b[2:0] & select_not_struct_b[2:0] != 0 && memory_controller_enable_b)
-	begin
-		$display("Error: memory address not aligned to ram word size!");
-		$finish;
-	end
+	//select_not_struct_b [2:0] = 3'b0 | {2{select_temp3_reg_b[1]}} | {2{select_temp1_reg_b[1]}} | {2{select_temp0_reg_b[1]}} | {2{select_param2_reg_b[1]}} | {2{select_param1_reg_b[1]}} | {2{select_param0_reg_b[1]}} | {2{select_ln2HI31_reg_b[1]}} | {2{select_ln2LO32_reg_b[1]}} | {2{select_halF33_reg_b[1]}};
+	//if (prevAddr_b[2:0] & select_not_struct_b[2:0] != 0 && memory_controller_enable_b)
+	//begin
+	//	$display("Error: memory address not aligned to ram word size!");
+	//	
+	//end
 
 	prevSize_b_and[0] = prevSize_b[1] | prevSize_b[0];
 	prevSize_b_and[1] = prevSize_b[1];
 	prevSize_b_and[2] = prevSize_b[1] & prevSize_b[0];
-	if ((prevAddr_b & prevSize_b_and) != 0 && memory_controller_enable_b)
-	begin
-		$display("Error: memory address not aligned to ram word size!");
-		$finish;
-	end
-	memory_controller_out_prev_b = memory_controller_out_reg_b & { 64{!memory_controller_enable_reg_b}};
+	//if ((prevAddr_b & prevSize_b_and) != 0 && memory_controller_enable_b)
+	//begin
+	//	$display("Error: memory address not aligned to ram word size!");
+	//	
+	//end
+	memory_controller_out_prev_b = memory_controller_out_reg_b & { 64{memory_controller_enable_reg_b_n}};
 	memory_controller_out_b = 1'b0 | memory_controller_out_prev_b | memory_controller_temp3_out_b | memory_controller_temp1_out_b | memory_controller_temp0_out_b | memory_controller_param2_out_b | memory_controller_param1_out_b | memory_controller_param0_out_b | memory_controller_ln2HI31_out_b | memory_controller_ln2LO32_out_b | memory_controller_halF33_out_b;
 end
 
 always @(posedge clk)
-if (!memory_controller_waitrequest)
+if (memory_controller_waitrequest_n)
 begin
 memory_controller_out_reg_b <= memory_controller_out_b;
 memory_controller_enable_reg_b <= memory_controller_enable_b;
 end
 
-always @(posedge clk)
-if (!memory_controller_waitrequest)
-for (j = 0; j < ram_latency; j=j+1)
-begin
-select_temp3_reg_b[j+1] <= select_temp3_reg_b[j];
-select_temp1_reg_b[j+1] <= select_temp1_reg_b[j];
-select_temp0_reg_b[j+1] <= select_temp0_reg_b[j];
-select_param2_reg_b[j+1] <= select_param2_reg_b[j];
-select_param1_reg_b[j+1] <= select_param1_reg_b[j];
-select_param0_reg_b[j+1] <= select_param0_reg_b[j];
-select_ln2HI31_reg_b[j+1] <= select_ln2HI31_reg_b[j];
-select_ln2LO32_reg_b[j+1] <= select_ln2LO32_reg_b[j];
-select_halF33_reg_b[j+1] <= select_halF33_reg_b[j];
-end
-always @(*)
-begin
+always @(posedge clk) begin
+if (memory_controller_waitrequest_n)
+select_temp3_reg_b[1] <= select_temp3_reg_b[0];
+select_temp1_reg_b[1] <= select_temp1_reg_b[0];
+select_temp0_reg_b[1] <= select_temp0_reg_b[0];
+select_param2_reg_b[1] <= select_param2_reg_b[0];
+select_param1_reg_b[1] <= select_param1_reg_b[0];
+select_param0_reg_b[1] <= select_param0_reg_b[0];
+select_ln2HI31_reg_b[1] <= select_ln2HI31_reg_b[0];
+select_ln2LO32_reg_b[1] <= select_ln2LO32_reg_b[0];
+select_halF33_reg_b[1] <= select_halF33_reg_b[0];
 select_temp3_reg_b[0] <= select_temp3_b;
 select_temp1_reg_b[0] <= select_temp1_b;
 select_temp0_reg_b[0] <= select_temp0_b;
@@ -1681,13 +1692,37 @@ reg  altfp_main_48_55_en;
 reg [31:0] main_altfp_sitofp_32_0;
 wire  altfp_compare32_1_main_reduceinnerloop_bodyreduction_dim1_14_out;
 reg  altfp_main_reduceinnerloop_bodyreduction_dim1_14_en;
-wire  main_reduceinnerloop_bodyreduction_dim1_14_unused;
+wire  main_reduceinnerloop_bodyreduction_dim1_14_unused_NC1;
+wire  main_reduceinnerloop_bodyreduction_dim1_14_unused_NC2;
+wire  main_reduceinnerloop_bodyreduction_dim1_14_unused_NC3;
+wire  main_reduceinnerloop_bodyreduction_dim1_14_unused_NC4;
+wire  main_reduceinnerloop_bodyreduction_dim1_14_unused_NC5;
+wire  main_reduceinnerloop_bodyreduction_dim1_14_unused_NC6;
+wire  main_reduceinnerloop_bodyreduction_dim1_14_unused_NC7;
+wire  main_reduceinnerloop_bodyreduction_dim1_14_unused_NC8;
+wire  main_reduceinnerloop_bodyreduction_dim1_14_unused_NC9;
 wire  altfp_compare32_1_main_reduceinnerloop_bodyreduction_dim1_13_out;
 reg  altfp_main_reduceinnerloop_bodyreduction_dim1_13_en;
-wire  main_reduceinnerloop_bodyreduction_dim1_13_unused;
+wire  main_reduceinnerloop_bodyreduction_dim1_13_unused_NC1;
+wire  main_reduceinnerloop_bodyreduction_dim1_13_unused_NC2;
+wire  main_reduceinnerloop_bodyreduction_dim1_13_unused_NC3;
+wire  main_reduceinnerloop_bodyreduction_dim1_13_unused_NC4;
+wire  main_reduceinnerloop_bodyreduction_dim1_13_unused_NC5;
+wire  main_reduceinnerloop_bodyreduction_dim1_13_unused_NC6;
+wire  main_reduceinnerloop_bodyreduction_dim1_13_unused_NC7;
+wire  main_reduceinnerloop_bodyreduction_dim1_13_unused_NC8;
+wire  main_reduceinnerloop_bodyreduction_dim1_13_unused_NC9;
 wire  altfp_compare32_1_main_60_63_out;
 reg  altfp_main_60_63_en;
-wire  main_60_63_unused;
+wire  main_60_63_unused_NC1;
+wire  main_60_63_unused_NC2;
+wire  main_60_63_unused_NC3;
+wire  main_60_63_unused_NC4;
+wire  main_60_63_unused_NC5;
+wire  main_60_63_unused_NC6;
+wire  main_60_63_unused_NC7;
+wire  main_60_63_unused_NC8;
+wire  main_60_63_unused_NC9;
 
 /*   %3 = fmul float %1, %2*/
 altfp_multiplier_11 altfp_multiplier_11_main_dotloop_bodyreduction_3 (
@@ -1754,12 +1789,12 @@ altfp_compare32_1 altfp_compare32_1_main_reduceinnerloop_bodyreduction_dim1_14 (
 	.clock (clk),
 	.clk_en (altfp_main_reduceinnerloop_bodyreduction_dim1_14_en),
 	.aeb (altfp_compare32_1_main_reduceinnerloop_bodyreduction_dim1_14_out),
-	.aneb (main_reduceinnerloop_bodyreduction_dim1_14_unused),
-	.alb (main_reduceinnerloop_bodyreduction_dim1_14_unused),
-	.aleb (main_reduceinnerloop_bodyreduction_dim1_14_unused),
-	.agb (main_reduceinnerloop_bodyreduction_dim1_14_unused),
-	.ageb (main_reduceinnerloop_bodyreduction_dim1_14_unused),
-	.unordered (main_reduceinnerloop_bodyreduction_dim1_14_unused)
+	.aneb (main_reduceinnerloop_bodyreduction_dim1_14_unused_NC1),
+	.alb (main_reduceinnerloop_bodyreduction_dim1_14_unused_NC2),
+	.aleb (main_reduceinnerloop_bodyreduction_dim1_14_unused_NC3),
+	.agb (main_reduceinnerloop_bodyreduction_dim1_14_unused_NC4),
+	.ageb (main_reduceinnerloop_bodyreduction_dim1_14_unused_NC5),
+	.unordered (main_reduceinnerloop_bodyreduction_dim1_14_unused_NC6)
 );
 
 
@@ -1769,13 +1804,13 @@ altfp_compare32_1 altfp_compare32_1_main_reduceinnerloop_bodyreduction_dim1_13 (
 	.datab (main_reduceinnerloop_bodyreduction_dim1_12),
 	.clock (clk),
 	.clk_en (altfp_main_reduceinnerloop_bodyreduction_dim1_13_en),
-	.aeb (main_reduceinnerloop_bodyreduction_dim1_13_unused),
-	.aneb (main_reduceinnerloop_bodyreduction_dim1_13_unused),
-	.alb (main_reduceinnerloop_bodyreduction_dim1_13_unused),
-	.aleb (main_reduceinnerloop_bodyreduction_dim1_13_unused),
-	.agb (main_reduceinnerloop_bodyreduction_dim1_13_unused),
+	.aeb (main_reduceinnerloop_bodyreduction_dim1_13_unused_NC1),
+	.aneb (main_reduceinnerloop_bodyreduction_dim1_13_unused_NC2),
+	.alb (main_reduceinnerloop_bodyreduction_dim1_13_unused_NC3),
+	.aleb (main_reduceinnerloop_bodyreduction_dim1_13_unused_NC4),
+	.agb (main_reduceinnerloop_bodyreduction_dim1_13_unused_NC5),
 	.ageb (altfp_compare32_1_main_reduceinnerloop_bodyreduction_dim1_13_out),
-	.unordered (main_reduceinnerloop_bodyreduction_dim1_13_unused)
+	.unordered (main_reduceinnerloop_bodyreduction_dim1_13_unused_NC6)
 );
 
 
@@ -1785,13 +1820,13 @@ altfp_compare32_1 altfp_compare32_1_main_60_63 (
 	.datab (32'h3F800000),
 	.clock (clk),
 	.clk_en (altfp_main_60_63_en),
-	.aeb (main_60_63_unused),
-	.aneb (main_60_63_unused),
-	.alb (main_60_63_unused),
-	.aleb (main_60_63_unused),
+	.aeb (main_60_63_unused_NC1),
+	.aneb (main_60_63_unused_NC2),
+	.alb (main_60_63_unused_NC3),
+	.aleb (main_60_63_unused_NC4),
 	.agb (altfp_compare32_1_main_60_63_out),
-	.ageb (main_60_63_unused),
-	.unordered (main_60_63_unused)
+	.ageb (main_60_63_unused_NC5),
+	.unordered (main_60_63_unused_NC6)
 );
 
 
@@ -1799,19 +1834,19 @@ altfp_compare32_1 altfp_compare32_1_main_60_63 (
 always @(posedge clk) begin
 if (reset == 1'b1)
 	cur_state <= LEGUP_0;
-else if (memory_controller_waitrequest == 1'd1)
-	cur_state <= cur_state;
-else
+else if (!(memory_controller_waitrequest == 1'd1))
 	cur_state <= next_state;
 end
 
 always @(*)
 begin
-next_state = cur_state;
+//next_state = cur_state;
 case(cur_state)  // synthesis parallel_case  
 LEGUP_0:
 	if ((start == 1'd1))
 		next_state = LEGUP_F_main_BB_dotloop_bodyreductionlrph_1;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB__26_100:
 		next_state = LEGUP_F_main_BB__26_101;
 LEGUP_F_main_BB__26_101:
@@ -1847,6 +1882,8 @@ LEGUP_F_main_BB__28_103:
 		next_state = LEGUP_F_main_BB__30_104;
 	else if ((main_28_29 == 1'd0))
 		next_state = LEGUP_F_main_BB__32_105;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB__30_104:
 		next_state = LEGUP_F_main_BB_expfexit_549;
 LEGUP_F_main_BB__32_105:
@@ -1854,16 +1891,22 @@ LEGUP_F_main_BB__32_105:
 		next_state = LEGUP_F_main_BB_expfexit_549;
 	else if ((main_32_33 == 1'd0))
 		next_state = LEGUP_F_main_BB__34_106;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB__34_106:
 	if ((main_34_orcond == 1'd1))
 		next_state = LEGUP_F_main_BB_expfexit_549;
 	else if ((main_34_orcond == 1'd0))
 		next_state = LEGUP_F_main_BB_threadpresplit_107;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB__38_108:
 	if ((main_38_39 == 1'd1))
 		next_state = LEGUP_F_main_BB__40_109;
 	else if ((main_38_39 == 1'd0))
 		next_state = LEGUP_F_main_BB__48_112;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB__40_109:
 		next_state = LEGUP_F_main_BB__40_110;
 LEGUP_F_main_BB__40_110:
@@ -2063,6 +2106,8 @@ LEGUP_F_main_BB__60_206:
 		next_state = LEGUP_F_main_BB__64_207;
 	else if ((main_60_orcond54 == 1'd0))
 		next_state = LEGUP_F_main_BB__66_222;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB__64_207:
 		next_state = LEGUP_F_main_BB__64_208;
 LEGUP_F_main_BB__64_208:
@@ -2392,6 +2437,8 @@ LEGUP_F_main_BB__66_369:
 		next_state = LEGUP_F_main_BB__80_370;
 	else if ((main_66_78_reg == 1'd0))
 		next_state = LEGUP_F_main_BB__85_446;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB__80_370:
 		next_state = LEGUP_F_main_BB__80_371;
 LEGUP_F_main_BB__80_371:
@@ -2727,6 +2774,8 @@ LEGUP_F_main_BB__85_535:
 		next_state = LEGUP_F_main_BB__94_536;
 	else if ((main_85_91_reg == 1'd0))
 		next_state = LEGUP_F_main_BB__97_537;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB__94_536:
 		next_state = LEGUP_F_main_BB_expfexit_549;
 LEGUP_F_main_BB__97_537:
@@ -2798,6 +2847,8 @@ LEGUP_F_main_BB_dotloop_bodyreduction_29:
 		next_state = LEGUP_F_main_BB_dotloop_exitreduction_30;
 	else if ((main_dotloop_bodyreduction_exitcond18_reg == 1'd0))
 		next_state = LEGUP_F_main_BB_dotloop_bodyreduction_2;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB_dotloop_bodyreduction_3:
 		next_state = LEGUP_F_main_BB_dotloop_bodyreduction_4;
 LEGUP_F_main_BB_dotloop_bodyreduction_4:
@@ -2821,6 +2872,8 @@ LEGUP_F_main_BB_dotloop_exitreduction_31:
 		next_state = LEGUP_F_main_BB_fusion2loop_bodydim1preheader_32;
 	else if ((main_dotloop_exitreduction_exitcond21_reg == 1'd0))
 		next_state = LEGUP_F_main_BB_dotloop_bodyreductionlrph_1;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB_expfexit_549:
 		next_state = LEGUP_F_main_BB_expfexit_550;
 LEGUP_F_main_BB_expfexit_550:
@@ -2828,6 +2881,8 @@ LEGUP_F_main_BB_expfexit_550:
 		next_state = LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1preheader_551;
 	else if ((main_expfexit_exitcond4_reg == 1'd0))
 		next_state = LEGUP_F_main_BB_fusion1loop_bodydim1_57;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB_fusion1loop_bodydim1_57:
 		next_state = LEGUP_F_main_BB_fusion1loop_bodydim1_58;
 LEGUP_F_main_BB_fusion1loop_bodydim1_58:
@@ -2893,6 +2948,8 @@ LEGUP_F_main_BB_fusion1loop_bodydim1_87:
 		next_state = LEGUP_F_main_BB__26_88;
 	else if ((main_fusion1loop_bodydim1_25 == 1'd0))
 		next_state = LEGUP_F_main_BB__28_103;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB_fusion1loop_bodydim1preheader_56:
 		next_state = LEGUP_F_main_BB_fusion1loop_bodydim1_57;
 LEGUP_F_main_BB_fusion2loop_bodydim1_33:
@@ -2934,6 +2991,8 @@ LEGUP_F_main_BB_fusion2loop_bodydim1_50:
 		next_state = LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1preheader_51;
 	else if ((main_fusion2loop_bodydim1_exitcond14_reg == 1'd0))
 		next_state = LEGUP_F_main_BB_fusion2loop_bodydim1_33;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB_fusion2loop_bodydim1preheader_32:
 		next_state = LEGUP_F_main_BB_fusion2loop_bodydim1_33;
 LEGUP_F_main_BB_fusionloop_bodydim0_570:
@@ -3013,6 +3072,8 @@ LEGUP_F_main_BB_fusionloop_bodydim0_606:
 		next_state = LEGUP_F_main_BB_fusionloop_exitdim0_607;
 	else if ((main_fusionloop_bodydim0_exitcond1_reg == 1'd0))
 		next_state = LEGUP_F_main_BB_fusionloop_bodydim0_570;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB_fusionloop_bodydim0preheader_569:
 		next_state = LEGUP_F_main_BB_fusionloop_bodydim0_570;
 LEGUP_F_main_BB_fusionloop_exitdim0_607:
@@ -3058,6 +3119,8 @@ LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_568:
 		next_state = LEGUP_F_main_BB_fusionloop_bodydim0preheader_569;
 	else if ((main_reduce1innerloop_bodyreduction_dim1_exitcond_reg == 1'd0))
 		next_state = LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1preheader_551:
 		next_state = LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552;
 LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52:
@@ -3071,6 +3134,8 @@ LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_55:
 		next_state = LEGUP_F_main_BB_fusion1loop_bodydim1preheader_56;
 	else if ((main_reduceinnerloop_bodyreduction_dim1_exitcond12_reg == 1'd0))
 		next_state = LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52;
+  else
+    next_state = cur_state;
 LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1preheader_51:
 		next_state = LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52;
 LEGUP_F_main_BB_threadpresplit_107:
@@ -3078,6 +3143,8 @@ LEGUP_F_main_BB_threadpresplit_107:
 		next_state = LEGUP_F_main_BB__38_108;
 	else if ((main_threadpresplit_37 == 1'd0))
 		next_state = LEGUP_F_main_BB__60_191;
+  else
+    next_state = cur_state;
 default:
 	next_state = cur_state;
 endcase
@@ -3100,13 +3167,13 @@ always @(posedge clk) begin
 	/*   %dot.indvar.rhs.122 = phi i64 [ 0, %dot.loop_body.rhs.1.lr.ph ], [ %6, %dot.loop_exit.reduction ]*/
 	if ((((cur_state == LEGUP_0) & (memory_controller_waitrequest == 1'd0)) & (start == 1'd1))) begin
 		main_dotloop_bodyreductionlrph_dotindvarrhs122_reg <= main_dotloop_bodyreductionlrph_dotindvarrhs122;
-		if (start == 1'b0 && ^(main_dotloop_bodyreductionlrph_dotindvarrhs122) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreductionlrph_dotindvarrhs122_reg"); $finish; end
+		//if (start == 1'b0 && ^(main_dotloop_bodyreductionlrph_dotindvarrhs122) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreductionlrph_dotindvarrhs122_reg");  end
 	end
 	/* main: %dot.loop_body.reduction.lr.ph*/
 	/*   %dot.indvar.rhs.122 = phi i64 [ 0, %dot.loop_body.rhs.1.lr.ph ], [ %6, %dot.loop_exit.reduction ]*/
-	if ((((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_31) & (memory_controller_waitrequest == 1'd0)) & (main_dotloop_exitreduction_exitcond21_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_31) & (memory_controller_waitrequest == 1'd0)) & (main_dotloop_exitreduction_exitcond21_reg == 1'd0))) begin
 		main_dotloop_bodyreductionlrph_dotindvarrhs122_reg <= main_dotloop_bodyreductionlrph_dotindvarrhs122;
-		if (start == 1'b0 && ^(main_dotloop_bodyreductionlrph_dotindvarrhs122) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreductionlrph_dotindvarrhs122_reg"); $finish; end
+		//if (start == 1'b0 && ^(main_dotloop_bodyreductionlrph_dotindvarrhs122) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreductionlrph_dotindvarrhs122_reg");  end
 	end
 end
 always @(*) begin
@@ -3119,7 +3186,7 @@ always @(posedge clk) begin
 	/*   %scevgep23 = getelementptr [1 x [10 x float]]* @temp0, i64 0, i64 0, i64 %dot.indvar.rhs.122*/
 	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreductionlrph_1)) begin
 		main_dotloop_bodyreductionlrph_scevgep23_reg <= main_dotloop_bodyreductionlrph_scevgep23;
-		if (start == 1'b0 && ^(main_dotloop_bodyreductionlrph_scevgep23) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreductionlrph_scevgep23_reg"); $finish; end
+		//if (start == 1'b0 && ^(main_dotloop_bodyreductionlrph_scevgep23) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreductionlrph_scevgep23_reg");  end
 	end
 end
 always @(*) begin
@@ -3139,13 +3206,13 @@ always @(posedge clk) begin
 	/*   %0 = phi float [ 0.000000e+00, %dot.loop_body.reduction.lr.ph ], [ %4, %dot.loop_body.reduction ]*/
 	if (((cur_state == LEGUP_F_main_BB_dotloop_bodyreductionlrph_1) & (memory_controller_waitrequest == 1'd0))) begin
 		main_dotloop_bodyreduction_0_reg <= main_dotloop_bodyreduction_0;
-		if (start == 1'b0 && ^(main_dotloop_bodyreduction_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_0_reg"); $finish; end
+		//if (start == 1'b0 && ^(main_dotloop_bodyreduction_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_0_reg");  end
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %0 = phi float [ 0.000000e+00, %dot.loop_body.reduction.lr.ph ], [ %4, %dot.loop_body.reduction ]*/
-	if ((((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_29) & (memory_controller_waitrequest == 1'd0)) & (main_dotloop_bodyreduction_exitcond18_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_29) & (memory_controller_waitrequest == 1'd0)) & (main_dotloop_bodyreduction_exitcond18_reg == 1'd0))) begin
 		main_dotloop_bodyreduction_0_reg <= main_dotloop_bodyreduction_0;
-		if (start == 1'b0 && ^(main_dotloop_bodyreduction_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_0_reg"); $finish; end
+		//if (start == 1'b0 && ^(main_dotloop_bodyreduction_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_0_reg");  end
 	end
 end
 always @(*) begin
@@ -3165,13 +3232,13 @@ always @(posedge clk) begin
 	/*   %dot.indvar.reduction20 = phi i64 [ 0, %dot.loop_body.reduction.lr.ph ], [ %5, %dot.loop_body.reduction ]*/
 	if (((cur_state == LEGUP_F_main_BB_dotloop_bodyreductionlrph_1) & (memory_controller_waitrequest == 1'd0))) begin
 		main_dotloop_bodyreduction_dotindvarreduction20_reg <= main_dotloop_bodyreduction_dotindvarreduction20;
-		if (start == 1'b0 && ^(main_dotloop_bodyreduction_dotindvarreduction20) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_dotindvarreduction20_reg"); $finish; end
+		//if (start == 1'b0 && ^(main_dotloop_bodyreduction_dotindvarreduction20) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_dotindvarreduction20_reg");  end
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %dot.indvar.reduction20 = phi i64 [ 0, %dot.loop_body.reduction.lr.ph ], [ %5, %dot.loop_body.reduction ]*/
-	if ((((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_29) & (memory_controller_waitrequest == 1'd0)) & (main_dotloop_bodyreduction_exitcond18_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_29) & (memory_controller_waitrequest == 1'd0)) & (main_dotloop_bodyreduction_exitcond18_reg == 1'd0))) begin
 		main_dotloop_bodyreduction_dotindvarreduction20_reg <= main_dotloop_bodyreduction_dotindvarreduction20;
-		if (start == 1'b0 && ^(main_dotloop_bodyreduction_dotindvarreduction20) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_dotindvarreduction20_reg"); $finish; end
+		//if (start == 1'b0 && ^(main_dotloop_bodyreduction_dotindvarreduction20) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_dotindvarreduction20_reg");  end
 	end
 end
 always @(*) begin
@@ -3202,31 +3269,31 @@ always @(posedge clk) begin
 	/*   %3 = fmul float %1, %2*/
 	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_15)) begin
 		main_dotloop_bodyreduction_3_reg <= main_dotloop_bodyreduction_3;
-		if (start == 1'b0 && ^(main_dotloop_bodyreduction_3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_dotloop_bodyreduction_3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_3_reg");  end
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %3 = fmul float %1, %2*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_15)) begin
-		main_dotloop_bodyreduction_3_reg <= main_dotloop_bodyreduction_3;
-		if (start == 1'b0 && ^(main_dotloop_bodyreduction_3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_3_reg"); $finish; end
-	end
+//else if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_15)) begin
+//		main_dotloop_bodyreduction_3_reg <= main_dotloop_bodyreduction_3;
+//		if (start == 1'b0 && ^(main_dotloop_bodyreduction_3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_3_reg");  end
+//	end
 	/* main: %48*/
 	/*   %49 = fmul float %21, 0x3FF7154760000000*/
-	if ((cur_state == LEGUP_F_main_BB__48_123)) begin
+	else if ((cur_state == LEGUP_F_main_BB__48_123)) begin
 		main_dotloop_bodyreduction_3_reg <= main_48_49;
-		if (start == 1'b0 && ^(main_48_49) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_48_49) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_3_reg");  end
 	end
 	/* main: %66*/
 	/*   %67 = fmul float %.048, %.048*/
-	if ((cur_state == LEGUP_F_main_BB__66_233)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_233)) begin
 		main_dotloop_bodyreduction_3_reg <= main_66_67;
-		if (start == 1'b0 && ^(main_66_67) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_67) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_3_reg");  end
 	end
 	/* main: %97*/
 	/*   %101 = fmul float %100, 0x39B0000000000000*/
-	if ((cur_state == LEGUP_F_main_BB__97_548)) begin
+	else if ((cur_state == LEGUP_F_main_BB__97_548)) begin
 		main_dotloop_bodyreduction_3_reg <= main_97_101;
-		if (start == 1'b0 && ^(main_97_101) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_97_101) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_3_reg");  end
 	end
 end
 always @(*) begin
@@ -3237,73 +3304,73 @@ always @(posedge clk) begin
 	/*   %4 = fadd float %0, %3*/
 	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_29)) begin
 		main_dotloop_bodyreduction_4_reg <= main_dotloop_bodyreduction_4;
-		if (start == 1'b0 && ^(main_dotloop_bodyreduction_4) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_dotloop_bodyreduction_4) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %4 = fadd float %0, %3*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_29)) begin
-		main_dotloop_bodyreduction_4_reg <= main_dotloop_bodyreduction_4;
-		if (start == 1'b0 && ^(main_dotloop_bodyreduction_4) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
-	end
+//	else if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_29)) begin
+//		main_dotloop_bodyreduction_4_reg <= main_dotloop_bodyreduction_4;
+//		if (start == 1'b0 && ^(main_dotloop_bodyreduction_4) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
+//	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %20 = fadd float %18, %19*/
-	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_73)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_73)) begin
 		main_dotloop_bodyreduction_4_reg <= main_fusion1loop_bodydim1_20;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_20) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_20) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
 	end
 	/* main: %26*/
 	/*   %27 = fadd float %21, %21*/
-	if ((cur_state == LEGUP_F_main_BB__26_102)) begin
+	else if ((cur_state == LEGUP_F_main_BB__26_102)) begin
 		main_dotloop_bodyreduction_4_reg <= main_26_27;
-		if (start == 1'b0 && ^(main_26_27) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_26_27) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   %9 = fadd float %7, %8*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
 		main_dotloop_bodyreduction_4_reg <= main_fusion2loop_bodydim1_9;
-		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_9) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_9) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
 	end
 	/* main: %48*/
 	/*   %53 = fadd float %49, %52*/
-	if ((cur_state == LEGUP_F_main_BB__48_137)) begin
+	else if ((cur_state == LEGUP_F_main_BB__48_137)) begin
 		main_dotloop_bodyreduction_4_reg <= main_48_53;
-		if (start == 1'b0 && ^(main_48_53) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_48_53) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
 	end
 	/* main: %60*/
 	/*   %62 = fadd float %21, 0x46293E5940000000*/
-	if ((cur_state == LEGUP_F_main_BB__60_205)) begin
+	else if ((cur_state == LEGUP_F_main_BB__60_205)) begin
 		main_dotloop_bodyreduction_4_reg <= main_60_62;
-		if (start == 1'b0 && ^(main_60_62) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_60_62) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
 	end
 	/* main: %66*/
 	/*   %69 = fadd float %68, 0xBEBBBD41C0000000*/
-	if ((cur_state == LEGUP_F_main_BB__66_258)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_258)) begin
 		main_dotloop_bodyreduction_4_reg <= main_66_69;
-		if (start == 1'b0 && ^(main_66_69) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_69) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
 	end
 	/* main: %66*/
 	/*   %71 = fadd float %70, 0x3F11566AA0000000*/
-	if ((cur_state == LEGUP_F_main_BB__66_283)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_283)) begin
 		main_dotloop_bodyreduction_4_reg <= main_66_71;
-		if (start == 1'b0 && ^(main_66_71) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_71) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
 	end
 	/* main: %66*/
 	/*   %73 = fadd float %72, 0xBF66C16C20000000*/
-	if ((cur_state == LEGUP_F_main_BB__66_308)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_308)) begin
 		main_dotloop_bodyreduction_4_reg <= main_66_73;
-		if (start == 1'b0 && ^(main_66_73) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_73) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
 	end
 	/* main: %66*/
 	/*   %75 = fadd float %74, 0x3FC5555560000000*/
-	if ((cur_state == LEGUP_F_main_BB__66_333)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_333)) begin
 		main_dotloop_bodyreduction_4_reg <= main_66_75;
-		if (start == 1'b0 && ^(main_66_75) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_75) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
 	end
 	/* main: %80*/
 	/*   %81 = fadd float %77, -2.000000e+00*/
-	if ((cur_state == LEGUP_F_main_BB__80_384)) begin
+	else if ((cur_state == LEGUP_F_main_BB__80_384)) begin
 		main_dotloop_bodyreduction_4_reg <= main_80_81;
-		if (start == 1'b0 && ^(main_80_81) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_80_81) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_4_reg");  end
 	end
 end
 always @(*) begin
@@ -3316,7 +3383,7 @@ always @(posedge clk) begin
 	/*   %5 = add nuw nsw i64 %dot.indvar.reduction20, 1*/
 	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
 		main_dotloop_bodyreduction_5_reg <= main_dotloop_bodyreduction_5;
-		if (start == 1'b0 && ^(main_dotloop_bodyreduction_5) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_5_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_dotloop_bodyreduction_5) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_5_reg");  end
 	end
 end
 always @(*) begin
@@ -3329,7 +3396,7 @@ always @(posedge clk) begin
 	/*   %exitcond18 = icmp eq i64 %5, 784*/
 	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
 		main_dotloop_bodyreduction_exitcond18_reg <= main_dotloop_bodyreduction_exitcond18;
-		if (start == 1'b0 && ^(main_dotloop_bodyreduction_exitcond18) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_exitcond18_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_dotloop_bodyreduction_exitcond18) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_bodyreduction_exitcond18_reg");  end
 	end
 end
 always @(*) begin
@@ -3342,7 +3409,7 @@ always @(posedge clk) begin
 	/*   %6 = add nuw nsw i64 %dot.indvar.rhs.122, 1*/
 	if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
 		main_dotloop_exitreduction_6_reg <= main_dotloop_exitreduction_6;
-		if (start == 1'b0 && ^(main_dotloop_exitreduction_6) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_exitreduction_6_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_dotloop_exitreduction_6) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_exitreduction_6_reg");  end
 	end
 end
 always @(*) begin
@@ -3355,7 +3422,7 @@ always @(posedge clk) begin
 	/*   %exitcond21 = icmp eq i64 %6, 10*/
 	if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
 		main_dotloop_exitreduction_exitcond21_reg <= main_dotloop_exitreduction_exitcond21;
-		if (start == 1'b0 && ^(main_dotloop_exitreduction_exitcond21) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_exitreduction_exitcond21_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_dotloop_exitreduction_exitcond21) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_dotloop_exitreduction_exitcond21_reg");  end
 	end
 end
 always @(*) begin
@@ -3375,13 +3442,13 @@ always @(posedge clk) begin
 	/*   %fusion.2.indvar.dim.116 = phi i64 [ %10, %fusion.2.loop_body.dim.1 ], [ 0, %fusion.2.loop_body.dim.1.preheader ]*/
 	if (((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1preheader_32) & (memory_controller_waitrequest == 1'd0))) begin
 		main_fusion2loop_bodydim1_fusion2indvardim116_reg <= main_fusion2loop_bodydim1_fusion2indvardim116;
-		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_fusion2indvardim116) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion2loop_bodydim1_fusion2indvardim116_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_fusion2indvardim116) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion2loop_bodydim1_fusion2indvardim116_reg");  end
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   %fusion.2.indvar.dim.116 = phi i64 [ %10, %fusion.2.loop_body.dim.1 ], [ 0, %fusion.2.loop_body.dim.1.preheader ]*/
-	if ((((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_50) & (memory_controller_waitrequest == 1'd0)) & (main_fusion2loop_bodydim1_exitcond14_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_50) & (memory_controller_waitrequest == 1'd0)) & (main_fusion2loop_bodydim1_exitcond14_reg == 1'd0))) begin
 		main_fusion2loop_bodydim1_fusion2indvardim116_reg <= main_fusion2loop_bodydim1_fusion2indvardim116;
-		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_fusion2indvardim116) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion2loop_bodydim1_fusion2indvardim116_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_fusion2indvardim116) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion2loop_bodydim1_fusion2indvardim116_reg");  end
 	end
 end
 always @(*) begin
@@ -3394,7 +3461,7 @@ always @(posedge clk) begin
 	/*   %scevgep15 = getelementptr [1 x [10 x float]]* @temp1, i64 0, i64 0, i64 %fusion.2.indvar.dim.116*/
 	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
 		main_fusion2loop_bodydim1_scevgep15_reg <= main_fusion2loop_bodydim1_scevgep15;
-		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_scevgep15) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion2loop_bodydim1_scevgep15_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_scevgep15) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion2loop_bodydim1_scevgep15_reg");  end
 	end
 end
 always @(*) begin
@@ -3430,7 +3497,7 @@ always @(posedge clk) begin
 	/*   %10 = add nuw nsw i64 %fusion.2.indvar.dim.116, 1*/
 	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
 		main_fusion2loop_bodydim1_10_reg <= main_fusion2loop_bodydim1_10;
-		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_10) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion2loop_bodydim1_10_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_10) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion2loop_bodydim1_10_reg");  end
 	end
 end
 always @(*) begin
@@ -3443,7 +3510,7 @@ always @(posedge clk) begin
 	/*   %exitcond14 = icmp eq i64 %10, 10*/
 	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
 		main_fusion2loop_bodydim1_exitcond14_reg <= main_fusion2loop_bodydim1_exitcond14;
-		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_exitcond14) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion2loop_bodydim1_exitcond14_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion2loop_bodydim1_exitcond14) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion2loop_bodydim1_exitcond14_reg");  end
 	end
 end
 always @(*) begin
@@ -3463,13 +3530,13 @@ always @(posedge clk) begin
 	/*   %11 = phi float [ %16, %reduce.inner.loop_body.reduction_dim.1 ], [ 0xFFF0000000000000, %reduce.inner.loop_body.reduction_dim.1.preheader ]*/
 	if (((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1preheader_51) & (memory_controller_waitrequest == 1'd0))) begin
 		main_reduceinnerloop_bodyreduction_dim1_11_reg <= main_reduceinnerloop_bodyreduction_dim1_11;
-		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_11) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_11_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_11) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_11_reg");  end
 	end
 	/* main: %reduce.inner.loop_body.reduction_dim.1*/
 	/*   %11 = phi float [ %16, %reduce.inner.loop_body.reduction_dim.1 ], [ 0xFFF0000000000000, %reduce.inner.loop_body.reduction_dim.1.preheader ]*/
-	if ((((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_55) & (memory_controller_waitrequest == 1'd0)) & (main_reduceinnerloop_bodyreduction_dim1_exitcond12_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_55) & (memory_controller_waitrequest == 1'd0)) & (main_reduceinnerloop_bodyreduction_dim1_exitcond12_reg == 1'd0))) begin
 		main_reduceinnerloop_bodyreduction_dim1_11_reg <= main_reduceinnerloop_bodyreduction_dim1_11;
-		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_11) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_11_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_11) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_11_reg");  end
 	end
 end
 always @(*) begin
@@ -3489,13 +3556,13 @@ always @(posedge clk) begin
 	/*   %reduce.inner.indvar.reduction_dim.112 = phi i64 [ %17, %reduce.inner.loop_body.reduction_dim.1 ], [ 0, %reduce.inner.loop_body.reduction_dim.1.preheader ]*/
 	if (((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1preheader_51) & (memory_controller_waitrequest == 1'd0))) begin
 		main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112_reg <= main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112;
-		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112_reg");  end
 	end
 	/* main: %reduce.inner.loop_body.reduction_dim.1*/
 	/*   %reduce.inner.indvar.reduction_dim.112 = phi i64 [ %17, %reduce.inner.loop_body.reduction_dim.1 ], [ 0, %reduce.inner.loop_body.reduction_dim.1.preheader ]*/
-	if ((((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_55) & (memory_controller_waitrequest == 1'd0)) & (main_reduceinnerloop_bodyreduction_dim1_exitcond12_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_55) & (memory_controller_waitrequest == 1'd0)) & (main_reduceinnerloop_bodyreduction_dim1_exitcond12_reg == 1'd0))) begin
 		main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112_reg <= main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112;
-		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_reduceinnerindvarreduction_dim112_reg");  end
 	end
 end
 always @(*) begin
@@ -3513,7 +3580,7 @@ always @(posedge clk) begin
 	/*   %12 = load float* %scevgep13, align 4*/
 	if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_54)) begin
 		main_reduceinnerloop_bodyreduction_dim1_12_reg <= main_reduceinnerloop_bodyreduction_dim1_12;
-		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_12) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_12_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_12) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_12_reg");  end
 	end
 end
 always @(*) begin
@@ -3527,14 +3594,14 @@ always @(posedge clk) begin
 	/*   %14 = fcmp ueq float %11, 0.000000e+00*/
 	if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_53)) begin
 		main_reduceinnerloop_bodyreduction_dim1_14_reg <= main_reduceinnerloop_bodyreduction_dim1_14;
-		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_14) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_14_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_14) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_14_reg");  end
 	end
 	/* main: %reduce.inner.loop_body.reduction_dim.1*/
 	/*   %14 = fcmp ueq float %11, 0.000000e+00*/
-	if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_53)) begin
-		main_reduceinnerloop_bodyreduction_dim1_14_reg <= main_reduceinnerloop_bodyreduction_dim1_14;
-		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_14) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_14_reg"); $finish; end
-	end
+//	else if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_53)) begin
+//		main_reduceinnerloop_bodyreduction_dim1_14_reg <= main_reduceinnerloop_bodyreduction_dim1_14;
+//		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_14) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_14_reg");  end
+//	end
 end
 always @(*) begin
 	/* main: %reduce.inner.loop_body.reduction_dim.1*/
@@ -3551,7 +3618,7 @@ always @(posedge clk) begin
 	/*   %16 = select i1 %15, float %11, float %12*/
 	if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_55)) begin
 		main_reduceinnerloop_bodyreduction_dim1_16_reg <= main_reduceinnerloop_bodyreduction_dim1_16;
-		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_16) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_16_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_16) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_16_reg");  end
 	end
 end
 always @(*) begin
@@ -3564,7 +3631,7 @@ always @(posedge clk) begin
 	/*   %17 = add nuw nsw i64 %reduce.inner.indvar.reduction_dim.112, 1*/
 	if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52)) begin
 		main_reduceinnerloop_bodyreduction_dim1_17_reg <= main_reduceinnerloop_bodyreduction_dim1_17;
-		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_17) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_17_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_17) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_17_reg");  end
 	end
 end
 always @(*) begin
@@ -3577,7 +3644,7 @@ always @(posedge clk) begin
 	/*   %exitcond12 = icmp eq i64 %17, 10*/
 	if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52)) begin
 		main_reduceinnerloop_bodyreduction_dim1_exitcond12_reg <= main_reduceinnerloop_bodyreduction_dim1_exitcond12;
-		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_exitcond12) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_exitcond12_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduceinnerloop_bodyreduction_dim1_exitcond12) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduceinnerloop_bodyreduction_dim1_exitcond12_reg");  end
 	end
 end
 always @(*) begin
@@ -3597,13 +3664,13 @@ always @(posedge clk) begin
 	/*   %lo.i.i.0 = phi float [ %lo.i.i.3, %expf.exit ], [ undef, %fusion.1.loop_body.dim.1.preheader ]*/
 	if (((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1preheader_56) & (memory_controller_waitrequest == 1'd0))) begin
 		main_fusion1loop_bodydim1_loii0_reg <= main_fusion1loop_bodydim1_loii0;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_loii0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_loii0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_loii0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_loii0_reg");  end
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %lo.i.i.0 = phi float [ %lo.i.i.3, %expf.exit ], [ undef, %fusion.1.loop_body.dim.1.preheader ]*/
-	if ((((cur_state == LEGUP_F_main_BB_expfexit_550) & (memory_controller_waitrequest == 1'd0)) & (main_expfexit_exitcond4_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_expfexit_550) & (memory_controller_waitrequest == 1'd0)) & (main_expfexit_exitcond4_reg == 1'd0))) begin
 		main_fusion1loop_bodydim1_loii0_reg <= main_fusion1loop_bodydim1_loii0;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_loii0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_loii0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_loii0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_loii0_reg");  end
 	end
 end
 always @(*) begin
@@ -3623,13 +3690,13 @@ always @(posedge clk) begin
 	/*   %hi.i.i.0 = phi float [ %hi.i.i.3, %expf.exit ], [ undef, %fusion.1.loop_body.dim.1.preheader ]*/
 	if (((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1preheader_56) & (memory_controller_waitrequest == 1'd0))) begin
 		main_fusion1loop_bodydim1_hiii0_reg <= main_fusion1loop_bodydim1_hiii0;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_hiii0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_hiii0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_hiii0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_hiii0_reg");  end
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %hi.i.i.0 = phi float [ %hi.i.i.3, %expf.exit ], [ undef, %fusion.1.loop_body.dim.1.preheader ]*/
-	if ((((cur_state == LEGUP_F_main_BB_expfexit_550) & (memory_controller_waitrequest == 1'd0)) & (main_expfexit_exitcond4_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_expfexit_550) & (memory_controller_waitrequest == 1'd0)) & (main_expfexit_exitcond4_reg == 1'd0))) begin
 		main_fusion1loop_bodydim1_hiii0_reg <= main_fusion1loop_bodydim1_hiii0;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_hiii0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_hiii0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_hiii0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_hiii0_reg");  end
 	end
 end
 always @(*) begin
@@ -3649,13 +3716,13 @@ always @(posedge clk) begin
 	/*   %fusion.1.indvar.dim.18 = phi i64 [ %102, %expf.exit ], [ 0, %fusion.1.loop_body.dim.1.preheader ]*/
 	if (((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1preheader_56) & (memory_controller_waitrequest == 1'd0))) begin
 		main_fusion1loop_bodydim1_fusion1indvardim18_reg <= main_fusion1loop_bodydim1_fusion1indvardim18;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_fusion1indvardim18) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_fusion1indvardim18_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_fusion1indvardim18) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_fusion1indvardim18_reg");  end
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %fusion.1.indvar.dim.18 = phi i64 [ %102, %expf.exit ], [ 0, %fusion.1.loop_body.dim.1.preheader ]*/
-	if ((((cur_state == LEGUP_F_main_BB_expfexit_550) & (memory_controller_waitrequest == 1'd0)) & (main_expfexit_exitcond4_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_expfexit_550) & (memory_controller_waitrequest == 1'd0)) & (main_expfexit_exitcond4_reg == 1'd0))) begin
 		main_fusion1loop_bodydim1_fusion1indvardim18_reg <= main_fusion1loop_bodydim1_fusion1indvardim18;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_fusion1indvardim18) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_fusion1indvardim18_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_fusion1indvardim18) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_fusion1indvardim18_reg");  end
 	end
 end
 always @(*) begin
@@ -3668,7 +3735,7 @@ always @(posedge clk) begin
 	/*   %scevgep5 = getelementptr [1 x [10 x float]]* @temp1, i64 0, i64 0, i64 %fusion.1.indvar.dim.18*/
 	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
 		main_fusion1loop_bodydim1_scevgep5_reg <= main_fusion1loop_bodydim1_scevgep5;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_scevgep5) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_scevgep5_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_scevgep5) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_scevgep5_reg");  end
 	end
 end
 always @(*) begin
@@ -3702,37 +3769,37 @@ always @(posedge clk) begin
 	/*   %21 = fsub float %20, %16*/
 	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_87)) begin
 		main_fusion1loop_bodydim1_21_reg <= main_fusion1loop_bodydim1_21;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_21) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_21) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg");  end
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %21 = fsub float %20, %16*/
-	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_87)) begin
-		main_fusion1loop_bodydim1_21_reg <= main_fusion1loop_bodydim1_21;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_21) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg"); $finish; end
-	end
+//	else if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_87)) begin
+//		main_fusion1loop_bodydim1_21_reg <= main_fusion1loop_bodydim1_21;
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_21) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg");  end
+//	end
 	/* main: %85*/
 	/*   %86 = fsub float 2.000000e+00, %77*/
-	if ((cur_state == LEGUP_F_main_BB__85_460)) begin
+	else if ((cur_state == LEGUP_F_main_BB__85_460)) begin
 		main_fusion1loop_bodydim1_21_reg <= main_85_86;
-		if (start == 1'b0 && ^(main_85_86) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_85_86) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg");  end
 	end
 	/* main: %85*/
 	/*   %88 = fsub float %lo.i.i.2, %87*/
-	if ((cur_state == LEGUP_F_main_BB__85_507)) begin
+	else if ((cur_state == LEGUP_F_main_BB__85_507)) begin
 		main_fusion1loop_bodydim1_21_reg <= main_85_88;
-		if (start == 1'b0 && ^(main_85_88) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_85_88) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg");  end
 	end
 	/* main: %85*/
 	/*   %90 = fsub float 1.000000e+00, %89*/
-	if ((cur_state == LEGUP_F_main_BB__85_535)) begin
+	else if ((cur_state == LEGUP_F_main_BB__85_535)) begin
 		main_fusion1loop_bodydim1_21_reg <= main_85_90;
-		if (start == 1'b0 && ^(main_85_90) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_85_90) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg");  end
 	end
 	/* main: %80*/
 	/*   %83 = fsub float %82, %.048*/
-	if ((cur_state == LEGUP_F_main_BB__80_431)) begin
+	else if ((cur_state == LEGUP_F_main_BB__80_431)) begin
 		main_fusion1loop_bodydim1_21_reg <= main_80_83;
-		if (start == 1'b0 && ^(main_80_83) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_80_83) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_21_reg");  end
 	end
 end
 always @(*) begin
@@ -3745,20 +3812,20 @@ always @(posedge clk) begin
 	/*   %22 = bitcast float %21 to i32*/
 	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_87)) begin
 		main_fusion1loop_bodydim1_22_reg <= main_fusion1loop_bodydim1_22;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_22) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_22_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_22) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_22_reg");  end
 	end
 end
 always @(*) begin
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %23 = lshr i32 %22, 31*/
-		main_fusion1loop_bodydim1_23 = (main_fusion1loop_bodydim1_22 >>> (32'd31 % 32));
+		main_fusion1loop_bodydim1_23 = (main_fusion1loop_bodydim1_22 >> (32'd31 % 32));
 end
 always @(posedge clk) begin
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %23 = lshr i32 %22, 31*/
 	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_87)) begin
 		main_fusion1loop_bodydim1_23_reg <= main_fusion1loop_bodydim1_23;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_23) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_23_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_23) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_23_reg");  end
 	end
 end
 always @(*) begin
@@ -3771,7 +3838,7 @@ always @(posedge clk) begin
 	/*   %24 = and i32 %22, 2147483647*/
 	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_87)) begin
 		main_fusion1loop_bodydim1_24_reg <= main_fusion1loop_bodydim1_24;
-		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_24) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_24_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusion1loop_bodydim1_24) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusion1loop_bodydim1_24_reg");  end
 	end
 end
 always @(*) begin
@@ -3800,12 +3867,12 @@ end
 always @(*) begin
 	/* main: %32*/
 	/*   %33 = icmp sgt i32 %22, 1118925335*/
-		main_32_33 = ($signed(main_fusion1loop_bodydim1_22_reg) > $signed(32'd1118925335));
+		main_32_33 = ((main_fusion1loop_bodydim1_22_reg) > (32'd1118925335));
 end
 always @(*) begin
 	/* main: %34*/
 	/*   %35 = icmp slt i32 %22, 0*/
-		main_34_35 = ($signed(main_fusion1loop_bodydim1_22_reg) < $signed(32'd0));
+		main_34_35 = ((main_fusion1loop_bodydim1_22_reg) < (32'd0));
 end
 always @(*) begin
 	/* main: %34*/
@@ -3867,7 +3934,7 @@ always @(posedge clk) begin
 	/*   %47 = sub nsw i32 %46, %23*/
 	if ((cur_state == LEGUP_F_main_BB__40_109)) begin
 		main_40_47_reg <= main_40_47;
-		if (start == 1'b0 && ^(main_40_47) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_40_47_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_40_47) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_40_47_reg");  end
 	end
 end
 always @(*) begin
@@ -3893,7 +3960,7 @@ always @(posedge clk) begin
 	/*   %52 = load float* %51, align 4*/
 	if ((cur_state == LEGUP_F_main_BB__48_114)) begin
 		main_48_52_reg <= main_48_52;
-		if (start == 1'b0 && ^(main_48_52) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_52_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_48_52) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_52_reg");  end
 	end
 end
 always @(*) begin
@@ -3907,13 +3974,13 @@ always @(posedge clk) begin
 	/*   %54 = fptosi float %53 to i32*/
 	if ((cur_state == LEGUP_F_main_BB__48_143)) begin
 		main_48_54_reg <= main_48_54;
-		if (start == 1'b0 && ^(main_48_54) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_54_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_48_54) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_54_reg");  end
 	end
 	/* main: %48*/
 	/*   %54 = fptosi float %53 to i32*/
-	if ((cur_state == LEGUP_F_main_BB__48_143)) begin
+	else if ((cur_state == LEGUP_F_main_BB__48_143)) begin
 		main_48_54_reg <= main_48_54;
-		if (start == 1'b0 && ^(main_48_54) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_54_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_48_54) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_54_reg");  end
 	end
 end
 always @(*) begin
@@ -3924,13 +3991,13 @@ always @(posedge clk) begin
 	/*   %55 = sitofp i32 %54 to float*/
 	if ((cur_state == LEGUP_F_main_BB__48_149)) begin
 		main_48_55_reg <= main_48_55;
-		if (start == 1'b0 && ^(main_48_55) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_55_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_48_55) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_55_reg");  end
 	end
 	/* main: %48*/
 	/*   %55 = sitofp i32 %54 to float*/
-	if ((cur_state == LEGUP_F_main_BB__48_149)) begin
+	else if ((cur_state == LEGUP_F_main_BB__48_149)) begin
 		main_48_55_reg <= main_48_55;
-		if (start == 1'b0 && ^(main_48_55) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_55_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_48_55) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_55_reg");  end
 	end
 end
 always @(*) begin
@@ -3941,43 +4008,43 @@ always @(posedge clk) begin
 	/*   %56 = fmul float %55, 0x3FE62E3000000000*/
 	if ((cur_state == LEGUP_F_main_BB__48_160)) begin
 		main_48_56_reg <= main_48_56;
-		if (start == 1'b0 && ^(main_48_56) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_48_56) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg");  end
 	end
 	/* main: %48*/
 	/*   %56 = fmul float %55, 0x3FE62E3000000000*/
-	if ((cur_state == LEGUP_F_main_BB__48_160)) begin
+	else if ((cur_state == LEGUP_F_main_BB__48_160)) begin
 		main_48_56_reg <= main_48_56;
-		if (start == 1'b0 && ^(main_48_56) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_48_56) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg");  end
 	end
 	/* main: %66*/
 	/*   %68 = fmul float %67, 0x3E66376980000000*/
-	if ((cur_state == LEGUP_F_main_BB__66_244)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_244)) begin
 		main_48_56_reg <= main_66_68;
-		if (start == 1'b0 && ^(main_66_68) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_68) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg");  end
 	end
 	/* main: %66*/
 	/*   %70 = fmul float %67, %69*/
-	if ((cur_state == LEGUP_F_main_BB__66_269)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_269)) begin
 		main_48_56_reg <= main_66_70;
-		if (start == 1'b0 && ^(main_66_70) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_70) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg");  end
 	end
 	/* main: %66*/
 	/*   %72 = fmul float %67, %71*/
-	if ((cur_state == LEGUP_F_main_BB__66_294)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_294)) begin
 		main_48_56_reg <= main_66_72;
-		if (start == 1'b0 && ^(main_66_72) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_72) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg");  end
 	end
 	/* main: %66*/
 	/*   %74 = fmul float %67, %73*/
-	if ((cur_state == LEGUP_F_main_BB__66_319)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_319)) begin
 		main_48_56_reg <= main_66_74;
-		if (start == 1'b0 && ^(main_66_74) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_74) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg");  end
 	end
 	/* main: %66*/
 	/*   %76 = fmul float %67, %75*/
-	if ((cur_state == LEGUP_F_main_BB__66_344)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_344)) begin
 		main_48_56_reg <= main_66_76;
-		if (start == 1'b0 && ^(main_66_76) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_76) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_56_reg");  end
 	end
 end
 always @(*) begin
@@ -3988,19 +4055,19 @@ always @(posedge clk) begin
 	/*   %57 = fmul float %55, 0x3EE2FEFA20000000*/
 	if ((cur_state == LEGUP_F_main_BB__48_161)) begin
 		main_48_57_reg <= main_48_57;
-		if (start == 1'b0 && ^(main_48_57) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_57_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_48_57) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_57_reg");  end
 	end
 	/* main: %48*/
 	/*   %57 = fmul float %55, 0x3EE2FEFA20000000*/
-	if ((cur_state == LEGUP_F_main_BB__48_161)) begin
+	else if ((cur_state == LEGUP_F_main_BB__48_161)) begin
 		main_48_57_reg <= main_48_57;
-		if (start == 1'b0 && ^(main_48_57) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_57_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_48_57) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_57_reg");  end
 	end
 	/* main: %66*/
 	/*   %79 = fmul float %.048, %77*/
-	if ((cur_state == LEGUP_F_main_BB__66_369)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_369)) begin
 		main_48_57_reg <= main_66_79;
-		if (start == 1'b0 && ^(main_66_79) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_57_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_79) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_48_57_reg");  end
 	end
 end
 always @(*) begin
@@ -4020,13 +4087,13 @@ always @(posedge clk) begin
 	/*   %k.i.i.0 = phi i32 [ %47, %40 ], [ %54, %48 ]*/
 	if (((cur_state == LEGUP_F_main_BB__40_111) & (memory_controller_waitrequest == 1'd0))) begin
 		main_58_kii0_reg <= main_58_kii0;
-		if (start == 1'b0 && ^(main_58_kii0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_kii0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_58_kii0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_kii0_reg");  end
 	end
 	/* main: %58*/
 	/*   %k.i.i.0 = phi i32 [ %47, %40 ], [ %54, %48 ]*/
-	if (((cur_state == LEGUP_F_main_BB__48_161) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__48_161) & (memory_controller_waitrequest == 1'd0))) begin
 		main_58_kii0_reg <= main_58_kii0;
-		if (start == 1'b0 && ^(main_58_kii0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_kii0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_58_kii0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_kii0_reg");  end
 	end
 end
 always @(*) begin
@@ -4046,13 +4113,13 @@ always @(posedge clk) begin
 	/*   %lo.i.i.1 = phi float [ %45, %40 ], [ %57, %48 ]*/
 	if (((cur_state == LEGUP_F_main_BB__40_111) & (memory_controller_waitrequest == 1'd0))) begin
 		main_58_loii1_reg <= main_58_loii1;
-		if (start == 1'b0 && ^(main_58_loii1) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_loii1_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_58_loii1) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_loii1_reg");  end
 	end
 	/* main: %58*/
 	/*   %lo.i.i.1 = phi float [ %45, %40 ], [ %57, %48 ]*/
-	if (((cur_state == LEGUP_F_main_BB__48_161) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__48_161) & (memory_controller_waitrequest == 1'd0))) begin
 		main_58_loii1_reg <= main_58_loii1;
-		if (start == 1'b0 && ^(main_58_loii1) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_loii1_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_58_loii1) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_loii1_reg");  end
 	end
 end
 always @(*) begin
@@ -4072,13 +4139,13 @@ always @(posedge clk) begin
 	/*   %.pn = phi float [ %43, %40 ], [ %56, %48 ]*/
 	if (((cur_state == LEGUP_F_main_BB__40_111) & (memory_controller_waitrequest == 1'd0))) begin
 		main_58_pn_reg <= main_58_pn;
-		if (start == 1'b0 && ^(main_58_pn) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_pn_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_58_pn) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_pn_reg");  end
 	end
 	/* main: %58*/
 	/*   %.pn = phi float [ %43, %40 ], [ %56, %48 ]*/
-	if (((cur_state == LEGUP_F_main_BB__48_161) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__48_161) & (memory_controller_waitrequest == 1'd0))) begin
 		main_58_pn_reg <= main_58_pn;
-		if (start == 1'b0 && ^(main_58_pn) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_pn_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_58_pn) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_pn_reg");  end
 	end
 end
 always @(*) begin
@@ -4097,19 +4164,19 @@ always @(posedge clk) begin
 	/*   %59 = fsub float %hi.i.i.1, %lo.i.i.1*/
 	if ((cur_state == LEGUP_F_main_BB__58_190)) begin
 		main_58_59_reg <= main_58_59;
-		if (start == 1'b0 && ^(main_58_59) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_59_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_58_59) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_59_reg");  end
 	end
 	/* main: %58*/
 	/*   %59 = fsub float %hi.i.i.1, %lo.i.i.1*/
-	if ((cur_state == LEGUP_F_main_BB__58_190)) begin
+	else if ((cur_state == LEGUP_F_main_BB__58_190)) begin
 		main_58_59_reg <= main_58_59;
-		if (start == 1'b0 && ^(main_58_59) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_59_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_58_59) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_59_reg");  end
 	end
 	/* main: %66*/
 	/*   %77 = fsub float %.048, %76*/
-	if ((cur_state == LEGUP_F_main_BB__66_358)) begin
+	else if ((cur_state == LEGUP_F_main_BB__66_358)) begin
 		main_58_59_reg <= main_66_77;
-		if (start == 1'b0 && ^(main_66_77) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_59_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_77) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_58_59_reg");  end
 	end
 end
 always @(*) begin
@@ -4122,7 +4189,7 @@ always @(posedge clk) begin
 	/*   %61 = icmp ult i32 %24, 830472192*/
 	if ((cur_state == LEGUP_F_main_BB__60_191)) begin
 		main_60_61_reg <= main_60_61;
-		if (start == 1'b0 && ^(main_60_61) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_60_61_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_60_61) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_60_61_reg");  end
 	end
 end
 always @(*) begin
@@ -4156,13 +4223,13 @@ always @(posedge clk) begin
 	/*   %k.i.i.1 = phi i32 [ %k.i.i.0, %58 ], [ 0, %60 ]*/
 	if (((cur_state == LEGUP_F_main_BB__58_190) & (memory_controller_waitrequest == 1'd0))) begin
 		main_66_kii1_reg <= main_66_kii1;
-		if (start == 1'b0 && ^(main_66_kii1) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_kii1_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_kii1) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_kii1_reg");  end
 	end
 	/* main: %66*/
 	/*   %k.i.i.1 = phi i32 [ %k.i.i.0, %58 ], [ 0, %60 ]*/
-	if ((((cur_state == LEGUP_F_main_BB__60_206) & (memory_controller_waitrequest == 1'd0)) & (main_60_orcond54 == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB__60_206) & (memory_controller_waitrequest == 1'd0)) & (main_60_orcond54 == 1'd0))) begin
 		main_66_kii1_reg <= main_66_kii1;
-		if (start == 1'b0 && ^(main_66_kii1) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_kii1_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_kii1) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_kii1_reg");  end
 	end
 end
 always @(*) begin
@@ -4182,13 +4249,13 @@ always @(posedge clk) begin
 	/*   %lo.i.i.2 = phi float [ %lo.i.i.1, %58 ], [ %lo.i.i.0, %60 ]*/
 	if (((cur_state == LEGUP_F_main_BB__58_190) & (memory_controller_waitrequest == 1'd0))) begin
 		main_66_loii2_reg <= main_66_loii2;
-		if (start == 1'b0 && ^(main_66_loii2) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_loii2_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_loii2) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_loii2_reg");  end
 	end
 	/* main: %66*/
 	/*   %lo.i.i.2 = phi float [ %lo.i.i.1, %58 ], [ %lo.i.i.0, %60 ]*/
-	if ((((cur_state == LEGUP_F_main_BB__60_206) & (memory_controller_waitrequest == 1'd0)) & (main_60_orcond54 == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB__60_206) & (memory_controller_waitrequest == 1'd0)) & (main_60_orcond54 == 1'd0))) begin
 		main_66_loii2_reg <= main_66_loii2;
-		if (start == 1'b0 && ^(main_66_loii2) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_loii2_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_loii2) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_loii2_reg");  end
 	end
 end
 always @(*) begin
@@ -4208,13 +4275,13 @@ always @(posedge clk) begin
 	/*   %hi.i.i.2 = phi float [ %hi.i.i.1, %58 ], [ %hi.i.i.0, %60 ]*/
 	if (((cur_state == LEGUP_F_main_BB__58_190) & (memory_controller_waitrequest == 1'd0))) begin
 		main_66_hiii2_reg <= main_66_hiii2;
-		if (start == 1'b0 && ^(main_66_hiii2) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_hiii2_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_hiii2) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_hiii2_reg");  end
 	end
 	/* main: %66*/
 	/*   %hi.i.i.2 = phi float [ %hi.i.i.1, %58 ], [ %hi.i.i.0, %60 ]*/
-	if ((((cur_state == LEGUP_F_main_BB__60_206) & (memory_controller_waitrequest == 1'd0)) & (main_60_orcond54 == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB__60_206) & (memory_controller_waitrequest == 1'd0)) & (main_60_orcond54 == 1'd0))) begin
 		main_66_hiii2_reg <= main_66_hiii2;
-		if (start == 1'b0 && ^(main_66_hiii2) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_hiii2_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_hiii2) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_hiii2_reg");  end
 	end
 end
 always @(*) begin
@@ -4234,13 +4301,13 @@ always @(posedge clk) begin
 	/*   %.048 = phi float [ %59, %58 ], [ %21, %60 ]*/
 	if (((cur_state == LEGUP_F_main_BB__58_190) & (memory_controller_waitrequest == 1'd0))) begin
 		main_66_048_reg <= main_66_048;
-		if (start == 1'b0 && ^(main_66_048) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_048_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_048) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_048_reg");  end
 	end
 	/* main: %66*/
 	/*   %.048 = phi float [ %59, %58 ], [ %21, %60 ]*/
-	if ((((cur_state == LEGUP_F_main_BB__60_206) & (memory_controller_waitrequest == 1'd0)) & (main_60_orcond54 == 1'd0))) begin
+else 	if ((((cur_state == LEGUP_F_main_BB__60_206) & (memory_controller_waitrequest == 1'd0)) & (main_60_orcond54 == 1'd0))) begin
 		main_66_048_reg <= main_66_048;
-		if (start == 1'b0 && ^(main_66_048) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_048_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_048) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_048_reg");  end
 	end
 end
 always @(*) begin
@@ -4296,7 +4363,7 @@ always @(posedge clk) begin
 	/*   %78 = icmp eq i32 %k.i.i.1, 0*/
 	if ((cur_state == LEGUP_F_main_BB__66_222)) begin
 		main_66_78_reg <= main_66_78;
-		if (start == 1'b0 && ^(main_66_78) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_78_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_66_78) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_66_78_reg");  end
 	end
 end
 always @(*) begin
@@ -4336,25 +4403,25 @@ always @(posedge clk) begin
 	/*   %89 = fsub float %88, %hi.i.i.2*/
 	if ((cur_state == LEGUP_F_main_BB__85_521)) begin
 		main_85_89_reg <= main_85_89;
-		if (start == 1'b0 && ^(main_85_89) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_89_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_85_89) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_89_reg");  end
 	end
 	/* main: %85*/
 	/*   %89 = fsub float %88, %hi.i.i.2*/
-	if ((cur_state == LEGUP_F_main_BB__85_521)) begin
+	else if ((cur_state == LEGUP_F_main_BB__85_521)) begin
 		main_85_89_reg <= main_85_89;
-		if (start == 1'b0 && ^(main_85_89) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_89_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_85_89) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_89_reg");  end
 	end
 	/* main: %58*/
 	/*   %hi.i.i.1 = fsub float %21, %.pn*/
-	if ((cur_state == LEGUP_F_main_BB__58_176)) begin
+	else if ((cur_state == LEGUP_F_main_BB__58_176)) begin
 		main_85_89_reg <= main_58_hiii1;
-		if (start == 1'b0 && ^(main_58_hiii1) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_89_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_58_hiii1) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_89_reg");  end
 	end
 	/* main: %80*/
 	/*   %84 = fsub float 1.000000e+00, %83*/
-	if ((cur_state == LEGUP_F_main_BB__80_445)) begin
+	else if ((cur_state == LEGUP_F_main_BB__80_445)) begin
 		main_85_89_reg <= main_80_84;
-		if (start == 1'b0 && ^(main_80_84) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_89_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_80_84) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_89_reg");  end
 	end
 end
 always @(*) begin
@@ -4363,14 +4430,14 @@ end
 always @(*) begin
 	/* main: %85*/
 	/*   %91 = icmp sgt i32 %k.i.i.1, -126*/
-		main_85_91 = ($signed(main_66_kii1_reg) > $signed(-32'd126));
+		main_85_91 = ((main_66_kii1_reg) > (-32'd126));
 end
 always @(posedge clk) begin
 	/* main: %85*/
 	/*   %91 = icmp sgt i32 %k.i.i.1, -126*/
 	if ((cur_state == LEGUP_F_main_BB__85_446)) begin
 		main_85_91_reg <= main_85_91;
-		if (start == 1'b0 && ^(main_85_91) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_91_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_85_91) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_91_reg");  end
 	end
 end
 always @(*) begin
@@ -4383,20 +4450,20 @@ always @(posedge clk) begin
 	/*   %92 = bitcast float %90 to i32*/
 	if ((cur_state == LEGUP_F_main_BB__85_535)) begin
 		main_85_92_reg <= main_85_92;
-		if (start == 1'b0 && ^(main_85_92) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_92_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_85_92) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_92_reg");  end
 	end
 end
 always @(*) begin
 	/* main: %85*/
 	/*   %93 = shl i32 %k.i.i.1, 23*/
-		main_85_93 = (main_66_kii1_reg <<< (32'd23 % 32));
+		main_85_93 = (main_66_kii1_reg << (32'd23 % 32));
 end
 always @(posedge clk) begin
 	/* main: %85*/
 	/*   %93 = shl i32 %k.i.i.1, 23*/
 	if ((cur_state == LEGUP_F_main_BB__85_446)) begin
 		main_85_93_reg <= main_85_93;
-		if (start == 1'b0 && ^(main_85_93) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_93_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_85_93) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_85_93_reg");  end
 	end
 end
 always @(*) begin
@@ -4474,49 +4541,49 @@ always @(posedge clk) begin
 	/*   %lo.i.i.3 = phi float [ %lo.i.i.0, %26 ], [ %lo.i.i.2, %80 ], [ %lo.i.i.2, %94 ], [ %lo.i.i.2, %97 ], [ %lo.i.i.0, %64 ], [ %lo.i.i.0, %32 ], [ %lo.i.i.0, %30 ], [ %lo.i.i.0, %34 ]*/
 	if (((cur_state == LEGUP_F_main_BB__26_102) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_loii3_reg <= main_expfexit_loii3;
-		if (start == 1'b0 && ^(main_expfexit_loii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_loii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %lo.i.i.3 = phi float [ %lo.i.i.0, %26 ], [ %lo.i.i.2, %80 ], [ %lo.i.i.2, %94 ], [ %lo.i.i.2, %97 ], [ %lo.i.i.0, %64 ], [ %lo.i.i.0, %32 ], [ %lo.i.i.0, %30 ], [ %lo.i.i.0, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__30_104) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__30_104) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_loii3_reg <= main_expfexit_loii3;
-		if (start == 1'b0 && ^(main_expfexit_loii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_loii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %lo.i.i.3 = phi float [ %lo.i.i.0, %26 ], [ %lo.i.i.2, %80 ], [ %lo.i.i.2, %94 ], [ %lo.i.i.2, %97 ], [ %lo.i.i.0, %64 ], [ %lo.i.i.0, %32 ], [ %lo.i.i.0, %30 ], [ %lo.i.i.0, %34 ]*/
-	if ((((cur_state == LEGUP_F_main_BB__32_105) & (memory_controller_waitrequest == 1'd0)) & (main_32_33 == 1'd1))) begin
+	else if ((((cur_state == LEGUP_F_main_BB__32_105) & (memory_controller_waitrequest == 1'd0)) & (main_32_33 == 1'd1))) begin
 		main_expfexit_loii3_reg <= main_expfexit_loii3;
-		if (start == 1'b0 && ^(main_expfexit_loii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_loii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %lo.i.i.3 = phi float [ %lo.i.i.0, %26 ], [ %lo.i.i.2, %80 ], [ %lo.i.i.2, %94 ], [ %lo.i.i.2, %97 ], [ %lo.i.i.0, %64 ], [ %lo.i.i.0, %32 ], [ %lo.i.i.0, %30 ], [ %lo.i.i.0, %34 ]*/
-	if ((((cur_state == LEGUP_F_main_BB__34_106) & (memory_controller_waitrequest == 1'd0)) & (main_34_orcond == 1'd1))) begin
+	else if ((((cur_state == LEGUP_F_main_BB__34_106) & (memory_controller_waitrequest == 1'd0)) & (main_34_orcond == 1'd1))) begin
 		main_expfexit_loii3_reg <= main_expfexit_loii3;
-		if (start == 1'b0 && ^(main_expfexit_loii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_loii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %lo.i.i.3 = phi float [ %lo.i.i.0, %26 ], [ %lo.i.i.2, %80 ], [ %lo.i.i.2, %94 ], [ %lo.i.i.2, %97 ], [ %lo.i.i.0, %64 ], [ %lo.i.i.0, %32 ], [ %lo.i.i.0, %30 ], [ %lo.i.i.0, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__64_221) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__64_221) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_loii3_reg <= main_expfexit_loii3;
-		if (start == 1'b0 && ^(main_expfexit_loii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_loii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %lo.i.i.3 = phi float [ %lo.i.i.0, %26 ], [ %lo.i.i.2, %80 ], [ %lo.i.i.2, %94 ], [ %lo.i.i.2, %97 ], [ %lo.i.i.0, %64 ], [ %lo.i.i.0, %32 ], [ %lo.i.i.0, %30 ], [ %lo.i.i.0, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__80_445) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__80_445) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_loii3_reg <= main_expfexit_loii3;
-		if (start == 1'b0 && ^(main_expfexit_loii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_loii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %lo.i.i.3 = phi float [ %lo.i.i.0, %26 ], [ %lo.i.i.2, %80 ], [ %lo.i.i.2, %94 ], [ %lo.i.i.2, %97 ], [ %lo.i.i.0, %64 ], [ %lo.i.i.0, %32 ], [ %lo.i.i.0, %30 ], [ %lo.i.i.0, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__94_536) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__94_536) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_loii3_reg <= main_expfexit_loii3;
-		if (start == 1'b0 && ^(main_expfexit_loii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_loii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %lo.i.i.3 = phi float [ %lo.i.i.0, %26 ], [ %lo.i.i.2, %80 ], [ %lo.i.i.2, %94 ], [ %lo.i.i.2, %97 ], [ %lo.i.i.0, %64 ], [ %lo.i.i.0, %32 ], [ %lo.i.i.0, %30 ], [ %lo.i.i.0, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__97_548) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__97_548) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_loii3_reg <= main_expfexit_loii3;
-		if (start == 1'b0 && ^(main_expfexit_loii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_loii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_loii3_reg");  end
 	end
 end
 always @(*) begin
@@ -4566,49 +4633,49 @@ always @(posedge clk) begin
 	/*   %hi.i.i.3 = phi float [ %hi.i.i.0, %26 ], [ %hi.i.i.2, %80 ], [ %hi.i.i.2, %94 ], [ %hi.i.i.2, %97 ], [ %hi.i.i.0, %64 ], [ %hi.i.i.0, %32 ], [ %hi.i.i.0, %30 ], [ %hi.i.i.0, %34 ]*/
 	if (((cur_state == LEGUP_F_main_BB__26_102) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_hiii3_reg <= main_expfexit_hiii3;
-		if (start == 1'b0 && ^(main_expfexit_hiii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_hiii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %hi.i.i.3 = phi float [ %hi.i.i.0, %26 ], [ %hi.i.i.2, %80 ], [ %hi.i.i.2, %94 ], [ %hi.i.i.2, %97 ], [ %hi.i.i.0, %64 ], [ %hi.i.i.0, %32 ], [ %hi.i.i.0, %30 ], [ %hi.i.i.0, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__30_104) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__30_104) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_hiii3_reg <= main_expfexit_hiii3;
-		if (start == 1'b0 && ^(main_expfexit_hiii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_hiii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %hi.i.i.3 = phi float [ %hi.i.i.0, %26 ], [ %hi.i.i.2, %80 ], [ %hi.i.i.2, %94 ], [ %hi.i.i.2, %97 ], [ %hi.i.i.0, %64 ], [ %hi.i.i.0, %32 ], [ %hi.i.i.0, %30 ], [ %hi.i.i.0, %34 ]*/
-	if ((((cur_state == LEGUP_F_main_BB__32_105) & (memory_controller_waitrequest == 1'd0)) & (main_32_33 == 1'd1))) begin
+	else if ((((cur_state == LEGUP_F_main_BB__32_105) & (memory_controller_waitrequest == 1'd0)) & (main_32_33 == 1'd1))) begin
 		main_expfexit_hiii3_reg <= main_expfexit_hiii3;
-		if (start == 1'b0 && ^(main_expfexit_hiii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_hiii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %hi.i.i.3 = phi float [ %hi.i.i.0, %26 ], [ %hi.i.i.2, %80 ], [ %hi.i.i.2, %94 ], [ %hi.i.i.2, %97 ], [ %hi.i.i.0, %64 ], [ %hi.i.i.0, %32 ], [ %hi.i.i.0, %30 ], [ %hi.i.i.0, %34 ]*/
-	if ((((cur_state == LEGUP_F_main_BB__34_106) & (memory_controller_waitrequest == 1'd0)) & (main_34_orcond == 1'd1))) begin
+	else if ((((cur_state == LEGUP_F_main_BB__34_106) & (memory_controller_waitrequest == 1'd0)) & (main_34_orcond == 1'd1))) begin
 		main_expfexit_hiii3_reg <= main_expfexit_hiii3;
-		if (start == 1'b0 && ^(main_expfexit_hiii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_hiii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %hi.i.i.3 = phi float [ %hi.i.i.0, %26 ], [ %hi.i.i.2, %80 ], [ %hi.i.i.2, %94 ], [ %hi.i.i.2, %97 ], [ %hi.i.i.0, %64 ], [ %hi.i.i.0, %32 ], [ %hi.i.i.0, %30 ], [ %hi.i.i.0, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__64_221) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__64_221) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_hiii3_reg <= main_expfexit_hiii3;
-		if (start == 1'b0 && ^(main_expfexit_hiii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_hiii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %hi.i.i.3 = phi float [ %hi.i.i.0, %26 ], [ %hi.i.i.2, %80 ], [ %hi.i.i.2, %94 ], [ %hi.i.i.2, %97 ], [ %hi.i.i.0, %64 ], [ %hi.i.i.0, %32 ], [ %hi.i.i.0, %30 ], [ %hi.i.i.0, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__80_445) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__80_445) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_hiii3_reg <= main_expfexit_hiii3;
-		if (start == 1'b0 && ^(main_expfexit_hiii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_hiii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %hi.i.i.3 = phi float [ %hi.i.i.0, %26 ], [ %hi.i.i.2, %80 ], [ %hi.i.i.2, %94 ], [ %hi.i.i.2, %97 ], [ %hi.i.i.0, %64 ], [ %hi.i.i.0, %32 ], [ %hi.i.i.0, %30 ], [ %hi.i.i.0, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__94_536) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__94_536) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_hiii3_reg <= main_expfexit_hiii3;
-		if (start == 1'b0 && ^(main_expfexit_hiii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_hiii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %hi.i.i.3 = phi float [ %hi.i.i.0, %26 ], [ %hi.i.i.2, %80 ], [ %hi.i.i.2, %94 ], [ %hi.i.i.2, %97 ], [ %hi.i.i.0, %64 ], [ %hi.i.i.0, %32 ], [ %hi.i.i.0, %30 ], [ %hi.i.i.0, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__97_548) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__97_548) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_hiii3_reg <= main_expfexit_hiii3;
-		if (start == 1'b0 && ^(main_expfexit_hiii3) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_hiii3) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_hiii3_reg");  end
 	end
 end
 always @(*) begin
@@ -4658,49 +4725,49 @@ always @(posedge clk) begin
 	/*   %.0 = phi float [ %27, %26 ], [ %84, %80 ], [ %96, %94 ], [ %101, %97 ], [ %65, %64 ], [ 0x7FF0000000000000, %32 ], [ %., %30 ], [ 0.000000e+00, %34 ]*/
 	if (((cur_state == LEGUP_F_main_BB__26_102) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_0_reg <= main_expfexit_0;
-		if (start == 1'b0 && ^(main_expfexit_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %.0 = phi float [ %27, %26 ], [ %84, %80 ], [ %96, %94 ], [ %101, %97 ], [ %65, %64 ], [ 0x7FF0000000000000, %32 ], [ %., %30 ], [ 0.000000e+00, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__30_104) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__30_104) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_0_reg <= main_expfexit_0;
-		if (start == 1'b0 && ^(main_expfexit_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %.0 = phi float [ %27, %26 ], [ %84, %80 ], [ %96, %94 ], [ %101, %97 ], [ %65, %64 ], [ 0x7FF0000000000000, %32 ], [ %., %30 ], [ 0.000000e+00, %34 ]*/
-	if ((((cur_state == LEGUP_F_main_BB__32_105) & (memory_controller_waitrequest == 1'd0)) & (main_32_33 == 1'd1))) begin
+	else if ((((cur_state == LEGUP_F_main_BB__32_105) & (memory_controller_waitrequest == 1'd0)) & (main_32_33 == 1'd1))) begin
 		main_expfexit_0_reg <= main_expfexit_0;
-		if (start == 1'b0 && ^(main_expfexit_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %.0 = phi float [ %27, %26 ], [ %84, %80 ], [ %96, %94 ], [ %101, %97 ], [ %65, %64 ], [ 0x7FF0000000000000, %32 ], [ %., %30 ], [ 0.000000e+00, %34 ]*/
-	if ((((cur_state == LEGUP_F_main_BB__34_106) & (memory_controller_waitrequest == 1'd0)) & (main_34_orcond == 1'd1))) begin
+	else if ((((cur_state == LEGUP_F_main_BB__34_106) & (memory_controller_waitrequest == 1'd0)) & (main_34_orcond == 1'd1))) begin
 		main_expfexit_0_reg <= main_expfexit_0;
-		if (start == 1'b0 && ^(main_expfexit_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %.0 = phi float [ %27, %26 ], [ %84, %80 ], [ %96, %94 ], [ %101, %97 ], [ %65, %64 ], [ 0x7FF0000000000000, %32 ], [ %., %30 ], [ 0.000000e+00, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__64_221) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__64_221) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_0_reg <= main_expfexit_0;
-		if (start == 1'b0 && ^(main_expfexit_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %.0 = phi float [ %27, %26 ], [ %84, %80 ], [ %96, %94 ], [ %101, %97 ], [ %65, %64 ], [ 0x7FF0000000000000, %32 ], [ %., %30 ], [ 0.000000e+00, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__80_445) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__80_445) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_0_reg <= main_expfexit_0;
-		if (start == 1'b0 && ^(main_expfexit_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %.0 = phi float [ %27, %26 ], [ %84, %80 ], [ %96, %94 ], [ %101, %97 ], [ %65, %64 ], [ 0x7FF0000000000000, %32 ], [ %., %30 ], [ 0.000000e+00, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__94_536) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__94_536) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_0_reg <= main_expfexit_0;
-		if (start == 1'b0 && ^(main_expfexit_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg");  end
 	end
 	/* main: %expf.exit*/
 	/*   %.0 = phi float [ %27, %26 ], [ %84, %80 ], [ %96, %94 ], [ %101, %97 ], [ %65, %64 ], [ 0x7FF0000000000000, %32 ], [ %., %30 ], [ 0.000000e+00, %34 ]*/
-	if (((cur_state == LEGUP_F_main_BB__97_548) & (memory_controller_waitrequest == 1'd0))) begin
+	else if (((cur_state == LEGUP_F_main_BB__97_548) & (memory_controller_waitrequest == 1'd0))) begin
 		main_expfexit_0_reg <= main_expfexit_0;
-		if (start == 1'b0 && ^(main_expfexit_0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_0_reg");  end
 	end
 end
 always @(*) begin
@@ -4713,7 +4780,7 @@ always @(posedge clk) begin
 	/*   %102 = add nuw nsw i64 %fusion.1.indvar.dim.18, 1*/
 	if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
 		main_expfexit_102_reg <= main_expfexit_102;
-		if (start == 1'b0 && ^(main_expfexit_102) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_102_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_102) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_102_reg");  end
 	end
 end
 always @(*) begin
@@ -4726,7 +4793,7 @@ always @(posedge clk) begin
 	/*   %exitcond4 = icmp eq i64 %102, 10*/
 	if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
 		main_expfexit_exitcond4_reg <= main_expfexit_exitcond4;
-		if (start == 1'b0 && ^(main_expfexit_exitcond4) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_exitcond4_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_expfexit_exitcond4) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_expfexit_exitcond4_reg");  end
 	end
 end
 always @(*) begin
@@ -4746,13 +4813,13 @@ always @(posedge clk) begin
 	/*   %103 = phi float [ %105, %reduce.1.inner.loop_body.reduction_dim.1 ], [ 0.000000e+00, %reduce.1.inner.loop_body.reduction_dim.1.preheader ]*/
 	if (((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1preheader_551) & (memory_controller_waitrequest == 1'd0))) begin
 		main_reduce1innerloop_bodyreduction_dim1_103_reg <= main_reduce1innerloop_bodyreduction_dim1_103;
-		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_103) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_103_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_103) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_103_reg");  end
 	end
 	/* main: %reduce.1.inner.loop_body.reduction_dim.1*/
 	/*   %103 = phi float [ %105, %reduce.1.inner.loop_body.reduction_dim.1 ], [ 0.000000e+00, %reduce.1.inner.loop_body.reduction_dim.1.preheader ]*/
-	if ((((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_568) & (memory_controller_waitrequest == 1'd0)) & (main_reduce1innerloop_bodyreduction_dim1_exitcond_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_568) & (memory_controller_waitrequest == 1'd0)) & (main_reduce1innerloop_bodyreduction_dim1_exitcond_reg == 1'd0))) begin
 		main_reduce1innerloop_bodyreduction_dim1_103_reg <= main_reduce1innerloop_bodyreduction_dim1_103;
-		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_103) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_103_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_103) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_103_reg");  end
 	end
 end
 always @(*) begin
@@ -4772,13 +4839,13 @@ always @(posedge clk) begin
 	/*   %reduce.1.inner.indvar.reduction_dim.14 = phi i64 [ %106, %reduce.1.inner.loop_body.reduction_dim.1 ], [ 0, %reduce.1.inner.loop_body.reduction_dim.1.preheader ]*/
 	if (((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1preheader_551) & (memory_controller_waitrequest == 1'd0))) begin
 		main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14_reg <= main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14;
-		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14_reg");  end
 	end
 	/* main: %reduce.1.inner.loop_body.reduction_dim.1*/
 	/*   %reduce.1.inner.indvar.reduction_dim.14 = phi i64 [ %106, %reduce.1.inner.loop_body.reduction_dim.1 ], [ 0, %reduce.1.inner.loop_body.reduction_dim.1.preheader ]*/
-	if ((((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_568) & (memory_controller_waitrequest == 1'd0)) & (main_reduce1innerloop_bodyreduction_dim1_exitcond_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_568) & (memory_controller_waitrequest == 1'd0)) & (main_reduce1innerloop_bodyreduction_dim1_exitcond_reg == 1'd0))) begin
 		main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14_reg <= main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14;
-		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_reduce1innerindvarreduction_dim14_reg");  end
 	end
 end
 always @(*) begin
@@ -4799,14 +4866,14 @@ always @(posedge clk) begin
 	/*   %105 = fadd float %103, %104*/
 	if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_568)) begin
 		main_reduce1innerloop_bodyreduction_dim1_105_reg <= main_reduce1innerloop_bodyreduction_dim1_105;
-		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_105) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_105_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_105) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_105_reg");  end
 	end
 	/* main: %reduce.1.inner.loop_body.reduction_dim.1*/
 	/*   %105 = fadd float %103, %104*/
-	if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_568)) begin
-		main_reduce1innerloop_bodyreduction_dim1_105_reg <= main_reduce1innerloop_bodyreduction_dim1_105;
-		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_105) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_105_reg"); $finish; end
-	end
+//	else if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_568)) begin
+//		main_reduce1innerloop_bodyreduction_dim1_105_reg <= main_reduce1innerloop_bodyreduction_dim1_105;
+//		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_105) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_105_reg");  end
+//	end
 end
 always @(*) begin
 	/* main: %reduce.1.inner.loop_body.reduction_dim.1*/
@@ -4818,7 +4885,7 @@ always @(posedge clk) begin
 	/*   %106 = add nuw nsw i64 %reduce.1.inner.indvar.reduction_dim.14, 1*/
 	if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552)) begin
 		main_reduce1innerloop_bodyreduction_dim1_106_reg <= main_reduce1innerloop_bodyreduction_dim1_106;
-		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_106) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_106_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_106) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_106_reg");  end
 	end
 end
 always @(*) begin
@@ -4831,7 +4898,7 @@ always @(posedge clk) begin
 	/*   %exitcond = icmp eq i64 %106, 10*/
 	if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552)) begin
 		main_reduce1innerloop_bodyreduction_dim1_exitcond_reg <= main_reduce1innerloop_bodyreduction_dim1_exitcond;
-		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_exitcond) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_exitcond_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_reduce1innerloop_bodyreduction_dim1_exitcond) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_reduce1innerloop_bodyreduction_dim1_exitcond_reg");  end
 	end
 end
 always @(*) begin
@@ -4851,13 +4918,13 @@ always @(posedge clk) begin
 	/*   %fusion.indvar.dim.02 = phi i64 [ %109, %fusion.loop_body.dim.0 ], [ 0, %fusion.loop_body.dim.0.preheader ]*/
 	if (((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0preheader_569) & (memory_controller_waitrequest == 1'd0))) begin
 		main_fusionloop_bodydim0_fusionindvardim02_reg <= main_fusionloop_bodydim0_fusionindvardim02;
-		if (start == 1'b0 && ^(main_fusionloop_bodydim0_fusionindvardim02) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusionloop_bodydim0_fusionindvardim02_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusionloop_bodydim0_fusionindvardim02) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusionloop_bodydim0_fusionindvardim02_reg");  end
 	end
 	/* main: %fusion.loop_body.dim.0*/
 	/*   %fusion.indvar.dim.02 = phi i64 [ %109, %fusion.loop_body.dim.0 ], [ 0, %fusion.loop_body.dim.0.preheader ]*/
-	if ((((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_606) & (memory_controller_waitrequest == 1'd0)) & (main_fusionloop_bodydim0_exitcond1_reg == 1'd0))) begin
+	else if ((((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_606) & (memory_controller_waitrequest == 1'd0)) & (main_fusionloop_bodydim0_exitcond1_reg == 1'd0))) begin
 		main_fusionloop_bodydim0_fusionindvardim02_reg <= main_fusionloop_bodydim0_fusionindvardim02;
-		if (start == 1'b0 && ^(main_fusionloop_bodydim0_fusionindvardim02) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusionloop_bodydim0_fusionindvardim02_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusionloop_bodydim0_fusionindvardim02) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusionloop_bodydim0_fusionindvardim02_reg");  end
 	end
 end
 always @(*) begin
@@ -4870,7 +4937,7 @@ always @(posedge clk) begin
 	/*   %scevgep = getelementptr [10 x float]* @temp3, i64 0, i64 %fusion.indvar.dim.02*/
 	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_570)) begin
 		main_fusionloop_bodydim0_scevgep_reg <= main_fusionloop_bodydim0_scevgep;
-		if (start == 1'b0 && ^(main_fusionloop_bodydim0_scevgep) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusionloop_bodydim0_scevgep_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusionloop_bodydim0_scevgep) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusionloop_bodydim0_scevgep_reg");  end
 	end
 end
 always @(*) begin
@@ -4896,7 +4963,7 @@ always @(posedge clk) begin
 	/*   %109 = add nuw nsw i64 %fusion.indvar.dim.02, 1*/
 	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_570)) begin
 		main_fusionloop_bodydim0_109_reg <= main_fusionloop_bodydim0_109;
-		if (start == 1'b0 && ^(main_fusionloop_bodydim0_109) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusionloop_bodydim0_109_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusionloop_bodydim0_109) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusionloop_bodydim0_109_reg");  end
 	end
 end
 always @(*) begin
@@ -4909,7 +4976,7 @@ always @(posedge clk) begin
 	/*   %exitcond1 = icmp eq i64 %109, 10*/
 	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_570)) begin
 		main_fusionloop_bodydim0_exitcond1_reg <= main_fusionloop_bodydim0_exitcond1;
-		if (start == 1'b0 && ^(main_fusionloop_bodydim0_exitcond1) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusionloop_bodydim0_exitcond1_reg"); $finish; end
+//		if (start == 1'b0 && ^(main_fusionloop_bodydim0_exitcond1) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to main_fusionloop_bodydim0_exitcond1_reg");  end
 	end
 end
 always @(*) begin
@@ -5371,450 +5438,461 @@ end
 always @(posedge clk) begin
 	if ((cur_state == LEGUP_0)) begin
 		finish <= 1'd0;
-		if (start == 1'b0 && ^(1'd0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to finish"); $finish; end
+//		if (start == 1'b0 && ^(1'd0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to finish");  end
 	end
 	/* main: %fusion.loop_exit.dim.0*/
 	/*   ret float %leflow_retval*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_609)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_609)) begin
 		finish <= (memory_controller_waitrequest == 1'd0);
-		if (start == 1'b0 && ^((memory_controller_waitrequest == 1'd0)) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to finish"); $finish; end
+//		if (start == 1'b0 && ^((memory_controller_waitrequest == 1'd0)) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to finish");  end
 	end
 end
 always @(*) begin
-	memory_controller_enable_a = 1'd0;
 	if ((cur_state == LEGUP_0)) begin
 		memory_controller_enable_a = 1'd0;
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %1 = load volatile float* %scevgep20, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
 		memory_controller_enable_a = 1'd1;
 	end
 	/* main: %dot.loop_exit.reduction*/
 	/*   store float %4, float* %scevgep23, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
 		memory_controller_enable_a = 1'd1;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   %7 = load float* %scevgep17, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
 		memory_controller_enable_a = 1'd1;
 	end
 	/* main: %reduce.inner.loop_body.reduction_dim.1*/
 	/*   %12 = load float* %scevgep13, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52)) begin
+	else if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52)) begin
 		memory_controller_enable_a = 1'd1;
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %18 = load float* %scevgep7, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
 		memory_controller_enable_a = 1'd1;
 	end
 	/* main: %40*/
 	/*   %43 = load float* %42, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__40_109)) begin
+	else if ((cur_state == LEGUP_F_main_BB__40_109)) begin
 		memory_controller_enable_a = 1'd1;
 	end
 	/* main: %expf.exit*/
 	/*   store float %.0, float* %scevgep5, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
+	else if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
 		memory_controller_enable_a = 1'd1;
 	end
 	/* main: %fusion.loop_body.dim.0*/
 	/*   store volatile float %108, float* %scevgep, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_605)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_605)) begin
 		memory_controller_enable_a = 1'd1;
 	end
+    else 
+	    memory_controller_enable_a = 1'd0;
 end
 always @(*) begin
-	memory_controller_address_a = 1'd0;
 	if ((cur_state == LEGUP_0)) begin
 		memory_controller_address_a = 1'd0;
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %1 = load volatile float* %scevgep20, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
 		memory_controller_address_a = main_dotloop_bodyreduction_scevgep20;
 	end
 	/* main: %dot.loop_exit.reduction*/
 	/*   store float %4, float* %scevgep23, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
 		memory_controller_address_a = main_dotloop_bodyreductionlrph_scevgep23_reg;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   %7 = load float* %scevgep17, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
 		memory_controller_address_a = main_fusion2loop_bodydim1_scevgep17;
 	end
 	/* main: %reduce.inner.loop_body.reduction_dim.1*/
 	/*   %12 = load float* %scevgep13, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52)) begin
+	else if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52)) begin
 		memory_controller_address_a = main_reduceinnerloop_bodyreduction_dim1_scevgep13;
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %18 = load float* %scevgep7, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
 		memory_controller_address_a = main_fusion1loop_bodydim1_scevgep7;
 	end
 	/* main: %40*/
 	/*   %43 = load float* %42, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__40_109)) begin
+	else if ((cur_state == LEGUP_F_main_BB__40_109)) begin
 		memory_controller_address_a = main_40_42;
 	end
 	/* main: %expf.exit*/
 	/*   store float %.0, float* %scevgep5, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
+	else if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
 		memory_controller_address_a = main_fusion1loop_bodydim1_scevgep5_reg;
 	end
 	/* main: %fusion.loop_body.dim.0*/
 	/*   store volatile float %108, float* %scevgep, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_605)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_605)) begin
 		memory_controller_address_a = main_fusionloop_bodydim0_scevgep_reg;
 	end
+	else 
+	    memory_controller_address_a = 1'd0;
 end
 always @(*) begin
-	memory_controller_write_enable_a = 1'd0;
 	if ((cur_state == LEGUP_0)) begin
 		memory_controller_write_enable_a = 1'd0;
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %1 = load volatile float* %scevgep20, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
 		memory_controller_write_enable_a = 1'd0;
 	end
 	/* main: %dot.loop_exit.reduction*/
 	/*   store float %4, float* %scevgep23, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
 		memory_controller_write_enable_a = 1'd1;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   %7 = load float* %scevgep17, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
 		memory_controller_write_enable_a = 1'd0;
 	end
 	/* main: %reduce.inner.loop_body.reduction_dim.1*/
 	/*   %12 = load float* %scevgep13, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52)) begin
+	else if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52)) begin
 		memory_controller_write_enable_a = 1'd0;
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %18 = load float* %scevgep7, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
 		memory_controller_write_enable_a = 1'd0;
 	end
 	/* main: %40*/
 	/*   %43 = load float* %42, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__40_109)) begin
+	else if ((cur_state == LEGUP_F_main_BB__40_109)) begin
 		memory_controller_write_enable_a = 1'd0;
 	end
 	/* main: %expf.exit*/
 	/*   store float %.0, float* %scevgep5, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
+	else if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
 		memory_controller_write_enable_a = 1'd1;
 	end
 	/* main: %fusion.loop_body.dim.0*/
 	/*   store volatile float %108, float* %scevgep, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_605)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_605)) begin
 		memory_controller_write_enable_a = 1'd1;
 	end
+	else
+	memory_controller_write_enable_a = 1'd0;
 end
 always @(*) begin
-	memory_controller_in_a = 1'd0;
 	if ((cur_state == LEGUP_0)) begin
 		memory_controller_in_a = 1'd0;
 	end
 	/* main: %dot.loop_exit.reduction*/
 	/*   store float %4, float* %scevgep23, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
 		memory_controller_in_a = main_dotloop_bodyreduction_4_reg;
 	end
 	/* main: %expf.exit*/
 	/*   store float %.0, float* %scevgep5, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
+	else if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
 		memory_controller_in_a = main_expfexit_0_reg;
 	end
 	/* main: %fusion.loop_body.dim.0*/
 	/*   store volatile float %108, float* %scevgep, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_605)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_605)) begin
 		memory_controller_in_a = main_fusionloop_bodydim0_108;
 	end
+	else
+	memory_controller_in_a = 1'd0;
 end
 always @(*) begin
-	memory_controller_size_a = 1'd0;
 	if ((cur_state == LEGUP_0)) begin
 		memory_controller_size_a = 1'd0;
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %1 = load volatile float* %scevgep20, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
 		memory_controller_size_a = 2'd2;
 	end
 	/* main: %dot.loop_exit.reduction*/
 	/*   store float %4, float* %scevgep23, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_exitreduction_30)) begin
 		memory_controller_size_a = 2'd2;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   %7 = load float* %scevgep17, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
 		memory_controller_size_a = 2'd2;
 	end
 	/* main: %reduce.inner.loop_body.reduction_dim.1*/
 	/*   %12 = load float* %scevgep13, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52)) begin
+	else if ((cur_state == LEGUP_F_main_BB_reduceinnerloop_bodyreduction_dim1_52)) begin
 		memory_controller_size_a = 2'd2;
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %18 = load float* %scevgep7, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
 		memory_controller_size_a = 2'd2;
 	end
 	/* main: %40*/
 	/*   %43 = load float* %42, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__40_109)) begin
+	else if ((cur_state == LEGUP_F_main_BB__40_109)) begin
 		memory_controller_size_a = 2'd2;
 	end
 	/* main: %expf.exit*/
 	/*   store float %.0, float* %scevgep5, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
+	else if ((cur_state == LEGUP_F_main_BB_expfexit_549)) begin
 		memory_controller_size_a = 2'd2;
 	end
 	/* main: %fusion.loop_body.dim.0*/
 	/*   store volatile float %108, float* %scevgep, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_605)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_605)) begin
 		memory_controller_size_a = 2'd2;
 	end
+	else
+	memory_controller_size_a = 1'd0;
 end
 always @(*) begin
-	memory_controller_enable_b = 1'd0;
 	if ((cur_state == LEGUP_0)) begin
 		memory_controller_enable_b = 1'd0;
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %2 = load volatile float* %scevgep19, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
 		memory_controller_enable_b = 1'd1;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   %8 = load volatile float* %scevgep16, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
 		memory_controller_enable_b = 1'd1;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   store float %9, float* %scevgep15, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
 		memory_controller_enable_b = 1'd1;
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %19 = load volatile float* %scevgep6, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
 		memory_controller_enable_b = 1'd1;
 	end
 	/* main: %40*/
 	/*   %45 = load float* %44, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__40_109)) begin
+	else if ((cur_state == LEGUP_F_main_BB__40_109)) begin
 		memory_controller_enable_b = 1'd1;
 	end
 	/* main: %48*/
 	/*   %52 = load float* %51, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__48_112)) begin
+	else if ((cur_state == LEGUP_F_main_BB__48_112)) begin
 		memory_controller_enable_b = 1'd1;
 	end
 	/* main: %reduce.1.inner.loop_body.reduction_dim.1*/
 	/*   %104 = load float* %scevgep3, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552)) begin
+	else if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552)) begin
 		memory_controller_enable_b = 1'd1;
 	end
 	/* main: %fusion.loop_body.dim.0*/
 	/*   %107 = load float* %scevgep2, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_570)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_570)) begin
 		memory_controller_enable_b = 1'd1;
 	end
 	/* main: %fusion.loop_exit.dim.0*/
 	/*   %leflow_retval = load volatile float* getelementptr inbounds ([10 x float]* @temp3, i64 0, i64 0), align 8*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_607)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_607)) begin
 		memory_controller_enable_b = 1'd1;
 	end
+	else
+	memory_controller_enable_b = 1'd0;
 end
 always @(*) begin
-	memory_controller_address_b = 1'd0;
 	if ((cur_state == LEGUP_0)) begin
 		memory_controller_address_b = 1'd0;
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %2 = load volatile float* %scevgep19, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
 		memory_controller_address_b = main_dotloop_bodyreduction_scevgep19;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   %8 = load volatile float* %scevgep16, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
 		memory_controller_address_b = main_fusion2loop_bodydim1_scevgep16;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   store float %9, float* %scevgep15, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
 		memory_controller_address_b = main_fusion2loop_bodydim1_scevgep15_reg;
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %19 = load volatile float* %scevgep6, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
 		memory_controller_address_b = main_fusion1loop_bodydim1_scevgep6;
 	end
 	/* main: %40*/
 	/*   %45 = load float* %44, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__40_109)) begin
+	else if ((cur_state == LEGUP_F_main_BB__40_109)) begin
 		memory_controller_address_b = main_40_44;
 	end
 	/* main: %48*/
 	/*   %52 = load float* %51, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__48_112)) begin
+	else if ((cur_state == LEGUP_F_main_BB__48_112)) begin
 		memory_controller_address_b = main_48_51;
 	end
 	/* main: %reduce.1.inner.loop_body.reduction_dim.1*/
 	/*   %104 = load float* %scevgep3, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552)) begin
+	else if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552)) begin
 		memory_controller_address_b = main_reduce1innerloop_bodyreduction_dim1_scevgep3;
 	end
 	/* main: %fusion.loop_body.dim.0*/
 	/*   %107 = load float* %scevgep2, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_570)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_570)) begin
 		memory_controller_address_b = main_fusionloop_bodydim0_scevgep2;
 	end
 	/* main: %fusion.loop_exit.dim.0*/
 	/*   %leflow_retval = load volatile float* getelementptr inbounds ([10 x float]* @temp3, i64 0, i64 0), align 8*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_607)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_607)) begin
 		memory_controller_address_b = `TAG_g_temp3_a;
 	end
+	else
+	memory_controller_address_b = 1'd0;
 end
 always @(*) begin
-	memory_controller_write_enable_b = 1'd0;
 	if ((cur_state == LEGUP_0)) begin
 		memory_controller_write_enable_b = 1'd0;
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %2 = load volatile float* %scevgep19, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
 		memory_controller_write_enable_b = 1'd0;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   %8 = load volatile float* %scevgep16, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
 		memory_controller_write_enable_b = 1'd0;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   store float %9, float* %scevgep15, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
 		memory_controller_write_enable_b = 1'd1;
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %19 = load volatile float* %scevgep6, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
 		memory_controller_write_enable_b = 1'd0;
 	end
 	/* main: %40*/
 	/*   %45 = load float* %44, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__40_109)) begin
+	else if ((cur_state == LEGUP_F_main_BB__40_109)) begin
 		memory_controller_write_enable_b = 1'd0;
 	end
 	/* main: %48*/
 	/*   %52 = load float* %51, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__48_112)) begin
+	else if ((cur_state == LEGUP_F_main_BB__48_112)) begin
 		memory_controller_write_enable_b = 1'd0;
 	end
 	/* main: %reduce.1.inner.loop_body.reduction_dim.1*/
 	/*   %104 = load float* %scevgep3, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552)) begin
+	else if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552)) begin
 		memory_controller_write_enable_b = 1'd0;
 	end
 	/* main: %fusion.loop_body.dim.0*/
 	/*   %107 = load float* %scevgep2, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_570)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_570)) begin
 		memory_controller_write_enable_b = 1'd0;
 	end
 	/* main: %fusion.loop_exit.dim.0*/
 	/*   %leflow_retval = load volatile float* getelementptr inbounds ([10 x float]* @temp3, i64 0, i64 0), align 8*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_607)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_607)) begin
 		memory_controller_write_enable_b = 1'd0;
 	end
+	else
+	memory_controller_write_enable_b = 1'd0;
 end
 always @(*) begin
-	memory_controller_in_b = 1'd0;
 	if ((cur_state == LEGUP_0)) begin
 		memory_controller_in_b = 1'd0;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   store float %9, float* %scevgep15, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
 		memory_controller_in_b = main_fusion2loop_bodydim1_9;
 	end
+	else
+	memory_controller_in_b = 1'd0;
 end
 always @(*) begin
-	memory_controller_size_b = 1'd0;
 	if ((cur_state == LEGUP_0)) begin
 		memory_controller_size_b = 1'd0;
 	end
 	/* main: %dot.loop_body.reduction*/
 	/*   %2 = load volatile float* %scevgep19, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
+	else if ((cur_state == LEGUP_F_main_BB_dotloop_bodyreduction_2)) begin
 		memory_controller_size_b = 2'd2;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   %8 = load volatile float* %scevgep16, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_33)) begin
 		memory_controller_size_b = 2'd2;
 	end
 	/* main: %fusion.2.loop_body.dim.1*/
 	/*   store float %9, float* %scevgep15, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion2loop_bodydim1_49)) begin
 		memory_controller_size_b = 2'd2;
 	end
 	/* main: %fusion.1.loop_body.dim.1*/
 	/*   %19 = load volatile float* %scevgep6, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusion1loop_bodydim1_57)) begin
 		memory_controller_size_b = 2'd2;
 	end
 	/* main: %40*/
 	/*   %45 = load float* %44, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__40_109)) begin
+	else if ((cur_state == LEGUP_F_main_BB__40_109)) begin
 		memory_controller_size_b = 2'd2;
 	end
 	/* main: %48*/
 	/*   %52 = load float* %51, align 4*/
-	if ((cur_state == LEGUP_F_main_BB__48_112)) begin
+	else if ((cur_state == LEGUP_F_main_BB__48_112)) begin
 		memory_controller_size_b = 2'd2;
 	end
 	/* main: %reduce.1.inner.loop_body.reduction_dim.1*/
 	/*   %104 = load float* %scevgep3, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552)) begin
+	else if ((cur_state == LEGUP_F_main_BB_reduce1innerloop_bodyreduction_dim1_552)) begin
 		memory_controller_size_b = 2'd2;
 	end
 	/* main: %fusion.loop_body.dim.0*/
 	/*   %107 = load float* %scevgep2, align 4*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_570)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_bodydim0_570)) begin
 		memory_controller_size_b = 2'd2;
 	end
 	/* main: %fusion.loop_exit.dim.0*/
 	/*   %leflow_retval = load volatile float* getelementptr inbounds ([10 x float]* @temp3, i64 0, i64 0), align 8*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_607)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_607)) begin
 		memory_controller_size_b = 2'd2;
 	end
+	else
+	memory_controller_size_b = 1'd0;
 end
 always @(posedge clk) begin
 	if ((cur_state == LEGUP_0)) begin
 		return_val <= 0;
-		if (start == 1'b0 && ^(0) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to return_val"); $finish; end
+//		if (start == 1'b0 && ^(0) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to return_val");  end
 	end
 	/* main: %fusion.loop_exit.dim.0*/
 	/*   ret float %leflow_retval*/
-	if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_609)) begin
+	else if ((cur_state == LEGUP_F_main_BB_fusionloop_exitdim0_609)) begin
 		return_val <= main_fusionloop_exitdim0_leflow_retval;
-		if (start == 1'b0 && ^(main_fusionloop_exitdim0_leflow_retval) == 1'bX) begin $display ("ERROR: Right hand side is 'X'. Assigned to return_val"); $finish; end
+//		if (start == 1'b0 && ^(main_fusionloop_exitdim0_leflow_retval) ) begin $display ("ERROR: Right hand side is 'X'. Assigned to return_val");  end
 	end
 end
 
 endmodule 
-module ram_dual_port
+
+module ram_dual_port_4
 (
 	clk,
 	clken,
@@ -5830,67 +5908,55 @@ module ram_dual_port
 	q_b
 );
 
-parameter  width_a = 1'd0;
-parameter  width_b = 1'd0;
-parameter  widthad_a = 1'd0;
-parameter  widthad_b = 1'd0;
-parameter  numwords_a = 1'd0;
-parameter  numwords_b = 1'd0;
-parameter  init_file = "UNUSED.mif";
-parameter  width_be_a = 1'd0;
-parameter  width_be_b = 1'd0;
-parameter  latency = 1;
-
 input  clk;
 input  clken;
-input [(widthad_a-1):0] address_a;
-input [(widthad_b-1):0] address_b;
-output wire [(width_a-1):0] q_a;
-output wire [(width_b-1):0] q_b;
-reg [(width_a-1):0] q_a_wire;
-reg [(width_b-1):0] q_b_wire;
+input [(4-1):0] address_a;
+input [(4-1):0] address_b;
+output wire [(32-1):0] q_a;
+output wire [(32-1):0] q_b;
+reg [(32-1):0] q_a_wire;
+reg [(32-1):0] q_b_wire;
 input  wren_a;
 input  wren_b;
-input [(width_a-1):0] data_a;
-input [(width_b-1):0] data_b;
+input [(32-1):0] data_a;
+input [(32-1):0] data_b;
 // byte enable is unsupported by inferred RAMs
-input [width_be_a-1:0] byteena_a;
-input [width_be_b-1:0] byteena_b;
+input [1-1:0] byteena_a;
+input [1-1:0] byteena_b;
 
-//(* ramstyle = "no_rw_check", ram_init_file = init_file *) reg [width_a-1:0] ram[numwords_a-1:0];
-reg [width_a-1:0] ram[numwords_a-1:0];
+//(* ramstyle = "no_rw_check", ram_init_file = init_file *) reg [32-1:0] ram[10-1:0];
+reg [32-1:0] ram[10-1:0];
 
 /* synthesis translate_off */
 
-integer i;
+reg [31:0] i;
 //ALTERA_MF_MEMORY_INITIALIZATION mem ();
 //reg [8*256:1] ram_ver_file;
 /*
 initial begin
 	if (init_file == "UNUSED.mif")
     begin
-		for (i = 0; i < numwords_a; i = i + 1)
+		for (i = 0; i < 10; i = i + 1)
 			ram[i] = 0;
     end
 	else
     begin
         // modelsim can't read .mif files directly. So use Altera function to
         // convert them to .ver files
-        mem.convert_to_ver_file(init_file, width_a, ram_ver_file);
+        mem.convert_to_ver_file(init_file, 32, ram_ver_file);
         $readmemh(ram_ver_file, ram);
     end
 end
 */
 /* synthesis translate_on */
 
-`ifdef VCS
+`ifndef VCS
 always @ (posedge clk)
 if (clken)
 begin // Port A
 if (wren_a)
 begin
     ram[address_a] <= data_a;
-    q_a_wire <= {width_a{1'bX}};
 end
 else
     q_a_wire <= ram[address_a];
@@ -5901,7 +5967,6 @@ begin // Port b
 if (wren_b)
 begin
     ram[address_b] <= data_b;
-    q_b_wire <= {width_b{1'bX}};
 end
 else
     q_b_wire <= ram[address_b];
@@ -5909,8 +5974,8 @@ end
 
 
 
-integer j;
-reg [(width_a-1):0] q_a_reg[latency:1], q_b_reg[latency:1];
+reg [31:0] j;
+reg [(32-1):0] q_a_reg[1:1], q_b_reg[1:1];
 
 always @(*)
 begin
@@ -5921,15 +5986,141 @@ end
 always @(posedge clk)
 if (clken)
 begin
-   for (j = 1; j < latency; j=j+1)
+   for (j = 1; j < 1; j=j+1)
    begin
        q_a_reg[j+1] <= q_a_reg[j];
        q_b_reg[j+1] <= q_b_reg[j];
    end
 end
 
-assign q_a = (clken) ? q_a_reg[latency] : 0;
-assign q_b = (clken) ? q_b_reg[latency] : 0;
+assign q_a = (clken) ? q_a_reg[1] : 0;
+assign q_b = (clken) ? q_b_reg[1] : 0;
+`else
+wire [9:0] full_addr_a;
+wire [9:0] full_addr_b;
+assign full_addr_a = {6'b0, address_a};
+assign full_addr_b = {6'b0, address_b};
+
+dual_port_ram u_dual_port_ram(
+.addr1(full_addr_a),
+.we1(wren_a),
+.data1(data_a),
+.out1(q_a),
+.addr2(full_addr_b),
+.we2(wren_b),
+.data2(data_b),
+.out2(q_b),
+.clk(clk)
+);
+`endif
+
+
+endmodule
+
+
+module ram_dual_port_10
+(
+	clk,
+	clken,
+	address_a,
+	address_b,
+	wren_a,
+	wren_b,
+	data_a,
+	data_b,
+	byteena_a,
+	byteena_b,
+	q_a,
+	q_b
+);
+
+input  clk;
+input  clken;
+input [(10-1):0] address_a;
+input [(10-1):0] address_b;
+output wire [(32-1):0] q_a;
+output wire [(32-1):0] q_b;
+reg [(32-1):0] q_a_wire;
+reg [(32-1):0] q_b_wire;
+input  wren_a;
+input  wren_b;
+input [(32-1):0] data_a;
+input [(32-1):0] data_b;
+// byte enable is unsupported by inferred RAMs
+input [1-1:0] byteena_a;
+input [1-1:0] byteena_b;
+
+//(* ramstyle = "no_rw_check", ram_init_file = init_file *) reg [32-1:0] ram[784-1:0];
+reg [32-1:0] ram[784-1:0];
+
+/* synthesis translate_off */
+
+reg [31:0] i;
+//ALTERA_MF_MEMORY_INITIALIZATION mem ();
+//reg [8*256:1] ram_ver_file;
+/*
+initial begin
+	if (init_file == "UNUSED.mif")
+    begin
+		for (i = 0; i < 784; i = i + 1)
+			ram[i] = 0;
+    end
+	else
+    begin
+        // modelsim can't read .mif files directly. So use Altera function to
+        // convert them to .ver files
+        mem.convert_to_ver_file(init_file, 32, ram_ver_file);
+        $readmemh(ram_ver_file, ram);
+    end
+end
+*/
+/* synthesis translate_on */
+
+`ifndef VCS
+always @ (posedge clk)
+if (clken)
+begin // Port A
+if (wren_a)
+begin
+    ram[address_a] <= data_a;
+end
+else
+    q_a_wire <= ram[address_a];
+end
+always @ (posedge clk)
+if (clken)
+begin // Port b
+if (wren_b)
+begin
+    ram[address_b] <= data_b;
+end
+else
+    q_b_wire <= ram[address_b];
+end
+
+
+
+reg [31:0] j;
+reg [(32-1):0] q_a_reg[1:1], q_b_reg[1:1];
+
+always @(*)
+begin
+   q_a_reg[1] <= q_a_wire;
+   q_b_reg[1] <= q_b_wire;
+end
+
+always @(posedge clk)
+if (clken)
+begin
+   for (j = 1; j < 1; j=j+1)
+   begin
+       q_a_reg[j+1] <= q_a_reg[j];
+       q_b_reg[j+1] <= q_b_reg[j];
+   end
+end
+
+assign q_a = (clken) ? q_a_reg[1] : 0;
+assign q_b = (clken) ? q_b_reg[1] : 0;
 `else
 
 dual_port_ram u_dual_port_ram(
@@ -5947,73 +6138,90 @@ dual_port_ram u_dual_port_ram(
 
 
 endmodule
-module rom_dual_port
+
+module ram_dual_port_13
 (
 	clk,
 	clken,
 	address_a,
 	address_b,
+	wren_a,
+	wren_b,
+	data_a,
+	data_b,
+	byteena_a,
+	byteena_b,
 	q_a,
 	q_b
 );
 
-parameter  width_a = 1'd0;
-parameter  width_b = 1'd0;
-parameter  widthad_a = 1'd0;
-parameter  widthad_b = 1'd0;
-parameter  numwords_a = 1'd0;
-parameter  numwords_b = 1'd0;
-parameter  init_file = "UNUSED.mif";
-parameter  latency = 1;
-
 input  clk;
 input  clken;
-input [(widthad_a-1):0] address_a;
-input [(widthad_b-1):0] address_b;
-output wire [(width_a-1):0] q_a;
-output wire [(width_b-1):0] q_b;
-reg [(width_a-1):0] q_a_wire;
-reg [(width_b-1):0] q_b_wire;
-wire [(width_a-1):0] d_a;
-wire [(width_b-1):0] d_b;
+input [(13-1):0] address_a;
+input [(13-1):0] address_b;
+output wire [(32-1):0] q_a;
+output wire [(32-1):0] q_b;
+reg [(32-1):0] q_a_wire;
+reg [(32-1):0] q_b_wire;
+input  wren_a;
+input  wren_b;
+input [(32-1):0] data_a;
+input [(32-1):0] data_b;
+// byte enable is unsupported by inferred RAMs
+input [1-1:0] byteena_a;
+input [1-1:0] byteena_b;
 
-//(* ramstyle = "no_rw_check", ram_init_file = init_file *) reg [width_a-1:0] ram[numwords_a-1:0];
-reg [width_a-1:0] ram[numwords_a-1:0];
+//(* ramstyle = "no_rw_check", ram_init_file = init_file *) reg [32-1:0] ram[7840-1:0];
+reg [32-1:0] ram[7840-1:0];
 
 /* synthesis translate_off */
 
-integer i;
 //ALTERA_MF_MEMORY_INITIALIZATION mem ();
 //reg [8*256:1] ram_ver_file;
 /*
 initial begin
 	if (init_file == "UNUSED.mif")
     begin
-		for (i = 0; i < numwords_a; i = i + 1)
+		for (i = 0; i < 7840; i = i + 1)
 			ram[i] = 0;
     end
 	else
     begin
         // modelsim can't read .mif files directly. So use Altera function to
         // convert them to .ver files
-        mem.convert_to_ver_file(init_file, width_a, ram_ver_file);
+        mem.convert_to_ver_file(init_file, 32, ram_ver_file);
         $readmemh(ram_ver_file, ram);
     end
 end
 */
 /* synthesis translate_on */
-`ifdef VCS
+
+`ifndef VCS
 always @ (posedge clk)
 if (clken)
+begin // Port A
+if (wren_a)
 begin
+    ram[address_a] <= data_a;
+end
+else
     q_a_wire <= ram[address_a];
+end
+always @ (posedge clk)
+if (clken)
+begin // Port b
+if (wren_b)
+begin
+    ram[address_b] <= data_b;
+end
+else
     q_b_wire <= ram[address_b];
 end
 
 
 
-integer j;
-reg [(width_a-1):0] q_a_reg[latency:1], q_b_reg[latency:1];
+reg [31:0] j;
+reg [(32-1):0] q_a_reg[1:1], q_b_reg[1:1];
 
 always @(*)
 begin
@@ -6024,22 +6232,300 @@ end
 always @(posedge clk)
 if (clken)
 begin
-   for (j = 1; j < latency; j=j+1)
+   for (j = 1; j < 1; j=j+1)
    begin
        q_a_reg[j+1] <= q_a_reg[j];
        q_b_reg[j+1] <= q_b_reg[j];
    end
 end
 
-assign q_a = (clken) ? q_a_reg[latency] : 0;
-assign q_b = (clken) ? q_b_reg[latency] : 0;
+assign q_a = (clken) ? q_a_reg[1] : 0;
+assign q_b = (clken) ? q_b_reg[1] : 0;
 `else
+
+
+//There are 13 bits of address. We have RAMs that can take 10 bits.
+//We need to instantiate 8 memories. Each of the 3 bits of address will
+//be decoded to select one of the 8 memories.
+
+
+wire [2:0] high_addr_a;
+wire [2:0] high_addr_b;
+assign high_addr_a = address_a[12:10];
+assign high_addr_b = address_b[12:10];
+
+wire [7:0] gen_wren_a;
+wire [7:0] gen_wren_b;
+wire [7:0] actual_wren_a;
+wire [7:0] actual_wren_b;
+
+//Generate write enables for each ram
+assign gen_wren_a = (8'h001 << high_addr_a);
+assign gen_wren_b = (8'h001 << high_addr_b);
+
+assign actual_wren_a = gen_wren_a & {8{wren_a}};
+assign actual_wren_b = gen_wren_b & {8{wren_b}};
+
+//The address bus for each of the instances
+wire [9:0] low_addr_a;
+wire [9:0] low_addr_b;
+
+assign low_addr_a = address_a[9:0];
+assign low_addr_b = address_b[9:0];
+
+wire [32*8-1:0] q_a_long;
+wire [32*8-1:0] q_b_long;
+
+/*
+genvar iter;
+generate
+	for (iter=0; iter<8; iter=iter+1) begin: U
+		dual_port_ram u_dual_port_ram(
+        .addr1(low_addr_a),
+        .we1(gen_wren_a[iter]),
+        .data1(data_a),
+        .out1(q_a_long[32*iter+:32]),
+        .addr2(low_addr_b),
+        .we2(gen_wren_b[iter]),
+        .data2(data_b),
+        .out2(q_b_long[32*iter+:32]),
+        .clk(clk)
+        );
+	end
+endgenerate
+*/
+
+    	dual_port_ram u_dual_port_ram_0(
+           .addr1(low_addr_a),
+           .we1(actual_wren_a[0]),
+           .data1(data_a),
+           .out1(q_a_long[31:0]),
+           .addr2(low_addr_b),
+           .we2(actual_wren_b[0]),
+           .data2(data_b),
+           .out2(q_b_long[31:0]),
+           .clk(clk)
+           );
+    
+
+    	dual_port_ram u_dual_port_ram_1(
+           .addr1(low_addr_a),
+           .we1(actual_wren_a[1]),
+           .data1(data_a),
+           .out1(q_a_long[63:32]),
+           .addr2(low_addr_b),
+           .we2(actual_wren_b[1]),
+           .data2(data_b),
+           .out2(q_b_long[63:32]),
+           .clk(clk)
+           );
+    
+
+    	dual_port_ram u_dual_port_ram_2(
+           .addr1(low_addr_a),
+           .we1(actual_wren_a[2]),
+           .data1(data_a),
+           .out1(q_a_long[95:64]),
+           .addr2(low_addr_b),
+           .we2(actual_wren_b[2]),
+           .data2(data_b),
+           .out2(q_b_long[95:64]),
+           .clk(clk)
+           );
+    
+
+    	dual_port_ram u_dual_port_ram_3(
+           .addr1(low_addr_a),
+           .we1(actual_wren_a[3]),
+           .data1(data_a),
+           .out1(q_a_long[127:96]),
+           .addr2(low_addr_b),
+           .we2(actual_wren_b[3]),
+           .data2(data_b),
+           .out2(q_b_long[127:96]),
+           .clk(clk)
+           );
+    
+
+    	dual_port_ram u_dual_port_ram_4(
+           .addr1(low_addr_a),
+           .we1(actual_wren_a[4]),
+           .data1(data_a),
+           .out1(q_a_long[159:128]),
+           .addr2(low_addr_b),
+           .we2(actual_wren_b[4]),
+           .data2(data_b),
+           .out2(q_b_long[159:128]),
+           .clk(clk)
+           );
+    
+
+    	dual_port_ram u_dual_port_ram_5(
+           .addr1(low_addr_a),
+           .we1(actual_wren_a[5]),
+           .data1(data_a),
+           .out1(q_a_long[191:160]),
+           .addr2(low_addr_b),
+           .we2(actual_wren_b[5]),
+           .data2(data_b),
+           .out2(q_b_long[191:160]),
+           .clk(clk)
+           );
+    
+
+    	dual_port_ram u_dual_port_ram_6(
+           .addr1(low_addr_a),
+           .we1(actual_wren_a[6]),
+           .data1(data_a),
+           .out1(q_a_long[223:192]),
+           .addr2(low_addr_b),
+           .we2(actual_wren_b[6]),
+           .data2(data_b),
+           .out2(q_b_long[223:192]),
+           .clk(clk)
+           );
+    
+
+    	dual_port_ram u_dual_port_ram_7(
+           .addr1(low_addr_a),
+           .we1(actual_wren_a[7]),
+           .data1(data_a),
+           .out1(q_a_long[255:224]),
+           .addr2(low_addr_b),
+           .we2(actual_wren_b[7]),
+           .data2(data_b),
+           .out2(q_b_long[255:224]),
+           .clk(clk)
+           );
+    
+
+
+//Mux out the read_data
+//assign q_a = q_a_long[32*high_addr_a+:32];
+//assign q_b = q_b_long[32*high_addr_b+:32];
+
+always @(high_addr_a, q_a) begin
+	case (high_addr_a)
+	    3'b000: q_a = q_a_long[32*1-1 : 32*0];
+	    3'b001: q_a = q_a_long[32*2-1 : 32*1];
+	    3'b010: q_a = q_a_long[32*3-1 : 32*2];
+	    3'b011: q_a = q_a_long[32*4-1 : 32*3];
+	    3'b100: q_a = q_a_long[32*5-1 : 32*4];
+	    3'b101: q_a = q_a_long[32*6-1 : 32*5];
+	    3'b110: q_a = q_a_long[32*7-1 : 32*6];
+	    3'b111: q_a = q_a_long[32*8-1 : 32*7];
+		default: q_a = 0;
+	endcase
+end
+
+always @(high_addr_b, q_b) begin
+	case (high_addr_b)
+	    3'b0000: q_b = q_b_long[32*1-1 : 32*0];
+	    3'b0001: q_b = q_b_long[32*2-1 : 32*1];
+	    3'b0010: q_b = q_b_long[32*3-1 : 32*2];
+	    3'b0011: q_b = q_b_long[32*4-1 : 32*3];
+	    3'b0100: q_b = q_b_long[32*5-1 : 32*4];
+	    3'b0101: q_b = q_b_long[32*6-1 : 32*5];
+	    3'b0110: q_b = q_b_long[32*7-1 : 32*6];
+	    3'b0111: q_b = q_b_long[32*8-1 : 32*7];
+		default: q_b = 0;
+	endcase
+end
+
+`endif
+
+
+endmodule
+
+
+module rom_dual_port_1
+(
+	clk,
+	clken,
+	address_a,
+	address_b,
+	q_a,
+	q_b
+);
+
+input  clk;
+input  clken;
+input [(1-1):0] address_a;
+input [(1-1):0] address_b;
+output wire [(32-1):0] q_a;
+output wire [(32-1):0] q_b;
+reg [(32-1):0] q_a_wire;
+reg [(32-1):0] q_b_wire;
+wire [(32-1):0] d_a;
+wire [(32-1):0] d_b;
+
+//(* ramstyle = "no_rw_check", ram_init_file = init_file *) reg [32-1:0] ram[2-1:0];
+reg [32-1:0] ram[2-1:0];
+
+/* synthesis translate_off */
+
+reg [31:0] i;
+//ALTERA_MF_MEMORY_INITIALIZATION mem ();
+//reg [8*256:1] ram_ver_file;
+/*
+initial begin
+	if (init_file == "UNUSED.mif")
+    begin
+		for (i = 0; i < 2; i = i + 1)
+			ram[i] = 0;
+    end
+	else
+    begin
+        // modelsim can't read .mif files directly. So use Altera function to
+        // convert them to .ver files
+        mem.convert_to_ver_file(init_file, 32, ram_ver_file);
+        $readmemh(ram_ver_file, ram);
+    end
+end
+*/
+/* synthesis translate_on */
+`ifndef VCS
+always @ (posedge clk)
+if (clken)
+begin
+    q_a_wire <= ram[address_a];
+    q_b_wire <= ram[address_b];
+end
+
+
+
+reg [31:0] j;
+reg [(32-1):0] q_a_reg[1:1], q_b_reg[1:1];
+
+always @(*)
+begin
+   q_a_reg[1] <= q_a_wire;
+   q_b_reg[1] <= q_b_wire;
+end
+
+always @(posedge clk)
+if (clken)
+begin
+   for (j = 1; j < 1; j=j+1)
+   begin
+       q_a_reg[j+1] <= q_a_reg[j];
+       q_b_reg[j+1] <= q_b_reg[j];
+   end
+end
+
+assign q_a = (clken) ? q_a_reg[1] : 0;
+assign q_b = (clken) ? q_b_reg[1] : 0;
+`else
+wire [9:0] full_addr_a;
+wire [9:0] full_addr_b;
+assign full_addr_a = {8'b0, address_a};
+assign full_addr_b = {8'b0, address_b};
 dual_port_ram u_dual_port_ram(
-.addr1(address_a),
+.addr1(full_addr_a),
 .we1(1'b0),
 .data1(d_a),
 .out1(q_a),
-.addr2(address_b),
+.addr2(full_addr_b),
 .we2(1'b0),
 .data2(d_b),
 .out2(q_b),
@@ -6143,7 +6629,7 @@ assign UART_TXD = 1'b0;
             return_val_reg <= 0;
 
 
-    assign start = (y_Q == s_START);
+    assign start = (y_Q == s_START) ? 1'b1 : 1'b0;
 
    wire wait_request_c;
    assign wait_request_c = 0;
@@ -6298,7 +6784,7 @@ assign UART_TXD = 1'b0;
             return_val_reg <= 0;
 
 
-    assign start = (y_Q == s_START);
+    assign start = (y_Q == s_START) ? 1'b1 : 1'b0;
 
    
    top top_inst (
@@ -6398,7 +6884,7 @@ always@(finish) begin
         $writememh("memory_dump.txt",top_inst.memory_controller_inst.temp3.ram);
         $display("At t=%t clk=%b finish=%b return_val=%d", $time, clk, finish, return_val);
         $display("Cycles: %d", ($time-50)/20);
-        $finish;
+        
     end
 end
 
@@ -6431,6 +6917,7 @@ input  clk_en;
 reg [31:0] result;
 
 always @(posedge clock) begin
+ if (clk_en)
 	result <= dataa * datab;
 end
 
@@ -6454,6 +6941,7 @@ input  clk_en;
 reg [31:0] result;
 
 always @(posedge clock) begin
+ if (clk_en)
 	result <= dataa + datab;
 end
 
@@ -6476,6 +6964,7 @@ input  clk_en;
 reg [31:0] result;
 
 always @(posedge clock) begin
+ if (clk_en)
 	result <= dataa - datab;
 end
 
@@ -6498,7 +6987,8 @@ input  clk_en;
 reg [31:0] result;
 
 always @(posedge clock) begin
-	result <= dataa / datab;
+ if (clk_en)
+	result <= dataa * datab;
 end
 
 endmodule
@@ -6519,6 +7009,7 @@ input  clk_en;
 reg [31:0] result;
 
 always @(posedge clock) begin
+ if (clk_en)
 	result <= dataa;
 end
 
@@ -6540,6 +7031,7 @@ input  clk_en;
 reg [31:0] result;
 
 always @(posedge clock) begin
+ if (clk_en)
 	result <= dataa;
 end
 
@@ -6580,6 +7072,7 @@ reg ageb;
 reg unordered;
 
 always @(posedge clock) begin
+ if (clk_en) begin
   aeb <= (dataa == datab);
   aneb <= ~(dataa == datab);
   alb <= (dataa < datab);
@@ -6587,6 +7080,7 @@ always @(posedge clock) begin
   agb <= (dataa > datab);
   ageb <= (dataa >= datab);
   unordered <= 0;
+ end
 end
 
 endmodule

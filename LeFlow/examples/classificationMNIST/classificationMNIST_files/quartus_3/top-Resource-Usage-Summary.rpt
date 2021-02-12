@@ -1,0 +1,120 @@
+Resource Usage Summary report for top
+Thu Feb 11 15:25:43 2021
+Quartus Prime Version 19.4.0 Build 64 12/04/2019 SC Pro Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Fitter Resource Usage Summary
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2019  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.
+
+
+
++---------------------------------------------------------------------------------------------+
+; Fitter Resource Usage Summary                                                               ;
++-------------------------------------------------------------+-----------------------+-------+
+; Resource                                                    ; Usage                 ; %     ;
++-------------------------------------------------------------+-----------------------+-------+
+; Logic utilization (ALMs needed / total ALMs on device)      ; 1,705 / 31,000        ; 6 %   ;
+; ALMs needed [=A-B+C]                                        ; 1,705                 ;       ;
+;     [A] ALMs used in final placement [=a+b+c+d]             ; 2,147 / 31,000        ; 7 %   ;
+;         [a] ALMs used for LUT logic and registers           ; 612                   ;       ;
+;         [b] ALMs used for LUT logic                         ; 904                   ;       ;
+;         [c] ALMs used for registers                         ; 631                   ;       ;
+;         [d] ALMs used for memory (up to half of total ALMs) ; 0                     ;       ;
+;     [B] Estimate of ALMs recoverable by dense packing       ; 458 / 31,000          ; 1 %   ;
+;     [C] Estimate of ALMs unavailable [=a+b+c+d]             ; 16 / 31,000           ; < 1 % ;
+;         [a] Due to location constrained logic               ; 0                     ;       ;
+;         [b] Due to LAB-wide signal conflicts                ; 2                     ;       ;
+;         [c] Due to LAB input limits                         ; 14                    ;       ;
+;         [d] Due to virtual I/Os                             ; 0                     ;       ;
+;                                                             ;                       ;       ;
+; Difficulty packing design                                   ; Low                   ;       ;
+;                                                             ;                       ;       ;
+; Total LABs:  partially or completely used                   ; 262 / 3,100           ; 8 %   ;
+;     -- Logic LABs                                           ; 262                   ;       ;
+;     -- Memory LABs (up to half of total LABs)               ; 0                     ;       ;
+;                                                             ;                       ;       ;
+; Combinational ALUT usage for logic                          ; 2,428                 ;       ;
+;     -- 7 input functions                                    ; 21                    ;       ;
+;     -- 6 input functions                                    ; 749                   ;       ;
+;     -- 5 input functions                                    ; 360                   ;       ;
+;     -- 4 input functions                                    ; 358                   ;       ;
+;     -- <=3 input functions                                  ; 940                   ;       ;
+; Combinational ALUT usage for route-throughs                 ; 838                   ;       ;
+;                                                             ;                       ;       ;
+; Dedicated logic registers                                   ; 2,958                 ;       ;
+;     -- By type:                                             ;                       ;       ;
+;         -- Primary logic registers                          ; 2,485 / 62,000        ; 4 %   ;
+;         -- Secondary logic registers                        ; 473 / 62,000          ; < 1 % ;
+;     -- By function:                                         ;                       ;       ;
+;         -- Design implementation registers                  ; 2,823                 ;       ;
+;         -- Routing optimization registers                   ; 135                   ;       ;
+;                                                             ;                       ;       ;
+; ALMs adjustment for power estimation                        ; 175                   ;       ;
+;                                                             ;                       ;       ;
+; Virtual pins                                                ; 0                     ;       ;
+; I/O pins                                                    ; 37 / 216              ; 17 %  ;
+;     -- Clock pins                                           ; 1 / 10                ; 10 %  ;
+;     -- Dedicated input pins                                 ; 0 / 23                ; 0 %   ;
+;                                                             ;                       ;       ;
+; M20K blocks                                                 ; 32 / 291              ; 11 %  ;
+; Total MLAB memory bits                                      ; 0                     ;       ;
+; Total block memory bits                                     ; 277,440 / 5,959,680   ; 5 %   ;
+; Total block memory implementation bits                      ; 655,360 / 5,959,680   ; 11 %  ;
+;                                                             ;                       ;       ;
+; DSP Blocks Needed [=A+B-C]                                  ; 3 / 84                ; 4 %   ;
+;     [A] Total Fixed Point DSP Blocks                        ; 4                     ;       ;
+;     [B] Total Floating Point DSP Blocks                     ; 0                     ;       ;
+;     [C] Estimate of DSP Blocks recoverable by dense merging ; 1                     ;       ;
+;                                                             ;                       ;       ;
+; IOPLLs                                                      ; 0 / 4                 ; 0 %   ;
+; FPLLs                                                       ; 0 / 8                 ; 0 %   ;
+; Global signals                                              ; 1                     ;       ;
+;     -- Global clocks                                        ; 1 / 32                ; 3 %   ;
+;     -- Regional clocks                                      ; 0 / 8                 ; 0 %   ;
+;     -- Periphery clocks                                     ; 0 / 144               ; 0 %   ;
+; JTAGs                                                       ; 0 / 1                 ; 0 %   ;
+; ASMI blocks                                                 ; 0 / 1                 ; 0 %   ;
+; CRC blocks                                                  ; 0 / 1                 ; 0 %   ;
+; Remote update blocks                                        ; 0 / 1                 ; 0 %   ;
+; Oscillator blocks                                           ; 0 / 1                 ; 0 %   ;
+; PCIe Hard IPs                                               ; 0 / 1                 ; 0 %   ;
+; HSSI RX PCSs                                                ; 0 / 6                 ; 0 %   ;
+; HSSI PMA RX DESERs                                          ; 0 / 6                 ; 0 %   ;
+; HSSI TX PCSs                                                ; 0 / 6                 ; 0 %   ;
+; HSSI PMA TX SERs                                            ; 0 / 6                 ; 0 %   ;
+; HSSI CDR PLL                                                ; 0 / 6                 ; 0 %   ;
+;     -- CDR PLLs for Unused RX Clock Workaround              ; 0 / 6                 ; 0 %   ;
+; HSSI ATX PLL                                                ; 0 / 2                 ; 0 %   ;
+; Impedance control blocks                                    ; 0 / 7                 ; 0 %   ;
+; Average interconnect usage (total/H/V)                      ; 4.3% / 5.5% / 2.4%    ;       ;
+; Peak interconnect usage (total/H/V)                         ; 37.5% / 39.7% / 34.4% ;       ;
+; Maximum fan-out                                             ; 3250                  ;       ;
+; Highest non-global fan-out                                  ; 610                   ;       ;
+; Total fan-out                                               ; 24044                 ;       ;
+; Average fan-out                                             ; 4.15                  ;       ;
++-------------------------------------------------------------+-----------------------+-------+
+
+
