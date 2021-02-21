@@ -12,7 +12,10 @@ reduction_layer u_red(
   .start(start),
   .start_addr(11'd0),
   .end_addr(11'd5),
-  .reduction_type(2'd1),
+  .reduction_type(2'd0),
+  .bram_in_we(1'b0),
+  .bram_in_wdata_ext(),
+  .bram_in_addr_ext(),
   .reduced_out(),
   .done()
   );

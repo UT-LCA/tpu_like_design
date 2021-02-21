@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////
-// There are 32 inputs to the comute unit. We use a tree structure to reduce the 32 values.
+// There are 32 inputs to the reduction unit. We use a tree structure to reduce the 32 values.
 // It is assumed that the number of addressses supplied (end_addr - start_addr + 1) is a multiple
 // of 32. If the real application needs to reduce a number of values that are not a multiple of
 // 32, then the application must pad the values in the input BRAM appropriately
@@ -22,6 +22,12 @@
 
 //////////////////////////////////////////////////////////////////
 // Accumulation is done in 20 bits (16 + log(16))
+//////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////
+// Each entry of the RAM contains `NUM_INPUTS (which is 32) values. So,
+// 1 read of the RAM provides all the inputs required for going through
+// the reduction unit once. 
 //////////////////////////////////////////////////////////////////
 
 `timescale 1ns/1ns
@@ -36,29 +42,43 @@
 ////////////////////////////////////////////
 module reduction_layer(
   input clk,
-  input resetn,
-  input start,
-  input  [`AWIDTH-1:0] start_addr,  //inclusive
-  input  [`AWIDTH-1:0] end_addr,    //inclusive
+  input resetn, //resets the control logic and the processing elements
+  input start, //indicates start of the reduction operation
+  input  [`AWIDTH-1:0] start_addr,  //the starting address where the inputs are located (inclusive)
+  input  [`AWIDTH-1:0] end_addr,    //the end address where the inputs are located (inclusive)
   input  [1:0] reduction_type, //can have 3 values: 0 (Add), 1 (Max), 2 (Min)
-  output [`DWIDTH-1:0] reduced_out,
-  output reg done
+  input  bram_in_we, //flag used to load the RAM with inputs from outside
+  input  [`DWIDTH-1:0] bram_in_wdata_ext, //port to load RAM with inputs from outside (ideally we'd have AXI or some similar interface to load the RAM through a DMA module)
+  input  [`AWIDTH-1:0] bram_in_addr_ext, //port to load RAM with inputs from outside (ideally we'd have AXI or some similar interface to load the RAM through a DMA module)
+  output [`DWIDTH-1:0] reduced_out, //output
+  output reg done //output is valid when done is 1
 );
 
 reg [`AWIDTH-1:0] bram_in_addr;
-wire [`NUM_INPUTS*`DWIDTH-1:0] bram_in_wdata_NC;
-reg bram_in_we;
+wire [`AWIDTH-1:0] bram_in_addr_muxed;
+wire [`NUM_INPUTS*`DWIDTH-1:0] bram_in_wdata;
 wire [`NUM_INPUTS*`DWIDTH-1:0] bram_in_rdata;
 wire [`DWIDTH+`LOGDWIDTH-1:0] reduced_out_unrounded;
 wire [`DWIDTH-1:0] reduced_out_add;
+
+////////////////////////////////////////////////////////////////
+//Ideally the RAM would be loaded using an AXI interface or something similar through a DMA engine. 
+//Here we've just exposed the write data and address bus to the top-level.
+//Each data entry in the RAM is very wide (`NUM_INPUTS*`DWIDTH). That leads to lot of
+//ports on the top-level, causing very long wires from RAM to/from IOs. To avoid this,
+//we are just going to reduce the width of the port (to `DWIDTH) and just replicate
+//that over tha actual data port of the BRAM `NUM_INPUTS times. This doesn't impact
+//hardware/functionality of the core design.
+assign bram_in_addr_muxed = bram_in_we ? bram_in_addr_ext : bram_in_addr;
+assign bram_in_wdata = {`NUM_INPUTS{bram_in_wdata_ext}}; 
 
 ////////////////////////////////////////////////////////////////
 //Input matrix data is stored in this RAM
 //The design reads 16 elements in one clock
 ////////////////////////////////////////////////////////////////
 spram in_data(
-  .addr(bram_in_addr),
-  .d(bram_in_wdata_NC), 
+  .addr(bram_in_addr_muxed),
+  .d(bram_in_wdata), 
   .we(bram_in_we), 
   .q(bram_in_rdata), 
   .clk(clk));
@@ -80,6 +100,8 @@ reg reset_reduction_unit;
       else begin
         case (state)
         4'b0000: begin
+          //Stay here until start becomes 1. Keep the processing
+          //elements in reset because we don't need them yet.
           if (start == 1'b1) begin
             state <= 4'b0001;
           end 
@@ -92,15 +114,17 @@ reg reset_reduction_unit;
           //Set correct read address for the BRAM containing input values
           //so that the values are available in the next cycle 
           bram_in_addr <= start_addr;
-          bram_in_we <= 1'b0;
           reset_reduction_unit <= 1;
         end      
 
         4'b0010: begin
           //During this state, the values for the address set in previous state
-          //are available at the read-output of the BRAM
-
+          //are available at the read-output of the BRAM.
+          //Now let's lift the reset from the processing elements.
           reset_reduction_unit <= 0;
+          //If we have reached the end condition (that is, we have 
+          //read all the entries from start_addr to end_addr), let's
+          //move to the next state (that state doesn't read the RAM any more)
           if (bram_in_addr == end_addr) begin
             //end the loop
             state <= 4'b1110;
@@ -111,8 +135,11 @@ reg reset_reduction_unit;
           end
         end
 
-        4'b1110: begin                 
-          //count for the initiation interval
+        4'b1110: begin     
+          //The full operation ends after all the locations have been read
+          //(and data fed to the reduction unit) and initiation interval
+          //(latency) has passed. So, let's count for the initiation interval
+          //and then assert done and go back to the initial state.
           count <= count + 1;
           if (count==5) begin
             state <= 4'b0000;
@@ -126,53 +153,44 @@ reg reset_reduction_unit;
   end
 
 
-wire [`DWIDTH*32-1:0] reduction_unit_in;
-
-genvar i;
-generate
-  for (i=0; i<`NUM_INPUTS; i=i+1) begin: cu_in
-    assign reduction_unit_in[(i+1)*`DWIDTH-1:i*`DWIDTH] = bram_in_rdata[(i+1)*`DWIDTH-1:i*`DWIDTH];
-  end
-endgenerate
-
 ////////////////////////////////////////////////////////////////
 // Let's instantiate the unit that actually performs the reduction
 ////////////////////////////////////////////////////////////////
 reduction_unit ucu(
   .clk(clk),
   .reset(reset_reduction_unit),
-  .inp0(reduction_unit_in[1*`DWIDTH-1:0*`DWIDTH]), 
-  .inp1(reduction_unit_in[2*`DWIDTH-1:1*`DWIDTH]), 
-  .inp2(reduction_unit_in[3*`DWIDTH-1:2*`DWIDTH]), 
-  .inp3(reduction_unit_in[4*`DWIDTH-1:3*`DWIDTH]), 
-  .inp4(reduction_unit_in[5*`DWIDTH-1:4*`DWIDTH]), 
-  .inp5(reduction_unit_in[6*`DWIDTH-1:5*`DWIDTH]), 
-  .inp6(reduction_unit_in[7*`DWIDTH-1:6*`DWIDTH]), 
-  .inp7(reduction_unit_in[8*`DWIDTH-1:7*`DWIDTH]), 
-  .inp8(reduction_unit_in[9*`DWIDTH-1:8*`DWIDTH]), 
-  .inp9(reduction_unit_in[10*`DWIDTH-1:9*`DWIDTH]), 
-  .inp10(reduction_unit_in[11*`DWIDTH-1:10*`DWIDTH]), 
-  .inp11(reduction_unit_in[12*`DWIDTH-1:11*`DWIDTH]), 
-  .inp12(reduction_unit_in[13*`DWIDTH-1:12*`DWIDTH]), 
-  .inp13(reduction_unit_in[14*`DWIDTH-1:13*`DWIDTH]), 
-  .inp14(reduction_unit_in[15*`DWIDTH-1:14*`DWIDTH]), 
-  .inp15(reduction_unit_in[16*`DWIDTH-1:15*`DWIDTH]), 
-  .inp16(reduction_unit_in[17*`DWIDTH-1:16*`DWIDTH]), 
-  .inp17(reduction_unit_in[18*`DWIDTH-1:17*`DWIDTH]), 
-  .inp18(reduction_unit_in[19*`DWIDTH-1:18*`DWIDTH]), 
-  .inp19(reduction_unit_in[20*`DWIDTH-1:19*`DWIDTH]), 
-  .inp20(reduction_unit_in[21*`DWIDTH-1:20*`DWIDTH]), 
-  .inp21(reduction_unit_in[22*`DWIDTH-1:21*`DWIDTH]), 
-  .inp22(reduction_unit_in[23*`DWIDTH-1:22*`DWIDTH]), 
-  .inp23(reduction_unit_in[24*`DWIDTH-1:23*`DWIDTH]), 
-  .inp24(reduction_unit_in[25*`DWIDTH-1:24*`DWIDTH]), 
-  .inp25(reduction_unit_in[26*`DWIDTH-1:25*`DWIDTH]), 
-  .inp26(reduction_unit_in[27*`DWIDTH-1:26*`DWIDTH]), 
-  .inp27(reduction_unit_in[28*`DWIDTH-1:27*`DWIDTH]), 
-  .inp28(reduction_unit_in[29*`DWIDTH-1:28*`DWIDTH]), 
-  .inp29(reduction_unit_in[30*`DWIDTH-1:29*`DWIDTH]), 
-  .inp30(reduction_unit_in[31*`DWIDTH-1:30*`DWIDTH]), 
-  .inp31(reduction_unit_in[32*`DWIDTH-1:31*`DWIDTH]), 
+  .inp0(bram_in_rdata[1*`DWIDTH-1:0*`DWIDTH]), 
+  .inp1(bram_in_rdata[2*`DWIDTH-1:1*`DWIDTH]), 
+  .inp2(bram_in_rdata[3*`DWIDTH-1:2*`DWIDTH]), 
+  .inp3(bram_in_rdata[4*`DWIDTH-1:3*`DWIDTH]), 
+  .inp4(bram_in_rdata[5*`DWIDTH-1:4*`DWIDTH]), 
+  .inp5(bram_in_rdata[6*`DWIDTH-1:5*`DWIDTH]), 
+  .inp6(bram_in_rdata[7*`DWIDTH-1:6*`DWIDTH]), 
+  .inp7(bram_in_rdata[8*`DWIDTH-1:7*`DWIDTH]), 
+  .inp8(bram_in_rdata[9*`DWIDTH-1:8*`DWIDTH]), 
+  .inp9(bram_in_rdata[10*`DWIDTH-1:9*`DWIDTH]), 
+  .inp10(bram_in_rdata[11*`DWIDTH-1:10*`DWIDTH]), 
+  .inp11(bram_in_rdata[12*`DWIDTH-1:11*`DWIDTH]), 
+  .inp12(bram_in_rdata[13*`DWIDTH-1:12*`DWIDTH]), 
+  .inp13(bram_in_rdata[14*`DWIDTH-1:13*`DWIDTH]), 
+  .inp14(bram_in_rdata[15*`DWIDTH-1:14*`DWIDTH]), 
+  .inp15(bram_in_rdata[16*`DWIDTH-1:15*`DWIDTH]), 
+  .inp16(bram_in_rdata[17*`DWIDTH-1:16*`DWIDTH]), 
+  .inp17(bram_in_rdata[18*`DWIDTH-1:17*`DWIDTH]), 
+  .inp18(bram_in_rdata[19*`DWIDTH-1:18*`DWIDTH]), 
+  .inp19(bram_in_rdata[20*`DWIDTH-1:19*`DWIDTH]), 
+  .inp20(bram_in_rdata[21*`DWIDTH-1:20*`DWIDTH]), 
+  .inp21(bram_in_rdata[22*`DWIDTH-1:21*`DWIDTH]), 
+  .inp22(bram_in_rdata[23*`DWIDTH-1:22*`DWIDTH]), 
+  .inp23(bram_in_rdata[24*`DWIDTH-1:23*`DWIDTH]), 
+  .inp24(bram_in_rdata[25*`DWIDTH-1:24*`DWIDTH]), 
+  .inp25(bram_in_rdata[26*`DWIDTH-1:25*`DWIDTH]), 
+  .inp26(bram_in_rdata[27*`DWIDTH-1:26*`DWIDTH]), 
+  .inp27(bram_in_rdata[28*`DWIDTH-1:27*`DWIDTH]), 
+  .inp28(bram_in_rdata[29*`DWIDTH-1:28*`DWIDTH]), 
+  .inp29(bram_in_rdata[30*`DWIDTH-1:29*`DWIDTH]), 
+  .inp30(bram_in_rdata[31*`DWIDTH-1:30*`DWIDTH]), 
+  .inp31(bram_in_rdata[32*`DWIDTH-1:31*`DWIDTH]), 
   .mode(reduction_type),
   .outp(reduced_out_unrounded)
 );
