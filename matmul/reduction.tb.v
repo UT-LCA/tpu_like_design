@@ -12,7 +12,7 @@ reduction_layer u_red(
   .start(start),
   .start_addr(11'd0),
   .end_addr(11'd5),
-  .reduction_type(2'd2),
+  .reduction_type(2'd1),
   .reduced_out(),
   .done()
   );
