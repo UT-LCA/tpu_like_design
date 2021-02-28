@@ -33,7 +33,7 @@
 `timescale 1ns/1ns
 `define DWIDTH 16
 `define LOGDWIDTH 4
-`define AWIDTH 11
+`define AWIDTH 5
 `define MEM_SIZE 2048
 `define NUM_INPUTS 32
 
