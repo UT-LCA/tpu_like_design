@@ -139,9 +139,17 @@ class generate_compute_unit():
       print("")  
     print("endmodule")
     print("")
+
+def generate_instance(num):
+  for i in range(0,num):
+    print(".inp{a}(bram_in_rdata[{b}*`DWIDTH-1:{a}*`DWIDTH]),".format(a=i, b=i+1))
+#  .inp27(bram_in_rdata[28*`DWIDTH-1:27*`DWIDTH]), 
+
+  
    
 # ###############################################################
 # main()
 # ###############################################################
 if __name__ == "__main__":
-  generate_compute_unit(32, 'fixed16')
+  generate_compute_unit(128, 'fixed16')
+  generate_instance(128)
