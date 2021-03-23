@@ -1604,7 +1604,7 @@ input clk;
 `ifdef VCS
 reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q0;
 reg [`MAT_MUL_SIZE*`DWIDTH-1:0] q1;
-reg [7:0] ram[((1<<`AWIDTH)-1):0];
+reg [`DWIDTH-1:0] ram[((1<<`AWIDTH)-1):0];
 integer i;
 
 always @(posedge clk)  
