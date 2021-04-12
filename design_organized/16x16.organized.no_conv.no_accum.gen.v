@@ -1,11 +1,27 @@
 
 `timescale 1ns / 1ps
 
+`define DWIDTH 8
+`define AWIDTH 10
+`define MEM_SIZE 1024
+
+`define MAT_MUL_SIZE 16
+`define MASK_WIDTH 16
+`define LOG2_MAT_MUL_SIZE 4
+
+`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
+`define NUM_CYCLES_IN_MAC 3
+`define MEM_ACCESS_LATENCY 1
+`define REG_DATAWIDTH 32
+`define REG_ADDRWIDTH 8
+`define ADDR_STRIDE_WIDTH 16
+`define MAX_BITS_POOL 3
+
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020-07-25 21:27:52.817423
+// Create Date: 2021-04-11 22:55:49.946308
 // Design Name: 
 // Module Name: matmul_16x16_systolic
 // Project Name: 
@@ -47,7 +63,8 @@ module matmul_16x16_systolic(
  c_data_available,
 
  validity_mask_a_rows,
- validity_mask_a_cols_b_rows,
+ validity_mask_a_cols,
+ validity_mask_b_rows,
  validity_mask_b_cols,
   
 final_mat_mul_size,
@@ -81,7 +98,8 @@ final_mat_mul_size,
  output c_data_available;
 
  input [`MASK_WIDTH-1:0] validity_mask_a_rows;
- input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+ input [`MASK_WIDTH-1:0] validity_mask_a_cols;
+ input [`MASK_WIDTH-1:0] validity_mask_b_rows;
  input [`MASK_WIDTH-1:0] validity_mask_b_cols;
 
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
@@ -457,7 +475,8 @@ systolic_data_setup u_systolic_data_setup(
 .b15_data_delayed_15(b15_data_delayed_15),
 
 .validity_mask_a_rows(validity_mask_a_rows),
-.validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+.validity_mask_a_cols(validity_mask_a_cols),
+.validity_mask_b_rows(validity_mask_b_rows),
 .validity_mask_b_cols(validity_mask_b_cols),
 
 .final_mat_mul_size(final_mat_mul_size),
@@ -861,7 +880,7 @@ wire [`DWIDTH-1:0] matrixC15_13;
 wire [`DWIDTH-1:0] matrixC15_14;
 wire [`DWIDTH-1:0] matrixC15_15;
 
-
+wire row_latch_en;
 //////////////////////////////////////////////////////////////////////////
 // Instantiation of the output logic
 //////////////////////////////////////////////////////////////////////////
@@ -1146,7 +1165,6 @@ systolic_pe_matrix u_systolic_pe_matrix(
 .clk(clk),
 .reset(reset),
 .pe_reset(pe_reset),
-.start_mat_mul(start_mat_mul),
 .a0(a0),
 .a1(a1),
 .a2(a2),
@@ -2193,7 +2211,8 @@ a15_data_delayed_15,
 b15_data_delayed_15,
 
 validity_mask_a_rows,
-validity_mask_a_cols_b_rows,
+validity_mask_a_cols,
+validity_mask_b_rows,
 validity_mask_b_cols,
 
 final_mat_mul_size,
@@ -2248,7 +2267,8 @@ output [`DWIDTH-1:0] a15_data_delayed_15;
 output [`DWIDTH-1:0] b15_data_delayed_15;
 
 input [`MASK_WIDTH-1:0] validity_mask_a_rows;
-input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+input [`MASK_WIDTH-1:0] validity_mask_a_cols;
+input [`MASK_WIDTH-1:0] validity_mask_b_rows;
 input [`MASK_WIDTH-1:0] validity_mask_b_cols;
 
 input [7:0] final_mat_mul_size;
@@ -2333,22 +2353,22 @@ end
 
 wire a_data_valid; //flag that tells whether the data from memory is valid
 assign a_data_valid = 
-     ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==1) ||
-      (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==2) ||
-      (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==3) ||
-      (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==4) ||
-      (validity_mask_a_cols_b_rows[4]==1'b0 && a_mem_access_counter==5) ||
-      (validity_mask_a_cols_b_rows[5]==1'b0 && a_mem_access_counter==6) ||
-      (validity_mask_a_cols_b_rows[6]==1'b0 && a_mem_access_counter==7) ||
-      (validity_mask_a_cols_b_rows[7]==1'b0 && a_mem_access_counter==8) ||
-      (validity_mask_a_cols_b_rows[8]==1'b0 && a_mem_access_counter==9) ||
-      (validity_mask_a_cols_b_rows[9]==1'b0 && a_mem_access_counter==10) ||
-      (validity_mask_a_cols_b_rows[10]==1'b0 && a_mem_access_counter==11) ||
-      (validity_mask_a_cols_b_rows[11]==1'b0 && a_mem_access_counter==12) ||
-      (validity_mask_a_cols_b_rows[12]==1'b0 && a_mem_access_counter==13) ||
-      (validity_mask_a_cols_b_rows[13]==1'b0 && a_mem_access_counter==14) ||
-      (validity_mask_a_cols_b_rows[14]==1'b0 && a_mem_access_counter==15) ||
-      (validity_mask_a_cols_b_rows[15]==1'b0 && a_mem_access_counter==16)) ?
+     ((validity_mask_a_cols[0]==1'b0 && a_mem_access_counter==1) ||
+      (validity_mask_a_cols[1]==1'b0 && a_mem_access_counter==2) ||
+      (validity_mask_a_cols[2]==1'b0 && a_mem_access_counter==3) ||
+      (validity_mask_a_cols[3]==1'b0 && a_mem_access_counter==4) ||
+      (validity_mask_a_cols[4]==1'b0 && a_mem_access_counter==5) ||
+      (validity_mask_a_cols[5]==1'b0 && a_mem_access_counter==6) ||
+      (validity_mask_a_cols[6]==1'b0 && a_mem_access_counter==7) ||
+      (validity_mask_a_cols[7]==1'b0 && a_mem_access_counter==8) ||
+      (validity_mask_a_cols[8]==1'b0 && a_mem_access_counter==9) ||
+      (validity_mask_a_cols[9]==1'b0 && a_mem_access_counter==10) ||
+      (validity_mask_a_cols[10]==1'b0 && a_mem_access_counter==11) ||
+      (validity_mask_a_cols[11]==1'b0 && a_mem_access_counter==12) ||
+      (validity_mask_a_cols[12]==1'b0 && a_mem_access_counter==13) ||
+      (validity_mask_a_cols[13]==1'b0 && a_mem_access_counter==14) ||
+      (validity_mask_a_cols[14]==1'b0 && a_mem_access_counter==15) ||
+      (validity_mask_a_cols[15]==1'b0 && a_mem_access_counter==16)) ?
     
     1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
@@ -2787,22 +2807,22 @@ end
 
 wire b_data_valid; //flag that tells whether the data from memory is valid
 assign b_data_valid = 
-     ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==1) ||
-      (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==2) ||
-      (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==3) ||
-      (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==4) ||
-      (validity_mask_a_cols_b_rows[4]==1'b0 && b_mem_access_counter==5) ||
-      (validity_mask_a_cols_b_rows[5]==1'b0 && b_mem_access_counter==6) ||
-      (validity_mask_a_cols_b_rows[6]==1'b0 && b_mem_access_counter==7) ||
-      (validity_mask_a_cols_b_rows[7]==1'b0 && b_mem_access_counter==8) ||
-      (validity_mask_a_cols_b_rows[8]==1'b0 && b_mem_access_counter==9) ||
-      (validity_mask_a_cols_b_rows[9]==1'b0 && b_mem_access_counter==10) ||
-      (validity_mask_a_cols_b_rows[10]==1'b0 && b_mem_access_counter==11) ||
-      (validity_mask_a_cols_b_rows[11]==1'b0 && b_mem_access_counter==12) ||
-      (validity_mask_a_cols_b_rows[12]==1'b0 && b_mem_access_counter==13) ||
-      (validity_mask_a_cols_b_rows[13]==1'b0 && b_mem_access_counter==14) ||
-      (validity_mask_a_cols_b_rows[14]==1'b0 && b_mem_access_counter==15) ||
-      (validity_mask_a_cols_b_rows[15]==1'b0 && b_mem_access_counter==16)) ?
+     ((validity_mask_b_rows[0]==1'b0 && b_mem_access_counter==1) ||
+      (validity_mask_b_rows[1]==1'b0 && b_mem_access_counter==2) ||
+      (validity_mask_b_rows[2]==1'b0 && b_mem_access_counter==3) ||
+      (validity_mask_b_rows[3]==1'b0 && b_mem_access_counter==4) ||
+      (validity_mask_b_rows[4]==1'b0 && b_mem_access_counter==5) ||
+      (validity_mask_b_rows[5]==1'b0 && b_mem_access_counter==6) ||
+      (validity_mask_b_rows[6]==1'b0 && b_mem_access_counter==7) ||
+      (validity_mask_b_rows[7]==1'b0 && b_mem_access_counter==8) ||
+      (validity_mask_b_rows[8]==1'b0 && b_mem_access_counter==9) ||
+      (validity_mask_b_rows[9]==1'b0 && b_mem_access_counter==10) ||
+      (validity_mask_b_rows[10]==1'b0 && b_mem_access_counter==11) ||
+      (validity_mask_b_rows[11]==1'b0 && b_mem_access_counter==12) ||
+      (validity_mask_b_rows[12]==1'b0 && b_mem_access_counter==13) ||
+      (validity_mask_b_rows[13]==1'b0 && b_mem_access_counter==14) ||
+      (validity_mask_b_rows[14]==1'b0 && b_mem_access_counter==15) ||
+      (validity_mask_b_rows[15]==1'b0 && b_mem_access_counter==16)) ?
     
         1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
@@ -3206,7 +3226,6 @@ module systolic_pe_matrix(
 clk,
 reset,
 pe_reset,
-start_mat_mul,
 a0,
 a1,
 a2,
@@ -3503,7 +3522,6 @@ b_data_out
 input clk;
 input reset;
 input pe_reset;
-input start_mat_mul;
 input [`DWIDTH-1:0] a0;
 input [`DWIDTH-1:0] a1;
 input [`DWIDTH-1:0] a2;
@@ -4148,9 +4166,9 @@ input reset;
 input clk;
 output [`DWIDTH-1:0] out;
 
-reg [`DWIDTH-1:0] out;
+reg [2*`DWIDTH-1:0] out_temp;
 wire [`DWIDTH-1:0] mul_out;
-wire [`DWIDTH-1:0] add_out;
+wire [2*`DWIDTH-1:0] add_out;
 
 reg [`DWIDTH-1:0] a_flopped;
 reg [`DWIDTH-1:0] b_flopped;
@@ -4179,33 +4197,32 @@ always @(posedge clk) begin
   end
 end
 
-//down cast the result
-assign mul_out = 
-    (mul_out_temp_reg[2*`DWIDTH-1] == 0) ?  //positive number
-        (
-           (|(mul_out_temp_reg[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 1, that means overlfow
-             {mul_out_temp_reg[2*`DWIDTH-1] , {(`DWIDTH-1){1'b1}}} : //sign bit and then all 1s
-             {mul_out_temp_reg[2*`DWIDTH-1] , mul_out_temp_reg[`DWIDTH-2:0]} 
-        )
-        : //negative number
-        (
-           (|(mul_out_temp_reg[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 0, that means overlfow
-             {mul_out_temp_reg[2*`DWIDTH-1] , mul_out_temp_reg[`DWIDTH-2:0]} :
-             {mul_out_temp_reg[2*`DWIDTH-1] , {(`DWIDTH-1){1'b0}}} //sign bit and then all 0s
-        );
-
-
 //we just truncate the higher bits of the product
 //assign add_out = mul_out + out;
-qadd add_u1(.a(out), .b(mul_out), .c(add_out));
+qadd add_u1(.a(out_temp), .b(mul_out_temp_reg), .c(add_out));
 
 always @(posedge clk) begin
   if (reset) begin
-    out <= 0;
+    out_temp <= 0;
   end else begin
-    out <= add_out;
+    out_temp <= add_out;
   end
 end
+
+//down cast the result
+assign out = 
+    (out_temp[2*`DWIDTH-1] == 0) ?  //positive number
+        (
+           (|(out_temp[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 1, that means overlfow
+             {out_temp[2*`DWIDTH-1] , {(`DWIDTH-1){1'b1}}} : //sign bit and then all 1s
+             {out_temp[2*`DWIDTH-1] , out_temp[`DWIDTH-2:0]} 
+        )
+        : //negative number
+        (
+           (|(out_temp[2*`DWIDTH-2 : `DWIDTH-1])) ?  //is any bit from 14:7 is 0, that means overlfow
+             {out_temp[2*`DWIDTH-1] , out_temp[`DWIDTH-2:0]} :
+             {out_temp[2*`DWIDTH-1] , {(`DWIDTH-1){1'b0}}} //sign bit and then all 0s
+        );
 
 endmodule
 
@@ -4220,9 +4237,9 @@ assign o_result = i_multiplicand * i_multiplier;
 endmodule
 
 module qadd(a,b,c);
-input [`DWIDTH-1:0] a;
-input [`DWIDTH-1:0] b;
-output [`DWIDTH-1:0] c;
+input [2*`DWIDTH-1:0] a;
+input [2*`DWIDTH-1:0] b;
+output [2*`DWIDTH-1:0] c;
 
 assign c = a + b;
 //DW01_add #(`DWIDTH) u_add(.A(a), .B(b), .CI(1'b0), .SUM(c), .CO());
