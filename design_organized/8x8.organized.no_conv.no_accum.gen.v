@@ -1,9 +1,9 @@
 
 `timescale 1ns / 1ps
-/*
+
 `define DWIDTH 8
-`define AWIDTH 16
-`define MEM_SIZE 2048
+`define AWIDTH 10
+`define MEM_SIZE 1024
 
 `define MAT_MUL_SIZE 8
 `define MASK_WIDTH 8
@@ -16,12 +16,12 @@
 `define REG_ADDRWIDTH 8
 `define ADDR_STRIDE_WIDTH 16
 `define MAX_BITS_POOL 3
-*/
+
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020-07-25 21:27:45.174821
+// Create Date: 2021-04-12 14:49:23.947566
 // Design Name: 
 // Module Name: matmul_8x8_systolic
 // Project Name: 
@@ -63,7 +63,8 @@ module matmul_8x8_systolic(
  c_data_available,
 
  validity_mask_a_rows,
- validity_mask_a_cols_b_rows,
+ validity_mask_a_cols,
+ validity_mask_b_rows,
  validity_mask_b_cols,
   
 final_mat_mul_size,
@@ -97,7 +98,8 @@ final_mat_mul_size,
  output c_data_available;
 
  input [`MASK_WIDTH-1:0] validity_mask_a_rows;
- input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+ input [`MASK_WIDTH-1:0] validity_mask_a_cols;
+ input [`MASK_WIDTH-1:0] validity_mask_b_rows;
  input [`MASK_WIDTH-1:0] validity_mask_b_cols;
 
 //7:0 is okay here. We aren't going to make a matmul larger than 128x128
@@ -257,7 +259,8 @@ systolic_data_setup u_systolic_data_setup(
 .b7_data_delayed_7(b7_data_delayed_7),
 
 .validity_mask_a_rows(validity_mask_a_rows),
-.validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
+.validity_mask_a_cols(validity_mask_a_cols),
+.validity_mask_b_rows(validity_mask_b_rows),
 .validity_mask_b_cols(validity_mask_b_cols),
 
 .final_mat_mul_size(final_mat_mul_size),
@@ -405,9 +408,7 @@ wire [`DWIDTH-1:0] matrixC7_5;
 wire [`DWIDTH-1:0] matrixC7_6;
 wire [`DWIDTH-1:0] matrixC7_7;
 
-
 wire row_latch_en;
-
 //////////////////////////////////////////////////////////////////////////
 // Instantiation of the output logic
 //////////////////////////////////////////////////////////////////////////
@@ -890,7 +891,8 @@ a7_data_delayed_7,
 b7_data_delayed_7,
 
 validity_mask_a_rows,
-validity_mask_a_cols_b_rows,
+validity_mask_a_cols,
+validity_mask_b_rows,
 validity_mask_b_cols,
 
 final_mat_mul_size,
@@ -929,7 +931,8 @@ output [`DWIDTH-1:0] a7_data_delayed_7;
 output [`DWIDTH-1:0] b7_data_delayed_7;
 
 input [`MASK_WIDTH-1:0] validity_mask_a_rows;
-input [`MASK_WIDTH-1:0] validity_mask_a_cols_b_rows;
+input [`MASK_WIDTH-1:0] validity_mask_a_cols;
+input [`MASK_WIDTH-1:0] validity_mask_b_rows;
 input [`MASK_WIDTH-1:0] validity_mask_b_cols;
 
 input [7:0] final_mat_mul_size;
@@ -998,14 +1001,14 @@ end
 
 wire a_data_valid; //flag that tells whether the data from memory is valid
 assign a_data_valid = 
-     ((validity_mask_a_cols_b_rows[0]==1'b0 && a_mem_access_counter==1) ||
-      (validity_mask_a_cols_b_rows[1]==1'b0 && a_mem_access_counter==2) ||
-      (validity_mask_a_cols_b_rows[2]==1'b0 && a_mem_access_counter==3) ||
-      (validity_mask_a_cols_b_rows[3]==1'b0 && a_mem_access_counter==4) ||
-      (validity_mask_a_cols_b_rows[4]==1'b0 && a_mem_access_counter==5) ||
-      (validity_mask_a_cols_b_rows[5]==1'b0 && a_mem_access_counter==6) ||
-      (validity_mask_a_cols_b_rows[6]==1'b0 && a_mem_access_counter==7) ||
-      (validity_mask_a_cols_b_rows[7]==1'b0 && a_mem_access_counter==8)) ?
+     ((validity_mask_a_cols[0]==1'b0 && a_mem_access_counter==1) ||
+      (validity_mask_a_cols[1]==1'b0 && a_mem_access_counter==2) ||
+      (validity_mask_a_cols[2]==1'b0 && a_mem_access_counter==3) ||
+      (validity_mask_a_cols[3]==1'b0 && a_mem_access_counter==4) ||
+      (validity_mask_a_cols[4]==1'b0 && a_mem_access_counter==5) ||
+      (validity_mask_a_cols[5]==1'b0 && a_mem_access_counter==6) ||
+      (validity_mask_a_cols[6]==1'b0 && a_mem_access_counter==7) ||
+      (validity_mask_a_cols[7]==1'b0 && a_mem_access_counter==8)) ?
     
     1'b0 : (a_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
@@ -1160,14 +1163,14 @@ end
 
 wire b_data_valid; //flag that tells whether the data from memory is valid
 assign b_data_valid = 
-     ((validity_mask_a_cols_b_rows[0]==1'b0 && b_mem_access_counter==1) ||
-      (validity_mask_a_cols_b_rows[1]==1'b0 && b_mem_access_counter==2) ||
-      (validity_mask_a_cols_b_rows[2]==1'b0 && b_mem_access_counter==3) ||
-      (validity_mask_a_cols_b_rows[3]==1'b0 && b_mem_access_counter==4) ||
-      (validity_mask_a_cols_b_rows[4]==1'b0 && b_mem_access_counter==5) ||
-      (validity_mask_a_cols_b_rows[5]==1'b0 && b_mem_access_counter==6) ||
-      (validity_mask_a_cols_b_rows[6]==1'b0 && b_mem_access_counter==7) ||
-      (validity_mask_a_cols_b_rows[7]==1'b0 && b_mem_access_counter==8)) ?
+     ((validity_mask_b_rows[0]==1'b0 && b_mem_access_counter==1) ||
+      (validity_mask_b_rows[1]==1'b0 && b_mem_access_counter==2) ||
+      (validity_mask_b_rows[2]==1'b0 && b_mem_access_counter==3) ||
+      (validity_mask_b_rows[3]==1'b0 && b_mem_access_counter==4) ||
+      (validity_mask_b_rows[4]==1'b0 && b_mem_access_counter==5) ||
+      (validity_mask_b_rows[5]==1'b0 && b_mem_access_counter==6) ||
+      (validity_mask_b_rows[6]==1'b0 && b_mem_access_counter==7) ||
+      (validity_mask_b_rows[7]==1'b0 && b_mem_access_counter==8)) ?
     
         1'b0 : (b_mem_access_counter >= `MEM_ACCESS_LATENCY);
 
@@ -1603,7 +1606,6 @@ input reset;
 input clk;
 output [`DWIDTH-1:0] out;
 
-
 reg [2*`DWIDTH-1:0] out_temp;
 wire [`DWIDTH-1:0] mul_out;
 wire [2*`DWIDTH-1:0] add_out;
@@ -1661,7 +1663,6 @@ assign out =
              {out_temp[2*`DWIDTH-1] , out_temp[`DWIDTH-2:0]} :
              {out_temp[2*`DWIDTH-1] , {(`DWIDTH-1){1'b0}}} //sign bit and then all 0s
         );
-
 
 endmodule
 
