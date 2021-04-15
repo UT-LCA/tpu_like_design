@@ -1,8 +1,0 @@
-digraph {
-Node0x29b0590[label="  %dot.indvar.rhs.122 = phi i64 [ 0, %do..."];
-Node0x29b0590 -> Node0x29b0590[label="D:0.00ns L:0",color=blue];
-Node0x29b0590 -> Node0x29b0590[label="D:0.00ns L:0",color=blue];
-Node0x29b0590 -> Node0x29b0590[label="D:0.00ns L:0",color=blue];
-Node0x29b0670[label="  %scevgep23 = getelementptr [1 x [10 x ..."];
-Node0x29b0670 -> Node0x29b0670[label="D:6.00ns L:0",color=blue];
-}

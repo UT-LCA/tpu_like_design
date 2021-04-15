@@ -1,8 +1,0 @@
-digraph {
-Node0x412d3c0[label="  %0 = phi i64 [ 0, %reduce-window.loop_..."];
-Node0x412d3c0 -> Node0x412d3c0[label="D:0.00ns L:0",color=blue];
-Node0x412d3c0 -> Node0x412d3c0[label="D:0.00ns L:0",color=blue];
-Node0x412d3c0 -> Node0x412d3c0[label="D:0.00ns L:0",color=blue];
-Node0x412d4d0[label="  %1 = mul i64 %0, 3"];
-Node0x412d4d0 -> Node0x412d4d0[label="D:5.89ns L:1",color=blue];
-}

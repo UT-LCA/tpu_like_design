@@ -1,9 +1,0 @@
-digraph {
-Node0x2542dd0[label="  %43 = fadd float %x, 0x46293E594000000..."];
-Node0x2542dd0 -> Node0x2542dd0[label="D:2.16ns L:14",color=blue];
-Node0x2542dd0 -> Node0x2542dd0[label="D:2.16ns L:14",color=blue];
-Node0x2544880[label="  %44 = fsub float %43, %43"];
-Node0x2544880 -> Node0x2544880[label="D:2.07ns L:14",color=blue];
-Node0x2544960[label="  %45 = fsub float %x, %44"];
-Node0x2544960 -> Node0x2544960[label="D:2.07ns L:14",color=blue];
-}

@@ -1,9 +1,0 @@
-Depth = 2;
-Width = 32;
-Address_radix = dec;
-Data_radix = hex;
-Content
-Begin
-0: 3717F7D1;	-- ln2LO32[0] = 9.058001e-06
-1: B717F7D1;	-- ln2LO32[1] = -9.058001e-06
-End;

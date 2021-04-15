@@ -1,6 +1,0 @@
-digraph {
-Node0x2547980[label="  %k.1.off = add i32 %k.1, 1"];
-Node0x2547980 -> Node0x2547980[label="D:1.59ns L:0",color=blue];
-Node0x2547a60[label="  %91 = icmp ugt i32 %k.1.off, 57"];
-Node0x2547a60 -> Node0x2547a60[label="D:1.80ns L:0",color=blue];
-}

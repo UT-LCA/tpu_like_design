@@ -1,6 +1,0 @@
-digraph {
-Node0x29b9730[label="  %95 = add i32 %92, %93"];
-Node0x29b9730 -> Node0x29b9730[label="D:1.59ns L:0",color=blue];
-Node0x29b9810[label="  %96 = bitcast i32 %95 to float"];
-Node0x29b9810 -> Node0x29b9810[label="D:0.00ns L:0",color=blue];
-}

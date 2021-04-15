@@ -1,8 +1,0 @@
-digraph {
-Node0x2683940[label="  %3 = phi i64 [ 0, %convolution.loop_bo..."];
-Node0x2683940 -> Node0x2683940[label="D:0.00ns L:0",color=blue];
-Node0x2683940 -> Node0x2683940[label="D:0.00ns L:0",color=blue];
-Node0x2683940 -> Node0x2683940[label="D:0.00ns L:0",color=blue];
-Node0x2683a20[label="  %scevgep8 = getelementptr [1 x [64 x [..."];
-Node0x2683a20 -> Node0x2683a20[label="D:6.00ns L:0",color=blue];
-}

@@ -1,7 +1,0 @@
-digraph {
-Node0x2682020[label="  %24 = add nuw nsw i64 %convolution.ind..."];
-Node0x2682020 -> Node0x2682020[label="D:2.12ns L:0",color=blue];
-Node0x2682020 -> Node0x2682020[label="D:2.12ns L:0",color=blue];
-Node0x2682100[label="  %exitcond12 = icmp eq i64 %24, 64"];
-Node0x2682100 -> Node0x2682100[label="D:1.73ns L:0",color=blue];
-}

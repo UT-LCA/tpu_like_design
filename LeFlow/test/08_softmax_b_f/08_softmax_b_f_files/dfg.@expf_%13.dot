@@ -1,8 +1,0 @@
-digraph {
-Node0x35b8590[label="  %14 = icmp slt i32 %1, 0"];
-Node0x35b8590 -> Node0x35b8590[label="D:1.82ns L:0",color=blue];
-Node0x35b8670[label="  %15 = icmp ugt i32 %3, 1120924085"];
-Node0x35b8670 -> Node0x35b8670[label="D:1.80ns L:0",color=blue];
-Node0x35b8750[label="  %or.cond = and i1 %14, %15"];
-Node0x35b8750 -> Node0x35b8750[label="D:0.00ns L:0",color=blue];
-}

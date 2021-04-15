@@ -1,9 +1,0 @@
-Depth = 2;
-Width = 32;
-Address_radix = dec;
-Data_radix = hex;
-Content
-Begin
-0: 3F000000;	-- halF33[0] = 5.000000e-01
-1: BF000000;	-- halF33[1] = -5.000000e-01
-End;

@@ -1,4 +1,0 @@
-digraph {
-Node0x281e640[label="  %leflow_retval = load volatile float* ..."];
-Node0x281e640 -> Node0x281e640[label="D:0.00ns L:2",color=blue];
-}

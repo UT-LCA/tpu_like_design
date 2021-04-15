@@ -1,4 +1,0 @@
-digraph {
-Node0x35bd000[label="  %.0 = phi float [ %6, %5 ], [ %63, %59..."];
-Node0x35bd000 -> Node0x35bd000[label="D:0.00ns L:0",color=blue];
-}

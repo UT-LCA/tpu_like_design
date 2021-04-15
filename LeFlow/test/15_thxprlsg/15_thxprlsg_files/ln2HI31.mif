@@ -1,9 +1,0 @@
-Depth = 2;
-Width = 32;
-Address_radix = dec;
-Data_radix = hex;
-Content
-Begin
-0: 3F317180;	-- ln2HI31[0] = 6.931381e-01
-1: BF317180;	-- ln2HI31[1] = -6.931381e-01
-End;

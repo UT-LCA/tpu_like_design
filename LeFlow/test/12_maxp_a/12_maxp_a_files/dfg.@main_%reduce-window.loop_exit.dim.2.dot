@@ -1,7 +1,0 @@
-digraph {
-Node0x41300c0[label="  %invar.inc1 = add nuw nsw i64 %0, 1"];
-Node0x41300c0 -> Node0x41300c0[label="D:2.12ns L:0",color=blue];
-Node0x41300c0 -> Node0x41300c0[label="D:2.12ns L:0",color=blue];
-Node0x41301a0[label="  %exitcond6 = icmp eq i64 %invar.inc1, ..."];
-Node0x41301a0 -> Node0x41301a0[label="D:1.73ns L:0",color=blue];
-}

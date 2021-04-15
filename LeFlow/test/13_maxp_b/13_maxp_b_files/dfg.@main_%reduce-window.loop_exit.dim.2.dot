@@ -1,7 +1,0 @@
-digraph {
-Node0x2f31130[label="  %14 = add nuw nsw i64 %reduce-window.i..."];
-Node0x2f31130 -> Node0x2f31130[label="D:2.12ns L:0",color=blue];
-Node0x2f31130 -> Node0x2f31130[label="D:2.12ns L:0",color=blue];
-Node0x2f31210[label="  %exitcond6 = icmp eq i64 %14, 10"];
-Node0x2f31210 -> Node0x2f31210[label="D:1.73ns L:0",color=blue];
-}

@@ -1,7 +1,0 @@
-digraph {
-Node0x25cfb40[label="  %storemerge1 = phi float [ %32, %27 ],..."];
-Node0x25cfb40 -> Node0x25cfb40[label="D:0.00ns L:0",color=blue];
-Node0x25cfb40 -> Node0x25cfb40[label="D:0.00ns L:0",color=blue];
-Node0x25cfc20[label="  %34 = icmp sgt i32 %1, -1"];
-Node0x25cfc20 -> Node0x25cfc20[label="D:1.81ns L:0",color=blue];
-}

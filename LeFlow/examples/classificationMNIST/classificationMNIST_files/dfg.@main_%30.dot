@@ -1,6 +1,0 @@
-digraph {
-Node0x29b4ba0[label="  %31 = icmp eq i32 %23, 0"];
-Node0x29b4ba0 -> Node0x29b4ba0[label="D:1.44ns L:0",color=blue];
-Node0x29b4c80[label="  %. = select i1 %31, float %21, float 0..."];
-Node0x29b4c80 -> Node0x29b4c80[label="D:2.39ns L:0",color=blue];
-}
