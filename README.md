@@ -121,3 +121,6 @@ The design can however support native support in all conditions (including when 
 * The pooling block isn't completely functional. It just pools within a set of outputs coming out the matmul unit, but those values are not the correct values that we want to pool from.
 
 Work is in progress to improve these things.
+
+## Link to project report
+This was a project done for the "Hardware Architectures for Machine Learning" class at UT Austin. The report can be found here: https://sites.google.com/view/amankbm/research (search for TPU)
