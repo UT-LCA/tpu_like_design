@@ -116,7 +116,7 @@ Non native support just refers to no explicit support in the design to perform c
 The design can however support native support in all conditions (including when stride > 1) if implemented slightly differently. This approach involves changing the address_mat_a and address_stride_a (and address_mat_b and address_stride_b) every clock cycle. Look at the conv* design in the matmul/ directory. It uses this approach. Note that the conv design was not functionally verified (the intent was to have it strucurally have all components of a convolution design). Modifying the convolution support in the matmul design to use an approach like the conv* design in matmul/ directory requires changing the logic that generates address_mat_a/b and address_stride_a/b values from inside the matmul using the variuos convolution parameters.
 
 
-## Known limitations/bugs/issues
+# Known limitations/bugs/issues
 * The matrix multiplication unit is not input stationary; it is output stationary instead
 * The pooling block isn't completely functional. It just pools within a set of outputs coming out the matmul unit, but those values are not the correct values that we want to pool from.
 * I think the precision game isn't correct either. The accumulation is done in the same precision as the operands.
@@ -124,5 +124,5 @@ The design can however support native support in all conditions (including when 
 
 Work is in progress to improve these things.
 
-## Link to project report
+# Link to project report
 This was a project done for the "Hardware Architectures for Machine Learning" class at UT Austin. The report can be found here: https://sites.google.com/view/amankbm/research (search for TPU)
