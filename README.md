@@ -119,7 +119,7 @@ The design can however support native support in all conditions (including when 
 ## Known limitations/bugs/issues
 * The matrix multiplication unit is not input stationary; it is output stationary instead
 * The pooling block isn't completely functional. It just pools within a set of outputs coming out the matmul unit, but those values are not the correct values that we want to pool from.
-
+* I think the precision game isn't correct either. The accumulation is done in the same precision as the operands.
 Work is in progress to improve these things.
 
 ## Link to project report
