@@ -1,0 +1,76 @@
+all: compile run
+
+size?=8
+
+ifeq ($(size),8)
+	FILES=../design_organized/matmul8x8_ws.v
+	DEFINES=+define+MATMUL_SIZE_8 +define+MORE_TESTS +define+DESIGN_SIZE_8
+	TEST_FILES=../verif_organized/layer_test.v 
+	TEST_FILES+=../verif_organized/accum_test.v 
+	TEST_FILES+=../verif_organized/npo2_test.v 
+endif
+
+ifeq ($(size),16)
+	FILES=../design_organized/16x16.organized.no_conv.no_accum.gen.v
+	DEFINES=+define+MATMUL_SIZE_16 +define+DESIGN_SIZE_16
+	TEST_FILES=../verif_organized/layer_test.v 
+endif
+
+ifeq ($(size),32)
+	FILES=../design_organized/32x32.organized.no_conv.no_accum.gen.v
+	DEFINES=+define+MATMUL_SIZE_32 +define+DESIGN_SIZE_32
+	TEST_FILES=../verif_organized/layer_test.v 
+endif
+
+compile:
+	iverilog -g2012 -o \
+	../verif_organized/design_$(size)x$(size).vvp \
+	../design_organized/defines.v \
+	$(FILES) \
+	../design_organized/cfg.v \
+	../design_organized/norm.v \
+	../design_organized/ram.v \
+	../design_organized/control.v \
+	../design_organized/accumulator$(size)x$(size).v \
+	../design_organized/pooling$(size)x$(size).v \
+	../design_organized/activation.v \
+	../design_organized/top.v \
+	$(TEST_FILES) \
+	../verif_organized/top_tb.v
+
+
+run:
+	vvp design_$(size)x$(size).vvp +layer_test +pool_disabled +activation_disabled 
+
+run_norm_disabled:
+	vvp design_$(size)x$(size).vvp +layer_test +norm_disabled
+
+run_pool_disabled:
+	vvp design_$(size)x$(size).vvp +layer_test +pool_disabled
+
+run_activation_disabled:
+	vvp design_$(size)x$(size).vvp +layer_test +activation_disabled
+
+run_accumulator:
+	vvp design_$(size)x$(size).vvp +accum_test +norm_disabled +pool_disabled +activation_disabled
+
+run_npo2:
+	vvp design_$(size)x$(size).vvp +npo2_test +norm_disabled +pool_disabled +activation_disabled
+
+run_conv_no_pad:
+	vvp design_$(size)x$(size).vvp +conv_test_no_padding +norm_disabled +pool_disabled +activation_disabled
+
+run_conv_pad:
+	vvp design_$(size)x$(size).vvp +conv_test_with_padding +norm_disabled +pool_disabled +activation_disabled
+
+waves:
+	vvp vcdplus.vvp
+
+clean:
+	\rm -rf csrc DVEfiles simv.daidir simv ucli.key vcdplus.vpd *.syn *.pvl *.mr *.svf command.log
+
+#Paths when not using LRC machines
+#export VCS_HOME /home/tools/vcs/mx-2017.12-SP1-1
+#-y /home/tools/synopsys/syn_2017.09/dw/sim_ver \
+#-v /home/tools/synopsys/syn_2017.09/dw/sim_ver \
+

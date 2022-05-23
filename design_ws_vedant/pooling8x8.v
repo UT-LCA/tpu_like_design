@@ -1,0 +1,394 @@
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_pool.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
+
+`timescale 1ns/1ns
+`define DWIDTH 8
+`define AWIDTH 11
+`define MEM_SIZE 2048
+
+`define MAT_MUL_SIZE 8
+`define MASK_WIDTH 8
+`define LOG2_MAT_MUL_SIZE 3
+
+`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
+`define NUM_CYCLES_IN_MAC 3
+`define MEM_ACCESS_LATENCY 1
+`define REG_DATAWIDTH 32
+`define REG_ADDRWIDTH 8
+`define ADDR_STRIDE_WIDTH 8
+`define MAX_BITS_POOL 3
+`define VCS
+
+module pooling(
+    clk,
+    resetn,
+    start_pooling,
+    pool_select,
+    rdata_accum0_pool,
+    rdata_accum1_pool,
+    rdata_accum2_pool,
+    rdata_accum3_pool,
+    rdata_accum4_pool,
+    rdata_accum5_pool,
+    rdata_accum6_pool,
+    rdata_accum7_pool,
+    raddr_accum0_pool,
+    raddr_accum1_pool,
+    raddr_accum2_pool,
+    raddr_accum3_pool,
+    raddr_accum4_pool,
+    raddr_accum5_pool,
+    raddr_accum6_pool,
+    raddr_accum7_pool,
+    matrix_size,
+    filter_size
+);
+
+input clk;
+input resetn;
+input start_pooling;
+input pool_select;
+input [`DWIDTH-1:0] rdata_accum0_pool;
+input [`DWIDTH-1:0] rdata_accum1_pool;
+input [`DWIDTH-1:0] rdata_accum2_pool;
+input [`DWIDTH-1:0] rdata_accum3_pool;
+input [`DWIDTH-1:0] rdata_accum4_pool;
+input [`DWIDTH-1:0] rdata_accum5_pool;
+input [`DWIDTH-1:0] rdata_accum6_pool;
+input [`DWIDTH-1:0] rdata_accum7_pool;
+output [`AWIDTH-1:0] raddr_accum0_pool;
+output [`AWIDTH-1:0] raddr_accum1_pool;
+output [`AWIDTH-1:0] raddr_accum2_pool;
+output [`AWIDTH-1:0] raddr_accum3_pool;
+output [`AWIDTH-1:0] raddr_accum4_pool;
+output [`AWIDTH-1:0] raddr_accum5_pool;
+output [`AWIDTH-1:0] raddr_accum6_pool;
+output [`AWIDTH-1:0] raddr_accum7_pool;
+input [`DWIDTH-1:0] matrix_size;
+input [`DWIDTH-1:0] filter_size;
+
+reg [`AWIDTH-1:0] raddr_accum1_pool;
+reg [`AWIDTH-1:0] raddr_accum2_pool;
+reg [`AWIDTH-1:0] raddr_accum3_pool;
+reg [`AWIDTH-1:0] raddr_accum4_pool;
+reg [`AWIDTH-1:0] raddr_accum5_pool;
+reg [`AWIDTH-1:0] raddr_accum6_pool;
+reg [`AWIDTH-1:0] raddr_accum7_pool;
+
+wire [`DWIDTH-1:0] pool0;
+wire [`DWIDTH-1:0] pool1;
+wire [`DWIDTH-1:0] pool2;
+wire [`DWIDTH-1:0] pool3;
+wire [`DWIDTH-1:0] pool4;
+wire [`DWIDTH-1:0] pool5;
+wire [`DWIDTH-1:0] pool6;
+wire [`DWIDTH-1:0] pool7;
+
+reg [7:0] pool_count0;
+reg [7:0] pool_count1;
+reg [7:0] pool_count2;
+reg [7:0] pool_count3;
+reg [7:0] pool_count4;
+reg [7:0] pool_count5;
+reg [7:0] pool_count6;
+reg [7:0] pool_count7;
+reg [7:0] pool_count8;
+
+always @ (posedge clk) begin
+    if (~resetn|~start_pooling) begin
+        pool_count0 <= 0;
+    end
+    else if (pool_count0 == (filter_size*filter_size)) begin
+        pool_count0 <= 1;
+    end
+    else if (start_pooling) begin
+        pool_count0 <= pool_count0 + 1;
+    end      
+end
+
+always @ (posedge clk) begin
+    pool_count1 <= pool_count0;
+    pool_count2 <= pool_count1;
+    pool_count3 <= pool_count2;
+    pool_count4 <= pool_count3;
+    pool_count5 <= pool_count4;
+    pool_count6 <= pool_count5;
+    pool_count7 <= pool_count6;
+    pool_count8 <= pool_count7;
+end
+
+wire [`DWIDTH-1:0] cmp0;
+wire [`DWIDTH-1:0] cmp1;
+wire [`DWIDTH-1:0] cmp2;
+wire [`DWIDTH-1:0] cmp3;
+wire [`DWIDTH-1:0] cmp4;
+wire [`DWIDTH-1:0] cmp5;
+wire [`DWIDTH-1:0] cmp6;
+wire [`DWIDTH-1:0] cmp7;
+
+reg [`DWIDTH-1:0] compare0;
+reg [`DWIDTH-1:0] compare1;
+reg [`DWIDTH-1:0] compare2;
+reg [`DWIDTH-1:0] compare3;
+reg [`DWIDTH-1:0] compare4;
+reg [`DWIDTH-1:0] compare5;
+reg [`DWIDTH-1:0] compare6;
+reg [`DWIDTH-1:0] compare7;
+
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] avg0;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] avg1;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] avg2;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] avg3;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] avg4;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] avg5;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] avg6;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] avg7;
+
+reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average0;
+reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average1;
+reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average2;
+reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average3;
+reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average4;
+reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average5;
+reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average6;
+reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average7;
+  
+reg [`AWIDTH-1:0] x;
+reg [`AWIDTH-1:0] y;
+reg [`AWIDTH-1:0] k;
+assign raddr_accum0_pool = (~resetn|~start_pooling)? 11'h7ff: ((matrix_size)*y + x + k);
+
+always @(posedge clk) begin
+    if(~resetn|~start_pooling) begin
+        x<=0;
+        y<=0;
+        k<=0;
+    end
+    else if (y == (matrix_size-1) & x==(filter_size-1)) begin
+        k<=k+filter_size;
+        y<=0;
+        x<=0;
+    end
+    else if (x==(filter_size-1)) begin
+        y<=y+1;
+        x<=0;
+    end
+    else if (start_pooling) begin
+        x<=x+1;
+    end
+end
+
+always @ (posedge clk) begin
+    raddr_accum1_pool <= raddr_accum0_pool;
+    raddr_accum2_pool <= raddr_accum1_pool;
+    raddr_accum3_pool <= raddr_accum2_pool;
+    raddr_accum4_pool <= raddr_accum3_pool;
+    raddr_accum5_pool <= raddr_accum4_pool;
+    raddr_accum6_pool <= raddr_accum5_pool;
+    raddr_accum7_pool <= raddr_accum6_pool;
+end
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        compare0 <= 0;
+    end
+    else if (rdata_accum0_pool > cmp0) begin
+        compare0 <= rdata_accum0_pool;
+    end
+    else if (rdata_accum0_pool < cmp0) begin
+        compare0 <= cmp0;
+    end
+end 
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        average0 <= 0;
+    end
+    else begin
+        average0 <= avg0 + rdata_accum0_pool;
+    end
+end
+
+assign cmp0 = (pool_count0 == 1)? 0 : compare0;
+assign avg0 = (pool_count0 == 1)? 0 : average0;
+assign pool0 = (pool_count1 == (filter_size*filter_size))? ((pool_select == 0)? compare0 : average0/(filter_size*filter_size)) : 8'b0;
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        compare1 <= 0;
+    end
+    else if (rdata_accum1_pool > cmp1) begin
+        compare1 <= rdata_accum1_pool;
+    end
+    else if (rdata_accum1_pool < cmp1) begin
+        compare1 <= cmp1;
+    end
+end 
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        average1 <= 0;
+    end
+    else begin
+        average1 <= avg1 + rdata_accum1_pool;
+    end
+end
+
+assign cmp1 = (pool_count1 == 1)? 0 : compare1;
+assign avg1 = (pool_count1 == 1)? 0 : average1;
+assign pool1 = (pool_count2 == (filter_size*filter_size))? ((pool_select == 0)? compare1 : average1/(filter_size*filter_size)) : 8'b0;
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        compare2 <= 0;
+    end
+    else if (rdata_accum2_pool > cmp2) begin
+        compare2 <= rdata_accum2_pool;
+    end
+    else if (rdata_accum2_pool < cmp2) begin
+        compare2 <= cmp2;
+    end
+end 
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        average2 <= 0;
+    end
+    else begin
+        average2 <= avg2 + rdata_accum2_pool;
+    end
+end
+
+assign cmp2 = (pool_count2 == 1)? 0 : compare2;
+assign avg2 = (pool_count2 == 1)? 0 : average2;
+assign pool2 = (pool_count3 == (filter_size*filter_size))? ((pool_select == 0)? compare2 : average2/(filter_size*filter_size)) : 8'b0;
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        compare3 <= 0;
+    end
+    else if (rdata_accum3_pool > cmp3) begin
+        compare3 <= rdata_accum3_pool;
+    end
+    else if (rdata_accum3_pool < cmp3) begin
+        compare3 <= cmp3;
+    end
+end 
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        average3 <= 0;
+    end
+    else begin
+        average3 <= avg3 + rdata_accum3_pool;
+    end
+end
+
+assign cmp3 = (pool_count3 == 1)? 0 : compare3;
+assign avg3 = (pool_count3 == 1)? 0 : average3;
+assign pool3 = (pool_count4 == (filter_size*filter_size))? ((pool_select == 0)? compare3 : average3/(filter_size*filter_size)) : 8'b0;
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        compare4 <= 0;
+    end
+    else if (rdata_accum4_pool > cmp4) begin
+        compare4 <= rdata_accum4_pool;
+    end
+    else if (rdata_accum4_pool < cmp4) begin
+        compare4 <= cmp4;
+    end
+end 
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        average4 <= 0;
+    end
+    else begin
+        average4 <= avg4 + rdata_accum4_pool;
+    end
+end
+
+assign cmp4 = (pool_count4 == 1)? 0 : compare4;
+assign avg4 = (pool_count4 == 1)? 0 : average4;
+assign pool4 = (pool_count5 == (filter_size*filter_size))? ((pool_select == 0)? compare4 : average4/(filter_size*filter_size)) : 8'b0;
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        compare5 <= 0;
+    end
+    else if (rdata_accum5_pool > cmp5) begin
+        compare5 <= rdata_accum5_pool;
+    end
+    else if (rdata_accum5_pool < cmp5) begin
+        compare5 <= cmp5;
+    end
+end 
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        average5 <= 0;
+    end
+    else begin
+        average5 <= avg5 + rdata_accum5_pool;
+    end
+end
+
+assign cmp5 = (pool_count5 == 1)? 0 : compare5;
+assign avg5 = (pool_count5 == 1)? 0 : average5;
+assign pool5 = (pool_count6 == (filter_size*filter_size))? ((pool_select == 0)? compare5 : average5/(filter_size*filter_size)) : 8'b0;
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        compare6 <= 0;
+    end
+    else if (rdata_accum6_pool > cmp6) begin
+        compare6 <= rdata_accum6_pool;
+    end
+    else if (rdata_accum6_pool < cmp6) begin
+        compare6 <= cmp6;
+    end
+end 
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        average6 <= 0;
+    end
+    else begin
+        average6 <= avg6 + rdata_accum6_pool;
+    end
+end
+
+assign cmp6 = (pool_count6 == 1)? 0 : compare6;
+assign avg6 = (pool_count6 == 1)? 0 : average6;
+assign pool6 = (pool_count7 == (filter_size*filter_size))? ((pool_select == 0)? compare6 : average6/(filter_size*filter_size)) : 8'b0;
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        compare7 <= 0;
+    end
+    else if (rdata_accum7_pool > cmp7) begin
+        compare7 <= rdata_accum7_pool;
+    end
+    else if (rdata_accum7_pool < cmp7) begin
+        compare7 <= cmp7;
+    end
+end 
+
+always @ (posedge clk) begin
+    if (~resetn) begin
+        average7 <= 0;
+    end
+    else begin
+        average7 <= avg7 + rdata_accum7_pool;
+    end
+end
+
+assign cmp7 = (pool_count7 == 1)? 0 : compare7;
+assign avg7 = (pool_count7 == 1)? 0 : average7;
+assign pool7 = (pool_count8 == (filter_size*filter_size))? ((pool_select == 0)? compare7 : average7/(filter_size*filter_size)) : 8'b0;
+
+
+endmodule
