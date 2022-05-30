@@ -28,19 +28,19 @@ compile:
 	../design_organized/defines.v \
 	$(FILES) \
 	../design_organized/cfg.v \
-	../design_organized/norm.v \
+	../design_organized/norm$(size)x$(size).v \
 	../design_organized/ram.v \
 	../design_organized/control.v \
 	../design_organized/accumulator$(size)x$(size).v \
 	../design_organized/pooling$(size)x$(size).v \
-	../design_organized/activation.v \
+	../design_organized/activation$(size)x$(size).v \
 	../design_organized/top.v \
 	$(TEST_FILES) \
 	../verif_organized/top_tb.v
 
 
 run:
-	vvp design_$(size)x$(size).vvp +layer_test +pool_disabled +activation_disabled 
+	vvp design_$(size)x$(size).vvp +layer_test 
 
 run_norm_disabled:
 	vvp design_$(size)x$(size).vvp +layer_test +norm_disabled
@@ -51,17 +51,8 @@ run_pool_disabled:
 run_activation_disabled:
 	vvp design_$(size)x$(size).vvp +layer_test +activation_disabled
 
-run_accumulator:
-	vvp design_$(size)x$(size).vvp +accum_test +norm_disabled +pool_disabled +activation_disabled
-
-run_npo2:
-	vvp design_$(size)x$(size).vvp +npo2_test +norm_disabled +pool_disabled +activation_disabled
-
-run_conv_no_pad:
-	vvp design_$(size)x$(size).vvp +conv_test_no_padding +norm_disabled +pool_disabled +activation_disabled
-
-run_conv_pad:
-	vvp design_$(size)x$(size).vvp +conv_test_with_padding +norm_disabled +pool_disabled +activation_disabled
+run_norm_activation_disabled:
+	vvp design_$(size)x$(size).vvp +layer_test +norm_disabled +activation_disabled
 
 waves:
 	vvp vcdplus.vvp

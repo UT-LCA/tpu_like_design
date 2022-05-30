@@ -26,6 +26,8 @@ module pooling(
     resetn,
     start_pooling,
     pool_select,
+    pool_norm_valid,
+    enable_pool,
     rdata_accum0_pool,
     rdata_accum1_pool,
     rdata_accum2_pool,
@@ -42,6 +44,14 @@ module pooling(
     raddr_accum5_pool,
     raddr_accum6_pool,
     raddr_accum7_pool,
+    pool0,
+    pool1,
+    pool2,
+    pool3,
+    pool4,
+    pool5,
+    pool6,
+    pool7,
     matrix_size,
     filter_size
 );
@@ -50,6 +60,16 @@ input clk;
 input resetn;
 input start_pooling;
 input pool_select;
+input enable_pool;
+output pool_norm_valid;
+output [`DWIDTH-1:0] pool0;
+output [`DWIDTH-1:0] pool1;
+output [`DWIDTH-1:0] pool2;
+output [`DWIDTH-1:0] pool3;
+output [`DWIDTH-1:0] pool4;
+output [`DWIDTH-1:0] pool5;
+output [`DWIDTH-1:0] pool6;
+output [`DWIDTH-1:0] pool7;
 input [`DWIDTH-1:0] rdata_accum0_pool;
 input [`DWIDTH-1:0] rdata_accum1_pool;
 input [`DWIDTH-1:0] rdata_accum2_pool;
@@ -77,15 +97,6 @@ reg [`AWIDTH-1:0] raddr_accum5_pool;
 reg [`AWIDTH-1:0] raddr_accum6_pool;
 reg [`AWIDTH-1:0] raddr_accum7_pool;
 
-wire [`DWIDTH-1:0] pool0;
-wire [`DWIDTH-1:0] pool1;
-wire [`DWIDTH-1:0] pool2;
-wire [`DWIDTH-1:0] pool3;
-wire [`DWIDTH-1:0] pool4;
-wire [`DWIDTH-1:0] pool5;
-wire [`DWIDTH-1:0] pool6;
-wire [`DWIDTH-1:0] pool7;
-
 reg [7:0] pool_count0;
 reg [7:0] pool_count1;
 reg [7:0] pool_count2;
@@ -96,11 +107,16 @@ reg [7:0] pool_count6;
 reg [7:0] pool_count7;
 reg [7:0] pool_count8;
 
+wire [`DWIDTH-1:0] filter_size_int;
+assign filter_size_int = (enable_pool)? filter_size : 8'b1;
+wire [`DWIDTH-1:0] matrix_size_int;
+assign matrix_size_int = (enable_pool)? matrix_size : 8'b1;
+
 always @ (posedge clk) begin
     if (~resetn|~start_pooling) begin
         pool_count0 <= 0;
     end
-    else if (pool_count0 == (filter_size*filter_size)) begin
+    else if (pool_count0 == (filter_size_int*filter_size_int)) begin
         pool_count0 <= 1;
     end
     else if (start_pooling) begin
@@ -154,11 +170,13 @@ reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average4;
 reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average5;
 reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average6;
 reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average7;
-  
+
+assign pool_norm_valid = (pool_count1 == (filter_size_int*filter_size_int))?1'b1:1'b0;
+
 reg [`AWIDTH-1:0] x;
 reg [`AWIDTH-1:0] y;
 reg [`AWIDTH-1:0] k;
-assign raddr_accum0_pool = (~resetn|~start_pooling)? 11'h7ff: ((matrix_size)*y + x + k);
+assign raddr_accum0_pool = (~resetn|~start_pooling)? 11'h7ff: ((matrix_size_int)*y + x + k);
 
 always @(posedge clk) begin
     if(~resetn|~start_pooling) begin
@@ -166,12 +184,12 @@ always @(posedge clk) begin
         y<=0;
         k<=0;
     end
-    else if (y == (matrix_size-1) & x==(filter_size-1)) begin
-        k<=k+filter_size;
+    else if (y == (matrix_size_int-1) & x==(filter_size_int-1)) begin
+        k<=k+filter_size_int;
         y<=0;
         x<=0;
     end
-    else if (x==(filter_size-1)) begin
+    else if (x==(filter_size_int-1)) begin
         y<=y+1;
         x<=0;
     end
@@ -213,7 +231,7 @@ end
 
 assign cmp0 = (pool_count0 == 1)? 0 : compare0;
 assign avg0 = (pool_count0 == 1)? 0 : average0;
-assign pool0 = (pool_count1 == (filter_size*filter_size))? ((pool_select == 0)? compare0 : average0/(filter_size*filter_size)) : 8'b0;
+assign pool0 = (pool_count1 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare0 : average0/(filter_size_int*filter_size_int)) : 8'b0;
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -238,7 +256,7 @@ end
 
 assign cmp1 = (pool_count1 == 1)? 0 : compare1;
 assign avg1 = (pool_count1 == 1)? 0 : average1;
-assign pool1 = (pool_count2 == (filter_size*filter_size))? ((pool_select == 0)? compare1 : average1/(filter_size*filter_size)) : 8'b0;
+assign pool1 = (pool_count2 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare1 : average1/(filter_size_int*filter_size_int)) : 8'b0;
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -263,7 +281,7 @@ end
 
 assign cmp2 = (pool_count2 == 1)? 0 : compare2;
 assign avg2 = (pool_count2 == 1)? 0 : average2;
-assign pool2 = (pool_count3 == (filter_size*filter_size))? ((pool_select == 0)? compare2 : average2/(filter_size*filter_size)) : 8'b0;
+assign pool2 = (pool_count3 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare2 : average2/(filter_size_int*filter_size_int)) : 8'b0;
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -288,7 +306,7 @@ end
 
 assign cmp3 = (pool_count3 == 1)? 0 : compare3;
 assign avg3 = (pool_count3 == 1)? 0 : average3;
-assign pool3 = (pool_count4 == (filter_size*filter_size))? ((pool_select == 0)? compare3 : average3/(filter_size*filter_size)) : 8'b0;
+assign pool3 = (pool_count4 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare3 : average3/(filter_size_int*filter_size_int)) : 8'b0;
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -313,7 +331,7 @@ end
 
 assign cmp4 = (pool_count4 == 1)? 0 : compare4;
 assign avg4 = (pool_count4 == 1)? 0 : average4;
-assign pool4 = (pool_count5 == (filter_size*filter_size))? ((pool_select == 0)? compare4 : average4/(filter_size*filter_size)) : 8'b0;
+assign pool4 = (pool_count5 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare4 : average4/(filter_size_int*filter_size_int)) : 8'b0;
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -338,7 +356,7 @@ end
 
 assign cmp5 = (pool_count5 == 1)? 0 : compare5;
 assign avg5 = (pool_count5 == 1)? 0 : average5;
-assign pool5 = (pool_count6 == (filter_size*filter_size))? ((pool_select == 0)? compare5 : average5/(filter_size*filter_size)) : 8'b0;
+assign pool5 = (pool_count6 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare5 : average5/(filter_size_int*filter_size_int)) : 8'b0;
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -363,7 +381,7 @@ end
 
 assign cmp6 = (pool_count6 == 1)? 0 : compare6;
 assign avg6 = (pool_count6 == 1)? 0 : average6;
-assign pool6 = (pool_count7 == (filter_size*filter_size))? ((pool_select == 0)? compare6 : average6/(filter_size*filter_size)) : 8'b0;
+assign pool6 = (pool_count7 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare6 : average6/(filter_size_int*filter_size_int)) : 8'b0;
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -388,7 +406,7 @@ end
 
 assign cmp7 = (pool_count7 == 1)? 0 : compare7;
 assign avg7 = (pool_count7 == 1)? 0 : average7;
-assign pool7 = (pool_count8 == (filter_size*filter_size))? ((pool_select == 0)? compare7 : average7/(filter_size*filter_size)) : 8'b0;
+assign pool7 = (pool_count8 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare7 : average7/(filter_size_int*filter_size_int)) : 8'b0;
 
 
 endmodule

@@ -56,7 +56,6 @@ wire pool_select;
 wire [`DWIDTH-1:0] k_dimension;
 wire accum_select;
 wire [`DESIGN_SIZE*`DWIDTH-1:0] matmul_c_data_out;
-wire [`DESIGN_SIZE*`DWIDTH-1:0] norm_data_out;
 wire [`DESIGN_SIZE*`DWIDTH-1:0] pool_data_out;
 wire [`DESIGN_SIZE*`DWIDTH-1:0] activation_data_out;
 wire matmul_c_data_available;
@@ -97,6 +96,7 @@ wire [31:0] batch_size;
 wire enable_conv_mode;
 wire pe_reset;
 wire start_pool;
+wire pool_norm_valid;
 
 `ifdef DESIGN_SIZE_32
 wire [`DWIDTH-1:0] matrixC310;
@@ -462,7 +462,8 @@ accumulator u_accum (
   .resetn(resetn),
   .k_dimension(k_dimension), // Dimension of A = m x k, Dimension of B = k x n
   .buffer_select(accum_select),
-  .start_pooling(start_pool),
+  .start_pooling(start_pool),  
+  .done_pooling(done_pool),
   .wdata_available(matmul_c_data_available),
   `ifdef DESIGN_SIZE_8
   .start_waddr_accum0(start_waddr_accum0),
@@ -500,6 +501,33 @@ accumulator u_accum (
   `endif
 );
 
+wire [`DWIDTH-1:0] pool0;
+wire [`DWIDTH-1:0] pool1;
+wire [`DWIDTH-1:0] pool2;
+wire [`DWIDTH-1:0] pool3;
+wire [`DWIDTH-1:0] pool4;
+wire [`DWIDTH-1:0] pool5;
+wire [`DWIDTH-1:0] pool6;
+wire [`DWIDTH-1:0] pool7;
+
+wire [`DWIDTH-1:0] norm_data_out0;
+wire [`DWIDTH-1:0] norm_data_out1;
+wire [`DWIDTH-1:0] norm_data_out2;
+wire [`DWIDTH-1:0] norm_data_out3;
+wire [`DWIDTH-1:0] norm_data_out4;
+wire [`DWIDTH-1:0] norm_data_out5;
+wire [`DWIDTH-1:0] norm_data_out6;
+wire [`DWIDTH-1:0] norm_data_out7;
+
+wire [`DWIDTH-1:0] act_data_out0;
+wire [`DWIDTH-1:0] act_data_out1;
+wire [`DWIDTH-1:0] act_data_out2;
+wire [`DWIDTH-1:0] act_data_out3;
+wire [`DWIDTH-1:0] act_data_out4;
+wire [`DWIDTH-1:0] act_data_out5;
+wire [`DWIDTH-1:0] act_data_out6;
+wire [`DWIDTH-1:0] act_data_out7;
+
 ////////////////////////////////////////////////////////////////
 // Pooling module
 ////////////////////////////////////////////////////////////////
@@ -508,8 +536,10 @@ pooling u_pooling (
   .resetn(resetn),
   .matrix_size(matrix_size),
   .filter_size(filter_size),
+  .enable_pool(enable_pool),
   .pool_select(pool_select),
   .start_pooling(start_pool),
+  .pool_norm_valid(pool_norm_valid),
   `ifdef DESIGN_SIZE_8
   .raddr_accum0_pool(raddr_accum0_pool),
   .raddr_accum1_pool(raddr_accum1_pool),
@@ -526,7 +556,15 @@ pooling u_pooling (
   .rdata_accum4_pool(rdata_accum4_pool),
   .rdata_accum5_pool(rdata_accum5_pool),
   .rdata_accum6_pool(rdata_accum6_pool),
-  .rdata_accum7_pool(rdata_accum7_pool)
+  .rdata_accum7_pool(rdata_accum7_pool),
+  .pool0(pool0),
+  .pool1(pool1),
+  .pool2(pool2),
+  .pool3(pool3),
+  .pool4(pool4),
+  .pool5(pool5),
+  .pool6(pool6),
+  .pool7(pool7)  
   `endif
 );
 
@@ -536,11 +574,26 @@ pooling u_pooling (
 ////////////////////////////////////////////////////////////////
 norm u_norm(
   .enable_norm(enable_norm),
+  .enable_pool(enable_pool),
   .mean(mean),
   .inv_var(inv_var),
-  .in_data_available(matmul_c_data_available),
-  .inp_data(matmul_c_data_out),
-  .out_data(norm_data_out),
+  .in_data_available(pool_norm_valid),
+  .inp_data0(pool0),
+  .inp_data1(pool1),
+  .inp_data2(pool2),
+  .inp_data3(pool3),
+  .inp_data4(pool4),
+  .inp_data5(pool5),
+  .inp_data6(pool6),
+  .inp_data7(pool7),
+  .out_data0(norm_data_out0),
+  .out_data1(norm_data_out1),
+  .out_data2(norm_data_out2),
+  .out_data3(norm_data_out3),
+  .out_data4(norm_data_out4),
+  .out_data5(norm_data_out5),
+  .out_data6(norm_data_out6),
+  .out_data7(norm_data_out7),
   .out_data_available(norm_out_data_available),
   .validity_mask(validity_mask_a_rows),
   .done_norm(done_norm),
@@ -554,9 +607,24 @@ norm u_norm(
 activation u_activation(
   .activation_type(activation_type),
   .enable_activation(enable_activation),
-  .in_data_available(pool_out_data_available),
-  .inp_data(pool_data_out),
-  .out_data(activation_data_out),
+  .enable_pool(enable_pool),
+  .in_data_available(norm_out_data_available),
+  .inp_data0(norm_data_out0),
+  .inp_data1(norm_data_out1),
+  .inp_data2(norm_data_out2),
+  .inp_data3(norm_data_out3),
+  .inp_data4(norm_data_out4),
+  .inp_data5(norm_data_out5),
+  .inp_data6(norm_data_out6),
+  .inp_data7(norm_data_out7),
+  .out_data0(act_data_out0),
+  .out_data1(act_data_out1),
+  .out_data2(act_data_out2),
+  .out_data3(act_data_out3),
+  .out_data4(act_data_out4),
+  .out_data5(act_data_out5),
+  .out_data6(act_data_out6),
+  .out_data7(act_data_out7),
   .out_data_available(activation_out_data_available),
   .validity_mask(validity_mask_a_rows),
   .done_activation(done_activation),

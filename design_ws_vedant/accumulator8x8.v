@@ -75,7 +75,8 @@ module accumulator (
     wdata_available,
     k_dimension,
     buffer_select,
-    start_pooling
+    start_pooling,
+    done_pooling
 );
 
 input clk;
@@ -132,6 +133,7 @@ input wdata_available;
 input [7:0] k_dimension; // Number of columns in Matrix A | Number of rows in Matrix B (Assumption: Maximum = 256, can be changed accordingly)
 input buffer_select;
 output start_pooling;
+output done_pooling;
   
 
 parameter MWIDTH = 1;
@@ -221,10 +223,15 @@ always @ (posedge clk) begin
 end
 
 reg start_pooling;
+reg done_pooling;
 reg [7:0] start_pooling_count;
 always @ (posedge clk) begin
-    if (~resetn | start_pooling_count > 8'd14)
+    if (~resetn)
         start_pooling <= 0;
+    else if (start_pooling_count > 8'd14) begin
+    	start_pooling <= 0;
+    	done_pooling <= 1;
+    end
     else if (waddr_accum2 != 0 & wdata_available2 == 0)
         start_pooling <= 1;
 end
@@ -414,15 +421,15 @@ buffer_select_accum6 <= buffer_select_accum5;
 buffer_select_accum7 <= buffer_select_accum6;
 end
 
-//assign raddr_buffer0 = (buffer_select_accum)? raddr_accum0: (buffer_select_pool)? raddr_accum0_pool : 11'bx;
+
 assign raddr_buffer0 = (buffer_select_pool)? raddr_accum0_pool : (buffer_select_accum)? raddr_accum0:11'bx;
-assign raddr_buffer1 = (buffer_select_accum1)? raddr_accum1: (buffer_select_pool1)? raddr_accum1_pool : 11'bx;
-assign raddr_buffer2 = (buffer_select_accum2)? raddr_accum2: (buffer_select_pool2)? raddr_accum2_pool : 11'bx;
-assign raddr_buffer3 = (buffer_select_accum3)? raddr_accum3: (buffer_select_pool3)? raddr_accum3_pool : 11'bx;
-assign raddr_buffer4 = (buffer_select_accum4)? raddr_accum4: (buffer_select_pool4)? raddr_accum4_pool : 11'bx;
-assign raddr_buffer5 = (buffer_select_accum5)? raddr_accum5: (buffer_select_pool5)? raddr_accum5_pool : 11'bx;
-assign raddr_buffer6 = (buffer_select_accum6)? raddr_accum6: (buffer_select_pool6)? raddr_accum6_pool : 11'bx;
-assign raddr_buffer7 = (buffer_select_accum7)? raddr_accum7: (buffer_select_pool7)? raddr_accum7_pool : 11'bx;
+assign raddr_buffer1 = (buffer_select_pool1)? raddr_accum1_pool : (buffer_select_accum1)? raddr_accum1:11'bx;
+assign raddr_buffer2 = (buffer_select_pool2)? raddr_accum2_pool : (buffer_select_accum2)? raddr_accum2:11'bx;
+assign raddr_buffer3 = (buffer_select_pool3)? raddr_accum3_pool : (buffer_select_accum3)? raddr_accum3:11'bx;
+assign raddr_buffer4 = (buffer_select_pool4)? raddr_accum4_pool : (buffer_select_accum4)? raddr_accum4:11'bx;
+assign raddr_buffer5 = (buffer_select_pool5)? raddr_accum5_pool : (buffer_select_accum5)? raddr_accum5:11'bx;
+assign raddr_buffer6 = (buffer_select_pool6)? raddr_accum6_pool : (buffer_select_accum6)? raddr_accum6:11'bx;
+assign raddr_buffer7 = (buffer_select_pool7)? raddr_accum7_pool : (buffer_select_accum7)? raddr_accum7:11'bx;
   
 assign rdata_accum0_pool =  (buffer_select_pool)? rdata_buffer0 : 8'b0;
 assign rdata_accum1_pool =  (buffer_select_pool1)? rdata_buffer1 : 8'b0;
