@@ -1,3 +1,26 @@
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_activation.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
+
+`timescale 1ns/1ns
+`define DWIDTH 8
+`define AWIDTH 11
+`define MEM_SIZE 2048
+
+`define MAT_MUL_SIZE 16
+`define MASK_WIDTH 16
+`define LOG2_MAT_MUL_SIZE 4
+
+`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
+`define NUM_CYCLES_IN_MAC 3
+`define MEM_ACCESS_LATENCY 1
+`define REG_DATAWIDTH 32
+`define REG_ADDRWIDTH 8
+`define ADDR_STRIDE_WIDTH 8
+`define MAX_BITS_POOL 3
+`define VCS
+
 module activation(
     input activation_type,
     input enable_activation,
@@ -11,6 +34,14 @@ module activation(
     input [`DWIDTH-1:0] inp_data5,
     input [`DWIDTH-1:0] inp_data6,
     input [`DWIDTH-1:0] inp_data7,
+    input [`DWIDTH-1:0] inp_data8,
+    input [`DWIDTH-1:0] inp_data9,
+    input [`DWIDTH-1:0] inp_data10,
+    input [`DWIDTH-1:0] inp_data11,
+    input [`DWIDTH-1:0] inp_data12,
+    input [`DWIDTH-1:0] inp_data13,
+    input [`DWIDTH-1:0] inp_data14,
+    input [`DWIDTH-1:0] inp_data15,
     output [`DWIDTH-1:0] out_data0,
     output [`DWIDTH-1:0] out_data1,
     output [`DWIDTH-1:0] out_data2,
@@ -19,6 +50,14 @@ module activation(
     output [`DWIDTH-1:0] out_data5,
     output [`DWIDTH-1:0] out_data6,
     output [`DWIDTH-1:0] out_data7,
+    output [`DWIDTH-1:0] out_data8,
+    output [`DWIDTH-1:0] out_data9,
+    output [`DWIDTH-1:0] out_data10,
+    output [`DWIDTH-1:0] out_data11,
+    output [`DWIDTH-1:0] out_data12,
+    output [`DWIDTH-1:0] out_data13,
+    output [`DWIDTH-1:0] out_data14,
+    output [`DWIDTH-1:0] out_data15,
     output out_data_available,
     input [`MASK_WIDTH-1:0] validity_mask,
     output done_activation,
@@ -33,15 +72,31 @@ reg in_data_available4;
 reg in_data_available5;
 reg in_data_available6;
 reg in_data_available7;
+reg in_data_available8;
+reg in_data_available9;
+reg in_data_available10;
+reg in_data_available11;
+reg in_data_available12;
+reg in_data_available13;
+reg in_data_available14;
+reg in_data_available15;
 
 always @(posedge clk) begin
-	in_data_available1 <= in_data_available;
+    in_data_available1 <= in_data_available;
 	in_data_available2 <= in_data_available1;
 	in_data_available3 <= in_data_available2;
 	in_data_available4 <= in_data_available3;
 	in_data_available5 <= in_data_available4;
 	in_data_available6 <= in_data_available5;
-	in_data_available7 <= in_data_available6;	
+	in_data_available7 <= in_data_available6;
+	in_data_available8 <= in_data_available7;
+	in_data_available9 <= in_data_available8;
+	in_data_available10 <= in_data_available9;
+	in_data_available11 <= in_data_available10;
+	in_data_available12 <= in_data_available11;
+	in_data_available13 <= in_data_available12;
+	in_data_available14 <= in_data_available13;
+	in_data_available15 <= in_data_available14;
 end
 
 wire out_data_available_internal;
@@ -67,97 +122,193 @@ always @(posedge clk) begin
 end
 
 sub_activation activation0(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available),
-  .inp_data(inp_data0),
-  .out_data(out_data0),
-  .out_data_available(out_data_available_internal),
-  .validity_mask(validity_mask[0]),
-  .clk(clk),
-  .reset(reset)
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available),
+    .inp_data(inp_data0),
+    .out_data(out_data0),
+    .out_data_available(out_data_available_internal),
+    .validity_mask(validity_mask[0]),
+    .clk(clk),
+    .reset(reset)
 );
 
 sub_activation activation1(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available1),
-  .inp_data(inp_data1),
-  .out_data(out_data1),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[1]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available1),
+    .inp_data(inp_data1),
+    .out_data(out_data1),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[1]),
+    .clk(clk),
+    .reset(reset)
+);    
 
 sub_activation activation2(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available2),
-  .inp_data(inp_data2),
-  .out_data(out_data2),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[2]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available2),
+    .inp_data(inp_data2),
+    .out_data(out_data2),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[2]),
+    .clk(clk),
+    .reset(reset)
+);    
 
 sub_activation activation3(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available3),
-  .inp_data(inp_data3),
-  .out_data(out_data3),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[3]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available3),
+    .inp_data(inp_data3),
+    .out_data(out_data3),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[3]),
+    .clk(clk),
+    .reset(reset)
+);    
 
 sub_activation activation4(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available4),
-  .inp_data(inp_data4),
-  .out_data(out_data4),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[4]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available4),
+    .inp_data(inp_data4),
+    .out_data(out_data4),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[4]),
+    .clk(clk),
+    .reset(reset)
+);    
 
 sub_activation activation5(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available5),
-  .inp_data(inp_data5),
-  .out_data(out_data5),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[5]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available5),
+    .inp_data(inp_data5),
+    .out_data(out_data5),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[5]),
+    .clk(clk),
+    .reset(reset)
+);    
 
 sub_activation activation6(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available6),
-  .inp_data(inp_data6),
-  .out_data(out_data6),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[6]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available6),
+    .inp_data(inp_data6),
+    .out_data(out_data6),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[6]),
+    .clk(clk),
+    .reset(reset)
+);    
 
 sub_activation activation7(
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available7),
+    .inp_data(inp_data7),
+    .out_data(out_data7),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[7]),
+    .clk(clk),
+    .reset(reset)
+);    
+
+sub_activation activation8(
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available8),
+    .inp_data(inp_data8),
+    .out_data(out_data8),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[8]),
+    .clk(clk),
+    .reset(reset)
+);    
+
+sub_activation activation9(
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available9),
+    .inp_data(inp_data9),
+    .out_data(out_data9),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[9]),
+    .clk(clk),
+    .reset(reset)
+);    
+
+sub_activation activation10(
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available10),
+    .inp_data(inp_data10),
+    .out_data(out_data10),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[10]),
+    .clk(clk),
+    .reset(reset)
+);    
+
+sub_activation activation11(
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available11),
+    .inp_data(inp_data11),
+    .out_data(out_data11),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[11]),
+    .clk(clk),
+    .reset(reset)
+);    
+
+sub_activation activation12(
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available12),
+    .inp_data(inp_data12),
+    .out_data(out_data12),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[12]),
+    .clk(clk),
+    .reset(reset)
+);    
+
+sub_activation activation13(
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available13),
+    .inp_data(inp_data13),
+    .out_data(out_data13),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[13]),
+    .clk(clk),
+    .reset(reset)
+);    
+
+sub_activation activation14(
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available14),
+    .inp_data(inp_data14),
+    .out_data(out_data14),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[14]),
+    .clk(clk),
+    .reset(reset)
+);    
+
+sub_activation activation15(
   .activation_type(activation_type),
   .enable_activation(enable_activation),
-  .in_data_available(in_data_available7),
-  .inp_data(inp_data7),
-  .out_data(out_data7),
+  .in_data_available(in_data_available15),
+  .inp_data(inp_data15),
+  .out_data(out_data15),
   .out_data_available(out_data_available_final),
-  .validity_mask(validity_mask[7]),
+  .validity_mask(validity_mask[15]),
   .clk(clk),
   .reset(reset)
 );
@@ -341,4 +492,3 @@ assign dummy = validity_mask;
 
 
 endmodule
-
