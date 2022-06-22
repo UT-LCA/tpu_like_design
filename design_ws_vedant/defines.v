@@ -1,3 +1,5 @@
+`timescale 1ns/1ns
+`define VCS
 `define MATMUL_SIZE_8 
 `define MORE_TESTS
 `define DESIGN_SIZE_8
@@ -5,8 +7,8 @@
 `define layer_test
 
 `define DWIDTH 8
-`define AWIDTH 10
-`define MEM_SIZE 1024
+`define AWIDTH 11
+`define MEM_SIZE 2048
 
 `ifdef MATMUL_SIZE_4
 `define MAT_MUL_SIZE 4
@@ -52,11 +54,12 @@
 `define LOG2_DESIGN_SIZE 5
 `endif
 
+`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
 `define NUM_CYCLES_IN_MAC 3
 `define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
-`define ADDR_STRIDE_WIDTH 16
+`define ADDR_STRIDE_WIDTH 8
 `define MAX_BITS_POOL 3
 
 /////////////////////////////////////////////////

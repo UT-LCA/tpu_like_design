@@ -277,15 +277,18 @@ always @ (posedge clk) begin
         waddr_accum0 <= start_waddr_accum0;
     else if (((addr_counter & (`MAT_MUL_SIZE-1)) == (`MAT_MUL_SIZE-1)) & (waddr_kdim > 1)) begin
         waddr_accum0 <= waddr_accum0 - (`MAT_MUL_SIZE -1);
-        waddr_kdim <= waddr_kdim - 1;
     end
     else if (wdata_available) 
         waddr_accum0 <= waddr_accum0 + 1;
 end
   
 always @ (posedge clk) begin
-    if (~resetn | (((addr_counter & (`MAT_MUL_SIZE-1)) == (`MAT_MUL_SIZE-1)) & (waddr_kdim == 1)))
+    if (~resetn | (((addr_counter & (`MAT_MUL_SIZE-1)) == (`MAT_MUL_SIZE-1)) & (waddr_kdim == 1))) begin
         waddr_kdim <= k_dimension >> `LOG2_MAT_MUL_SIZE;
+    end
+    else if (((addr_counter & (`MAT_MUL_SIZE-1)) == (`MAT_MUL_SIZE-1)) & (waddr_kdim > 1)) begin
+        waddr_kdim <= waddr_kdim - 1;
+    end
 end
   
 always @ (posedge clk) begin

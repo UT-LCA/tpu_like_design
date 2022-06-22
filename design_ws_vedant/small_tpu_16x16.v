@@ -1,3 +1,5 @@
+`timescale 1ns/1ns
+`define VCS
 `define MATMUL_SIZE_16 
 `define MORE_TESTS
 `define DESIGN_SIZE_16
@@ -52,11 +54,12 @@
 `define LOG2_DESIGN_SIZE 5
 `endif
 
+`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
 `define NUM_CYCLES_IN_MAC 3
 `define MEM_ACCESS_LATENCY 1
 `define REG_DATAWIDTH 32
 `define REG_ADDRWIDTH 8
-`define ADDR_STRIDE_WIDTH 16
+`define ADDR_STRIDE_WIDTH 8
 `define MAX_BITS_POOL 3
 
 /////////////////////////////////////////////////
@@ -315,24 +318,6 @@
 // THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_matmul.v.mako
 // DO NOT EDIT
 ////////////////////////////////////////////////////////////////////////////////
-
-`timescale 1ns/1ns
-`define DWIDTH 8
-`define AWIDTH 11
-`define MEM_SIZE 2048
-
-`define MAT_MUL_SIZE 16
-`define MASK_WIDTH 16
-`define LOG2_MAT_MUL_SIZE 4
-
-`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
-`define NUM_CYCLES_IN_MAC 3
-`define MEM_ACCESS_LATENCY 1
-`define REG_DATAWIDTH 32
-`define REG_ADDRWIDTH 8
-`define ADDR_STRIDE_WIDTH 8
-`define MAX_BITS_POOL 3
-`define VCS
 
 module matmul_16x16_systolic(
     clk,

@@ -1,25 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_accum.v.mako
-// DO NOT EDIT
-////////////////////////////////////////////////////////////////////////////////
-
-`timescale 1ns/1ns
-`define DWIDTH 8
-`define AWIDTH 11
-`define MEM_SIZE 2048
-
-`define MAT_MUL_SIZE 32
-`define MASK_WIDTH 32
-`define LOG2_MAT_MUL_SIZE 5
-
-`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
-`define NUM_CYCLES_IN_MAC 3
-`define MEM_ACCESS_LATENCY 1
-`define REG_DATAWIDTH 32
-`define REG_ADDRWIDTH 8
-`define ADDR_STRIDE_WIDTH 8
-`define MAX_BITS_POOL 3
-`define VCS
 
 module accumulator (
     clk,
@@ -781,15 +759,18 @@ always @ (posedge clk) begin
         waddr_accum0 <= start_waddr_accum0;
     else if (((addr_counter & (`MAT_MUL_SIZE-1)) == (`MAT_MUL_SIZE-1)) & (waddr_kdim > 1)) begin
         waddr_accum0 <= waddr_accum0 - (`MAT_MUL_SIZE -1);
-        waddr_kdim <= waddr_kdim - 1;
     end
     else if (wdata_available) 
         waddr_accum0 <= waddr_accum0 + 1;
 end
   
 always @ (posedge clk) begin
-    if (~resetn | (((addr_counter & (`MAT_MUL_SIZE-1)) == (`MAT_MUL_SIZE-1)) & (waddr_kdim == 1)))
+    if (~resetn | (((addr_counter & (`MAT_MUL_SIZE-1)) == (`MAT_MUL_SIZE-1)) & (waddr_kdim == 1))) begin
         waddr_kdim <= k_dimension >> `LOG2_MAT_MUL_SIZE;
+    end
+    else if (((addr_counter & (`MAT_MUL_SIZE-1)) == (`MAT_MUL_SIZE-1)) & (waddr_kdim > 1)) begin
+        waddr_kdim <= waddr_kdim - 1;
+    end
 end
   
 always @ (posedge clk) begin
