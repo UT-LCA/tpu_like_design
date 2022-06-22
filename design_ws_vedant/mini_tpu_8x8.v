@@ -4433,6 +4433,323 @@ wire [`AWIDTH-1:0] raddr_accum4_pool;
 wire [`AWIDTH-1:0] raddr_accum5_pool;
 wire [`AWIDTH-1:0] raddr_accum6_pool;
 wire [`AWIDTH-1:0] raddr_accum7_pool;
+
+wire [`DWIDTH-1:0] rdata_accum0;
+wire [`DWIDTH-1:0] rdata_accum1;
+wire [`DWIDTH-1:0] rdata_accum2;
+wire [`DWIDTH-1:0] rdata_accum3;
+wire [`DWIDTH-1:0] rdata_accum4;
+wire [`DWIDTH-1:0] rdata_accum5;
+wire [`DWIDTH-1:0] rdata_accum6;
+wire [`DWIDTH-1:0] rdata_accum7;
+wire [`AWIDTH-1:0] raddr_accum0_matmul;
+wire [`AWIDTH-1:0] raddr_accum1_matmul;
+wire [`AWIDTH-1:0] raddr_accum2_matmul;
+wire [`AWIDTH-1:0] raddr_accum3_matmul;
+wire [`AWIDTH-1:0] raddr_accum4_matmul;
+wire [`AWIDTH-1:0] raddr_accum5_matmul;
+wire [`AWIDTH-1:0] raddr_accum6_matmul;
+wire [`AWIDTH-1:0] raddr_accum7_matmul;
+`endif
+
+`ifdef DESIGN_SIZE_16
+wire [`AWIDTH-1:0] start_waddr_accum0;
+wire [`AWIDTH-1:0] start_waddr_accum1;
+wire [`AWIDTH-1:0] start_waddr_accum2;
+wire [`AWIDTH-1:0] start_waddr_accum3;
+wire [`AWIDTH-1:0] start_waddr_accum4;
+wire [`AWIDTH-1:0] start_waddr_accum5;
+wire [`AWIDTH-1:0] start_waddr_accum6;
+wire [`AWIDTH-1:0] start_waddr_accum7;
+wire [`AWIDTH-1:0] start_waddr_accum8;
+wire [`AWIDTH-1:0] start_waddr_accum9;
+wire [`AWIDTH-1:0] start_waddr_accum10;
+wire [`AWIDTH-1:0] start_waddr_accum11;
+wire [`AWIDTH-1:0] start_waddr_accum12;
+wire [`AWIDTH-1:0] start_waddr_accum13;
+wire [`AWIDTH-1:0] start_waddr_accum14;
+wire [`AWIDTH-1:0] start_waddr_accum15;
+
+assign start_waddr_accum0 = 11'b0;
+assign start_waddr_accum1 = 11'b0;
+assign start_waddr_accum2 = 11'b0;
+assign start_waddr_accum3 = 11'b0;
+assign start_waddr_accum4 = 11'b0;
+assign start_waddr_accum5 = 11'b0;
+assign start_waddr_accum6 = 11'b0;
+assign start_waddr_accum7 = 11'b0;
+assign start_waddr_accum8 = 11'b0;
+assign start_waddr_accum9 = 11'b0;
+assign start_waddr_accum10 = 11'b0;
+assign start_waddr_accum11 = 11'b0;
+assign start_waddr_accum12 = 11'b0;
+assign start_waddr_accum13 = 11'b0;
+assign start_waddr_accum14 = 11'b0;
+assign start_waddr_accum15 = 11'b0;
+
+wire [`DWIDTH-1:0] rdata_accum0_pool;
+wire [`DWIDTH-1:0] rdata_accum1_pool;
+wire [`DWIDTH-1:0] rdata_accum2_pool;
+wire [`DWIDTH-1:0] rdata_accum3_pool;
+wire [`DWIDTH-1:0] rdata_accum4_pool;
+wire [`DWIDTH-1:0] rdata_accum5_pool;
+wire [`DWIDTH-1:0] rdata_accum6_pool;
+wire [`DWIDTH-1:0] rdata_accum7_pool;
+wire [`DWIDTH-1:0] rdata_accum8_pool;
+wire [`DWIDTH-1:0] rdata_accum9_pool;
+wire [`DWIDTH-1:0] rdata_accum10_pool;
+wire [`DWIDTH-1:0] rdata_accum11_pool;
+wire [`DWIDTH-1:0] rdata_accum12_pool;
+wire [`DWIDTH-1:0] rdata_accum13_pool;
+wire [`DWIDTH-1:0] rdata_accum14_pool;
+wire [`DWIDTH-1:0] rdata_accum15_pool;
+wire [`AWIDTH-1:0] raddr_accum0_pool;
+wire [`AWIDTH-1:0] raddr_accum1_pool;
+wire [`AWIDTH-1:0] raddr_accum2_pool;
+wire [`AWIDTH-1:0] raddr_accum3_pool;
+wire [`AWIDTH-1:0] raddr_accum4_pool;
+wire [`AWIDTH-1:0] raddr_accum5_pool;
+wire [`AWIDTH-1:0] raddr_accum6_pool;
+wire [`AWIDTH-1:0] raddr_accum7_pool;
+wire [`AWIDTH-1:0] raddr_accum8_pool;
+wire [`AWIDTH-1:0] raddr_accum9_pool;
+wire [`AWIDTH-1:0] raddr_accum10_pool;
+wire [`AWIDTH-1:0] raddr_accum11_pool;
+wire [`AWIDTH-1:0] raddr_accum12_pool;
+wire [`AWIDTH-1:0] raddr_accum13_pool;
+wire [`AWIDTH-1:0] raddr_accum14_pool;
+wire [`AWIDTH-1:0] raddr_accum15_pool;
+
+wire [`DWIDTH-1:0] rdata_accum0;
+wire [`DWIDTH-1:0] rdata_accum1;
+wire [`DWIDTH-1:0] rdata_accum2;
+wire [`DWIDTH-1:0] rdata_accum3;
+wire [`DWIDTH-1:0] rdata_accum4;
+wire [`DWIDTH-1:0] rdata_accum5;
+wire [`DWIDTH-1:0] rdata_accum6;
+wire [`DWIDTH-1:0] rdata_accum7;
+wire [`DWIDTH-1:0] rdata_accum8;
+wire [`DWIDTH-1:0] rdata_accum9;
+wire [`DWIDTH-1:0] rdata_accum10;
+wire [`DWIDTH-1:0] rdata_accum11;
+wire [`DWIDTH-1:0] rdata_accum12;
+wire [`DWIDTH-1:0] rdata_accum13;
+wire [`DWIDTH-1:0] rdata_accum14;
+wire [`DWIDTH-1:0] rdata_accum15;
+wire [`AWIDTH-1:0] raddr_accum0_matmul;
+wire [`AWIDTH-1:0] raddr_accum1_matmul;
+wire [`AWIDTH-1:0] raddr_accum2_matmul;
+wire [`AWIDTH-1:0] raddr_accum3_matmul;
+wire [`AWIDTH-1:0] raddr_accum4_matmul;
+wire [`AWIDTH-1:0] raddr_accum5_matmul;
+wire [`AWIDTH-1:0] raddr_accum6_matmul;
+wire [`AWIDTH-1:0] raddr_accum7_matmul;
+wire [`AWIDTH-1:0] raddr_accum8_matmul;
+wire [`AWIDTH-1:0] raddr_accum9_matmul;
+wire [`AWIDTH-1:0] raddr_accum10_matmul;
+wire [`AWIDTH-1:0] raddr_accum11_matmul;
+wire [`AWIDTH-1:0] raddr_accum12_matmul;
+wire [`AWIDTH-1:0] raddr_accum13_matmul;
+wire [`AWIDTH-1:0] raddr_accum14_matmul;
+wire [`AWIDTH-1:0] raddr_accum15_matmul;
+`endif
+
+`ifdef DESIGN_SIZE_32
+wire [`AWIDTH-1:0] start_waddr_accum0;
+wire [`AWIDTH-1:0] start_waddr_accum1;
+wire [`AWIDTH-1:0] start_waddr_accum2;
+wire [`AWIDTH-1:0] start_waddr_accum3;
+wire [`AWIDTH-1:0] start_waddr_accum4;
+wire [`AWIDTH-1:0] start_waddr_accum5;
+wire [`AWIDTH-1:0] start_waddr_accum6;
+wire [`AWIDTH-1:0] start_waddr_accum7;
+wire [`AWIDTH-1:0] start_waddr_accum8;
+wire [`AWIDTH-1:0] start_waddr_accum9;
+wire [`AWIDTH-1:0] start_waddr_accum10;
+wire [`AWIDTH-1:0] start_waddr_accum11;
+wire [`AWIDTH-1:0] start_waddr_accum12;
+wire [`AWIDTH-1:0] start_waddr_accum13;
+wire [`AWIDTH-1:0] start_waddr_accum14;
+wire [`AWIDTH-1:0] start_waddr_accum15;
+wire [`AWIDTH-1:0] start_waddr_accum16;
+wire [`AWIDTH-1:0] start_waddr_accum17;
+wire [`AWIDTH-1:0] start_waddr_accum18;
+wire [`AWIDTH-1:0] start_waddr_accum19;
+wire [`AWIDTH-1:0] start_waddr_accum20;
+wire [`AWIDTH-1:0] start_waddr_accum21;
+wire [`AWIDTH-1:0] start_waddr_accum22;
+wire [`AWIDTH-1:0] start_waddr_accum23;
+wire [`AWIDTH-1:0] start_waddr_accum24;
+wire [`AWIDTH-1:0] start_waddr_accum25;
+wire [`AWIDTH-1:0] start_waddr_accum26;
+wire [`AWIDTH-1:0] start_waddr_accum27;
+wire [`AWIDTH-1:0] start_waddr_accum28;
+wire [`AWIDTH-1:0] start_waddr_accum29;
+wire [`AWIDTH-1:0] start_waddr_accum30;
+wire [`AWIDTH-1:0] start_waddr_accum31;
+
+assign start_waddr_accum0 = 11'b0;
+assign start_waddr_accum1 = 11'b0;
+assign start_waddr_accum2 = 11'b0;
+assign start_waddr_accum3 = 11'b0;
+assign start_waddr_accum4 = 11'b0;
+assign start_waddr_accum5 = 11'b0;
+assign start_waddr_accum6 = 11'b0;
+assign start_waddr_accum7 = 11'b0;
+assign start_waddr_accum8 = 11'b0;
+assign start_waddr_accum9 = 11'b0;
+assign start_waddr_accum10 = 11'b0;
+assign start_waddr_accum11 = 11'b0;
+assign start_waddr_accum12 = 11'b0;
+assign start_waddr_accum13 = 11'b0;
+assign start_waddr_accum14 = 11'b0;
+assign start_waddr_accum15 = 11'b0;
+assign start_waddr_accum16 = 11'b0;
+assign start_waddr_accum17 = 11'b0;
+assign start_waddr_accum18 = 11'b0;
+assign start_waddr_accum19 = 11'b0;
+assign start_waddr_accum20 = 11'b0;
+assign start_waddr_accum21 = 11'b0;
+assign start_waddr_accum22 = 11'b0;
+assign start_waddr_accum23 = 11'b0;
+assign start_waddr_accum24 = 11'b0;
+assign start_waddr_accum25 = 11'b0;
+assign start_waddr_accum26 = 11'b0;
+assign start_waddr_accum27 = 11'b0;
+assign start_waddr_accum28 = 11'b0;
+assign start_waddr_accum29 = 11'b0;
+assign start_waddr_accum30 = 11'b0;
+assign start_waddr_accum31 = 11'b0;
+
+wire [`DWIDTH-1:0] rdata_accum0_pool;
+wire [`DWIDTH-1:0] rdata_accum1_pool;
+wire [`DWIDTH-1:0] rdata_accum2_pool;
+wire [`DWIDTH-1:0] rdata_accum3_pool;
+wire [`DWIDTH-1:0] rdata_accum4_pool;
+wire [`DWIDTH-1:0] rdata_accum5_pool;
+wire [`DWIDTH-1:0] rdata_accum6_pool;
+wire [`DWIDTH-1:0] rdata_accum7_pool;
+wire [`DWIDTH-1:0] rdata_accum8_pool;
+wire [`DWIDTH-1:0] rdata_accum9_pool;
+wire [`DWIDTH-1:0] rdata_accum10_pool;
+wire [`DWIDTH-1:0] rdata_accum11_pool;
+wire [`DWIDTH-1:0] rdata_accum12_pool;
+wire [`DWIDTH-1:0] rdata_accum13_pool;
+wire [`DWIDTH-1:0] rdata_accum14_pool;
+wire [`DWIDTH-1:0] rdata_accum15_pool;
+wire [`DWIDTH-1:0] rdata_accum16_pool;
+wire [`DWIDTH-1:0] rdata_accum17_pool;
+wire [`DWIDTH-1:0] rdata_accum18_pool;
+wire [`DWIDTH-1:0] rdata_accum19_pool;
+wire [`DWIDTH-1:0] rdata_accum20_pool;
+wire [`DWIDTH-1:0] rdata_accum21_pool;
+wire [`DWIDTH-1:0] rdata_accum22_pool;
+wire [`DWIDTH-1:0] rdata_accum23_pool;
+wire [`DWIDTH-1:0] rdata_accum24_pool;
+wire [`DWIDTH-1:0] rdata_accum25_pool;
+wire [`DWIDTH-1:0] rdata_accum26_pool;
+wire [`DWIDTH-1:0] rdata_accum27_pool;
+wire [`DWIDTH-1:0] rdata_accum28_pool;
+wire [`DWIDTH-1:0] rdata_accum29_pool;
+wire [`DWIDTH-1:0] rdata_accum30_pool;
+wire [`DWIDTH-1:0] rdata_accum31_pool;
+wire [`AWIDTH-1:0] raddr_accum0_pool;
+wire [`AWIDTH-1:0] raddr_accum1_pool;
+wire [`AWIDTH-1:0] raddr_accum2_pool;
+wire [`AWIDTH-1:0] raddr_accum3_pool;
+wire [`AWIDTH-1:0] raddr_accum4_pool;
+wire [`AWIDTH-1:0] raddr_accum5_pool;
+wire [`AWIDTH-1:0] raddr_accum6_pool;
+wire [`AWIDTH-1:0] raddr_accum7_pool;
+wire [`AWIDTH-1:0] raddr_accum8_pool;
+wire [`AWIDTH-1:0] raddr_accum9_pool;
+wire [`AWIDTH-1:0] raddr_accum10_pool;
+wire [`AWIDTH-1:0] raddr_accum11_pool;
+wire [`AWIDTH-1:0] raddr_accum12_pool;
+wire [`AWIDTH-1:0] raddr_accum13_pool;
+wire [`AWIDTH-1:0] raddr_accum14_pool;
+wire [`AWIDTH-1:0] raddr_accum15_pool;
+wire [`AWIDTH-1:0] raddr_accum16_pool;
+wire [`AWIDTH-1:0] raddr_accum17_pool;
+wire [`AWIDTH-1:0] raddr_accum18_pool;
+wire [`AWIDTH-1:0] raddr_accum19_pool;
+wire [`AWIDTH-1:0] raddr_accum20_pool;
+wire [`AWIDTH-1:0] raddr_accum21_pool;
+wire [`AWIDTH-1:0] raddr_accum22_pool;
+wire [`AWIDTH-1:0] raddr_accum23_pool;
+wire [`AWIDTH-1:0] raddr_accum24_pool;
+wire [`AWIDTH-1:0] raddr_accum25_pool;
+wire [`AWIDTH-1:0] raddr_accum26_pool;
+wire [`AWIDTH-1:0] raddr_accum27_pool;
+wire [`AWIDTH-1:0] raddr_accum28_pool;
+wire [`AWIDTH-1:0] raddr_accum29_pool;
+wire [`AWIDTH-1:0] raddr_accum30_pool;
+wire [`AWIDTH-1:0] raddr_accum31_pool;
+
+wire [`DWIDTH-1:0] rdata_accum0;
+wire [`DWIDTH-1:0] rdata_accum1;
+wire [`DWIDTH-1:0] rdata_accum2;
+wire [`DWIDTH-1:0] rdata_accum3;
+wire [`DWIDTH-1:0] rdata_accum4;
+wire [`DWIDTH-1:0] rdata_accum5;
+wire [`DWIDTH-1:0] rdata_accum6;
+wire [`DWIDTH-1:0] rdata_accum7;
+wire [`DWIDTH-1:0] rdata_accum8;
+wire [`DWIDTH-1:0] rdata_accum9;
+wire [`DWIDTH-1:0] rdata_accum10;
+wire [`DWIDTH-1:0] rdata_accum11;
+wire [`DWIDTH-1:0] rdata_accum12;
+wire [`DWIDTH-1:0] rdata_accum13;
+wire [`DWIDTH-1:0] rdata_accum14;
+wire [`DWIDTH-1:0] rdata_accum15;
+wire [`DWIDTH-1:0] rdata_accum16;
+wire [`DWIDTH-1:0] rdata_accum17;
+wire [`DWIDTH-1:0] rdata_accum18;
+wire [`DWIDTH-1:0] rdata_accum19;
+wire [`DWIDTH-1:0] rdata_accum20;
+wire [`DWIDTH-1:0] rdata_accum21;
+wire [`DWIDTH-1:0] rdata_accum22;
+wire [`DWIDTH-1:0] rdata_accum23;
+wire [`DWIDTH-1:0] rdata_accum24;
+wire [`DWIDTH-1:0] rdata_accum25;
+wire [`DWIDTH-1:0] rdata_accum26;
+wire [`DWIDTH-1:0] rdata_accum27;
+wire [`DWIDTH-1:0] rdata_accum28;
+wire [`DWIDTH-1:0] rdata_accum29;
+wire [`DWIDTH-1:0] rdata_accum30;
+wire [`DWIDTH-1:0] rdata_accum31;
+wire [`AWIDTH-1:0] raddr_accum0_matmul;
+wire [`AWIDTH-1:0] raddr_accum1_matmul;
+wire [`AWIDTH-1:0] raddr_accum2_matmul;
+wire [`AWIDTH-1:0] raddr_accum3_matmul;
+wire [`AWIDTH-1:0] raddr_accum4_matmul;
+wire [`AWIDTH-1:0] raddr_accum5_matmul;
+wire [`AWIDTH-1:0] raddr_accum6_matmul;
+wire [`AWIDTH-1:0] raddr_accum7_matmul;
+wire [`AWIDTH-1:0] raddr_accum8_matmul;
+wire [`AWIDTH-1:0] raddr_accum9_matmul;
+wire [`AWIDTH-1:0] raddr_accum10_matmul;
+wire [`AWIDTH-1:0] raddr_accum11_matmul;
+wire [`AWIDTH-1:0] raddr_accum12_matmul;
+wire [`AWIDTH-1:0] raddr_accum13_matmul;
+wire [`AWIDTH-1:0] raddr_accum14_matmul;
+wire [`AWIDTH-1:0] raddr_accum15_matmul;
+wire [`AWIDTH-1:0] raddr_accum16_matmul;
+wire [`AWIDTH-1:0] raddr_accum17_matmul;
+wire [`AWIDTH-1:0] raddr_accum18_matmul;
+wire [`AWIDTH-1:0] raddr_accum19_matmul;
+wire [`AWIDTH-1:0] raddr_accum20_matmul;
+wire [`AWIDTH-1:0] raddr_accum21_matmul;
+wire [`AWIDTH-1:0] raddr_accum22_matmul;
+wire [`AWIDTH-1:0] raddr_accum23_matmul;
+wire [`AWIDTH-1:0] raddr_accum24_matmul;
+wire [`AWIDTH-1:0] raddr_accum25_matmul;
+wire [`AWIDTH-1:0] raddr_accum26_matmul;
+wire [`AWIDTH-1:0] raddr_accum27_matmul;
+wire [`AWIDTH-1:0] raddr_accum28_matmul;
+wire [`AWIDTH-1:0] raddr_accum29_matmul;
+wire [`AWIDTH-1:0] raddr_accum30_matmul;
+wire [`AWIDTH-1:0] raddr_accum31_matmul;
 `endif
 
 //Connections for bram a (activation/input matrix)
@@ -4713,6 +5030,14 @@ accumulator u_accum (
   .wdata_accum5(matrixC75),
   .wdata_accum6(matrixC76),
   .wdata_accum7(matrixC77),
+  .raddr_accum0_matmul(raddr_accum0_matmul),
+  .raddr_accum1_matmul(raddr_accum1_matmul),
+  .raddr_accum2_matmul(raddr_accum2_matmul),
+  .raddr_accum3_matmul(raddr_accum3_matmul),
+  .raddr_accum4_matmul(raddr_accum4_matmul),
+  .raddr_accum5_matmul(raddr_accum5_matmul),
+  .raddr_accum6_matmul(raddr_accum6_matmul),
+  .raddr_accum7_matmul(raddr_accum7_matmul),
   .raddr_accum0_pool(raddr_accum0_pool),
   .raddr_accum1_pool(raddr_accum1_pool),
   .raddr_accum2_pool(raddr_accum2_pool),
@@ -4721,6 +5046,14 @@ accumulator u_accum (
   .raddr_accum5_pool(raddr_accum5_pool),
   .raddr_accum6_pool(raddr_accum6_pool),
   .raddr_accum7_pool(raddr_accum7_pool),
+  .rdata_accum0(rdata_accum0),
+  .rdata_accum1(rdata_accum1),
+  .rdata_accum2(rdata_accum2),
+  .rdata_accum3(rdata_accum3),
+  .rdata_accum4(rdata_accum4),
+  .rdata_accum5(rdata_accum5),
+  .rdata_accum6(rdata_accum6),
+  .rdata_accum7(rdata_accum7),
   .rdata_accum0_pool(rdata_accum0_pool),
   .rdata_accum1_pool(rdata_accum1_pool),
   .rdata_accum2_pool(rdata_accum2_pool),
@@ -4763,6 +5096,21 @@ accumulator u_accum (
   .wdata_accum13(matrixC1513),
   .wdata_accum14(matrixC1514),
   .wdata_accum15(matrixC1515),
+  .raddr_accum0_matmul(raddr_accum0_matmul),
+  .raddr_accum1_matmul(raddr_accum1_matmul),
+  .raddr_accum2_matmul(raddr_accum2_matmul),
+  .raddr_accum3_matmul(raddr_accum3_matmul),
+  .raddr_accum4_matmul(raddr_accum4_matmul),
+  .raddr_accum5_matmul(raddr_accum5_matmul),
+  .raddr_accum6_matmul(raddr_accum6_matmul),
+  .raddr_accum7_matmul(raddr_accum7_matmul),
+  .raddr_accum9_matmul(raddr_accum9_matmul),
+  .raddr_accum10_matmul(raddr_accum10_matmul),
+  .raddr_accum11_matmul(raddr_accum11_matmul),
+  .raddr_accum12_matmul(raddr_accum12_matmul),
+  .raddr_accum13_matmul(raddr_accum13_matmul),
+  .raddr_accum14_matmul(raddr_accum14_matmul),
+  .raddr_accum15_matmul(raddr_accum15_matmul),
   .raddr_accum0_pool(raddr_accum0_pool),
   .raddr_accum1_pool(raddr_accum1_pool),
   .raddr_accum2_pool(raddr_accum2_pool),
@@ -4779,6 +5127,22 @@ accumulator u_accum (
   .raddr_accum13_pool(raddr_accum13_pool),
   .raddr_accum14_pool(raddr_accum14_pool),
   .raddr_accum15_pool(raddr_accum15_pool),
+  .rdata_accum0(rdata_accum0),
+  .rdata_accum1(rdata_accum1),
+  .rdata_accum2(rdata_accum2),
+  .rdata_accum3(rdata_accum3),
+  .rdata_accum4(rdata_accum4),
+  .rdata_accum5(rdata_accum5),
+  .rdata_accum6(rdata_accum6),
+  .rdata_accum7(rdata_accum7),
+  .rdata_accum8(rdata_accum8),
+  .rdata_accum9(rdata_accum9),
+  .rdata_accum10(rdata_accum10),
+  .rdata_accum11(rdata_accum11),
+  .rdata_accum12(rdata_accum12),
+  .rdata_accum13(rdata_accum13),
+  .rdata_accum14(rdata_accum14),
+  .rdata_accum15(rdata_accum15),
   .rdata_accum0_pool(rdata_accum0_pool),
   .rdata_accum1_pool(rdata_accum1_pool),
   .rdata_accum2_pool(rdata_accum2_pool),
@@ -4794,7 +5158,7 @@ accumulator u_accum (
   .rdata_accum12_pool(rdata_accum12_pool),
   .rdata_accum13_pool(rdata_accum13_pool),
   .rdata_accum14_pool(rdata_accum14_pool),
-  .rdata_accum15_pool(rdata_accum15_pool),
+  .rdata_accum15_pool(rdata_accum15_pool)
   `endif
   `ifdef DESIGN_SIZE_32
   .start_waddr_accum0(start_waddr_accum0),
@@ -4861,6 +5225,38 @@ accumulator u_accum (
   .wdata_accum29(matrixC3129),
   .wdata_accum30(matrixC3130),
   .wdata_accum31(matrixC3131),
+  .raddr_accum0_matmul(raddr_accum0_matmul),
+  .raddr_accum1_matmul(raddr_accum1_matmul),
+  .raddr_accum2_matmul(raddr_accum2_matmul),
+  .raddr_accum3_matmul(raddr_accum3_matmul),
+  .raddr_accum4_matmul(raddr_accum4_matmul),
+  .raddr_accum5_matmul(raddr_accum5_matmul),
+  .raddr_accum6_matmul(raddr_accum6_matmul),
+  .raddr_accum7_matmul(raddr_accum7_matmul),
+  .rdata_accum0_matmul(rdata_accum0_matmul),
+  .raddr_accum9_matmul(raddr_accum9_matmul),
+  .raddr_accum10_matmul(raddr_accum10_matmul),
+  .raddr_accum11_matmul(raddr_accum11_matmul),
+  .raddr_accum12_matmul(raddr_accum12_matmul),
+  .raddr_accum13_matmul(raddr_accum13_matmul),
+  .raddr_accum14_matmul(raddr_accum14_matmul),
+  .raddr_accum15_matmul(raddr_accum15_matmul),
+  .raddr_accum16_matmul(raddr_accum16_matmul),
+  .raddr_accum17_matmul(raddr_accum17_matmul),
+  .raddr_accum18_matmul(raddr_accum18_matmul),
+  .raddr_accum19_matmul(raddr_accum19_matmul),
+  .raddr_accum20_matmul(raddr_accum20_matmul),
+  .raddr_accum21_matmul(raddr_accum21_matmul),
+  .raddr_accum22_matmul(raddr_accum22_matmul),
+  .raddr_accum23_matmul(raddr_accum23_matmul),
+  .raddr_accum24_matmul(raddr_accum24_matmul),
+  .raddr_accum25_matmul(raddr_accum25_matmul),
+  .raddr_accum26_matmul(raddr_accum26_matmul),
+  .raddr_accum27_matmul(raddr_accum27_matmul),
+  .raddr_accum28_matmul(raddr_accum28_matmul),
+  .raddr_accum29_matmul(raddr_accum29_matmul),
+  .raddr_accum30_matmul(raddr_accum30_matmul),
+  .raddr_accum31_matmul(raddr_accum31_matmul),
   .raddr_accum0_pool(raddr_accum0_pool),
   .raddr_accum1_pool(raddr_accum1_pool),
   .raddr_accum2_pool(raddr_accum2_pool),
@@ -4893,6 +5289,38 @@ accumulator u_accum (
   .raddr_accum29_pool(raddr_accum29_pool),
   .raddr_accum30_pool(raddr_accum30_pool),
   .raddr_accum31_pool(raddr_accum31_pool),
+  .rdata_accum0(rdata_accum0),
+  .rdata_accum1(rdata_accum1),
+  .rdata_accum2(rdata_accum2),
+  .rdata_accum3(rdata_accum3),
+  .rdata_accum4(rdata_accum4),
+  .rdata_accum5(rdata_accum5),
+  .rdata_accum6(rdata_accum6),
+  .rdata_accum7(rdata_accum7),
+  .rdata_accum8(rdata_accum8),
+  .rdata_accum9(rdata_accum9),
+  .rdata_accum10(rdata_accum10),
+  .rdata_accum11(rdata_accum11),
+  .rdata_accum12(rdata_accum12),
+  .rdata_accum13(rdata_accum13),
+  .rdata_accum14(rdata_accum14),
+  .rdata_accum15(rdata_accum15),
+  .rdata_accum16(rdata_accum16),
+  .rdata_accum17(rdata_accum17),
+  .rdata_accum18(rdata_accum18),
+  .rdata_accum19(rdata_accum19),
+  .rdata_accum20(rdata_accum20),
+  .rdata_accum21(rdata_accum21),
+  .rdata_accum22(rdata_accum22),
+  .rdata_accum23(rdata_accum23),
+  .rdata_accum24(rdata_accum24),
+  .rdata_accum25(rdata_accum25),
+  .rdata_accum26(rdata_accum26),
+  .rdata_accum27(rdata_accum27),
+  .rdata_accum28(rdata_accum28),
+  .rdata_accum29(rdata_accum29),
+  .rdata_accum30(rdata_accum30),
+  .rdata_accum31(rdata_accum31),
   .rdata_accum0_pool(rdata_accum0_pool),
   .rdata_accum1_pool(rdata_accum1_pool),
   .rdata_accum2_pool(rdata_accum2_pool),
@@ -4924,7 +5352,7 @@ accumulator u_accum (
   .rdata_accum28_pool(rdata_accum28_pool),
   .rdata_accum29_pool(rdata_accum29_pool),
   .rdata_accum30_pool(rdata_accum30_pool),
-  .rdata_accum31_pool(rdata_accum31_pool),
+  .rdata_accum31_pool(rdata_accum31_pool)
   `endif
 );
 
@@ -4936,6 +5364,30 @@ wire [`DWIDTH-1:0] pool4;
 wire [`DWIDTH-1:0] pool5;
 wire [`DWIDTH-1:0] pool6;
 wire [`DWIDTH-1:0] pool7;
+wire [`DWIDTH-1:0] pool8;
+wire [`DWIDTH-1:0] pool9;
+wire [`DWIDTH-1:0] pool10;
+wire [`DWIDTH-1:0] pool11;
+wire [`DWIDTH-1:0] pool12;
+wire [`DWIDTH-1:0] pool13;
+wire [`DWIDTH-1:0] pool14;
+wire [`DWIDTH-1:0] pool15;
+wire [`DWIDTH-1:0] pool16;
+wire [`DWIDTH-1:0] pool17;
+wire [`DWIDTH-1:0] pool18;
+wire [`DWIDTH-1:0] pool19;
+wire [`DWIDTH-1:0] pool20;
+wire [`DWIDTH-1:0] pool21;
+wire [`DWIDTH-1:0] pool22;
+wire [`DWIDTH-1:0] pool23;
+wire [`DWIDTH-1:0] pool24;
+wire [`DWIDTH-1:0] pool25;
+wire [`DWIDTH-1:0] pool26;
+wire [`DWIDTH-1:0] pool27;
+wire [`DWIDTH-1:0] pool28;
+wire [`DWIDTH-1:0] pool29;
+wire [`DWIDTH-1:0] pool30;
+wire [`DWIDTH-1:0] pool31;
 
 wire [`DWIDTH-1:0] norm_data_out0;
 wire [`DWIDTH-1:0] norm_data_out1;
@@ -4945,6 +5397,30 @@ wire [`DWIDTH-1:0] norm_data_out4;
 wire [`DWIDTH-1:0] norm_data_out5;
 wire [`DWIDTH-1:0] norm_data_out6;
 wire [`DWIDTH-1:0] norm_data_out7;
+wire [`DWIDTH-1:0] norm_data_out8;
+wire [`DWIDTH-1:0] norm_data_out9;
+wire [`DWIDTH-1:0] norm_data_out10;
+wire [`DWIDTH-1:0] norm_data_out11;
+wire [`DWIDTH-1:0] norm_data_out12;
+wire [`DWIDTH-1:0] norm_data_out13;
+wire [`DWIDTH-1:0] norm_data_out14;
+wire [`DWIDTH-1:0] norm_data_out15;
+wire [`DWIDTH-1:0] norm_data_out16;
+wire [`DWIDTH-1:0] norm_data_out17;
+wire [`DWIDTH-1:0] norm_data_out18;
+wire [`DWIDTH-1:0] norm_data_out19;
+wire [`DWIDTH-1:0] norm_data_out20;
+wire [`DWIDTH-1:0] norm_data_out21;
+wire [`DWIDTH-1:0] norm_data_out22;
+wire [`DWIDTH-1:0] norm_data_out23;
+wire [`DWIDTH-1:0] norm_data_out24;
+wire [`DWIDTH-1:0] norm_data_out25;
+wire [`DWIDTH-1:0] norm_data_out26;
+wire [`DWIDTH-1:0] norm_data_out27;
+wire [`DWIDTH-1:0] norm_data_out28;
+wire [`DWIDTH-1:0] norm_data_out29;
+wire [`DWIDTH-1:0] norm_data_out30;
+wire [`DWIDTH-1:0] norm_data_out31;
 
 wire [`DWIDTH-1:0] act_data_out0;
 wire [`DWIDTH-1:0] act_data_out1;
@@ -4954,6 +5430,30 @@ wire [`DWIDTH-1:0] act_data_out4;
 wire [`DWIDTH-1:0] act_data_out5;
 wire [`DWIDTH-1:0] act_data_out6;
 wire [`DWIDTH-1:0] act_data_out7;
+wire [`DWIDTH-1:0] act_data_out8;
+wire [`DWIDTH-1:0] act_data_out9;
+wire [`DWIDTH-1:0] act_data_out10;
+wire [`DWIDTH-1:0] act_data_out11;
+wire [`DWIDTH-1:0] act_data_out12;
+wire [`DWIDTH-1:0] act_data_out13;
+wire [`DWIDTH-1:0] act_data_out14;
+wire [`DWIDTH-1:0] act_data_out15;
+wire [`DWIDTH-1:0] act_data_out16;
+wire [`DWIDTH-1:0] act_data_out17;
+wire [`DWIDTH-1:0] act_data_out18;
+wire [`DWIDTH-1:0] act_data_out19;
+wire [`DWIDTH-1:0] act_data_out20;
+wire [`DWIDTH-1:0] act_data_out21;
+wire [`DWIDTH-1:0] act_data_out22;
+wire [`DWIDTH-1:0] act_data_out23;
+wire [`DWIDTH-1:0] act_data_out24;
+wire [`DWIDTH-1:0] act_data_out25;
+wire [`DWIDTH-1:0] act_data_out26;
+wire [`DWIDTH-1:0] act_data_out27;
+wire [`DWIDTH-1:0] act_data_out28;
+wire [`DWIDTH-1:0] act_data_out29;
+wire [`DWIDTH-1:0] act_data_out30;
+wire [`DWIDTH-1:0] act_data_out31;
 
 ////////////////////////////////////////////////////////////////
 // Pooling module
