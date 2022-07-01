@@ -5907,7 +5907,7 @@ reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data7;
 
 always @(posedge clk) begin
     if (reset) begin
-        final_data0 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+        final_data0 <= 0;
     end
     if (activation_out_data_available) begin
         final_data0 <= {act_data_out0[7:0],final_data0[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
@@ -5916,7 +5916,7 @@ end
 
 always @(posedge clk) begin
     if (reset) begin
-        final_data1 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+        final_data1 <= 0;
     end
     if (activation_out_data_available1) begin
         final_data1 <= {act_data_out1[7:0],final_data1[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
@@ -5925,7 +5925,7 @@ end
 
 always @(posedge clk) begin
     if (reset) begin
-        final_data2 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+        final_data2 <= 0;
     end
     if (activation_out_data_available2) begin
         final_data2 <= {act_data_out2[7:0],final_data2[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
@@ -5934,7 +5934,7 @@ end
 
 always @(posedge clk) begin
     if (reset) begin
-        final_data3 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+        final_data3 <= 0;
     end
     if (activation_out_data_available3) begin
         final_data3 <= {act_data_out3[7:0],final_data3[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
@@ -5943,7 +5943,7 @@ end
 
 always @(posedge clk) begin
     if (reset) begin
-        final_data4 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+        final_data4 <= 0;
     end
     if (activation_out_data_available4) begin
         final_data4 <= {act_data_out4[7:0],final_data4[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
@@ -5952,7 +5952,7 @@ end
 
 always @(posedge clk) begin
     if (reset) begin
-        final_data5 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+        final_data5 <= 0;
     end
     if (activation_out_data_available5) begin
         final_data5 <= {act_data_out5[7:0],final_data5[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
@@ -5961,7 +5961,7 @@ end
 
 always @(posedge clk) begin
     if (reset) begin
-        final_data6 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+        final_data6 <= 0;
     end
     if (activation_out_data_available6) begin
         final_data6 <= {act_data_out6[7:0],final_data6[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
@@ -5970,7 +5970,7 @@ end
 
 always @(posedge clk) begin
     if (reset) begin
-        final_data7 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+        final_data7 <= 0;
     end
     if (activation_out_data_available7) begin
         final_data7 <= {act_data_out7[7:0],final_data7[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
@@ -5990,7 +5990,18 @@ integer i;
       end
     else if (done_activation) begin
         i = i + 1;
-        bram_wdata_a <= final_data[i*`MAT_MUL_SIZE*`DWIDTH +:`MAT_MUL_SIZE*`DWIDTH];
+        case(i)
+        0: begin bram_wdata_a <= final_data0; end
+        1: begin bram_wdata_a <= final_data1; end
+        2: begin bram_wdata_a <= final_data2; end
+        3: begin bram_wdata_a <= final_data3; end
+        4: begin bram_wdata_a <= final_data4; end
+        5: begin bram_wdata_a <= final_data5; end
+        6: begin bram_wdata_a <= final_data6; end
+        7: begin bram_wdata_a <= final_data7; end
+        default : begin bram_wdata_a <= final_data7; end
+        endcase
+        //bram_wdata_a <= final_data[i*`MAT_MUL_SIZE*`DWIDTH +:`MAT_MUL_SIZE*`DWIDTH];
         bram_addr_a_for_writing <= bram_addr_a_for_writing - address_stride_c;
         bram_a_wdata_available <= done_activation;
     end
