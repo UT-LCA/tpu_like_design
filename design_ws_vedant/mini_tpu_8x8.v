@@ -5909,7 +5909,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data0 <= 0;
     end
-    if (activation_out_data_available) begin
+    else if (activation_out_data_available) begin
         final_data0 <= {act_data_out0[7:0],final_data0[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5918,7 +5918,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data1 <= 0;
     end
-    if (activation_out_data_available1) begin
+    else if (activation_out_data_available1) begin
         final_data1 <= {act_data_out1[7:0],final_data1[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5927,7 +5927,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data2 <= 0;
     end
-    if (activation_out_data_available2) begin
+    else if (activation_out_data_available2) begin
         final_data2 <= {act_data_out2[7:0],final_data2[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5936,7 +5936,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data3 <= 0;
     end
-    if (activation_out_data_available3) begin
+    else if (activation_out_data_available3) begin
         final_data3 <= {act_data_out3[7:0],final_data3[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5945,7 +5945,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data4 <= 0;
     end
-    if (activation_out_data_available4) begin
+    else if (activation_out_data_available4) begin
         final_data4 <= {act_data_out4[7:0],final_data4[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5954,7 +5954,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data5 <= 0;
     end
-    if (activation_out_data_available5) begin
+    else if (activation_out_data_available5) begin
         final_data5 <= {act_data_out5[7:0],final_data5[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5963,7 +5963,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data6 <= 0;
     end
-    if (activation_out_data_available6) begin
+    else if (activation_out_data_available6) begin
         final_data6 <= {act_data_out6[7:0],final_data6[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5972,7 +5972,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data7 <= 0;
     end
-    if (activation_out_data_available7) begin
+    else if (activation_out_data_available7) begin
         final_data7 <= {act_data_out7[7:0],final_data7[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
