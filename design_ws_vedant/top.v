@@ -1635,45 +1635,130 @@ activation u_activation(
 //Interface to BRAM to write the output.
 //Ideally, we could remove this flop stage. But then we'd
 //have to generate the address for the output BRAM in each
-//block that could potentially write the output.
+//block that could potentially write the output. 
+
+reg activation_out_data_available1;
+reg activation_out_data_available2;
+reg activation_out_data_available3;
+reg activation_out_data_available4;
+reg activation_out_data_available5;
+reg activation_out_data_available6;
+reg activation_out_data_available7;
+
 always @(posedge clk) begin
-  if (reset) begin
-    if (enable_conv_mode) begin
-      bram_wdata_a <= 0;
-      bram_addr_a_for_writing <= address_mat_c - (out_img_height*out_img_width);
-      bram_a_wdata_available <= 0;
+    activation_out_data_available1 <= activation_out_data_available;
+    activation_out_data_available2 <= activation_out_data_available1;
+    activation_out_data_available3 <= activation_out_data_available2;
+    activation_out_data_available4 <= activation_out_data_available3;
+    activation_out_data_available5 <= activation_out_data_available4;
+    activation_out_data_available6 <= activation_out_data_available5;
+    activation_out_data_available7 <= activation_out_data_available6;
+end
+
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data0;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data1;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data2;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data3;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data4;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data5;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data6;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data7;
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data0 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+    end
+    if (activation_out_data_available) begin
+        final_data0 <= {act_data_out0[7:0],final_data0[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data1 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+    end
+    if (activation_out_data_available1) begin
+        final_data1 <= {act_data_out1[7:0],final_data1[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data2 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+    end
+    if (activation_out_data_available2) begin
+        final_data2 <= {act_data_out2[7:0],final_data2[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data3 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+    end
+    if (activation_out_data_available3) begin
+        final_data3 <= {act_data_out3[7:0],final_data3[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data4 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+    end
+    if (activation_out_data_available4) begin
+        final_data4 <= {act_data_out4[7:0],final_data4[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data5 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+    end
+    if (activation_out_data_available5) begin
+        final_data5 <= {act_data_out5[7:0],final_data5[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data6 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+    end
+    if (activation_out_data_available6) begin
+        final_data6 <= {act_data_out6[7:0],final_data6[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data7 <= `MAT_MUL_SIZE*`DWIDTH'b0;
+    end
+    if (activation_out_data_available7) begin
+        final_data7 <= {act_data_out7[7:0],final_data7[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+wire [(`MAT_MUL_SIZE*`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data;
+assign final_data = {final_data7,final_data6,final_data5,final_data4,final_data3,final_data2,final_data1,final_data0};
+
+integer i;
+  always @(posedge clk) begin
+    if (reset) begin
+        i = -1;
+        bram_wdata_a <= 0;
+        bram_addr_a_for_writing <= address_mat_c + address_stride_c;
+        bram_a_wdata_available <= 0;
+      end
+    else if (done_activation) begin
+        i = i + 1;
+        bram_wdata_a <= final_data[i*`MAT_MUL_SIZE*`DWIDTH +:`MAT_MUL_SIZE*`DWIDTH];
+        bram_addr_a_for_writing <= bram_addr_a_for_writing - address_stride_c;
+        bram_a_wdata_available <= done_activation;
     end
     else begin
-      bram_wdata_a <= 0;
-      bram_addr_a_for_writing <= address_mat_c + address_stride_c;
-      bram_a_wdata_available <= 0;
+        bram_wdata_a <= 0;
+        bram_addr_a_for_writing <= address_mat_c + address_stride_c;
+        bram_a_wdata_available <= 0;
     end
   end
-  // else if (activation_out_data_available) begin
-  else if (0) begin
-    if (enable_conv_mode) begin
-      bram_wdata_a <= activation_data_out;
-      bram_addr_a_for_writing <= bram_addr_a_for_writing + (out_img_height*out_img_width);
-      bram_a_wdata_available <= activation_out_data_available;
-    end
-    else begin
-      bram_wdata_a <= activation_data_out;
-      bram_addr_a_for_writing <= bram_addr_a_for_writing - address_stride_c;
-      bram_a_wdata_available <= activation_out_data_available;
-    end
-  end
-  else begin
-    if (enable_conv_mode) begin
-      bram_wdata_a <= 0;
-      bram_addr_a_for_writing <= address_mat_c - (out_img_height*out_img_width);
-      bram_a_wdata_available <= 0;
-    end
-    else begin
-      bram_wdata_a <= 0;
-      bram_addr_a_for_writing <= address_mat_c + address_stride_c;
-      bram_a_wdata_available <= 0;
-    end
-  end
-end  
+ 
 
 endmodule

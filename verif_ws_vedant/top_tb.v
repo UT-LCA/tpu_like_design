@@ -101,12 +101,6 @@ endtask
 ////////////////////////////////////////////
 layer_test u_layer_test();
 
-//For now, for the 16x16, I'm only testing the basic layer test
-`ifdef MORE_TESTS
-accum_test u_accum_test();
-npo2_test u_npo2_test();
-`endif
-
 ////////////////////////////////////////////
 // Main routine. Calls the appropriate task
 ////////////////////////////////////////////
@@ -131,14 +125,6 @@ initial begin
   if ($test$plusargs("layer_test")) begin
     u_layer_test.run();
   end 
-  //For now, for the 16x16, I'm only testing the basic layer test
-  `ifdef MORE_TESTS
-  else if ($test$plusargs("accum_test")) begin
-	  u_accum_test.run();
-  end else if ($test$plusargs("npo2_test")) begin
-	  u_npo2_test.run();
-  end 
- `endif 
  
   $display("Finishing simulation");
   //A little bit of drain time before we finish

@@ -52,16 +52,21 @@ wire out_data_available_NC;
 wire out_data_available_final;
 reg [`DWIDTH-1:0] act_count;
 reg done_activation;
+reg [`DWIDTH-1:0] done_activation_count;
 
 always @(posedge clk) begin
 	if (reset) begin
 		done_activation <= 0;
+      done_activation_count <= 0;
 		act_count <= 0;
 	end
-	if (act_count == 4) begin
+   else if (done_activation_count == `MAT_MUL_SIZE)
+      done_activation <= 0;
+	else if (act_count == 4) begin
 		done_activation <= 1;
+      done_activation_count <= done_activation_count + 1;
 	end
-	if (out_data_available_final == 1) begin
+	else if (out_data_available_final == 1) begin
 		act_count <= act_count + 1;
 	end
 end
@@ -177,7 +182,7 @@ module sub_activation(
 );
 
 reg  out_data_available_internal;
-wire [`DWIDTH-1:0] out_data_internal;
+reg [`DWIDTH-1:0] out_data_internal;
 reg [`DWIDTH-1:0] slope_applied_data_internal;
 reg [`DWIDTH-1:0] intercept_applied_data_internal;
 reg [`DWIDTH-1:0] relu_applied_data_internal;
@@ -253,8 +258,12 @@ always @(posedge clk) begin
    end
 end
 
-assign out_data_internal = (activation_type) ? intercept_applied_data_internal : relu_applied_data_internal;
-
+always @ (posedge clk) begin
+   if (activation_type == 1'b1)
+      out_data_internal <= intercept_applied_data_internal;
+   else
+      out_data_internal <= relu_applied_data_internal;
+end
 //Our equation of tanh is Y=AX+B
 //A is the slope and B is the intercept.
 //We store A in one LUT and B in another.

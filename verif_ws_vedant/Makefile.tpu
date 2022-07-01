@@ -6,8 +6,6 @@ ifeq ($(size),8)
 	FILES=../design_ws_vedant/matmul8x8_ws.v
 	DEFINES=+define+MATMUL_SIZE_8 +define+MORE_TESTS +define+DESIGN_SIZE_8
 	TEST_FILES=../verif_ws_vedant/layer_test.v 
-	TEST_FILES+=../verif_ws_vedant/accum_test.v 
-	TEST_FILES+=../verif_ws_vedant/npo2_test.v 
 endif
 
 ifeq ($(size),16)
@@ -38,9 +36,18 @@ compile:
 	$(TEST_FILES) \
 	../verif_ws_vedant/top_tb.v
 
+compile_one:
+	iverilog -g2012 -o \
+	../verif_ws_vedant/design_$(size)x$(size)_one.vvp \
+	../design_ws_vedant/mini_tpu_8x8.v \
+	$(TEST_FILES) \
+	../verif_ws_vedant/top_tb.v
 
 run:
 	vvp design_$(size)x$(size).vvp +layer_test 
+
+run_one:
+	vvp design_$(size)x$(size)_one.vvp +layer_test 
 
 run_norm_disabled:
 	vvp design_$(size)x$(size).vvp +layer_test +norm_disabled
