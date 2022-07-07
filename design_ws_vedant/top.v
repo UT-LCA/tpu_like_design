@@ -167,25 +167,8 @@ wire [`DWIDTH-1:0] matrixC32;
 wire [`DWIDTH-1:0] matrixC33;
 `endif
 
+wire [`DWIDTH-1:0] start_waddr_accum0;
 `ifdef DESIGN_SIZE_8
-wire [`AWIDTH-1:0] start_waddr_accum0;
-wire [`AWIDTH-1:0] start_waddr_accum1;
-wire [`AWIDTH-1:0] start_waddr_accum2;
-wire [`AWIDTH-1:0] start_waddr_accum3;
-wire [`AWIDTH-1:0] start_waddr_accum4;
-wire [`AWIDTH-1:0] start_waddr_accum5;
-wire [`AWIDTH-1:0] start_waddr_accum6;
-wire [`AWIDTH-1:0] start_waddr_accum7;
-
-assign start_waddr_accum0 = 11'b0;
-assign start_waddr_accum1 = 11'b0;
-assign start_waddr_accum2 = 11'b0;
-assign start_waddr_accum3 = 11'b0;
-assign start_waddr_accum4 = 11'b0;
-assign start_waddr_accum5 = 11'b0;
-assign start_waddr_accum6 = 11'b0;
-assign start_waddr_accum7 = 11'b0;
-
 wire [`DWIDTH-1:0] rdata_accum0_pool;
 wire [`DWIDTH-1:0] rdata_accum1_pool;
 wire [`DWIDTH-1:0] rdata_accum2_pool;
@@ -202,7 +185,6 @@ wire [`AWIDTH-1:0] raddr_accum4_pool;
 wire [`AWIDTH-1:0] raddr_accum5_pool;
 wire [`AWIDTH-1:0] raddr_accum6_pool;
 wire [`AWIDTH-1:0] raddr_accum7_pool;
-
 wire [`DWIDTH-1:0] rdata_accum0;
 wire [`DWIDTH-1:0] rdata_accum1;
 wire [`DWIDTH-1:0] rdata_accum2;
@@ -211,51 +193,9 @@ wire [`DWIDTH-1:0] rdata_accum4;
 wire [`DWIDTH-1:0] rdata_accum5;
 wire [`DWIDTH-1:0] rdata_accum6;
 wire [`DWIDTH-1:0] rdata_accum7;
-wire [`AWIDTH-1:0] raddr_accum0_matmul;
-wire [`AWIDTH-1:0] raddr_accum1_matmul;
-wire [`AWIDTH-1:0] raddr_accum2_matmul;
-wire [`AWIDTH-1:0] raddr_accum3_matmul;
-wire [`AWIDTH-1:0] raddr_accum4_matmul;
-wire [`AWIDTH-1:0] raddr_accum5_matmul;
-wire [`AWIDTH-1:0] raddr_accum6_matmul;
-wire [`AWIDTH-1:0] raddr_accum7_matmul;
 `endif
 
 `ifdef DESIGN_SIZE_16
-wire [`AWIDTH-1:0] start_waddr_accum0;
-wire [`AWIDTH-1:0] start_waddr_accum1;
-wire [`AWIDTH-1:0] start_waddr_accum2;
-wire [`AWIDTH-1:0] start_waddr_accum3;
-wire [`AWIDTH-1:0] start_waddr_accum4;
-wire [`AWIDTH-1:0] start_waddr_accum5;
-wire [`AWIDTH-1:0] start_waddr_accum6;
-wire [`AWIDTH-1:0] start_waddr_accum7;
-wire [`AWIDTH-1:0] start_waddr_accum8;
-wire [`AWIDTH-1:0] start_waddr_accum9;
-wire [`AWIDTH-1:0] start_waddr_accum10;
-wire [`AWIDTH-1:0] start_waddr_accum11;
-wire [`AWIDTH-1:0] start_waddr_accum12;
-wire [`AWIDTH-1:0] start_waddr_accum13;
-wire [`AWIDTH-1:0] start_waddr_accum14;
-wire [`AWIDTH-1:0] start_waddr_accum15;
-
-assign start_waddr_accum0 = 11'b0;
-assign start_waddr_accum1 = 11'b0;
-assign start_waddr_accum2 = 11'b0;
-assign start_waddr_accum3 = 11'b0;
-assign start_waddr_accum4 = 11'b0;
-assign start_waddr_accum5 = 11'b0;
-assign start_waddr_accum6 = 11'b0;
-assign start_waddr_accum7 = 11'b0;
-assign start_waddr_accum8 = 11'b0;
-assign start_waddr_accum9 = 11'b0;
-assign start_waddr_accum10 = 11'b0;
-assign start_waddr_accum11 = 11'b0;
-assign start_waddr_accum12 = 11'b0;
-assign start_waddr_accum13 = 11'b0;
-assign start_waddr_accum14 = 11'b0;
-assign start_waddr_accum15 = 11'b0;
-
 wire [`DWIDTH-1:0] rdata_accum0_pool;
 wire [`DWIDTH-1:0] rdata_accum1_pool;
 wire [`DWIDTH-1:0] rdata_accum2_pool;
@@ -288,7 +228,6 @@ wire [`AWIDTH-1:0] raddr_accum12_pool;
 wire [`AWIDTH-1:0] raddr_accum13_pool;
 wire [`AWIDTH-1:0] raddr_accum14_pool;
 wire [`AWIDTH-1:0] raddr_accum15_pool;
-
 wire [`DWIDTH-1:0] rdata_accum0;
 wire [`DWIDTH-1:0] rdata_accum1;
 wire [`DWIDTH-1:0] rdata_accum2;
@@ -305,91 +244,9 @@ wire [`DWIDTH-1:0] rdata_accum12;
 wire [`DWIDTH-1:0] rdata_accum13;
 wire [`DWIDTH-1:0] rdata_accum14;
 wire [`DWIDTH-1:0] rdata_accum15;
-wire [`AWIDTH-1:0] raddr_accum0_matmul;
-wire [`AWIDTH-1:0] raddr_accum1_matmul;
-wire [`AWIDTH-1:0] raddr_accum2_matmul;
-wire [`AWIDTH-1:0] raddr_accum3_matmul;
-wire [`AWIDTH-1:0] raddr_accum4_matmul;
-wire [`AWIDTH-1:0] raddr_accum5_matmul;
-wire [`AWIDTH-1:0] raddr_accum6_matmul;
-wire [`AWIDTH-1:0] raddr_accum7_matmul;
-wire [`AWIDTH-1:0] raddr_accum8_matmul;
-wire [`AWIDTH-1:0] raddr_accum9_matmul;
-wire [`AWIDTH-1:0] raddr_accum10_matmul;
-wire [`AWIDTH-1:0] raddr_accum11_matmul;
-wire [`AWIDTH-1:0] raddr_accum12_matmul;
-wire [`AWIDTH-1:0] raddr_accum13_matmul;
-wire [`AWIDTH-1:0] raddr_accum14_matmul;
-wire [`AWIDTH-1:0] raddr_accum15_matmul;
 `endif
 
 `ifdef DESIGN_SIZE_32
-wire [`AWIDTH-1:0] start_waddr_accum0;
-wire [`AWIDTH-1:0] start_waddr_accum1;
-wire [`AWIDTH-1:0] start_waddr_accum2;
-wire [`AWIDTH-1:0] start_waddr_accum3;
-wire [`AWIDTH-1:0] start_waddr_accum4;
-wire [`AWIDTH-1:0] start_waddr_accum5;
-wire [`AWIDTH-1:0] start_waddr_accum6;
-wire [`AWIDTH-1:0] start_waddr_accum7;
-wire [`AWIDTH-1:0] start_waddr_accum8;
-wire [`AWIDTH-1:0] start_waddr_accum9;
-wire [`AWIDTH-1:0] start_waddr_accum10;
-wire [`AWIDTH-1:0] start_waddr_accum11;
-wire [`AWIDTH-1:0] start_waddr_accum12;
-wire [`AWIDTH-1:0] start_waddr_accum13;
-wire [`AWIDTH-1:0] start_waddr_accum14;
-wire [`AWIDTH-1:0] start_waddr_accum15;
-wire [`AWIDTH-1:0] start_waddr_accum16;
-wire [`AWIDTH-1:0] start_waddr_accum17;
-wire [`AWIDTH-1:0] start_waddr_accum18;
-wire [`AWIDTH-1:0] start_waddr_accum19;
-wire [`AWIDTH-1:0] start_waddr_accum20;
-wire [`AWIDTH-1:0] start_waddr_accum21;
-wire [`AWIDTH-1:0] start_waddr_accum22;
-wire [`AWIDTH-1:0] start_waddr_accum23;
-wire [`AWIDTH-1:0] start_waddr_accum24;
-wire [`AWIDTH-1:0] start_waddr_accum25;
-wire [`AWIDTH-1:0] start_waddr_accum26;
-wire [`AWIDTH-1:0] start_waddr_accum27;
-wire [`AWIDTH-1:0] start_waddr_accum28;
-wire [`AWIDTH-1:0] start_waddr_accum29;
-wire [`AWIDTH-1:0] start_waddr_accum30;
-wire [`AWIDTH-1:0] start_waddr_accum31;
-
-assign start_waddr_accum0 = 11'b0;
-assign start_waddr_accum1 = 11'b0;
-assign start_waddr_accum2 = 11'b0;
-assign start_waddr_accum3 = 11'b0;
-assign start_waddr_accum4 = 11'b0;
-assign start_waddr_accum5 = 11'b0;
-assign start_waddr_accum6 = 11'b0;
-assign start_waddr_accum7 = 11'b0;
-assign start_waddr_accum8 = 11'b0;
-assign start_waddr_accum9 = 11'b0;
-assign start_waddr_accum10 = 11'b0;
-assign start_waddr_accum11 = 11'b0;
-assign start_waddr_accum12 = 11'b0;
-assign start_waddr_accum13 = 11'b0;
-assign start_waddr_accum14 = 11'b0;
-assign start_waddr_accum15 = 11'b0;
-assign start_waddr_accum16 = 11'b0;
-assign start_waddr_accum17 = 11'b0;
-assign start_waddr_accum18 = 11'b0;
-assign start_waddr_accum19 = 11'b0;
-assign start_waddr_accum20 = 11'b0;
-assign start_waddr_accum21 = 11'b0;
-assign start_waddr_accum22 = 11'b0;
-assign start_waddr_accum23 = 11'b0;
-assign start_waddr_accum24 = 11'b0;
-assign start_waddr_accum25 = 11'b0;
-assign start_waddr_accum26 = 11'b0;
-assign start_waddr_accum27 = 11'b0;
-assign start_waddr_accum28 = 11'b0;
-assign start_waddr_accum29 = 11'b0;
-assign start_waddr_accum30 = 11'b0;
-assign start_waddr_accum31 = 11'b0;
-
 wire [`DWIDTH-1:0] rdata_accum0_pool;
 wire [`DWIDTH-1:0] rdata_accum1_pool;
 wire [`DWIDTH-1:0] rdata_accum2_pool;
@@ -454,7 +311,6 @@ wire [`AWIDTH-1:0] raddr_accum28_pool;
 wire [`AWIDTH-1:0] raddr_accum29_pool;
 wire [`AWIDTH-1:0] raddr_accum30_pool;
 wire [`AWIDTH-1:0] raddr_accum31_pool;
-
 wire [`DWIDTH-1:0] rdata_accum0;
 wire [`DWIDTH-1:0] rdata_accum1;
 wire [`DWIDTH-1:0] rdata_accum2;
@@ -487,38 +343,6 @@ wire [`DWIDTH-1:0] rdata_accum28;
 wire [`DWIDTH-1:0] rdata_accum29;
 wire [`DWIDTH-1:0] rdata_accum30;
 wire [`DWIDTH-1:0] rdata_accum31;
-wire [`AWIDTH-1:0] raddr_accum0_matmul;
-wire [`AWIDTH-1:0] raddr_accum1_matmul;
-wire [`AWIDTH-1:0] raddr_accum2_matmul;
-wire [`AWIDTH-1:0] raddr_accum3_matmul;
-wire [`AWIDTH-1:0] raddr_accum4_matmul;
-wire [`AWIDTH-1:0] raddr_accum5_matmul;
-wire [`AWIDTH-1:0] raddr_accum6_matmul;
-wire [`AWIDTH-1:0] raddr_accum7_matmul;
-wire [`AWIDTH-1:0] raddr_accum8_matmul;
-wire [`AWIDTH-1:0] raddr_accum9_matmul;
-wire [`AWIDTH-1:0] raddr_accum10_matmul;
-wire [`AWIDTH-1:0] raddr_accum11_matmul;
-wire [`AWIDTH-1:0] raddr_accum12_matmul;
-wire [`AWIDTH-1:0] raddr_accum13_matmul;
-wire [`AWIDTH-1:0] raddr_accum14_matmul;
-wire [`AWIDTH-1:0] raddr_accum15_matmul;
-wire [`AWIDTH-1:0] raddr_accum16_matmul;
-wire [`AWIDTH-1:0] raddr_accum17_matmul;
-wire [`AWIDTH-1:0] raddr_accum18_matmul;
-wire [`AWIDTH-1:0] raddr_accum19_matmul;
-wire [`AWIDTH-1:0] raddr_accum20_matmul;
-wire [`AWIDTH-1:0] raddr_accum21_matmul;
-wire [`AWIDTH-1:0] raddr_accum22_matmul;
-wire [`AWIDTH-1:0] raddr_accum23_matmul;
-wire [`AWIDTH-1:0] raddr_accum24_matmul;
-wire [`AWIDTH-1:0] raddr_accum25_matmul;
-wire [`AWIDTH-1:0] raddr_accum26_matmul;
-wire [`AWIDTH-1:0] raddr_accum27_matmul;
-wire [`AWIDTH-1:0] raddr_accum28_matmul;
-wire [`AWIDTH-1:0] raddr_accum29_matmul;
-wire [`AWIDTH-1:0] raddr_accum30_matmul;
-wire [`AWIDTH-1:0] raddr_accum31_matmul;
 `endif
 
 //Connections for bram a (activation/input matrix)
@@ -680,10 +504,8 @@ matmul_4x4_systolic u_matmul(
   .num_matrices_B(num_matrices_B),
   .address_mat_a(address_mat_a),
   .address_mat_b(address_mat_b),
-  .address_mat_c(address_mat_c),
   .address_stride_a(address_stride_a),
   .address_stride_b(address_stride_b),
-  .address_stride_c(address_stride_c),
   .a_data(bram_rdata_a),
   .b_data(bram_rdata_b),
   .a_data_in(a_data_in_NC),
@@ -782,15 +604,8 @@ accumulator u_accum (
   .start_pooling(start_pool),  
   .done_pooling(done_pool),
   .wdata_available(matmul_c_data_available),
-  `ifdef DESIGN_SIZE_8
   .start_waddr_accum0(start_waddr_accum0),
-  .start_waddr_accum1(start_waddr_accum1),
-  .start_waddr_accum2(start_waddr_accum2),
-  .start_waddr_accum3(start_waddr_accum3),
-  .start_waddr_accum4(start_waddr_accum4),
-  .start_waddr_accum5(start_waddr_accum5),
-  .start_waddr_accum6(start_waddr_accum6),
-  .start_waddr_accum7(start_waddr_accum7),
+  `ifdef DESIGN_SIZE_8
   .wdata_accum0(matrixC70),
   .wdata_accum1(matrixC71),
   .wdata_accum2(matrixC72),
@@ -799,14 +614,6 @@ accumulator u_accum (
   .wdata_accum5(matrixC75),
   .wdata_accum6(matrixC76),
   .wdata_accum7(matrixC77),
-  .raddr_accum0_matmul(raddr_accum0_matmul),
-  .raddr_accum1_matmul(raddr_accum1_matmul),
-  .raddr_accum2_matmul(raddr_accum2_matmul),
-  .raddr_accum3_matmul(raddr_accum3_matmul),
-  .raddr_accum4_matmul(raddr_accum4_matmul),
-  .raddr_accum5_matmul(raddr_accum5_matmul),
-  .raddr_accum6_matmul(raddr_accum6_matmul),
-  .raddr_accum7_matmul(raddr_accum7_matmul),
   .raddr_accum0_pool(raddr_accum0_pool),
   .raddr_accum1_pool(raddr_accum1_pool),
   .raddr_accum2_pool(raddr_accum2_pool),
@@ -833,22 +640,6 @@ accumulator u_accum (
   .rdata_accum7_pool(rdata_accum7_pool)
   `endif
   `ifdef DESIGN_SIZE_16
-  .start_waddr_accum0(start_waddr_accum0),
-  .start_waddr_accum1(start_waddr_accum1),
-  .start_waddr_accum2(start_waddr_accum2),
-  .start_waddr_accum3(start_waddr_accum3),
-  .start_waddr_accum4(start_waddr_accum4),
-  .start_waddr_accum5(start_waddr_accum5),
-  .start_waddr_accum6(start_waddr_accum6),
-  .start_waddr_accum7(start_waddr_accum7),
-  .start_waddr_accum8(start_waddr_accum8),
-  .start_waddr_accum9(start_waddr_accum9),
-  .start_waddr_accum10(start_waddr_accum10),
-  .start_waddr_accum11(start_waddr_accum11),
-  .start_waddr_accum12(start_waddr_accum12),
-  .start_waddr_accum13(start_waddr_accum13),
-  .start_waddr_accum14(start_waddr_accum14),
-  .start_waddr_accum15(start_waddr_accum15),
   .wdata_accum0(matrixC150),
   .wdata_accum1(matrixC151),
   .wdata_accum2(matrixC152),
@@ -865,21 +656,6 @@ accumulator u_accum (
   .wdata_accum13(matrixC1513),
   .wdata_accum14(matrixC1514),
   .wdata_accum15(matrixC1515),
-  .raddr_accum0_matmul(raddr_accum0_matmul),
-  .raddr_accum1_matmul(raddr_accum1_matmul),
-  .raddr_accum2_matmul(raddr_accum2_matmul),
-  .raddr_accum3_matmul(raddr_accum3_matmul),
-  .raddr_accum4_matmul(raddr_accum4_matmul),
-  .raddr_accum5_matmul(raddr_accum5_matmul),
-  .raddr_accum6_matmul(raddr_accum6_matmul),
-  .raddr_accum7_matmul(raddr_accum7_matmul),
-  .raddr_accum9_matmul(raddr_accum9_matmul),
-  .raddr_accum10_matmul(raddr_accum10_matmul),
-  .raddr_accum11_matmul(raddr_accum11_matmul),
-  .raddr_accum12_matmul(raddr_accum12_matmul),
-  .raddr_accum13_matmul(raddr_accum13_matmul),
-  .raddr_accum14_matmul(raddr_accum14_matmul),
-  .raddr_accum15_matmul(raddr_accum15_matmul),
   .raddr_accum0_pool(raddr_accum0_pool),
   .raddr_accum1_pool(raddr_accum1_pool),
   .raddr_accum2_pool(raddr_accum2_pool),
@@ -930,38 +706,6 @@ accumulator u_accum (
   .rdata_accum15_pool(rdata_accum15_pool)
   `endif
   `ifdef DESIGN_SIZE_32
-  .start_waddr_accum0(start_waddr_accum0),
-  .start_waddr_accum1(start_waddr_accum1),
-  .start_waddr_accum2(start_waddr_accum2),
-  .start_waddr_accum3(start_waddr_accum3),
-  .start_waddr_accum4(start_waddr_accum4),
-  .start_waddr_accum5(start_waddr_accum5),
-  .start_waddr_accum6(start_waddr_accum6),
-  .start_waddr_accum7(start_waddr_accum7),
-  .start_waddr_accum8(start_waddr_accum8),
-  .start_waddr_accum9(start_waddr_accum9),
-  .start_waddr_accum10(start_waddr_accum10),
-  .start_waddr_accum11(start_waddr_accum11),
-  .start_waddr_accum12(start_waddr_accum12),
-  .start_waddr_accum13(start_waddr_accum13),
-  .start_waddr_accum14(start_waddr_accum14),
-  .start_waddr_accum15(start_waddr_accum15),
-  .start_waddr_accum16(start_waddr_accum16),
-  .start_waddr_accum17(start_waddr_accum17),
-  .start_waddr_accum18(start_waddr_accum18),
-  .start_waddr_accum19(start_waddr_accum19),
-  .start_waddr_accum20(start_waddr_accum20),
-  .start_waddr_accum21(start_waddr_accum21),
-  .start_waddr_accum22(start_waddr_accum22),
-  .start_waddr_accum23(start_waddr_accum23),
-  .start_waddr_accum24(start_waddr_accum24),
-  .start_waddr_accum25(start_waddr_accum25),
-  .start_waddr_accum26(start_waddr_accum26),
-  .start_waddr_accum27(start_waddr_accum27),
-  .start_waddr_accum28(start_waddr_accum28),
-  .start_waddr_accum29(start_waddr_accum29),
-  .start_waddr_accum30(start_waddr_accum30),
-  .start_waddr_accum31(start_waddr_accum31),
   .wdata_accum0(matrixC310),
   .wdata_accum1(matrixC311),
   .wdata_accum2(matrixC312),
@@ -994,38 +738,6 @@ accumulator u_accum (
   .wdata_accum29(matrixC3129),
   .wdata_accum30(matrixC3130),
   .wdata_accum31(matrixC3131),
-  .raddr_accum0_matmul(raddr_accum0_matmul),
-  .raddr_accum1_matmul(raddr_accum1_matmul),
-  .raddr_accum2_matmul(raddr_accum2_matmul),
-  .raddr_accum3_matmul(raddr_accum3_matmul),
-  .raddr_accum4_matmul(raddr_accum4_matmul),
-  .raddr_accum5_matmul(raddr_accum5_matmul),
-  .raddr_accum6_matmul(raddr_accum6_matmul),
-  .raddr_accum7_matmul(raddr_accum7_matmul),
-  .rdata_accum0_matmul(rdata_accum0_matmul),
-  .raddr_accum9_matmul(raddr_accum9_matmul),
-  .raddr_accum10_matmul(raddr_accum10_matmul),
-  .raddr_accum11_matmul(raddr_accum11_matmul),
-  .raddr_accum12_matmul(raddr_accum12_matmul),
-  .raddr_accum13_matmul(raddr_accum13_matmul),
-  .raddr_accum14_matmul(raddr_accum14_matmul),
-  .raddr_accum15_matmul(raddr_accum15_matmul),
-  .raddr_accum16_matmul(raddr_accum16_matmul),
-  .raddr_accum17_matmul(raddr_accum17_matmul),
-  .raddr_accum18_matmul(raddr_accum18_matmul),
-  .raddr_accum19_matmul(raddr_accum19_matmul),
-  .raddr_accum20_matmul(raddr_accum20_matmul),
-  .raddr_accum21_matmul(raddr_accum21_matmul),
-  .raddr_accum22_matmul(raddr_accum22_matmul),
-  .raddr_accum23_matmul(raddr_accum23_matmul),
-  .raddr_accum24_matmul(raddr_accum24_matmul),
-  .raddr_accum25_matmul(raddr_accum25_matmul),
-  .raddr_accum26_matmul(raddr_accum26_matmul),
-  .raddr_accum27_matmul(raddr_accum27_matmul),
-  .raddr_accum28_matmul(raddr_accum28_matmul),
-  .raddr_accum29_matmul(raddr_accum29_matmul),
-  .raddr_accum30_matmul(raddr_accum30_matmul),
-  .raddr_accum31_matmul(raddr_accum31_matmul),
   .raddr_accum0_pool(raddr_accum0_pool),
   .raddr_accum1_pool(raddr_accum1_pool),
   .raddr_accum2_pool(raddr_accum2_pool),
@@ -1370,7 +1082,6 @@ pooling u_pooling (
 ////////////////////////////////////////////////////////////////
 norm u_norm(
   .enable_norm(enable_norm),
-  .enable_pool(enable_pool),
   .mean(mean),
   .inv_var(inv_var),
   .in_data_available(pool_norm_valid),
@@ -1736,20 +1447,28 @@ always @(posedge clk) begin
     end
 end
 
-wire [(`MAT_MUL_SIZE*`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data;
-assign final_data = {final_data7,final_data6,final_data5,final_data4,final_data3,final_data2,final_data1,final_data0};
-
-integer i;
+reg [31:0] i;
   always @(posedge clk) begin
     if (reset) begin
-        i = -1;
+        i <= 0;
         bram_wdata_a <= 0;
         bram_addr_a_for_writing <= address_mat_c + address_stride_c;
         bram_a_wdata_available <= 0;
       end
     else if (done_activation) begin
-        i = i + 1;
-        bram_wdata_a <= final_data[i*`MAT_MUL_SIZE*`DWIDTH +:`MAT_MUL_SIZE*`DWIDTH];
+        i <= i + 1;
+        case(i)
+        0: begin bram_wdata_a <= final_data0; end
+        1: begin bram_wdata_a <= final_data1; end
+        2: begin bram_wdata_a <= final_data2; end
+        3: begin bram_wdata_a <= final_data3; end
+        4: begin bram_wdata_a <= final_data4; end
+        5: begin bram_wdata_a <= final_data5; end
+        6: begin bram_wdata_a <= final_data6; end
+        7: begin bram_wdata_a <= final_data7; end
+        default : begin bram_wdata_a <= final_data7; end
+        endcase
+        //bram_wdata_a <= final_data[i*`MAT_MUL_SIZE*`DWIDTH +:`MAT_MUL_SIZE*`DWIDTH];
         bram_addr_a_for_writing <= bram_addr_a_for_writing - address_stride_c;
         bram_a_wdata_available <= done_activation;
     end

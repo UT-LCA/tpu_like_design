@@ -25,13 +25,6 @@ module accumulator (
     clk,
     resetn,
     start_waddr_accum0,
-    start_waddr_accum1,
-    start_waddr_accum2,
-    start_waddr_accum3,
-    start_waddr_accum4,
-    start_waddr_accum5,
-    start_waddr_accum6,
-    start_waddr_accum7,
     wdata_accum0,
     wdata_accum1,
     wdata_accum2,
@@ -40,14 +33,6 @@ module accumulator (
     wdata_accum5,
     wdata_accum6,
     wdata_accum7,
-    raddr_accum0_matmul,
-    raddr_accum1_matmul,
-    raddr_accum2_matmul,
-    raddr_accum3_matmul,
-    raddr_accum4_matmul,
-    raddr_accum5_matmul,
-    raddr_accum6_matmul,
-    raddr_accum7_matmul,
     raddr_accum0_pool,
     raddr_accum1_pool,
     raddr_accum2_pool,
@@ -82,13 +67,6 @@ module accumulator (
 input clk;
 input resetn;
 input [`AWIDTH-1:0] start_waddr_accum0;
-input [`AWIDTH-1:0] start_waddr_accum1;
-input [`AWIDTH-1:0] start_waddr_accum2;
-input [`AWIDTH-1:0] start_waddr_accum3;
-input [`AWIDTH-1:0] start_waddr_accum4;
-input [`AWIDTH-1:0] start_waddr_accum5;
-input [`AWIDTH-1:0] start_waddr_accum6;
-input [`AWIDTH-1:0] start_waddr_accum7;
 input [`DWIDTH-1:0] wdata_accum0;
 input [`DWIDTH-1:0] wdata_accum1;
 input [`DWIDTH-1:0] wdata_accum2;
@@ -97,14 +75,6 @@ input [`DWIDTH-1:0] wdata_accum4;
 input [`DWIDTH-1:0] wdata_accum5;
 input [`DWIDTH-1:0] wdata_accum6;
 input [`DWIDTH-1:0] wdata_accum7;
-input [`AWIDTH-1:0] raddr_accum0_matmul;
-input [`AWIDTH-1:0] raddr_accum1_matmul;
-input [`AWIDTH-1:0] raddr_accum2_matmul;
-input [`AWIDTH-1:0] raddr_accum3_matmul;
-input [`AWIDTH-1:0] raddr_accum4_matmul;
-input [`AWIDTH-1:0] raddr_accum5_matmul;
-input [`AWIDTH-1:0] raddr_accum6_matmul;
-input [`AWIDTH-1:0] raddr_accum7_matmul;
 input [`AWIDTH-1:0] raddr_accum0_pool;
 input [`AWIDTH-1:0] raddr_accum1_pool;
 input [`AWIDTH-1:0] raddr_accum2_pool;

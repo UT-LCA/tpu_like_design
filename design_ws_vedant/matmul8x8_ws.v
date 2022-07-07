@@ -31,10 +31,8 @@ module matmul_8x8_systolic(
     num_matrices_B,
     address_mat_a,
     address_mat_b,
-    address_mat_c,
     address_stride_a,
     address_stride_b,
-    address_stride_c,
     a_data,
     b_data,
     a_data_in,  // Data values coming in from previous matmul - systolic connections
@@ -71,10 +69,8 @@ input [31:0] num_matrices_A; // Number of 8x8 matrices the input matrix can be d
 input [31:0] num_matrices_B; // Number of 8x8 matrices the weight matrix can be divided into
 input [`AWIDTH-1:0] address_mat_a;
 input [`AWIDTH-1:0] address_mat_b;
-input [`AWIDTH-1:0] address_mat_c;
 input [`ADDR_STRIDE_WIDTH-1:0] address_stride_a;
 input [`ADDR_STRIDE_WIDTH-1:0] address_stride_b;
-input [`ADDR_STRIDE_WIDTH-1:0] address_stride_c;
 input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data;
 input [`MAT_MUL_SIZE*`DWIDTH-1:0] b_data;
 input [`MAT_MUL_SIZE*`DWIDTH-1:0] a_data_in;
@@ -448,7 +444,6 @@ systolic_pe_matrix u_systolic_pe_matrix(
     .reset(reset),
     .clk(clk),
     .pe_reset(pe_reset),
-    .start_mat_mul(start_mat_mul),
     .b_data_sel(b_data_sel),
     .b_data_valid_ping(b_data_valid_ping), 
     .b_data_valid_pong(b_data_valid_pong),
@@ -966,7 +961,6 @@ module systolic_pe_matrix(
     reset,
     clk,
     pe_reset,
-    start_mat_mul,
     b_data_sel,
     a0,    a1,    a2,    a3,    a4,    a5,    a6,    a7,
     b0,    b1,    b2,    b3,    b4,    b5,    b6,    b7,
@@ -1044,7 +1038,6 @@ module systolic_pe_matrix(
 input clk;
 input reset;
 input pe_reset;
-input start_mat_mul;
 input b_data_sel;
 input b_data_valid_ping;
 input b_data_valid_pong;

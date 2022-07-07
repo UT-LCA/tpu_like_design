@@ -1,6 +1,5 @@
 module norm(
     input enable_norm,
-    input enable_pool,
     input [`DWIDTH-1:0] mean,
     input [`DWIDTH-1:0] inv_var,
     input in_data_available,
@@ -194,7 +193,6 @@ reg norm_in_progress;
 assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
 assign out_data = (enable_norm) ? out_data_internal : inp_data;
 
-integer i;
 always @(posedge clk) begin
     if ((reset || ~enable_norm)) begin
         mean_applied_data <= 0;

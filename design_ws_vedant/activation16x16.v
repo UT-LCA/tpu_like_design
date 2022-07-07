@@ -332,8 +332,7 @@ wire [`DWIDTH-1:0] out_data_internal;
 reg [`DWIDTH-1:0] slope_applied_data_internal;
 reg [`DWIDTH-1:0] intercept_applied_data_internal;
 reg [`DWIDTH-1:0] relu_applied_data_internal;
-integer i;
-integer cycle_count;
+reg [31:0] cycle_count;
 reg activation_in_progress;
 
 reg [3:0] address;

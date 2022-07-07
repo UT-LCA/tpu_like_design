@@ -31,7 +31,6 @@ input clk;
 
 `ifdef VCS
 reg [MW*DW-1:0] ram[((1 << AW)-1):0];
-integer i;
   
 wire we0_coalesced;
 assign we0_coalesced = |we0;
