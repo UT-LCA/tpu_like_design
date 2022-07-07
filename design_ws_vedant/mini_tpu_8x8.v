@@ -3903,7 +3903,7 @@ always @(posedge clk) begin
       done_activation_count <= 0;
 		act_count <= 0;
 	end
-   else if (done_activation_count == `MAT_MUL_SIZE)
+    else if (done_activation_count == `MAT_MUL_SIZE)
       done_activation <= 0;
 	else if (act_count == 4) begin
 		done_activation <= 1;
@@ -4366,7 +4366,10 @@ wire [`DWIDTH-1:0] matrixC32;
 wire [`DWIDTH-1:0] matrixC33;
 `endif
 
-wire [`DWIDTH-1:0] start_waddr_accum0;
+wire [`AWIDTH-1:0] start_waddr_accum0;
+
+assign start_waddr_accum0 = 11'b0;
+
 `ifdef DESIGN_SIZE_8
 wire [`DWIDTH-1:0] rdata_accum0_pool;
 wire [`DWIDTH-1:0] rdata_accum1_pool;
@@ -5696,7 +5699,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data0 <= 0;
     end
-    if (activation_out_data_available) begin
+    else if (activation_out_data_available) begin
         final_data0 <= {act_data_out0[7:0],final_data0[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5705,7 +5708,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data1 <= 0;
     end
-    if (activation_out_data_available1) begin
+    else if (activation_out_data_available1) begin
         final_data1 <= {act_data_out1[7:0],final_data1[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5714,7 +5717,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data2 <= 0;
     end
-    if (activation_out_data_available2) begin
+    else if (activation_out_data_available2) begin
         final_data2 <= {act_data_out2[7:0],final_data2[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5723,7 +5726,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data3 <= 0;
     end
-    if (activation_out_data_available3) begin
+    else if (activation_out_data_available3) begin
         final_data3 <= {act_data_out3[7:0],final_data3[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5732,7 +5735,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data4 <= 0;
     end
-    if (activation_out_data_available4) begin
+    else if (activation_out_data_available4) begin
         final_data4 <= {act_data_out4[7:0],final_data4[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5741,7 +5744,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data5 <= 0;
     end
-    if (activation_out_data_available5) begin
+    else if (activation_out_data_available5) begin
         final_data5 <= {act_data_out5[7:0],final_data5[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5750,7 +5753,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data6 <= 0;
     end
-    if (activation_out_data_available6) begin
+    else if (activation_out_data_available6) begin
         final_data6 <= {act_data_out6[7:0],final_data6[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5759,7 +5762,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data7 <= 0;
     end
-    if (activation_out_data_available7) begin
+    else if (activation_out_data_available7) begin
         final_data7 <= {act_data_out7[7:0],final_data7[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5769,7 +5772,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data8 <= 0;
     end
-    if (activation_out_data_available8) begin
+    else if (activation_out_data_available8) begin
         final_data8 <= {act_data_out8[7:0],final_data8[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5778,7 +5781,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data9 <= 0;
     end
-    if (activation_out_data_available9) begin
+    else if (activation_out_data_available9) begin
         final_data9 <= {act_data_out9[7:0],final_data9[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5787,7 +5790,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data10 <= 0;
     end
-    if (activation_out_data_available10) begin
+    else if (activation_out_data_available10) begin
         final_data10 <= {act_data_out10[7:0],final_data10[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5796,7 +5799,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data11 <= 0;
     end
-    if (activation_out_data_available11) begin
+    else if (activation_out_data_available11) begin
         final_data11 <= {act_data_out11[7:0],final_data11[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5805,7 +5808,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data12 <= 0;
     end
-    if (activation_out_data_available12) begin
+    else if (activation_out_data_available12) begin
         final_data12 <= {act_data_out12[7:0],final_data12[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5814,7 +5817,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data13 <= 0;
     end
-    if (activation_out_data_available13) begin
+    else if (activation_out_data_available13) begin
         final_data13 <= {act_data_out13[7:0],final_data13[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5823,7 +5826,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data14 <= 0;
     end
-    if (activation_out_data_available14) begin
+    else if (activation_out_data_available14) begin
         final_data14 <= {act_data_out14[7:0],final_data14[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5832,7 +5835,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data15 <= 0;
     end
-    if (activation_out_data_available15) begin
+    else if (activation_out_data_available15) begin
         final_data15 <= {act_data_out15[7:0],final_data15[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5843,7 +5846,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data8 <= 0;
     end
-    if (activation_out_data_available8) begin
+    else if (activation_out_data_available8) begin
         final_data8 <= {act_data_out8[7:0],final_data8[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5852,7 +5855,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data9 <= 0;
     end
-    if (activation_out_data_available9) begin
+    else if (activation_out_data_available9) begin
         final_data9 <= {act_data_out9[7:0],final_data9[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5861,7 +5864,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data10 <= 0;
     end
-    if (activation_out_data_available10) begin
+    else if (activation_out_data_available10) begin
         final_data10 <= {act_data_out10[7:0],final_data10[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5870,7 +5873,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data11 <= 0;
     end
-    if (activation_out_data_available11) begin
+    else if (activation_out_data_available11) begin
         final_data11 <= {act_data_out11[7:0],final_data11[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5879,7 +5882,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data12 <= 0;
     end
-    if (activation_out_data_available12) begin
+    else if (activation_out_data_available12) begin
         final_data12 <= {act_data_out12[7:0],final_data12[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5888,7 +5891,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data13 <= 0;
     end
-    if (activation_out_data_available13) begin
+    else if (activation_out_data_available13) begin
         final_data13 <= {act_data_out13[7:0],final_data13[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5897,7 +5900,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data14 <= 0;
     end
-    if (activation_out_data_available14) begin
+    else if (activation_out_data_available14) begin
         final_data14 <= {act_data_out14[7:0],final_data14[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5906,7 +5909,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data15 <= 0;
     end
-    if (activation_out_data_available15) begin
+    else if (activation_out_data_available15) begin
         final_data15 <= {act_data_out15[7:0],final_data15[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5915,7 +5918,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data16 <= 0;
     end
-    if (activation_out_data_available16) begin
+    else if (activation_out_data_available16) begin
         final_data16 <= {act_data_out16[7:0],final_data16[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5924,7 +5927,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data17 <= 0;
     end
-    if (activation_out_data_available17) begin
+    else if (activation_out_data_available17) begin
         final_data17 <= {act_data_out17[7:0],final_data17[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5933,7 +5936,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data18 <= 0;
     end
-    if (activation_out_data_available18) begin
+    else if (activation_out_data_available18) begin
         final_data18 <= {act_data_out18[7:0],final_data18[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5942,7 +5945,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data19 <= 0;
     end
-    if (activation_out_data_available19) begin
+    else if (activation_out_data_available19) begin
         final_data19 <= {act_data_out19[7:0],final_data19[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5951,7 +5954,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data20 <= 0;
     end
-    if (activation_out_data_available20) begin
+    else if (activation_out_data_available20) begin
         final_data20 <= {act_data_out20[7:0],final_data20[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5960,7 +5963,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data21 <= 0;
     end
-    if (activation_out_data_available21) begin
+    else if (activation_out_data_available21) begin
         final_data21 <= {act_data_out21[7:0],final_data21[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5969,7 +5972,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data22 <= 0;
     end
-    if (activation_out_data_available22) begin
+    else if (activation_out_data_available22) begin
         final_data22 <= {act_data_out22[7:0],final_data22[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5978,7 +5981,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data23 <= 0;
     end
-    if (activation_out_data_available23) begin
+    else if (activation_out_data_available23) begin
         final_data23 <= {act_data_out23[7:0],final_data23[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5987,7 +5990,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data24 <= 0;
     end
-    if (activation_out_data_available24) begin
+    else if (activation_out_data_available24) begin
         final_data24 <= {act_data_out24[7:0],final_data24[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5996,7 +5999,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data25 <= 0;
     end
-    if (activation_out_data_available25) begin
+    else if (activation_out_data_available25) begin
         final_data25 <= {act_data_out25[7:0],final_data25[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -6005,7 +6008,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data26 <= 0;
     end
-    if (activation_out_data_available26) begin
+    else if (activation_out_data_available26) begin
         final_data26 <= {act_data_out26[7:0],final_data26[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -6014,7 +6017,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data27 <= 0;
     end
-    if (activation_out_data_available27) begin
+    else if (activation_out_data_available27) begin
         final_data27 <= {act_data_out27[7:0],final_data27[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -6023,7 +6026,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data28 <= 0;
     end
-    if (activation_out_data_available28) begin
+    else if (activation_out_data_available28) begin
         final_data28 <= {act_data_out28[7:0],final_data28[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -6032,7 +6035,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data29 <= 0;
     end
-    if (activation_out_data_available29) begin
+    else if (activation_out_data_available29) begin
         final_data29 <= {act_data_out29[7:0],final_data29[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -6041,7 +6044,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data30 <= 0;
     end
-    if (activation_out_data_available30) begin
+    else if (activation_out_data_available30) begin
         final_data30 <= {act_data_out30[7:0],final_data30[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -6050,7 +6053,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data31 <= 0;
     end
-    if (activation_out_data_available31) begin
+    else if (activation_out_data_available31) begin
         final_data31 <= {act_data_out31[7:0],final_data31[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
