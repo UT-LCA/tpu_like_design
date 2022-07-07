@@ -4197,7 +4197,6 @@ endmodule
 //////////////////////////////////
 // Top Module
 //////////////////////////////////
-
 module top(
     input  clk,
     input  clk_mem,
@@ -4367,9 +4366,7 @@ wire [`DWIDTH-1:0] matrixC32;
 wire [`DWIDTH-1:0] matrixC33;
 `endif
 
-wire [`AWIDTH-1:0] start_waddr_accum0;
-assign start_waddr_accum0 = 11'b0;
-
+wire [`DWIDTH-1:0] start_waddr_accum0;
 `ifdef DESIGN_SIZE_8
 wire [`DWIDTH-1:0] rdata_accum0_pool;
 wire [`DWIDTH-1:0] rdata_accum1_pool;
@@ -5558,6 +5555,44 @@ reg activation_out_data_available5;
 reg activation_out_data_available6;
 reg activation_out_data_available7;
 
+`ifdef DESIGN_SIZE_16
+reg activation_out_data_available8;
+reg activation_out_data_available9;
+reg activation_out_data_available10;
+reg activation_out_data_available11;
+reg activation_out_data_available12;
+reg activation_out_data_available13;
+reg activation_out_data_available14;
+reg activation_out_data_available15;
+`endif
+
+`ifdef DESIGN_SIZE_32
+reg activation_out_data_available8;
+reg activation_out_data_available9;
+reg activation_out_data_available10;
+reg activation_out_data_available11;
+reg activation_out_data_available12;
+reg activation_out_data_available13;
+reg activation_out_data_available14;
+reg activation_out_data_available15;
+reg activation_out_data_available16;
+reg activation_out_data_available17;
+reg activation_out_data_available18;
+reg activation_out_data_available19;
+reg activation_out_data_available20;
+reg activation_out_data_available21;
+reg activation_out_data_available22;
+reg activation_out_data_available23;
+reg activation_out_data_available24;
+reg activation_out_data_available25;
+reg activation_out_data_available26;
+reg activation_out_data_available27;
+reg activation_out_data_available28;
+reg activation_out_data_available29;
+reg activation_out_data_available30;
+reg activation_out_data_available31;
+`endif
+
 always @(posedge clk) begin
     activation_out_data_available1 <= activation_out_data_available;
     activation_out_data_available2 <= activation_out_data_available1;
@@ -5568,6 +5603,48 @@ always @(posedge clk) begin
     activation_out_data_available7 <= activation_out_data_available6;
 end
 
+`ifdef DESIGN_SIZE_16
+always @(posedge clk) begin
+    activation_out_data_available8 <= activation_out_data_available7;
+    activation_out_data_available9 <= activation_out_data_available8;
+    activation_out_data_available10 <= activation_out_data_available9;
+    activation_out_data_available11 <= activation_out_data_available10;
+    activation_out_data_available12 <= activation_out_data_available11;
+    activation_out_data_available13 <= activation_out_data_available12;
+    activation_out_data_available14 <= activation_out_data_available13;
+    activation_out_data_available15 <= activation_out_data_available14;
+end
+`endif
+
+`ifdef DESIGN_SIZE_32
+always @(posedge clk) begin
+    activation_out_data_available8 <= activation_out_data_available7;
+    activation_out_data_available9 <= activation_out_data_available8;
+    activation_out_data_available10 <= activation_out_data_available9;
+    activation_out_data_available11 <= activation_out_data_available10;
+    activation_out_data_available12 <= activation_out_data_available11;
+    activation_out_data_available13 <= activation_out_data_available12;
+    activation_out_data_available14 <= activation_out_data_available13;
+    activation_out_data_available15 <= activation_out_data_available14;
+    activation_out_data_available16 <= activation_out_data_available15;
+    activation_out_data_available17 <= activation_out_data_available16;
+    activation_out_data_available18 <= activation_out_data_available17;
+    activation_out_data_available19 <= activation_out_data_available18;
+    activation_out_data_available20 <= activation_out_data_available19;
+    activation_out_data_available21 <= activation_out_data_available20;
+    activation_out_data_available22 <= activation_out_data_available21;
+    activation_out_data_available23 <= activation_out_data_available22;
+    activation_out_data_available24 <= activation_out_data_available23;
+    activation_out_data_available25 <= activation_out_data_available24;
+    activation_out_data_available26 <= activation_out_data_available25;
+    activation_out_data_available27 <= activation_out_data_available26;
+    activation_out_data_available28 <= activation_out_data_available27;
+    activation_out_data_available29 <= activation_out_data_available28;
+    activation_out_data_available30 <= activation_out_data_available29;
+    activation_out_data_available31 <= activation_out_data_available30;
+end
+`endif
+
 reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data0;
 reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data1;
 reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data2;
@@ -5577,11 +5654,49 @@ reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data5;
 reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data6;
 reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data7;
 
+`ifdef DESIGN_SIZE_16
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data8;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data9;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data10;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data11;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data12;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data13;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data14;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data15;
+`endif
+
+`ifdef DESIGN_SIZE_32
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data8;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data9;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data10;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data11;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data12;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data13;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data14;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data15;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data16;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data17;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data18;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data19;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data20;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data21;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data22;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data23;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data24;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data25;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data26;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data27;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data28;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data29;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data30;
+reg [(`MAT_MUL_SIZE*`DWIDTH)-1:0] final_data31;
+`endif
+
 always @(posedge clk) begin
     if (reset) begin
         final_data0 <= 0;
     end
-    else if (activation_out_data_available) begin
+    if (activation_out_data_available) begin
         final_data0 <= {act_data_out0[7:0],final_data0[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5590,7 +5705,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data1 <= 0;
     end
-    else if (activation_out_data_available1) begin
+    if (activation_out_data_available1) begin
         final_data1 <= {act_data_out1[7:0],final_data1[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5599,7 +5714,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data2 <= 0;
     end
-    else if (activation_out_data_available2) begin
+    if (activation_out_data_available2) begin
         final_data2 <= {act_data_out2[7:0],final_data2[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5608,7 +5723,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data3 <= 0;
     end
-    else if (activation_out_data_available3) begin
+    if (activation_out_data_available3) begin
         final_data3 <= {act_data_out3[7:0],final_data3[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5617,7 +5732,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data4 <= 0;
     end
-    else if (activation_out_data_available4) begin
+    if (activation_out_data_available4) begin
         final_data4 <= {act_data_out4[7:0],final_data4[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5626,7 +5741,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data5 <= 0;
     end
-    else if (activation_out_data_available5) begin
+    if (activation_out_data_available5) begin
         final_data5 <= {act_data_out5[7:0],final_data5[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5635,7 +5750,7 @@ always @(posedge clk) begin
     if (reset) begin
         final_data6 <= 0;
     end
-    else if (activation_out_data_available6) begin
+    if (activation_out_data_available6) begin
         final_data6 <= {act_data_out6[7:0],final_data6[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
@@ -5644,12 +5759,304 @@ always @(posedge clk) begin
     if (reset) begin
         final_data7 <= 0;
     end
-    else if (activation_out_data_available7) begin
+    if (activation_out_data_available7) begin
         final_data7 <= {act_data_out7[7:0],final_data7[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
     end
 end
 
-  reg [31:0] i;
+`ifdef DESIGN_SIZE_16
+always @(posedge clk) begin
+    if (reset) begin
+        final_data8 <= 0;
+    end
+    if (activation_out_data_available8) begin
+        final_data8 <= {act_data_out8[7:0],final_data8[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data9 <= 0;
+    end
+    if (activation_out_data_available9) begin
+        final_data9 <= {act_data_out9[7:0],final_data9[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data10 <= 0;
+    end
+    if (activation_out_data_available10) begin
+        final_data10 <= {act_data_out10[7:0],final_data10[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data11 <= 0;
+    end
+    if (activation_out_data_available11) begin
+        final_data11 <= {act_data_out11[7:0],final_data11[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data12 <= 0;
+    end
+    if (activation_out_data_available12) begin
+        final_data12 <= {act_data_out12[7:0],final_data12[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data13 <= 0;
+    end
+    if (activation_out_data_available13) begin
+        final_data13 <= {act_data_out13[7:0],final_data13[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data14 <= 0;
+    end
+    if (activation_out_data_available14) begin
+        final_data14 <= {act_data_out14[7:0],final_data14[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data15 <= 0;
+    end
+    if (activation_out_data_available15) begin
+        final_data15 <= {act_data_out15[7:0],final_data15[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+`endif
+
+`ifdef DESIGN_SIZE_32
+always @(posedge clk) begin
+    if (reset) begin
+        final_data8 <= 0;
+    end
+    if (activation_out_data_available8) begin
+        final_data8 <= {act_data_out8[7:0],final_data8[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data9 <= 0;
+    end
+    if (activation_out_data_available9) begin
+        final_data9 <= {act_data_out9[7:0],final_data9[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data10 <= 0;
+    end
+    if (activation_out_data_available10) begin
+        final_data10 <= {act_data_out10[7:0],final_data10[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data11 <= 0;
+    end
+    if (activation_out_data_available11) begin
+        final_data11 <= {act_data_out11[7:0],final_data11[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data12 <= 0;
+    end
+    if (activation_out_data_available12) begin
+        final_data12 <= {act_data_out12[7:0],final_data12[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data13 <= 0;
+    end
+    if (activation_out_data_available13) begin
+        final_data13 <= {act_data_out13[7:0],final_data13[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data14 <= 0;
+    end
+    if (activation_out_data_available14) begin
+        final_data14 <= {act_data_out14[7:0],final_data14[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data15 <= 0;
+    end
+    if (activation_out_data_available15) begin
+        final_data15 <= {act_data_out15[7:0],final_data15[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data16 <= 0;
+    end
+    if (activation_out_data_available16) begin
+        final_data16 <= {act_data_out16[7:0],final_data16[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data17 <= 0;
+    end
+    if (activation_out_data_available17) begin
+        final_data17 <= {act_data_out17[7:0],final_data17[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data18 <= 0;
+    end
+    if (activation_out_data_available18) begin
+        final_data18 <= {act_data_out18[7:0],final_data18[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data19 <= 0;
+    end
+    if (activation_out_data_available19) begin
+        final_data19 <= {act_data_out19[7:0],final_data19[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data20 <= 0;
+    end
+    if (activation_out_data_available20) begin
+        final_data20 <= {act_data_out20[7:0],final_data20[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data21 <= 0;
+    end
+    if (activation_out_data_available21) begin
+        final_data21 <= {act_data_out21[7:0],final_data21[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data22 <= 0;
+    end
+    if (activation_out_data_available22) begin
+        final_data22 <= {act_data_out22[7:0],final_data22[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data23 <= 0;
+    end
+    if (activation_out_data_available23) begin
+        final_data23 <= {act_data_out23[7:0],final_data23[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data24 <= 0;
+    end
+    if (activation_out_data_available24) begin
+        final_data24 <= {act_data_out24[7:0],final_data24[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data25 <= 0;
+    end
+    if (activation_out_data_available25) begin
+        final_data25 <= {act_data_out25[7:0],final_data25[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data26 <= 0;
+    end
+    if (activation_out_data_available26) begin
+        final_data26 <= {act_data_out26[7:0],final_data26[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data27 <= 0;
+    end
+    if (activation_out_data_available27) begin
+        final_data27 <= {act_data_out27[7:0],final_data27[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data28 <= 0;
+    end
+    if (activation_out_data_available28) begin
+        final_data28 <= {act_data_out28[7:0],final_data28[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data29 <= 0;
+    end
+    if (activation_out_data_available29) begin
+        final_data29 <= {act_data_out29[7:0],final_data29[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data30 <= 0;
+    end
+    if (activation_out_data_available30) begin
+        final_data30 <= {act_data_out30[7:0],final_data30[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        final_data31 <= 0;
+    end
+    if (activation_out_data_available31) begin
+        final_data31 <= {act_data_out31[7:0],final_data31[(`MAT_MUL_SIZE*`DWIDTH)-1:8]};
+    end
+end
+`endif
+
+reg [31:0] i;
   always @(posedge clk) begin
     if (reset) begin
         i <= 0;
@@ -5660,6 +6067,7 @@ end
     else if (done_activation) begin
         i <= i + 1;
         case(i)
+        `ifdef DESIGN_SIZE_8
         0: begin bram_wdata_a <= final_data0; end
         1: begin bram_wdata_a <= final_data1; end
         2: begin bram_wdata_a <= final_data2; end
@@ -5669,8 +6077,62 @@ end
         6: begin bram_wdata_a <= final_data6; end
         7: begin bram_wdata_a <= final_data7; end
         default : begin bram_wdata_a <= final_data7; end
+        `endif
+        `ifdef DESIGN_SIZE_16
+        0: begin bram_wdata_a <= final_data0; end
+        1: begin bram_wdata_a <= final_data1; end
+        2: begin bram_wdata_a <= final_data2; end
+        3: begin bram_wdata_a <= final_data3; end
+        4: begin bram_wdata_a <= final_data4; end
+        5: begin bram_wdata_a <= final_data5; end
+        6: begin bram_wdata_a <= final_data6; end
+        7: begin bram_wdata_a <= final_data7; end
+        8: begin bram_wdata_a <= final_data8; end
+        9: begin bram_wdata_a <= final_data9; end
+        10: begin bram_wdata_a <= final_data10; end
+        11: begin bram_wdata_a <= final_data11; end
+        12: begin bram_wdata_a <= final_data12; end
+        13: begin bram_wdata_a <= final_data13; end
+        14: begin bram_wdata_a <= final_data14; end
+        15: begin bram_wdata_a <= final_data15; end
+        default : begin bram_wdata_a <= final_data15; end
+        `endif 
+        `ifdef DESIGN_SIZE_32
+        0: begin bram_wdata_a <= final_data0; end
+        1: begin bram_wdata_a <= final_data1; end
+        2: begin bram_wdata_a <= final_data2; end
+        3: begin bram_wdata_a <= final_data3; end
+        4: begin bram_wdata_a <= final_data4; end
+        5: begin bram_wdata_a <= final_data5; end
+        6: begin bram_wdata_a <= final_data6; end
+        7: begin bram_wdata_a <= final_data7; end
+        8: begin bram_wdata_a <= final_data8; end
+        9: begin bram_wdata_a <= final_data9; end
+        10: begin bram_wdata_a <= final_data10; end
+        11: begin bram_wdata_a <= final_data11; end
+        12: begin bram_wdata_a <= final_data12; end
+        13: begin bram_wdata_a <= final_data13; end
+        14: begin bram_wdata_a <= final_data14; end
+        15: begin bram_wdata_a <= final_data15; end
+        16: begin bram_wdata_a <= final_data16; end
+        17: begin bram_wdata_a <= final_data17; end
+        18: begin bram_wdata_a <= final_data18; end
+        19: begin bram_wdata_a <= final_data19; end
+        20: begin bram_wdata_a <= final_data20; end
+        21: begin bram_wdata_a <= final_data21; end
+        22: begin bram_wdata_a <= final_data22; end
+        23: begin bram_wdata_a <= final_data23; end
+        24: begin bram_wdata_a <= final_data24; end
+        25: begin bram_wdata_a <= final_data25; end
+        26: begin bram_wdata_a <= final_data26; end
+        27: begin bram_wdata_a <= final_data27; end
+        28: begin bram_wdata_a <= final_data28; end
+        29: begin bram_wdata_a <= final_data29; end
+        30: begin bram_wdata_a <= final_data30; end
+        31: begin bram_wdata_a <= final_data31; end
+        default : begin bram_wdata_a <= final_data31; end
+        `endif
         endcase
-        //bram_wdata_a <= final_data[i*`MAT_MUL_SIZE*`DWIDTH +:`MAT_MUL_SIZE*`DWIDTH];
         bram_addr_a_for_writing <= bram_addr_a_for_writing - address_stride_c;
         bram_a_wdata_available <= done_activation;
     end
