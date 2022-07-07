@@ -2806,14 +2806,6 @@ module accumulator (
     raddr_accum5_pool,
     raddr_accum6_pool,
     raddr_accum7_pool,
-    rdata_accum0,
-    rdata_accum1,
-    rdata_accum2,
-    rdata_accum3,
-    rdata_accum4,
-    rdata_accum5,
-    rdata_accum6,
-    rdata_accum7,
     rdata_accum0_pool,
     rdata_accum1_pool,
     rdata_accum2_pool,
@@ -2848,14 +2840,6 @@ input [`AWIDTH-1:0] raddr_accum4_pool;
 input [`AWIDTH-1:0] raddr_accum5_pool;
 input [`AWIDTH-1:0] raddr_accum6_pool;
 input [`AWIDTH-1:0] raddr_accum7_pool;
-output [`DWIDTH-1:0] rdata_accum0;
-output [`DWIDTH-1:0] rdata_accum1;
-output [`DWIDTH-1:0] rdata_accum2;
-output [`DWIDTH-1:0] rdata_accum3;
-output [`DWIDTH-1:0] rdata_accum4;
-output [`DWIDTH-1:0] rdata_accum5;
-output [`DWIDTH-1:0] rdata_accum6;
-output [`DWIDTH-1:0] rdata_accum7;
 output [`DWIDTH-1:0] rdata_accum0_pool;
 output [`DWIDTH-1:0] rdata_accum1_pool;
 output [`DWIDTH-1:0] rdata_accum2_pool;
@@ -3055,16 +3039,25 @@ wire [`DWIDTH-1:0] wdata_accum4_ping;
 wire [`DWIDTH-1:0] wdata_accum5_ping;
 wire [`DWIDTH-1:0] wdata_accum6_ping;
 wire [`DWIDTH-1:0] wdata_accum7_ping;
+
+wire [`DWIDTH-1:0] rdata_buffer0;
+wire [`DWIDTH-1:0] rdata_buffer1;
+wire [`DWIDTH-1:0] rdata_buffer2;
+wire [`DWIDTH-1:0] rdata_buffer3;
+wire [`DWIDTH-1:0] rdata_buffer4;
+wire [`DWIDTH-1:0] rdata_buffer5;
+wire [`DWIDTH-1:0] rdata_buffer6;
+wire [`DWIDTH-1:0] rdata_buffer7;
     
 // Based on the Accumulator Adder MUX select signal either 0 or data read from the RAM goes into the Adder
-assign wdata_accum0_in = (~add_accum_mux0)?  8'b0 : rdata_accum0;
-assign wdata_accum1_in = (~add_accum_mux1)?  8'b0 : rdata_accum1;
-assign wdata_accum2_in = (~add_accum_mux2)?  8'b0 : rdata_accum2;
-assign wdata_accum3_in = (~add_accum_mux3)?  8'b0 : rdata_accum3;
-assign wdata_accum4_in = (~add_accum_mux4)?  8'b0 : rdata_accum4;
-assign wdata_accum5_in = (~add_accum_mux5)?  8'b0 : rdata_accum5;
-assign wdata_accum6_in = (~add_accum_mux6)?  8'b0 : rdata_accum6;
-assign wdata_accum7_in = (~add_accum_mux7)?  8'b0 : rdata_accum7;
+assign wdata_accum0_in = (~add_accum_mux0)?  8'b0 : rdata_buffer0;
+assign wdata_accum1_in = (~add_accum_mux1)?  8'b0 : rdata_buffer1;
+assign wdata_accum2_in = (~add_accum_mux2)?  8'b0 : rdata_buffer2;
+assign wdata_accum3_in = (~add_accum_mux3)?  8'b0 : rdata_buffer3;
+assign wdata_accum4_in = (~add_accum_mux4)?  8'b0 : rdata_buffer4;
+assign wdata_accum5_in = (~add_accum_mux5)?  8'b0 : rdata_buffer5;
+assign wdata_accum6_in = (~add_accum_mux6)?  8'b0 : rdata_buffer6;
+assign wdata_accum7_in = (~add_accum_mux7)?  8'b0 : rdata_buffer7;
   
 reg [`AWIDTH-1:0] raddr_accum0;
 reg [`AWIDTH-1:0] raddr_accum1;
@@ -3113,15 +3106,6 @@ wire [`AWIDTH-1:0] raddr_buffer4;
 wire [`AWIDTH-1:0] raddr_buffer5;
 wire [`AWIDTH-1:0] raddr_buffer6;
 wire [`AWIDTH-1:0] raddr_buffer7;
-
-wire [`DWIDTH-1:0] rdata_buffer0;
-wire [`DWIDTH-1:0] rdata_buffer1;
-wire [`DWIDTH-1:0] rdata_buffer2;
-wire [`DWIDTH-1:0] rdata_buffer3;
-wire [`DWIDTH-1:0] rdata_buffer4;
-wire [`DWIDTH-1:0] rdata_buffer5;
-wire [`DWIDTH-1:0] rdata_buffer6;
-wire [`DWIDTH-1:0] rdata_buffer7;
 
 reg buffer_select_pool1;
 reg buffer_select_pool2;
@@ -4387,14 +4371,6 @@ wire [`AWIDTH-1:0] raddr_accum4_pool;
 wire [`AWIDTH-1:0] raddr_accum5_pool;
 wire [`AWIDTH-1:0] raddr_accum6_pool;
 wire [`AWIDTH-1:0] raddr_accum7_pool;
-wire [`DWIDTH-1:0] rdata_accum0;
-wire [`DWIDTH-1:0] rdata_accum1;
-wire [`DWIDTH-1:0] rdata_accum2;
-wire [`DWIDTH-1:0] rdata_accum3;
-wire [`DWIDTH-1:0] rdata_accum4;
-wire [`DWIDTH-1:0] rdata_accum5;
-wire [`DWIDTH-1:0] rdata_accum6;
-wire [`DWIDTH-1:0] rdata_accum7;
 `endif
 
 `ifdef DESIGN_SIZE_16
@@ -4824,14 +4800,6 @@ accumulator u_accum (
   .raddr_accum5_pool(raddr_accum5_pool),
   .raddr_accum6_pool(raddr_accum6_pool),
   .raddr_accum7_pool(raddr_accum7_pool),
-  .rdata_accum0(rdata_accum0),
-  .rdata_accum1(rdata_accum1),
-  .rdata_accum2(rdata_accum2),
-  .rdata_accum3(rdata_accum3),
-  .rdata_accum4(rdata_accum4),
-  .rdata_accum5(rdata_accum5),
-  .rdata_accum6(rdata_accum6),
-  .rdata_accum7(rdata_accum7),
   .rdata_accum0_pool(rdata_accum0_pool),
   .rdata_accum1_pool(rdata_accum1_pool),
   .rdata_accum2_pool(rdata_accum2_pool),
