@@ -1,26 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_accum.v.mako
-// DO NOT EDIT
-////////////////////////////////////////////////////////////////////////////////
-
-`timescale 1ns/1ns
-`define DWIDTH 8
-`define AWIDTH 11
-`define MEM_SIZE 2048
-
-`define MAT_MUL_SIZE 8
-`define MASK_WIDTH 8
-`define LOG2_MAT_MUL_SIZE 3
-
-`define BB_MAT_MUL_SIZE `MAT_MUL_SIZE
-`define NUM_CYCLES_IN_MAC 3
-`define MEM_ACCESS_LATENCY 1
-`define REG_DATAWIDTH 32
-`define REG_ADDRWIDTH 8
-`define ADDR_STRIDE_WIDTH 8
-`define MAX_BITS_POOL 3
-`define VCS
-
 module accumulator (
     clk,
     resetn,
@@ -41,14 +18,6 @@ module accumulator (
     raddr_accum5_pool,
     raddr_accum6_pool,
     raddr_accum7_pool,
-    rdata_accum0,
-    rdata_accum1,
-    rdata_accum2,
-    rdata_accum3,
-    rdata_accum4,
-    rdata_accum5,
-    rdata_accum6,
-    rdata_accum7,
     rdata_accum0_pool,
     rdata_accum1_pool,
     rdata_accum2_pool,
@@ -83,14 +52,6 @@ input [`AWIDTH-1:0] raddr_accum4_pool;
 input [`AWIDTH-1:0] raddr_accum5_pool;
 input [`AWIDTH-1:0] raddr_accum6_pool;
 input [`AWIDTH-1:0] raddr_accum7_pool;
-output [`DWIDTH-1:0] rdata_accum0;
-output [`DWIDTH-1:0] rdata_accum1;
-output [`DWIDTH-1:0] rdata_accum2;
-output [`DWIDTH-1:0] rdata_accum3;
-output [`DWIDTH-1:0] rdata_accum4;
-output [`DWIDTH-1:0] rdata_accum5;
-output [`DWIDTH-1:0] rdata_accum6;
-output [`DWIDTH-1:0] rdata_accum7;
 output [`DWIDTH-1:0] rdata_accum0_pool;
 output [`DWIDTH-1:0] rdata_accum1_pool;
 output [`DWIDTH-1:0] rdata_accum2_pool;
@@ -290,16 +251,43 @@ wire [`DWIDTH-1:0] wdata_accum4_ping;
 wire [`DWIDTH-1:0] wdata_accum5_ping;
 wire [`DWIDTH-1:0] wdata_accum6_ping;
 wire [`DWIDTH-1:0] wdata_accum7_ping;
+
+wire [`AWIDTH-1:0] raddr_buffer0;
+wire [`AWIDTH-1:0] raddr_buffer1;
+wire [`AWIDTH-1:0] raddr_buffer2;
+wire [`AWIDTH-1:0] raddr_buffer3;
+wire [`AWIDTH-1:0] raddr_buffer4;
+wire [`AWIDTH-1:0] raddr_buffer5;
+wire [`AWIDTH-1:0] raddr_buffer6;
+wire [`AWIDTH-1:0] raddr_buffer7;
+
+wire [`DWIDTH-1:0] rdata_buffer0;
+wire [`DWIDTH-1:0] rdata_buffer1;
+wire [`DWIDTH-1:0] rdata_buffer2;
+wire [`DWIDTH-1:0] rdata_buffer3;
+wire [`DWIDTH-1:0] rdata_buffer4;
+wire [`DWIDTH-1:0] rdata_buffer5;
+wire [`DWIDTH-1:0] rdata_buffer6;
+wire [`DWIDTH-1:0] rdata_buffer7;
+
+wire [`DWIDTH-1:0] rdata_buffer0_pong;
+wire [`DWIDTH-1:0] rdata_buffer1_pong;
+wire [`DWIDTH-1:0] rdata_buffer2_pong;
+wire [`DWIDTH-1:0] rdata_buffer3_pong;
+wire [`DWIDTH-1:0] rdata_buffer4_pong;
+wire [`DWIDTH-1:0] rdata_buffer5_pong;
+wire [`DWIDTH-1:0] rdata_buffer6_pong;
+wire [`DWIDTH-1:0] rdata_buffer7_pong;
     
 // Based on the Accumulator Adder MUX select signal either 0 or data read from the RAM goes into the Adder
-assign wdata_accum0_in = (~add_accum_mux0)?  8'b0 : rdata_accum0;
-assign wdata_accum1_in = (~add_accum_mux1)?  8'b0 : rdata_accum1;
-assign wdata_accum2_in = (~add_accum_mux2)?  8'b0 : rdata_accum2;
-assign wdata_accum3_in = (~add_accum_mux3)?  8'b0 : rdata_accum3;
-assign wdata_accum4_in = (~add_accum_mux4)?  8'b0 : rdata_accum4;
-assign wdata_accum5_in = (~add_accum_mux5)?  8'b0 : rdata_accum5;
-assign wdata_accum6_in = (~add_accum_mux6)?  8'b0 : rdata_accum6;
-assign wdata_accum7_in = (~add_accum_mux7)?  8'b0 : rdata_accum7;
+assign wdata_accum0_in = (~add_accum_mux0)?  8'b0 : (buffer_select)? rdata_buffer0 : rdata_buffer0_pong;
+assign wdata_accum1_in = (~add_accum_mux1)?  8'b0 : (buffer_select)? rdata_buffer1 : rdata_buffer1_pong;
+assign wdata_accum2_in = (~add_accum_mux2)?  8'b0 : (buffer_select)? rdata_buffer2 : rdata_buffer2_pong;
+assign wdata_accum3_in = (~add_accum_mux3)?  8'b0 : (buffer_select)? rdata_buffer3 : rdata_buffer3_pong;
+assign wdata_accum4_in = (~add_accum_mux4)?  8'b0 : (buffer_select)? rdata_buffer4 : rdata_buffer4_pong;
+assign wdata_accum5_in = (~add_accum_mux5)?  8'b0 : (buffer_select)? rdata_buffer5 : rdata_buffer5_pong;
+assign wdata_accum6_in = (~add_accum_mux6)?  8'b0 : (buffer_select)? rdata_buffer6 : rdata_buffer6_pong;
+assign wdata_accum7_in = (~add_accum_mux7)?  8'b0 : (buffer_select)? rdata_buffer7 : rdata_buffer7_pong;
   
 reg [`AWIDTH-1:0] raddr_accum0;
 reg [`AWIDTH-1:0] raddr_accum1;
@@ -339,24 +327,6 @@ wire [`DWIDTH-1:0] accum4_pong_q0_NC;
 wire [`DWIDTH-1:0] accum5_pong_q0_NC;
 wire [`DWIDTH-1:0] accum6_pong_q0_NC;
 wire [`DWIDTH-1:0] accum7_pong_q0_NC;
-
-wire [`AWIDTH-1:0] raddr_buffer0;
-wire [`AWIDTH-1:0] raddr_buffer1;
-wire [`AWIDTH-1:0] raddr_buffer2;
-wire [`AWIDTH-1:0] raddr_buffer3;
-wire [`AWIDTH-1:0] raddr_buffer4;
-wire [`AWIDTH-1:0] raddr_buffer5;
-wire [`AWIDTH-1:0] raddr_buffer6;
-wire [`AWIDTH-1:0] raddr_buffer7;
-
-wire [`DWIDTH-1:0] rdata_buffer0;
-wire [`DWIDTH-1:0] rdata_buffer1;
-wire [`DWIDTH-1:0] rdata_buffer2;
-wire [`DWIDTH-1:0] rdata_buffer3;
-wire [`DWIDTH-1:0] rdata_buffer4;
-wire [`DWIDTH-1:0] rdata_buffer5;
-wire [`DWIDTH-1:0] rdata_buffer6;
-wire [`DWIDTH-1:0] rdata_buffer7;
 
 reg buffer_select_pool1;
 reg buffer_select_pool2;
@@ -404,14 +374,14 @@ assign raddr_buffer5 = (buffer_select_pool5)? raddr_accum5_pool : (buffer_select
 assign raddr_buffer6 = (buffer_select_pool6)? raddr_accum6_pool : (buffer_select_accum6)? raddr_accum6:11'bx;
 assign raddr_buffer7 = (buffer_select_pool7)? raddr_accum7_pool : (buffer_select_accum7)? raddr_accum7:11'bx;
   
-assign rdata_accum0_pool =  (buffer_select_pool)? rdata_buffer0 : 8'b0;
-assign rdata_accum1_pool =  (buffer_select_pool1)? rdata_buffer1 : 8'b0;
-assign rdata_accum2_pool =  (buffer_select_pool2)? rdata_buffer2 : 8'b0;
-assign rdata_accum3_pool =  (buffer_select_pool3)? rdata_buffer3 : 8'b0;
-assign rdata_accum4_pool =  (buffer_select_pool4)? rdata_buffer4 : 8'b0;
-assign rdata_accum5_pool =  (buffer_select_pool5)? rdata_buffer5 : 8'b0;
-assign rdata_accum6_pool =  (buffer_select_pool6)? rdata_buffer6 : 8'b0;
-assign rdata_accum7_pool =  (buffer_select_pool7)? rdata_buffer7 : 8'b0;
+assign rdata_accum0_pool =  (buffer_select_pool)?  (buffer_select)? rdata_buffer0 : rdata_buffer0_pong : 8'b0;
+assign rdata_accum1_pool =  (buffer_select_pool1)? (buffer_select)? rdata_buffer1 : rdata_buffer1_pong : 8'b0;
+assign rdata_accum2_pool =  (buffer_select_pool2)? (buffer_select)? rdata_buffer2 : rdata_buffer2_pong : 8'b0;
+assign rdata_accum3_pool =  (buffer_select_pool3)? (buffer_select)? rdata_buffer3 : rdata_buffer3_pong : 8'b0;
+assign rdata_accum4_pool =  (buffer_select_pool4)? (buffer_select)? rdata_buffer4 : rdata_buffer4_pong : 8'b0;
+assign rdata_accum5_pool =  (buffer_select_pool5)? (buffer_select)? rdata_buffer5 : rdata_buffer5_pong : 8'b0;
+assign rdata_accum6_pool =  (buffer_select_pool6)? (buffer_select)? rdata_buffer6 : rdata_buffer6_pong : 8'b0;
+assign rdata_accum7_pool =  (buffer_select_pool7)? (buffer_select)? rdata_buffer7 : rdata_buffer7_pong : 8'b0;
   
 ////////////////////////////////////////////////
 // PING ACCUMULATORS
@@ -521,24 +491,6 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum7_ping (
     .clk(clk)
 );
 
-wire [`AWIDTH-1:0] raddr_accum0_pong;
-wire [`AWIDTH-1:0] raddr_accum1_pong;
-wire [`AWIDTH-1:0] raddr_accum2_pong;
-wire [`AWIDTH-1:0] raddr_accum3_pong;
-wire [`AWIDTH-1:0] raddr_accum4_pong;
-wire [`AWIDTH-1:0] raddr_accum5_pong;
-wire [`AWIDTH-1:0] raddr_accum6_pong;
-wire [`AWIDTH-1:0] raddr_accum7_pong;
-
-wire [`DWIDTH-1:0] rdata_accum0_pong;
-wire [`DWIDTH-1:0] rdata_accum1_pong;
-wire [`DWIDTH-1:0] rdata_accum2_pong;
-wire [`DWIDTH-1:0] rdata_accum3_pong;
-wire [`DWIDTH-1:0] rdata_accum4_pong;
-wire [`DWIDTH-1:0] rdata_accum5_pong;
-wire [`DWIDTH-1:0] rdata_accum6_pong;
-wire [`DWIDTH-1:0] rdata_accum7_pong;
-
 wire [`DWIDTH-1:0] wdata_accum0_pong;
 wire [`DWIDTH-1:0] wdata_accum1_pong;
 wire [`DWIDTH-1:0] wdata_accum2_pong;
@@ -558,10 +510,10 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum0_pong (
     .d0(wdata_accum0_pong), 
     .we0(wdata_en_pong0), 
     .q0(accum0_pong_q0_NC),
-    .addr1(raddr_accum0_pong),
+    .addr1(raddr_buffer0),
     .d1(8'b0), 
     .we1(1'b0), 
-    .q1(rdata_accum0_pong), 
+    .q1(rdata_buffer0_pong), 
     .clk(clk)
 );
 
@@ -571,10 +523,10 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum1_pong (
     .d0(wdata_accum1_pong), 
     .we0(wdata_en_pong1), 
     .q0(accum1_pong_q0_NC),
-    .addr1(raddr_accum1_pong),
+    .addr1(raddr_buffer1),
     .d1(8'b0), 
     .we1(1'b0), 
-    .q1(rdata_accum1_pong), 
+    .q1(rdata_buffer1_pong), 
     .clk(clk)
 );
 
@@ -584,10 +536,10 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum2_pong (
     .d0(wdata_accum2_pong), 
     .we0(wdata_en_pong2), 
     .q0(accum2_pong_q0_NC),
-    .addr1(raddr_accum2_pong),
+    .addr1(raddr_buffer2),
     .d1(8'b0), 
     .we1(1'b0), 
-    .q1(rdata_accum2_pong), 
+    .q1(rdata_buffer2_pong), 
     .clk(clk)
 );
 
@@ -597,10 +549,10 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum3_pong (
     .d0(wdata_accum3_pong), 
     .we0(wdata_en_pong3), 
     .q0(accum3_pong_q0_NC),
-    .addr1(raddr_accum3_pong),
+    .addr1(raddr_buffer3),
     .d1(8'b0), 
     .we1(1'b0), 
-    .q1(rdata_accum3_pong), 
+    .q1(rdata_buffer3_pong), 
     .clk(clk)
 );
 
@@ -610,10 +562,10 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum4_pong (
     .d0(wdata_accum4_pong), 
     .we0(wdata_en_pong4), 
     .q0(accum4_pong_q0_NC),
-    .addr1(raddr_accum4_pong),
+    .addr1(raddr_buffer4),
     .d1(8'b0), 
     .we1(1'b0), 
-    .q1(rdata_accum4_pong), 
+    .q1(rdata_buffer4_pong), 
     .clk(clk)
 );
 
@@ -623,10 +575,10 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum5_pong (
     .d0(wdata_accum5_pong), 
     .we0(wdata_en_pong5), 
     .q0(accum5_pong_q0_NC),
-    .addr1(raddr_accum5_pong),
+    .addr1(raddr_buffer5),
     .d1(8'b0), 
     .we1(1'b0), 
-    .q1(rdata_accum5_pong), 
+    .q1(rdata_buffer5_pong), 
     .clk(clk)
 );
 
@@ -636,10 +588,10 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum6_pong (
     .d0(wdata_accum6_pong), 
     .we0(wdata_en_pong6), 
     .q0(accum6_pong_q0_NC),
-    .addr1(raddr_accum6_pong),
+    .addr1(raddr_buffer6),
     .d1(8'b0), 
     .we1(1'b0), 
-    .q1(rdata_accum6_pong), 
+    .q1(rdata_buffer6_pong), 
     .clk(clk)
 );
 
@@ -649,12 +601,11 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum7_pong (
     .d0(wdata_accum7_pong), 
     .we0(wdata_en_pong7), 
     .q0(accum7_pong_q0_NC),
-    .addr1(raddr_accum7_pong),
+    .addr1(raddr_buffer7),
     .d1(8'b0), 
     .we1(1'b0), 
-    .q1(rdata_accum7_pong), 
+    .q1(rdata_buffer7_pong), 
     .clk(clk)
 );
-
 
 endmodule

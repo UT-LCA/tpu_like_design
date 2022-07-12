@@ -188,14 +188,6 @@ wire [`AWIDTH-1:0] raddr_accum4_pool;
 wire [`AWIDTH-1:0] raddr_accum5_pool;
 wire [`AWIDTH-1:0] raddr_accum6_pool;
 wire [`AWIDTH-1:0] raddr_accum7_pool;
-wire [`DWIDTH-1:0] rdata_accum0;
-wire [`DWIDTH-1:0] rdata_accum1;
-wire [`DWIDTH-1:0] rdata_accum2;
-wire [`DWIDTH-1:0] rdata_accum3;
-wire [`DWIDTH-1:0] rdata_accum4;
-wire [`DWIDTH-1:0] rdata_accum5;
-wire [`DWIDTH-1:0] rdata_accum6;
-wire [`DWIDTH-1:0] rdata_accum7;
 `endif
 
 `ifdef DESIGN_SIZE_16
@@ -231,22 +223,6 @@ wire [`AWIDTH-1:0] raddr_accum12_pool;
 wire [`AWIDTH-1:0] raddr_accum13_pool;
 wire [`AWIDTH-1:0] raddr_accum14_pool;
 wire [`AWIDTH-1:0] raddr_accum15_pool;
-wire [`DWIDTH-1:0] rdata_accum0;
-wire [`DWIDTH-1:0] rdata_accum1;
-wire [`DWIDTH-1:0] rdata_accum2;
-wire [`DWIDTH-1:0] rdata_accum3;
-wire [`DWIDTH-1:0] rdata_accum4;
-wire [`DWIDTH-1:0] rdata_accum5;
-wire [`DWIDTH-1:0] rdata_accum6;
-wire [`DWIDTH-1:0] rdata_accum7;
-wire [`DWIDTH-1:0] rdata_accum8;
-wire [`DWIDTH-1:0] rdata_accum9;
-wire [`DWIDTH-1:0] rdata_accum10;
-wire [`DWIDTH-1:0] rdata_accum11;
-wire [`DWIDTH-1:0] rdata_accum12;
-wire [`DWIDTH-1:0] rdata_accum13;
-wire [`DWIDTH-1:0] rdata_accum14;
-wire [`DWIDTH-1:0] rdata_accum15;
 `endif
 
 `ifdef DESIGN_SIZE_32
@@ -314,38 +290,6 @@ wire [`AWIDTH-1:0] raddr_accum28_pool;
 wire [`AWIDTH-1:0] raddr_accum29_pool;
 wire [`AWIDTH-1:0] raddr_accum30_pool;
 wire [`AWIDTH-1:0] raddr_accum31_pool;
-wire [`DWIDTH-1:0] rdata_accum0;
-wire [`DWIDTH-1:0] rdata_accum1;
-wire [`DWIDTH-1:0] rdata_accum2;
-wire [`DWIDTH-1:0] rdata_accum3;
-wire [`DWIDTH-1:0] rdata_accum4;
-wire [`DWIDTH-1:0] rdata_accum5;
-wire [`DWIDTH-1:0] rdata_accum6;
-wire [`DWIDTH-1:0] rdata_accum7;
-wire [`DWIDTH-1:0] rdata_accum8;
-wire [`DWIDTH-1:0] rdata_accum9;
-wire [`DWIDTH-1:0] rdata_accum10;
-wire [`DWIDTH-1:0] rdata_accum11;
-wire [`DWIDTH-1:0] rdata_accum12;
-wire [`DWIDTH-1:0] rdata_accum13;
-wire [`DWIDTH-1:0] rdata_accum14;
-wire [`DWIDTH-1:0] rdata_accum15;
-wire [`DWIDTH-1:0] rdata_accum16;
-wire [`DWIDTH-1:0] rdata_accum17;
-wire [`DWIDTH-1:0] rdata_accum18;
-wire [`DWIDTH-1:0] rdata_accum19;
-wire [`DWIDTH-1:0] rdata_accum20;
-wire [`DWIDTH-1:0] rdata_accum21;
-wire [`DWIDTH-1:0] rdata_accum22;
-wire [`DWIDTH-1:0] rdata_accum23;
-wire [`DWIDTH-1:0] rdata_accum24;
-wire [`DWIDTH-1:0] rdata_accum25;
-wire [`DWIDTH-1:0] rdata_accum26;
-wire [`DWIDTH-1:0] rdata_accum27;
-wire [`DWIDTH-1:0] rdata_accum28;
-wire [`DWIDTH-1:0] rdata_accum29;
-wire [`DWIDTH-1:0] rdata_accum30;
-wire [`DWIDTH-1:0] rdata_accum31;
 `endif
 
 //Connections for bram a (activation/input matrix)
@@ -625,14 +569,6 @@ accumulator u_accum (
   .raddr_accum5_pool(raddr_accum5_pool),
   .raddr_accum6_pool(raddr_accum6_pool),
   .raddr_accum7_pool(raddr_accum7_pool),
-  .rdata_accum0(rdata_accum0),
-  .rdata_accum1(rdata_accum1),
-  .rdata_accum2(rdata_accum2),
-  .rdata_accum3(rdata_accum3),
-  .rdata_accum4(rdata_accum4),
-  .rdata_accum5(rdata_accum5),
-  .rdata_accum6(rdata_accum6),
-  .rdata_accum7(rdata_accum7),
   .rdata_accum0_pool(rdata_accum0_pool),
   .rdata_accum1_pool(rdata_accum1_pool),
   .rdata_accum2_pool(rdata_accum2_pool),
@@ -675,22 +611,6 @@ accumulator u_accum (
   .raddr_accum13_pool(raddr_accum13_pool),
   .raddr_accum14_pool(raddr_accum14_pool),
   .raddr_accum15_pool(raddr_accum15_pool),
-  .rdata_accum0(rdata_accum0),
-  .rdata_accum1(rdata_accum1),
-  .rdata_accum2(rdata_accum2),
-  .rdata_accum3(rdata_accum3),
-  .rdata_accum4(rdata_accum4),
-  .rdata_accum5(rdata_accum5),
-  .rdata_accum6(rdata_accum6),
-  .rdata_accum7(rdata_accum7),
-  .rdata_accum8(rdata_accum8),
-  .rdata_accum9(rdata_accum9),
-  .rdata_accum10(rdata_accum10),
-  .rdata_accum11(rdata_accum11),
-  .rdata_accum12(rdata_accum12),
-  .rdata_accum13(rdata_accum13),
-  .rdata_accum14(rdata_accum14),
-  .rdata_accum15(rdata_accum15),
   .rdata_accum0_pool(rdata_accum0_pool),
   .rdata_accum1_pool(rdata_accum1_pool),
   .rdata_accum2_pool(rdata_accum2_pool),
@@ -773,38 +693,6 @@ accumulator u_accum (
   .raddr_accum29_pool(raddr_accum29_pool),
   .raddr_accum30_pool(raddr_accum30_pool),
   .raddr_accum31_pool(raddr_accum31_pool),
-  .rdata_accum0(rdata_accum0),
-  .rdata_accum1(rdata_accum1),
-  .rdata_accum2(rdata_accum2),
-  .rdata_accum3(rdata_accum3),
-  .rdata_accum4(rdata_accum4),
-  .rdata_accum5(rdata_accum5),
-  .rdata_accum6(rdata_accum6),
-  .rdata_accum7(rdata_accum7),
-  .rdata_accum8(rdata_accum8),
-  .rdata_accum9(rdata_accum9),
-  .rdata_accum10(rdata_accum10),
-  .rdata_accum11(rdata_accum11),
-  .rdata_accum12(rdata_accum12),
-  .rdata_accum13(rdata_accum13),
-  .rdata_accum14(rdata_accum14),
-  .rdata_accum15(rdata_accum15),
-  .rdata_accum16(rdata_accum16),
-  .rdata_accum17(rdata_accum17),
-  .rdata_accum18(rdata_accum18),
-  .rdata_accum19(rdata_accum19),
-  .rdata_accum20(rdata_accum20),
-  .rdata_accum21(rdata_accum21),
-  .rdata_accum22(rdata_accum22),
-  .rdata_accum23(rdata_accum23),
-  .rdata_accum24(rdata_accum24),
-  .rdata_accum25(rdata_accum25),
-  .rdata_accum26(rdata_accum26),
-  .rdata_accum27(rdata_accum27),
-  .rdata_accum28(rdata_accum28),
-  .rdata_accum29(rdata_accum29),
-  .rdata_accum30(rdata_accum30),
-  .rdata_accum31(rdata_accum31),
   .rdata_accum0_pool(rdata_accum0_pool),
   .rdata_accum1_pool(rdata_accum1_pool),
   .rdata_accum2_pool(rdata_accum2_pool),
