@@ -2400,13 +2400,13 @@ always @(posedge clk) begin
 	in_data_available7 <= in_data_available6;
 end
 
-assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
-
 wire out_data_available_internal;
 wire out_data_available_final;
 
 reg [`DWIDTH-1:0] done_count;
 reg done_norm;
+
+assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
 
 always @(posedge clk) begin
 	if (reset) begin
@@ -4713,8 +4713,8 @@ matmul_4x4_systolic u_matmul(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
-  .a_loc(8'd0),
-  .b_loc(8'd0)
+  .a_loc(16'd0),
+  .b_loc(16'd0)
 );
 
 ////////////////////////////////////////////////////////////////

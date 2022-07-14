@@ -48,13 +48,13 @@ always @(posedge clk) begin
 	in_data_available7 <= in_data_available6;
 end
 
-assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
-
 wire out_data_available_internal;
 wire out_data_available_final;
 
 reg [`DWIDTH-1:0] done_count;
 reg done_norm;
+
+assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
 
 always @(posedge clk) begin
 	if (reset) begin
