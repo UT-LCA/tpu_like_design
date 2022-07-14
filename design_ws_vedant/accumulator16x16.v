@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_accum.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 module accumulator (
     clk,
     resetn,
@@ -92,22 +96,6 @@ input [`AWIDTH-1:0] raddr_accum12_pool;
 input [`AWIDTH-1:0] raddr_accum13_pool;
 input [`AWIDTH-1:0] raddr_accum14_pool;
 input [`AWIDTH-1:0] raddr_accum15_pool;
-output [`DWIDTH-1:0] rdata_accum0;
-output [`DWIDTH-1:0] rdata_accum1;
-output [`DWIDTH-1:0] rdata_accum2;
-output [`DWIDTH-1:0] rdata_accum3;
-output [`DWIDTH-1:0] rdata_accum4;
-output [`DWIDTH-1:0] rdata_accum5;
-output [`DWIDTH-1:0] rdata_accum6;
-output [`DWIDTH-1:0] rdata_accum7;
-output [`DWIDTH-1:0] rdata_accum8;
-output [`DWIDTH-1:0] rdata_accum9;
-output [`DWIDTH-1:0] rdata_accum10;
-output [`DWIDTH-1:0] rdata_accum11;
-output [`DWIDTH-1:0] rdata_accum12;
-output [`DWIDTH-1:0] rdata_accum13;
-output [`DWIDTH-1:0] rdata_accum14;
-output [`DWIDTH-1:0] rdata_accum15;
 output [`DWIDTH-1:0] rdata_accum0_pool;
 output [`DWIDTH-1:0] rdata_accum1_pool;
 output [`DWIDTH-1:0] rdata_accum2_pool;
@@ -287,7 +275,7 @@ reg [7:0] start_pooling_count;
 always @ (posedge clk) begin
     if (~resetn)
         start_pooling <= 0;
-    else if (start_pooling_count > 8'd30) begin
+    else if (start_pooling_count > 8'd14) begin
     	start_pooling <= 0;
     	done_pooling <= 1;
     end
@@ -462,7 +450,7 @@ wire [`DWIDTH-1:0] rdata_buffer12_pong;
 wire [`DWIDTH-1:0] rdata_buffer13_pong;
 wire [`DWIDTH-1:0] rdata_buffer14_pong;
 wire [`DWIDTH-1:0] rdata_buffer15_pong;
-   
+    
 // Based on the Accumulator Adder MUX select signal either 0 or data read from the RAM goes into the Adder
 assign wdata_accum0_in = (~add_accum_mux0)?  8'b0 : (buffer_select)? rdata_buffer0 : rdata_buffer0_pong;
 assign wdata_accum1_in = (~add_accum_mux1)?  8'b0 : (buffer_select)? rdata_buffer1 : rdata_buffer1_pong;
@@ -620,24 +608,24 @@ buffer_select_accum14 <= buffer_select_accum13;
 buffer_select_accum15 <= buffer_select_accum14;
 end
 
-assign raddr_buffer0 = (buffer_select_pool)? raddr_accum0_pool : (buffer_select_accum)? raddr_accum0 : 11'bx;
-assign raddr_buffer1 = (buffer_select_pool1)? raddr_accum1_pool : (buffer_select_accum1)? raddr_accum1 : 11'bx;
-assign raddr_buffer2 = (buffer_select_pool2)? raddr_accum2_pool : (buffer_select_accum2)? raddr_accum2 : 11'bx;
-assign raddr_buffer3 = (buffer_select_pool3)? raddr_accum3_pool : (buffer_select_accum3)? raddr_accum3 : 11'bx;
-assign raddr_buffer4 = (buffer_select_pool4)? raddr_accum4_pool : (buffer_select_accum4)? raddr_accum4 : 11'bx;
-assign raddr_buffer5 = (buffer_select_pool5)? raddr_accum5_pool : (buffer_select_accum5)? raddr_accum5 : 11'bx;
-assign raddr_buffer6 = (buffer_select_pool6)? raddr_accum6_pool : (buffer_select_accum6)? raddr_accum6 : 11'bx;
-assign raddr_buffer7 = (buffer_select_pool7)? raddr_accum7_pool : (buffer_select_accum7)? raddr_accum7 : 11'bx;
-assign raddr_buffer8 = (buffer_select_pool8)? raddr_accum8_pool : (buffer_select_accum8)? raddr_accum8 : 11'bx;
-assign raddr_buffer9 = (buffer_select_pool9)? raddr_accum9_pool : (buffer_select_accum9)? raddr_accum9 : 11'bx;
-assign raddr_buffer10 = (buffer_select_pool10)? raddr_accum10_pool : (buffer_select_accum10)? raddr_accum10 : 11'bx;
-assign raddr_buffer11 = (buffer_select_pool11)? raddr_accum11_pool : (buffer_select_accum11)? raddr_accum11 : 11'bx;
-assign raddr_buffer12 = (buffer_select_pool12)? raddr_accum12_pool : (buffer_select_accum12)? raddr_accum12 : 11'bx;
-assign raddr_buffer13 = (buffer_select_pool13)? raddr_accum13_pool : (buffer_select_accum13)? raddr_accum13 : 11'bx;
-assign raddr_buffer14 = (buffer_select_pool14)? raddr_accum14_pool : (buffer_select_accum14)? raddr_accum14 : 11'bx;
-assign raddr_buffer15 = (buffer_select_pool15)? raddr_accum15_pool : (buffer_select_accum15)? raddr_accum15 : 11'bx;
+assign raddr_buffer0 = (buffer_select_pool)? raddr_accum0_pool : (buffer_select_accum)? raddr_accum0:11'bx;
+assign raddr_buffer1 = (buffer_select_pool1)? raddr_accum1_pool : (buffer_select_accum1)? raddr_accum1:11'bx;
+assign raddr_buffer2 = (buffer_select_pool2)? raddr_accum2_pool : (buffer_select_accum2)? raddr_accum2:11'bx;
+assign raddr_buffer3 = (buffer_select_pool3)? raddr_accum3_pool : (buffer_select_accum3)? raddr_accum3:11'bx;
+assign raddr_buffer4 = (buffer_select_pool4)? raddr_accum4_pool : (buffer_select_accum4)? raddr_accum4:11'bx;
+assign raddr_buffer5 = (buffer_select_pool5)? raddr_accum5_pool : (buffer_select_accum5)? raddr_accum5:11'bx;
+assign raddr_buffer6 = (buffer_select_pool6)? raddr_accum6_pool : (buffer_select_accum6)? raddr_accum6:11'bx;
+assign raddr_buffer7 = (buffer_select_pool7)? raddr_accum7_pool : (buffer_select_accum7)? raddr_accum7:11'bx;
+assign raddr_buffer8 = (buffer_select_pool8)? raddr_accum8_pool : (buffer_select_accum8)? raddr_accum8:11'bx;
+assign raddr_buffer9 = (buffer_select_pool9)? raddr_accum9_pool : (buffer_select_accum9)? raddr_accum9:11'bx;
+assign raddr_buffer10 = (buffer_select_pool10)? raddr_accum10_pool : (buffer_select_accum10)? raddr_accum10:11'bx;
+assign raddr_buffer11 = (buffer_select_pool11)? raddr_accum11_pool : (buffer_select_accum11)? raddr_accum11:11'bx;
+assign raddr_buffer12 = (buffer_select_pool12)? raddr_accum12_pool : (buffer_select_accum12)? raddr_accum12:11'bx;
+assign raddr_buffer13 = (buffer_select_pool13)? raddr_accum13_pool : (buffer_select_accum13)? raddr_accum13:11'bx;
+assign raddr_buffer14 = (buffer_select_pool14)? raddr_accum14_pool : (buffer_select_accum14)? raddr_accum14:11'bx;
+assign raddr_buffer15 = (buffer_select_pool15)? raddr_accum15_pool : (buffer_select_accum15)? raddr_accum15:11'bx;
   
-assign rdata_accum0_pool =  (buffer_select_pool)? (buffer_select)? rdata_buffer0 : rdata_buffer0_pong : 8'b0;
+assign rdata_accum0_pool =  (buffer_select_pool)?  (buffer_select)? rdata_buffer0 : rdata_buffer0_pong : 8'b0;
 assign rdata_accum1_pool =  (buffer_select_pool1)? (buffer_select)? rdata_buffer1 : rdata_buffer1_pong : 8'b0;
 assign rdata_accum2_pool =  (buffer_select_pool2)? (buffer_select)? rdata_buffer2 : rdata_buffer2_pong : 8'b0;
 assign rdata_accum3_pool =  (buffer_select_pool3)? (buffer_select)? rdata_buffer3 : rdata_buffer3_pong : 8'b0;
@@ -653,7 +641,6 @@ assign rdata_accum12_pool =  (buffer_select_pool12)? (buffer_select)? rdata_buff
 assign rdata_accum13_pool =  (buffer_select_pool13)? (buffer_select)? rdata_buffer13 : rdata_buffer13_pong : 8'b0;
 assign rdata_accum14_pool =  (buffer_select_pool14)? (buffer_select)? rdata_buffer14 : rdata_buffer14_pong : 8'b0;
 assign rdata_accum15_pool =  (buffer_select_pool15)? (buffer_select)? rdata_buffer15 : rdata_buffer15_pong : 8'b0;
-
   
 ////////////////////////////////////////////////
 // PING ACCUMULATORS
@@ -1096,5 +1083,5 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum15_pong (
     .clk(clk)
 );
 
-
 endmodule
+

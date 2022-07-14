@@ -171,14 +171,14 @@ reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg5_int;
 reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg6_int;
 reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg7_int;
 
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average0;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average1;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average2;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average3;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average4;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average5;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average6;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average7;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average0;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average1;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average2;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average3;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average4;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average5;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average6;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average7;
 
 assign pool_norm_valid = (pool_count1 == (filter_size_int*filter_size_int))?1'b1:1'b0;
 
@@ -427,3 +427,4 @@ assign pool7 = (pool_count8 == (filter_size_int*filter_size_int))? ((pool_select
 
 
 endmodule
+

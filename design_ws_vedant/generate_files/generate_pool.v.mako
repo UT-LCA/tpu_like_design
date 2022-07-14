@@ -113,7 +113,7 @@ reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg${i}_int;
 % endfor
 
 % for i in range(mat_mul_size):
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average${i};
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average${i};
 % endfor
 
 assign pool_norm_valid = (pool_count1 == (filter_size_int*filter_size_int))?1'b1:1'b0;
@@ -179,3 +179,4 @@ assign pool${i} = (pool_count${i+1} == (filter_size_int*filter_size_int))? ((poo
 % endfor
 
 endmodule
+

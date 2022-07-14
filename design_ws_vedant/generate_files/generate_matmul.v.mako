@@ -655,7 +655,7 @@ end
 // Signals for Each PONG buffer
 
 % for i in range(1,2*mat_mul_size-1):
-reg b_data_valid_pong_delay0${i};
+reg b_data_valid_pong_delay0_${i};
 % endfor
 % for i in range(mat_mul_size):
 %   for j in range(1,mat_mul_size):
@@ -664,18 +664,18 @@ wire b_data_valid_pong_delay${j}_${i};
 % endfor
   
 always @ (posedge clk) begin
-    b_data_valid_pong_delay01 <= b_data_valid_pong;
+    b_data_valid_pong_delay0_1 <= b_data_valid_pong;
     % for i in range(2,2*mat_mul_size-1):
-    b_data_valid_pong_delay0${i} <= b_data_valid_pong_delay0${i-1};
+    b_data_valid_pong_delay0_${i} <= b_data_valid_pong_delay0_${i-1};
     % endfor
 end
 
 % for i in range(mat_mul_size):
 %   for j in range(1,mat_mul_size):
 %       if (i == 0):
-assign b_data_valid_pong_delay${j}_${i} = b_data_valid_pong & b_data_valid_pong_delay0${i+j};
+assign b_data_valid_pong_delay${j}_${i} = b_data_valid_pong & b_data_valid_pong_delay0_${i+j};
 %       else:
-assign b_data_valid_pong_delay${j}_${i} = b_data_valid_pong_delay0${i} & b_data_valid_pong_delay0${i+j};
+assign b_data_valid_pong_delay${j}_${i} = b_data_valid_pong_delay0_${i} & b_data_valid_pong_delay0_${i+j};
 %       endif
 %   endfor
 % endfor
@@ -683,7 +683,7 @@ assign b_data_valid_pong_delay${j}_${i} = b_data_valid_pong_delay0${i} & b_data_
 // Signals for Each PING buffer
 
 % for i in range(1,2*mat_mul_size-1):
-reg b_data_valid_ping_delay0${i};
+reg b_data_valid_ping_delay0_${i};
 % endfor
 % for i in range(mat_mul_size):
 %   for j in range(1,mat_mul_size):
@@ -692,18 +692,18 @@ wire b_data_valid_ping_delay${j}_${i};
 % endfor
   
 always @ (posedge clk) begin
-    b_data_valid_ping_delay01 <= b_data_valid_ping;
+    b_data_valid_ping_delay0_1 <= b_data_valid_ping;
     % for i in range(2,2*mat_mul_size-1):
-    b_data_valid_ping_delay0${i} <= b_data_valid_ping_delay0${i-1};
+    b_data_valid_ping_delay0_${i} <= b_data_valid_ping_delay0_${i-1};
     % endfor
 end
 
 % for i in range(mat_mul_size):
 %   for j in range(1,mat_mul_size):
 %       if (i == 0):
-assign b_data_valid_ping_delay${j}_${i} = b_data_valid_ping & b_data_valid_ping_delay0${i+j};
+assign b_data_valid_ping_delay${j}_${i} = b_data_valid_ping & b_data_valid_ping_delay0_${i+j};
 %       else:
-assign b_data_valid_ping_delay${j}_${i} = b_data_valid_ping_delay0${i} & b_data_valid_ping_delay0${i+j};
+assign b_data_valid_ping_delay${j}_${i} = b_data_valid_ping_delay0_${i} & b_data_valid_ping_delay0_${i+j};
 %       endif
 %   endfor
 % endfor
@@ -727,12 +727,12 @@ assign a_data_out = {\
 % for i in range(mat_mul_size-1,0,-1):
 a${i}_${mat_mul_size-1}to${i}_${mat_mul_size}, \
 % endfor
-a0${mat_mul_size-1}to0${mat_mul_size}};
+a0_${mat_mul_size-1}to0_${mat_mul_size}};
 assign b_data_out = {\
 % for i in range(mat_mul_size-1,0,-1):
 b${mat_mul_size-1}_${i}to${mat_mul_size}_${i}, \
 % endfor
-b${mat_mul_size-1}0to${mat_mul_size}0};
+b${mat_mul_size-1}_0to${mat_mul_size}_0};
 
 endmodule
 
@@ -916,3 +916,4 @@ assign c = a + b;
 // DW01_add #(`DWIDTH) u_add(.A(a), .B(b), .CI(1'b0), .SUM(c), .CO());
 
 endmodule
+

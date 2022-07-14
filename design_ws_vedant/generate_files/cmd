@@ -1,0 +1,65 @@
+#! /bin/bash
+
+#Generate submodules
+python3 render_template.py -i generate_pool.v.mako -o ../pooling8x8.v -n 8
+python3 render_template.py -i generate_pool.v.mako -o ../pooling16x16.v -n 16
+python3 render_template.py -i generate_pool.v.mako -o ../pooling32x32.v -n 32
+
+python3 render_template.py -i generate_activation.v.mako -o ../activation8x8.v -n 8
+python3 render_template.py -i generate_activation.v.mako -o ../activation16x16.v -n 16
+python3 render_template.py -i generate_activation.v.mako -o ../activation32x32.v -n 32
+
+python3 render_template.py -i generate_norm.v.mako -o ../norm8x8.v -n 8
+python3 render_template.py -i generate_norm.v.mako -o ../norm16x16.v -n 16
+python3 render_template.py -i generate_norm.v.mako -o ../norm32x32.v -n 32
+
+python3 render_template.py -i generate_accum.v.mako -o ../accumulator8x8.v -n 8
+python3 render_template.py -i generate_accum.v.mako -o ../accumulator16x16.v -n 16
+python3 render_template.py -i generate_accum.v.mako -o ../accumulator32x32.v -n 32
+
+python3 render_template.py -i generate_matmul.v.mako -o ../matmul8x8_ws.v -n 8
+python3 render_template.py -i generate_matmul.v.mako -o ../matmul16x16_ws.v -n 16
+python3 render_template.py -i generate_matmul.v.mako -o ../matmul32x32_ws.v -n 32
+
+#Generate 8x8 TPU
+cat \
+../defines.v \
+../matmul8x8_ws.v \
+../cfg.v \
+../norm8x8.v \
+../ram.v \
+../control.v \
+../accumulator8x8.v \
+../pooling8x8.v \
+../activation8x8.v \
+../top.v \
+> ../mini_tpu_8x8.v.jul14
+
+#Generate 16x16 TPU
+cat \
+../defines.v \
+../matmul16x16_ws.v \
+../cfg.v \
+../norm16x16.v \
+../ram.v \
+../control.v \
+../accumulator16x16.v \
+../pooling16x16.v \
+../activation16x16.v \
+../top.v \
+> ../small_tpu_16x16.v.jul14
+
+##Generate 32x32 TPU
+#cat \
+#../defines.v \
+#../matmul32x32_ws.v \
+#../cfg.v \
+#../norm32x32.v \
+#../ram.v \
+#../control.v \
+#../accumulator32x32.v \
+#../pooling32x32.v \
+#../activation32x32.v \
+#../top.v \
+#> ../med_tpu_32x32.v.jul14
+

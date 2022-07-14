@@ -314,7 +314,9 @@
 //---------------------------------------
 //Addr 68: Register defining the pooling constants
 //----------------------------------------
-`define REG_POOLING_ACCUM_ADDR 32'h68////////////////////////////////////////////////////////////////////////////////
+`define REG_POOLING_ACCUM_ADDR 32'h68
+
+////////////////////////////////////////////////////////////////////////////////
 // THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_matmul.v.mako
 // DO NOT EDIT
 ////////////////////////////////////////////////////////////////////////////////
@@ -10116,8 +10118,6 @@ end
 
 // Signals for Each PONG buffer
 
-// Signals for Each PONG buffer
-
 reg b_data_valid_pong_delay0_1;
 reg b_data_valid_pong_delay0_2;
 reg b_data_valid_pong_delay0_3;
@@ -15867,6 +15867,10 @@ end
 
 endmodule
 
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_norm.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 module norm(
     input enable_norm,
     input [`DWIDTH-1:0] mean,
@@ -16012,7 +16016,6 @@ end
 assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
 
 wire out_data_available_internal;
-wire out_data_available_NC;
 wire out_data_available_final;
 
 reg [`DWIDTH-1:0] done_count;
@@ -16044,6 +16047,7 @@ norm_sub norm0(
     .reset(reset)
 );
 
+wire out_data_available_NC1;
 norm_sub norm1(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16051,12 +16055,13 @@ norm_sub norm1(
     .in_data_available(in_data_available1),
     .inp_data(inp_data1),
     .out_data(out_data1),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC1),
     .validity_mask(validity_mask[1]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC2;
 norm_sub norm2(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16064,12 +16069,13 @@ norm_sub norm2(
     .in_data_available(in_data_available2),
     .inp_data(inp_data2),
     .out_data(out_data2),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC2),
     .validity_mask(validity_mask[2]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC3;
 norm_sub norm3(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16077,12 +16083,13 @@ norm_sub norm3(
     .in_data_available(in_data_available3),
     .inp_data(inp_data3),
     .out_data(out_data3),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC3),
     .validity_mask(validity_mask[3]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC4;
 norm_sub norm4(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16090,12 +16097,13 @@ norm_sub norm4(
     .in_data_available(in_data_available4),
     .inp_data(inp_data4),
     .out_data(out_data4),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC4),
     .validity_mask(validity_mask[4]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC5;
 norm_sub norm5(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16103,12 +16111,13 @@ norm_sub norm5(
     .in_data_available(in_data_available5),
     .inp_data(inp_data5),
     .out_data(out_data5),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC5),
     .validity_mask(validity_mask[5]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC6;
 norm_sub norm6(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16116,12 +16125,13 @@ norm_sub norm6(
     .in_data_available(in_data_available6),
     .inp_data(inp_data6),
     .out_data(out_data6),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC6),
     .validity_mask(validity_mask[6]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC7;
 norm_sub norm7(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16129,12 +16139,13 @@ norm_sub norm7(
     .in_data_available(in_data_available7),
     .inp_data(inp_data7),
     .out_data(out_data7),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC7),
     .validity_mask(validity_mask[7]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC8;
 norm_sub norm8(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16142,12 +16153,13 @@ norm_sub norm8(
     .in_data_available(in_data_available8),
     .inp_data(inp_data8),
     .out_data(out_data8),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC8),
     .validity_mask(validity_mask[8]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC9;
 norm_sub norm9(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16155,12 +16167,13 @@ norm_sub norm9(
     .in_data_available(in_data_available9),
     .inp_data(inp_data9),
     .out_data(out_data9),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC9),
     .validity_mask(validity_mask[9]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC10;
 norm_sub norm10(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16168,12 +16181,13 @@ norm_sub norm10(
     .in_data_available(in_data_available10),
     .inp_data(inp_data10),
     .out_data(out_data10),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC10),
     .validity_mask(validity_mask[10]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC11;
 norm_sub norm11(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16181,12 +16195,13 @@ norm_sub norm11(
     .in_data_available(in_data_available11),
     .inp_data(inp_data11),
     .out_data(out_data11),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC11),
     .validity_mask(validity_mask[11]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC12;
 norm_sub norm12(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16194,12 +16209,13 @@ norm_sub norm12(
     .in_data_available(in_data_available12),
     .inp_data(inp_data12),
     .out_data(out_data12),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC12),
     .validity_mask(validity_mask[12]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC13;
 norm_sub norm13(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16207,12 +16223,13 @@ norm_sub norm13(
     .in_data_available(in_data_available13),
     .inp_data(inp_data13),
     .out_data(out_data13),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC13),
     .validity_mask(validity_mask[13]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC14;
 norm_sub norm14(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16220,12 +16237,13 @@ norm_sub norm14(
     .in_data_available(in_data_available14),
     .inp_data(inp_data14),
     .out_data(out_data14),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC14),
     .validity_mask(validity_mask[14]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC15;
 norm_sub norm15(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16233,12 +16251,13 @@ norm_sub norm15(
     .in_data_available(in_data_available15),
     .inp_data(inp_data15),
     .out_data(out_data15),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC15),
     .validity_mask(validity_mask[15]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC16;
 norm_sub norm16(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16246,12 +16265,13 @@ norm_sub norm16(
     .in_data_available(in_data_available16),
     .inp_data(inp_data16),
     .out_data(out_data16),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC16),
     .validity_mask(validity_mask[16]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC17;
 norm_sub norm17(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16259,12 +16279,13 @@ norm_sub norm17(
     .in_data_available(in_data_available17),
     .inp_data(inp_data17),
     .out_data(out_data17),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC17),
     .validity_mask(validity_mask[17]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC18;
 norm_sub norm18(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16272,12 +16293,13 @@ norm_sub norm18(
     .in_data_available(in_data_available18),
     .inp_data(inp_data18),
     .out_data(out_data18),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC18),
     .validity_mask(validity_mask[18]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC19;
 norm_sub norm19(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16285,12 +16307,13 @@ norm_sub norm19(
     .in_data_available(in_data_available19),
     .inp_data(inp_data19),
     .out_data(out_data19),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC19),
     .validity_mask(validity_mask[19]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC20;
 norm_sub norm20(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16298,12 +16321,13 @@ norm_sub norm20(
     .in_data_available(in_data_available20),
     .inp_data(inp_data20),
     .out_data(out_data20),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC20),
     .validity_mask(validity_mask[20]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC21;
 norm_sub norm21(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16311,12 +16335,13 @@ norm_sub norm21(
     .in_data_available(in_data_available21),
     .inp_data(inp_data21),
     .out_data(out_data21),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC21),
     .validity_mask(validity_mask[21]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC22;
 norm_sub norm22(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16324,12 +16349,13 @@ norm_sub norm22(
     .in_data_available(in_data_available22),
     .inp_data(inp_data22),
     .out_data(out_data22),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC22),
     .validity_mask(validity_mask[22]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC23;
 norm_sub norm23(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16337,12 +16363,13 @@ norm_sub norm23(
     .in_data_available(in_data_available23),
     .inp_data(inp_data23),
     .out_data(out_data23),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC23),
     .validity_mask(validity_mask[23]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC24;
 norm_sub norm24(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16350,12 +16377,13 @@ norm_sub norm24(
     .in_data_available(in_data_available24),
     .inp_data(inp_data24),
     .out_data(out_data24),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC24),
     .validity_mask(validity_mask[24]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC25;
 norm_sub norm25(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16363,12 +16391,13 @@ norm_sub norm25(
     .in_data_available(in_data_available25),
     .inp_data(inp_data25),
     .out_data(out_data25),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC25),
     .validity_mask(validity_mask[25]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC26;
 norm_sub norm26(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16376,12 +16405,13 @@ norm_sub norm26(
     .in_data_available(in_data_available26),
     .inp_data(inp_data26),
     .out_data(out_data26),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC26),
     .validity_mask(validity_mask[26]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC27;
 norm_sub norm27(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16389,12 +16419,13 @@ norm_sub norm27(
     .in_data_available(in_data_available27),
     .inp_data(inp_data27),
     .out_data(out_data27),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC27),
     .validity_mask(validity_mask[27]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC28;
 norm_sub norm28(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16402,12 +16433,13 @@ norm_sub norm28(
     .in_data_available(in_data_available28),
     .inp_data(inp_data28),
     .out_data(out_data28),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC28),
     .validity_mask(validity_mask[28]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC29;
 norm_sub norm29(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16415,12 +16447,13 @@ norm_sub norm29(
     .in_data_available(in_data_available29),
     .inp_data(inp_data29),
     .out_data(out_data29),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC29),
     .validity_mask(validity_mask[29]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC30;
 norm_sub norm30(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -16428,7 +16461,7 @@ norm_sub norm30(
     .in_data_available(in_data_available30),
     .inp_data(inp_data30),
     .out_data(out_data30),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC30),
     .validity_mask(validity_mask[30]),
     .clk(clk),
     .reset(reset)
@@ -16506,7 +16539,9 @@ end
 
 assign out_data_internal = variance_applied_data;
 
-endmodule//////////////////////////////////
+endmodule
+
+//////////////////////////////////
 //Dual port RAM
 //////////////////////////////////
 //////////////////////////////////
@@ -16574,7 +16609,9 @@ dual_port_ram u_dual_port_ram(
 `endif
 
 
-endmodule//Top level state machine
+endmodule
+
+//Top level state machine
 module control(
     input clk,
     input reset,
@@ -16696,6 +16733,10 @@ always @( posedge clk) begin
 end
 endmodule
 
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_accum.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 module accumulator (
     clk,
     resetn,
@@ -17480,7 +17521,7 @@ wire [`DWIDTH-1:0] rdata_buffer28_pong;
 wire [`DWIDTH-1:0] rdata_buffer29_pong;
 wire [`DWIDTH-1:0] rdata_buffer30_pong;
 wire [`DWIDTH-1:0] rdata_buffer31_pong;
-
+    
 // Based on the Accumulator Adder MUX select signal either 0 or data read from the RAM goes into the Adder
 assign wdata_accum0_in = (~add_accum_mux0)?  8'b0 : (buffer_select)? rdata_buffer0 : rdata_buffer0_pong;
 assign wdata_accum1_in = (~add_accum_mux1)?  8'b0 : (buffer_select)? rdata_buffer1 : rdata_buffer1_pong;
@@ -17782,40 +17823,40 @@ buffer_select_accum30 <= buffer_select_accum29;
 buffer_select_accum31 <= buffer_select_accum30;
 end
 
-assign raddr_buffer0 = (buffer_select_pool)? raddr_accum0_pool : (buffer_select_accum)? raddr_accum0 : 11'bx;
-assign raddr_buffer1 = (buffer_select_pool1)? raddr_accum1_pool : (buffer_select_accum1)? raddr_accum1 : 11'bx;
-assign raddr_buffer2 = (buffer_select_pool2)? raddr_accum2_pool : (buffer_select_accum2)? raddr_accum2 : 11'bx;
-assign raddr_buffer3 = (buffer_select_pool3)? raddr_accum3_pool : (buffer_select_accum3)? raddr_accum3 : 11'bx;
-assign raddr_buffer4 = (buffer_select_pool4)? raddr_accum4_pool : (buffer_select_accum4)? raddr_accum4 : 11'bx;
-assign raddr_buffer5 = (buffer_select_pool5)? raddr_accum5_pool : (buffer_select_accum5)? raddr_accum5 : 11'bx;
-assign raddr_buffer6 = (buffer_select_pool6)? raddr_accum6_pool : (buffer_select_accum6)? raddr_accum6 : 11'bx;
-assign raddr_buffer7 = (buffer_select_pool7)? raddr_accum7_pool : (buffer_select_accum7)? raddr_accum7 : 11'bx;
-assign raddr_buffer8 = (buffer_select_pool8)? raddr_accum8_pool : (buffer_select_accum8)? raddr_accum8 : 11'bx;
-assign raddr_buffer9 = (buffer_select_pool9)? raddr_accum9_pool : (buffer_select_accum9)? raddr_accum9 : 11'bx;
-assign raddr_buffer10 = (buffer_select_pool10)? raddr_accum10_pool : (buffer_select_accum10)? raddr_accum10 : 11'bx;
-assign raddr_buffer11 = (buffer_select_pool11)? raddr_accum11_pool : (buffer_select_accum11)? raddr_accum11 : 11'bx;
-assign raddr_buffer12 = (buffer_select_pool12)? raddr_accum12_pool : (buffer_select_accum12)? raddr_accum12 : 11'bx;
-assign raddr_buffer13 = (buffer_select_pool13)? raddr_accum13_pool : (buffer_select_accum13)? raddr_accum13 : 11'bx;
-assign raddr_buffer14 = (buffer_select_pool14)? raddr_accum14_pool : (buffer_select_accum14)? raddr_accum14 : 11'bx;
-assign raddr_buffer15 = (buffer_select_pool15)? raddr_accum15_pool : (buffer_select_accum15)? raddr_accum15 : 11'bx;
-assign raddr_buffer16 = (buffer_select_pool16)? raddr_accum16_pool : (buffer_select_accum16)? raddr_accum16 : 11'bx;
-assign raddr_buffer17 = (buffer_select_pool17)? raddr_accum17_pool : (buffer_select_accum17)? raddr_accum17 : 11'bx;
-assign raddr_buffer18 = (buffer_select_pool18)? raddr_accum18_pool : (buffer_select_accum18)? raddr_accum18 : 11'bx;
-assign raddr_buffer19 = (buffer_select_pool19)? raddr_accum19_pool : (buffer_select_accum19)? raddr_accum19 : 11'bx;
-assign raddr_buffer20 = (buffer_select_pool20)? raddr_accum20_pool : (buffer_select_accum20)? raddr_accum20 : 11'bx;
-assign raddr_buffer21 = (buffer_select_pool21)? raddr_accum21_pool : (buffer_select_accum21)? raddr_accum21 : 11'bx;
-assign raddr_buffer22 = (buffer_select_pool22)? raddr_accum22_pool : (buffer_select_accum22)? raddr_accum22 : 11'bx;
-assign raddr_buffer23 = (buffer_select_pool23)? raddr_accum23_pool : (buffer_select_accum23)? raddr_accum23 : 11'bx;
-assign raddr_buffer24 = (buffer_select_pool24)? raddr_accum24_pool : (buffer_select_accum24)? raddr_accum24 : 11'bx;
-assign raddr_buffer25 = (buffer_select_pool25)? raddr_accum25_pool : (buffer_select_accum25)? raddr_accum25 : 11'bx;
-assign raddr_buffer26 = (buffer_select_pool26)? raddr_accum26_pool : (buffer_select_accum26)? raddr_accum26 : 11'bx;
-assign raddr_buffer27 = (buffer_select_pool27)? raddr_accum27_pool : (buffer_select_accum27)? raddr_accum27 : 11'bx;
-assign raddr_buffer28 = (buffer_select_pool28)? raddr_accum28_pool : (buffer_select_accum28)? raddr_accum28 : 11'bx;
-assign raddr_buffer29 = (buffer_select_pool29)? raddr_accum29_pool : (buffer_select_accum29)? raddr_accum29 : 11'bx;
-assign raddr_buffer30 = (buffer_select_pool30)? raddr_accum30_pool : (buffer_select_accum30)? raddr_accum30 : 11'bx;
-assign raddr_buffer31 = (buffer_select_pool31)? raddr_accum31_pool : (buffer_select_accum31)? raddr_accum31 : 11'bx;
+assign raddr_buffer0 = (buffer_select_pool)? raddr_accum0_pool : (buffer_select_accum)? raddr_accum0:11'bx;
+assign raddr_buffer1 = (buffer_select_pool1)? raddr_accum1_pool : (buffer_select_accum1)? raddr_accum1:11'bx;
+assign raddr_buffer2 = (buffer_select_pool2)? raddr_accum2_pool : (buffer_select_accum2)? raddr_accum2:11'bx;
+assign raddr_buffer3 = (buffer_select_pool3)? raddr_accum3_pool : (buffer_select_accum3)? raddr_accum3:11'bx;
+assign raddr_buffer4 = (buffer_select_pool4)? raddr_accum4_pool : (buffer_select_accum4)? raddr_accum4:11'bx;
+assign raddr_buffer5 = (buffer_select_pool5)? raddr_accum5_pool : (buffer_select_accum5)? raddr_accum5:11'bx;
+assign raddr_buffer6 = (buffer_select_pool6)? raddr_accum6_pool : (buffer_select_accum6)? raddr_accum6:11'bx;
+assign raddr_buffer7 = (buffer_select_pool7)? raddr_accum7_pool : (buffer_select_accum7)? raddr_accum7:11'bx;
+assign raddr_buffer8 = (buffer_select_pool8)? raddr_accum8_pool : (buffer_select_accum8)? raddr_accum8:11'bx;
+assign raddr_buffer9 = (buffer_select_pool9)? raddr_accum9_pool : (buffer_select_accum9)? raddr_accum9:11'bx;
+assign raddr_buffer10 = (buffer_select_pool10)? raddr_accum10_pool : (buffer_select_accum10)? raddr_accum10:11'bx;
+assign raddr_buffer11 = (buffer_select_pool11)? raddr_accum11_pool : (buffer_select_accum11)? raddr_accum11:11'bx;
+assign raddr_buffer12 = (buffer_select_pool12)? raddr_accum12_pool : (buffer_select_accum12)? raddr_accum12:11'bx;
+assign raddr_buffer13 = (buffer_select_pool13)? raddr_accum13_pool : (buffer_select_accum13)? raddr_accum13:11'bx;
+assign raddr_buffer14 = (buffer_select_pool14)? raddr_accum14_pool : (buffer_select_accum14)? raddr_accum14:11'bx;
+assign raddr_buffer15 = (buffer_select_pool15)? raddr_accum15_pool : (buffer_select_accum15)? raddr_accum15:11'bx;
+assign raddr_buffer16 = (buffer_select_pool16)? raddr_accum16_pool : (buffer_select_accum16)? raddr_accum16:11'bx;
+assign raddr_buffer17 = (buffer_select_pool17)? raddr_accum17_pool : (buffer_select_accum17)? raddr_accum17:11'bx;
+assign raddr_buffer18 = (buffer_select_pool18)? raddr_accum18_pool : (buffer_select_accum18)? raddr_accum18:11'bx;
+assign raddr_buffer19 = (buffer_select_pool19)? raddr_accum19_pool : (buffer_select_accum19)? raddr_accum19:11'bx;
+assign raddr_buffer20 = (buffer_select_pool20)? raddr_accum20_pool : (buffer_select_accum20)? raddr_accum20:11'bx;
+assign raddr_buffer21 = (buffer_select_pool21)? raddr_accum21_pool : (buffer_select_accum21)? raddr_accum21:11'bx;
+assign raddr_buffer22 = (buffer_select_pool22)? raddr_accum22_pool : (buffer_select_accum22)? raddr_accum22:11'bx;
+assign raddr_buffer23 = (buffer_select_pool23)? raddr_accum23_pool : (buffer_select_accum23)? raddr_accum23:11'bx;
+assign raddr_buffer24 = (buffer_select_pool24)? raddr_accum24_pool : (buffer_select_accum24)? raddr_accum24:11'bx;
+assign raddr_buffer25 = (buffer_select_pool25)? raddr_accum25_pool : (buffer_select_accum25)? raddr_accum25:11'bx;
+assign raddr_buffer26 = (buffer_select_pool26)? raddr_accum26_pool : (buffer_select_accum26)? raddr_accum26:11'bx;
+assign raddr_buffer27 = (buffer_select_pool27)? raddr_accum27_pool : (buffer_select_accum27)? raddr_accum27:11'bx;
+assign raddr_buffer28 = (buffer_select_pool28)? raddr_accum28_pool : (buffer_select_accum28)? raddr_accum28:11'bx;
+assign raddr_buffer29 = (buffer_select_pool29)? raddr_accum29_pool : (buffer_select_accum29)? raddr_accum29:11'bx;
+assign raddr_buffer30 = (buffer_select_pool30)? raddr_accum30_pool : (buffer_select_accum30)? raddr_accum30:11'bx;
+assign raddr_buffer31 = (buffer_select_pool31)? raddr_accum31_pool : (buffer_select_accum31)? raddr_accum31:11'bx;
   
-assign rdata_accum0_pool =  (buffer_select_pool)? (buffer_select)? rdata_buffer0 : rdata_buffer0_pong : 8'b0;
+assign rdata_accum0_pool =  (buffer_select_pool)?  (buffer_select)? rdata_buffer0 : rdata_buffer0_pong : 8'b0;
 assign rdata_accum1_pool =  (buffer_select_pool1)? (buffer_select)? rdata_buffer1 : rdata_buffer1_pong : 8'b0;
 assign rdata_accum2_pool =  (buffer_select_pool2)? (buffer_select)? rdata_buffer2 : rdata_buffer2_pong : 8'b0;
 assign rdata_accum3_pool =  (buffer_select_pool3)? (buffer_select)? rdata_buffer3 : rdata_buffer3_pong : 8'b0;
@@ -18721,8 +18762,12 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum31_pong (
     .clk(clk)
 );
 
-
 endmodule
+
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_pool.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 
 module pooling(
     clk,
@@ -20115,6 +20160,10 @@ assign pool31 = (pool_count32 == (filter_size_int*filter_size_int))? ((pool_sele
 
 endmodule
 
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_activation.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 module activation(
     input activation_type,
     input enable_activation,
@@ -20261,20 +20310,24 @@ wire out_data_available_internal;
 assign out_data_available   = enable_pool? enable_activation ? out_data_available_internal : in_data_available : in_data_available2;
 
 
-wire out_data_available_NC;
 wire out_data_available_final;
 reg [`DWIDTH-1:0] act_count;
 reg done_activation;
+reg [`DWIDTH-1:0] done_activation_count;
 
 always @(posedge clk) begin
 	if (reset) begin
 		done_activation <= 0;
+      done_activation_count <= 0;
 		act_count <= 0;
 	end
-	if (act_count == 4) begin
+   else if (done_activation_count == `MAT_MUL_SIZE)
+      done_activation <= 0;
+	else if (act_count == 4) begin
 		done_activation <= 1;
+      done_activation_count <= done_activation_count + 1;
 	end
-	if (out_data_available_final == 1) begin
+	else if (out_data_available_final == 1) begin
 		act_count <= act_count + 1;
 	end
 end
@@ -20291,361 +20344,391 @@ sub_activation activation0(
     .reset(reset)
 );
 
+wire out_data_available_NC1;
 sub_activation activation1(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available1),
     .inp_data(inp_data1),
     .out_data(out_data1),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC1),
     .validity_mask(validity_mask[1]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC2;
 sub_activation activation2(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available2),
     .inp_data(inp_data2),
     .out_data(out_data2),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC2),
     .validity_mask(validity_mask[2]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC3;
 sub_activation activation3(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available3),
     .inp_data(inp_data3),
     .out_data(out_data3),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC3),
     .validity_mask(validity_mask[3]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC4;
 sub_activation activation4(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available4),
     .inp_data(inp_data4),
     .out_data(out_data4),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC4),
     .validity_mask(validity_mask[4]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC5;
 sub_activation activation5(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available5),
     .inp_data(inp_data5),
     .out_data(out_data5),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC5),
     .validity_mask(validity_mask[5]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC6;
 sub_activation activation6(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available6),
     .inp_data(inp_data6),
     .out_data(out_data6),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC6),
     .validity_mask(validity_mask[6]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC7;
 sub_activation activation7(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available7),
     .inp_data(inp_data7),
     .out_data(out_data7),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC7),
     .validity_mask(validity_mask[7]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC8;
 sub_activation activation8(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available8),
     .inp_data(inp_data8),
     .out_data(out_data8),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC8),
     .validity_mask(validity_mask[8]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC9;
 sub_activation activation9(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available9),
     .inp_data(inp_data9),
     .out_data(out_data9),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC9),
     .validity_mask(validity_mask[9]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC10;
 sub_activation activation10(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available10),
     .inp_data(inp_data10),
     .out_data(out_data10),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC10),
     .validity_mask(validity_mask[10]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC11;
 sub_activation activation11(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available11),
     .inp_data(inp_data11),
     .out_data(out_data11),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC11),
     .validity_mask(validity_mask[11]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC12;
 sub_activation activation12(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available12),
     .inp_data(inp_data12),
     .out_data(out_data12),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC12),
     .validity_mask(validity_mask[12]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC13;
 sub_activation activation13(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available13),
     .inp_data(inp_data13),
     .out_data(out_data13),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC13),
     .validity_mask(validity_mask[13]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC14;
 sub_activation activation14(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available14),
     .inp_data(inp_data14),
     .out_data(out_data14),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC14),
     .validity_mask(validity_mask[14]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC15;
 sub_activation activation15(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available15),
     .inp_data(inp_data15),
     .out_data(out_data15),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC15),
     .validity_mask(validity_mask[15]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC16;
 sub_activation activation16(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available16),
     .inp_data(inp_data16),
     .out_data(out_data16),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC16),
     .validity_mask(validity_mask[16]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC17;
 sub_activation activation17(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available17),
     .inp_data(inp_data17),
     .out_data(out_data17),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC17),
     .validity_mask(validity_mask[17]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC18;
 sub_activation activation18(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available18),
     .inp_data(inp_data18),
     .out_data(out_data18),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC18),
     .validity_mask(validity_mask[18]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC19;
 sub_activation activation19(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available19),
     .inp_data(inp_data19),
     .out_data(out_data19),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC19),
     .validity_mask(validity_mask[19]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC20;
 sub_activation activation20(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available20),
     .inp_data(inp_data20),
     .out_data(out_data20),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC20),
     .validity_mask(validity_mask[20]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC21;
 sub_activation activation21(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available21),
     .inp_data(inp_data21),
     .out_data(out_data21),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC21),
     .validity_mask(validity_mask[21]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC22;
 sub_activation activation22(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available22),
     .inp_data(inp_data22),
     .out_data(out_data22),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC22),
     .validity_mask(validity_mask[22]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC23;
 sub_activation activation23(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available23),
     .inp_data(inp_data23),
     .out_data(out_data23),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC23),
     .validity_mask(validity_mask[23]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC24;
 sub_activation activation24(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available24),
     .inp_data(inp_data24),
     .out_data(out_data24),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC24),
     .validity_mask(validity_mask[24]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC25;
 sub_activation activation25(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available25),
     .inp_data(inp_data25),
     .out_data(out_data25),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC25),
     .validity_mask(validity_mask[25]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC26;
 sub_activation activation26(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available26),
     .inp_data(inp_data26),
     .out_data(out_data26),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC26),
     .validity_mask(validity_mask[26]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC27;
 sub_activation activation27(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available27),
     .inp_data(inp_data27),
     .out_data(out_data27),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC27),
     .validity_mask(validity_mask[27]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC28;
 sub_activation activation28(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available28),
     .inp_data(inp_data28),
     .out_data(out_data28),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC28),
     .validity_mask(validity_mask[28]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC29;
 sub_activation activation29(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available29),
     .inp_data(inp_data29),
     .out_data(out_data29),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC29),
     .validity_mask(validity_mask[29]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC30;
 sub_activation activation30(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available30),
     .inp_data(inp_data30),
     .out_data(out_data30),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC30),
     .validity_mask(validity_mask[30]),
     .clk(clk),
     .reset(reset)
@@ -20678,10 +20761,11 @@ module sub_activation(
 );
 
 reg  out_data_available_internal;
-wire [`DWIDTH-1:0] out_data_internal;
+reg [`DWIDTH-1:0] out_data_internal;
 reg [`DWIDTH-1:0] slope_applied_data_internal;
 reg [`DWIDTH-1:0] intercept_applied_data_internal;
 reg [`DWIDTH-1:0] relu_applied_data_internal;
+
 reg [31:0] cycle_count;
 reg activation_in_progress;
 
@@ -20753,7 +20837,12 @@ always @(posedge clk) begin
    end
 end
 
-assign out_data_internal = (activation_type) ? intercept_applied_data_internal : relu_applied_data_internal;
+always @ (posedge clk) begin
+   if (activation_type == 1'b1)
+      out_data_internal <= intercept_applied_data_internal;
+   else
+      out_data_internal <= relu_applied_data_internal;
+end
 
 //Our equation of tanh is Y=AX+B
 //A is the slope and B is the intercept.
@@ -20841,6 +20930,7 @@ assign dummy = validity_mask;
 
 
 endmodule
+
 module top(
     input  clk,
     input  clk_mem,
@@ -22728,3 +22818,4 @@ reg [31:0] i;
  
 
 endmodule
+

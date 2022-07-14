@@ -275,22 +275,22 @@ reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg13_int;
 reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg14_int;
 reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg15_int;
 
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average0;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average1;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average2;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average3;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average4;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average5;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average6;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average7;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average8;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average9;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average10;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average11;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average12;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average13;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average14;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average15;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average0;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average1;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average2;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average3;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average4;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average5;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average6;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average7;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average8;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average9;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average10;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average11;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average12;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average13;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average14;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average15;
 
 assign pool_norm_valid = (pool_count1 == (filter_size_int*filter_size_int))?1'b1:1'b0;
 
@@ -755,3 +755,4 @@ assign pool15 = (pool_count16 == (filter_size_int*filter_size_int))? ((pool_sele
 
 
 endmodule
+

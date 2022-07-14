@@ -315,3 +315,4 @@
 //Addr 68: Register defining the pooling constants
 //----------------------------------------
 `define REG_POOLING_ACCUM_ADDR 32'h68
+

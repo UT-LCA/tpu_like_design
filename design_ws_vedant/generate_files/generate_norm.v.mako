@@ -37,7 +37,6 @@ end
 assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
 
 wire out_data_available_internal;
-wire out_data_available_NC;
 wire out_data_available_final;
 
 reg [`DWIDTH-1:0] done_count;
@@ -70,6 +69,7 @@ norm_sub norm0(
 );
 
 % for i in range(1, mat_mul_size-1):
+wire out_data_available_NC${i};
 norm_sub norm${i}(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -77,7 +77,7 @@ norm_sub norm${i}(
     .in_data_available(in_data_available${i}),
     .inp_data(inp_data${i}),
     .out_data(out_data${i}),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC${i}),
     .validity_mask(validity_mask[${i}]),
     .clk(clk),
     .reset(reset)
@@ -157,3 +157,4 @@ end
 assign out_data_internal = variance_applied_data;
 
 endmodule
+

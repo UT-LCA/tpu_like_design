@@ -38,7 +38,6 @@ wire out_data_available_internal;
 assign out_data_available   = enable_pool? enable_activation ? out_data_available_internal : in_data_available : in_data_available2;
 
 
-wire out_data_available_NC;
 wire out_data_available_final;
 reg [`DWIDTH-1:0] act_count;
 reg done_activation;
@@ -74,13 +73,14 @@ sub_activation activation0(
 );
 
 % for i in range(1, mat_mul_size-1):
+wire out_data_available_NC${i};
 sub_activation activation${i}(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available${i}),
     .inp_data(inp_data${i}),
     .out_data(out_data${i}),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC${i}),
     .validity_mask(validity_mask[${i}]),
     .clk(clk),
     .reset(reset)
@@ -283,3 +283,4 @@ assign dummy = validity_mask;
 
 
 endmodule
+

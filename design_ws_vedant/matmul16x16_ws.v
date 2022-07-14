@@ -3338,7 +3338,7 @@ wire b_data_valid_pong_delay14_15;
 wire b_data_valid_pong_delay15_15;
   
 always @ (posedge clk) begin
-    b_data_valid_pong_delay01 <= b_data_valid_pong;
+    b_data_valid_pong_delay0_1 <= b_data_valid_pong;
     b_data_valid_pong_delay0_2 <= b_data_valid_pong_delay0_1;
     b_data_valid_pong_delay0_3 <= b_data_valid_pong_delay0_2;
     b_data_valid_pong_delay0_4 <= b_data_valid_pong_delay0_3;
@@ -3885,7 +3885,7 @@ wire b_data_valid_ping_delay14_15;
 wire b_data_valid_ping_delay15_15;
   
 always @ (posedge clk) begin
-    b_data_valid_ping_delay01 <= b_data_valid_ping;
+    b_data_valid_ping_delay0_1 <= b_data_valid_ping;
     b_data_valid_ping_delay0_2 <= b_data_valid_ping_delay0_1;
     b_data_valid_ping_delay0_3 <= b_data_valid_ping_delay0_2;
     b_data_valid_ping_delay0_4 <= b_data_valid_ping_delay0_3;
@@ -4616,3 +4616,4 @@ assign c = a + b;
 // DW01_add #(`DWIDTH) u_add(.A(a), .B(b), .CI(1'b0), .SUM(c), .CO());
 
 endmodule
+

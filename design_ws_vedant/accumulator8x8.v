@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_accum.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 module accumulator (
     clk,
     resetn,
@@ -608,3 +612,4 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum7_pong (
 );
 
 endmodule
+

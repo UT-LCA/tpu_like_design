@@ -7,8 +7,8 @@
 `define layer_test
 
 `define DWIDTH 8
-`define AWIDTH 10
-`define MEM_SIZE 1024
+`define AWIDTH 11
+`define MEM_SIZE 2048
 
 `ifdef MATMUL_SIZE_4
 `define MAT_MUL_SIZE 4
@@ -314,7 +314,9 @@
 //---------------------------------------
 //Addr 68: Register defining the pooling constants
 //----------------------------------------
-`define REG_POOLING_ACCUM_ADDR 32'h68////////////////////////////////////////////////////////////////////////////////
+`define REG_POOLING_ACCUM_ADDR 32'h68
+
+////////////////////////////////////////////////////////////////////////////////
 // THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_matmul.v.mako
 // DO NOT EDIT
 ////////////////////////////////////////////////////////////////////////////////
@@ -3364,36 +3366,36 @@ end
 
 // Signals for Each PONG buffer
 
-reg b_data_valid_pong_delay01;
-reg b_data_valid_pong_delay02;
-reg b_data_valid_pong_delay03;
-reg b_data_valid_pong_delay04;
-reg b_data_valid_pong_delay05;
-reg b_data_valid_pong_delay06;
-reg b_data_valid_pong_delay07;
-reg b_data_valid_pong_delay08;
-reg b_data_valid_pong_delay09;
-reg b_data_valid_pong_delay010;
-reg b_data_valid_pong_delay011;
-reg b_data_valid_pong_delay012;
-reg b_data_valid_pong_delay013;
-reg b_data_valid_pong_delay014;
-reg b_data_valid_pong_delay015;
-reg b_data_valid_pong_delay016;
-reg b_data_valid_pong_delay017;
-reg b_data_valid_pong_delay018;
-reg b_data_valid_pong_delay019;
-reg b_data_valid_pong_delay020;
-reg b_data_valid_pong_delay021;
-reg b_data_valid_pong_delay022;
-reg b_data_valid_pong_delay023;
-reg b_data_valid_pong_delay024;
-reg b_data_valid_pong_delay025;
-reg b_data_valid_pong_delay026;
-reg b_data_valid_pong_delay027;
-reg b_data_valid_pong_delay028;
-reg b_data_valid_pong_delay029;
-reg b_data_valid_pong_delay030;
+reg b_data_valid_pong_delay0_1;
+reg b_data_valid_pong_delay0_2;
+reg b_data_valid_pong_delay0_3;
+reg b_data_valid_pong_delay0_4;
+reg b_data_valid_pong_delay0_5;
+reg b_data_valid_pong_delay0_6;
+reg b_data_valid_pong_delay0_7;
+reg b_data_valid_pong_delay0_8;
+reg b_data_valid_pong_delay0_9;
+reg b_data_valid_pong_delay0_10;
+reg b_data_valid_pong_delay0_11;
+reg b_data_valid_pong_delay0_12;
+reg b_data_valid_pong_delay0_13;
+reg b_data_valid_pong_delay0_14;
+reg b_data_valid_pong_delay0_15;
+reg b_data_valid_pong_delay0_16;
+reg b_data_valid_pong_delay0_17;
+reg b_data_valid_pong_delay0_18;
+reg b_data_valid_pong_delay0_19;
+reg b_data_valid_pong_delay0_20;
+reg b_data_valid_pong_delay0_21;
+reg b_data_valid_pong_delay0_22;
+reg b_data_valid_pong_delay0_23;
+reg b_data_valid_pong_delay0_24;
+reg b_data_valid_pong_delay0_25;
+reg b_data_valid_pong_delay0_26;
+reg b_data_valid_pong_delay0_27;
+reg b_data_valid_pong_delay0_28;
+reg b_data_valid_pong_delay0_29;
+reg b_data_valid_pong_delay0_30;
 wire b_data_valid_pong_delay1_0;
 wire b_data_valid_pong_delay2_0;
 wire b_data_valid_pong_delay3_0;
@@ -3636,311 +3638,311 @@ wire b_data_valid_pong_delay14_15;
 wire b_data_valid_pong_delay15_15;
   
 always @ (posedge clk) begin
-    b_data_valid_pong_delay01 <= b_data_valid_pong;
-    b_data_valid_pong_delay02 <= b_data_valid_pong_delay01;
-    b_data_valid_pong_delay03 <= b_data_valid_pong_delay02;
-    b_data_valid_pong_delay04 <= b_data_valid_pong_delay03;
-    b_data_valid_pong_delay05 <= b_data_valid_pong_delay04;
-    b_data_valid_pong_delay06 <= b_data_valid_pong_delay05;
-    b_data_valid_pong_delay07 <= b_data_valid_pong_delay06;
-    b_data_valid_pong_delay08 <= b_data_valid_pong_delay07;
-    b_data_valid_pong_delay09 <= b_data_valid_pong_delay08;
-    b_data_valid_pong_delay010 <= b_data_valid_pong_delay09;
-    b_data_valid_pong_delay011 <= b_data_valid_pong_delay010;
-    b_data_valid_pong_delay012 <= b_data_valid_pong_delay011;
-    b_data_valid_pong_delay013 <= b_data_valid_pong_delay012;
-    b_data_valid_pong_delay014 <= b_data_valid_pong_delay013;
-    b_data_valid_pong_delay015 <= b_data_valid_pong_delay014;
-    b_data_valid_pong_delay016 <= b_data_valid_pong_delay015;
-    b_data_valid_pong_delay017 <= b_data_valid_pong_delay016;
-    b_data_valid_pong_delay018 <= b_data_valid_pong_delay017;
-    b_data_valid_pong_delay019 <= b_data_valid_pong_delay018;
-    b_data_valid_pong_delay020 <= b_data_valid_pong_delay019;
-    b_data_valid_pong_delay021 <= b_data_valid_pong_delay020;
-    b_data_valid_pong_delay022 <= b_data_valid_pong_delay021;
-    b_data_valid_pong_delay023 <= b_data_valid_pong_delay022;
-    b_data_valid_pong_delay024 <= b_data_valid_pong_delay023;
-    b_data_valid_pong_delay025 <= b_data_valid_pong_delay024;
-    b_data_valid_pong_delay026 <= b_data_valid_pong_delay025;
-    b_data_valid_pong_delay027 <= b_data_valid_pong_delay026;
-    b_data_valid_pong_delay028 <= b_data_valid_pong_delay027;
-    b_data_valid_pong_delay029 <= b_data_valid_pong_delay028;
-    b_data_valid_pong_delay030 <= b_data_valid_pong_delay029;
+    b_data_valid_pong_delay0_1 <= b_data_valid_pong;
+    b_data_valid_pong_delay0_2 <= b_data_valid_pong_delay0_1;
+    b_data_valid_pong_delay0_3 <= b_data_valid_pong_delay0_2;
+    b_data_valid_pong_delay0_4 <= b_data_valid_pong_delay0_3;
+    b_data_valid_pong_delay0_5 <= b_data_valid_pong_delay0_4;
+    b_data_valid_pong_delay0_6 <= b_data_valid_pong_delay0_5;
+    b_data_valid_pong_delay0_7 <= b_data_valid_pong_delay0_6;
+    b_data_valid_pong_delay0_8 <= b_data_valid_pong_delay0_7;
+    b_data_valid_pong_delay0_9 <= b_data_valid_pong_delay0_8;
+    b_data_valid_pong_delay0_10 <= b_data_valid_pong_delay0_9;
+    b_data_valid_pong_delay0_11 <= b_data_valid_pong_delay0_10;
+    b_data_valid_pong_delay0_12 <= b_data_valid_pong_delay0_11;
+    b_data_valid_pong_delay0_13 <= b_data_valid_pong_delay0_12;
+    b_data_valid_pong_delay0_14 <= b_data_valid_pong_delay0_13;
+    b_data_valid_pong_delay0_15 <= b_data_valid_pong_delay0_14;
+    b_data_valid_pong_delay0_16 <= b_data_valid_pong_delay0_15;
+    b_data_valid_pong_delay0_17 <= b_data_valid_pong_delay0_16;
+    b_data_valid_pong_delay0_18 <= b_data_valid_pong_delay0_17;
+    b_data_valid_pong_delay0_19 <= b_data_valid_pong_delay0_18;
+    b_data_valid_pong_delay0_20 <= b_data_valid_pong_delay0_19;
+    b_data_valid_pong_delay0_21 <= b_data_valid_pong_delay0_20;
+    b_data_valid_pong_delay0_22 <= b_data_valid_pong_delay0_21;
+    b_data_valid_pong_delay0_23 <= b_data_valid_pong_delay0_22;
+    b_data_valid_pong_delay0_24 <= b_data_valid_pong_delay0_23;
+    b_data_valid_pong_delay0_25 <= b_data_valid_pong_delay0_24;
+    b_data_valid_pong_delay0_26 <= b_data_valid_pong_delay0_25;
+    b_data_valid_pong_delay0_27 <= b_data_valid_pong_delay0_26;
+    b_data_valid_pong_delay0_28 <= b_data_valid_pong_delay0_27;
+    b_data_valid_pong_delay0_29 <= b_data_valid_pong_delay0_28;
+    b_data_valid_pong_delay0_30 <= b_data_valid_pong_delay0_29;
 end
 
-assign b_data_valid_pong_delay1_0 = b_data_valid_pong & b_data_valid_pong_delay01;
-assign b_data_valid_pong_delay2_0 = b_data_valid_pong & b_data_valid_pong_delay02;
-assign b_data_valid_pong_delay3_0 = b_data_valid_pong & b_data_valid_pong_delay03;
-assign b_data_valid_pong_delay4_0 = b_data_valid_pong & b_data_valid_pong_delay04;
-assign b_data_valid_pong_delay5_0 = b_data_valid_pong & b_data_valid_pong_delay05;
-assign b_data_valid_pong_delay6_0 = b_data_valid_pong & b_data_valid_pong_delay06;
-assign b_data_valid_pong_delay7_0 = b_data_valid_pong & b_data_valid_pong_delay07;
-assign b_data_valid_pong_delay8_0 = b_data_valid_pong & b_data_valid_pong_delay08;
-assign b_data_valid_pong_delay9_0 = b_data_valid_pong & b_data_valid_pong_delay09;
-assign b_data_valid_pong_delay10_0 = b_data_valid_pong & b_data_valid_pong_delay010;
-assign b_data_valid_pong_delay11_0 = b_data_valid_pong & b_data_valid_pong_delay011;
-assign b_data_valid_pong_delay12_0 = b_data_valid_pong & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay13_0 = b_data_valid_pong & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay14_0 = b_data_valid_pong & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay15_0 = b_data_valid_pong & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay1_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay02;
-assign b_data_valid_pong_delay2_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay03;
-assign b_data_valid_pong_delay3_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay04;
-assign b_data_valid_pong_delay4_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay05;
-assign b_data_valid_pong_delay5_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay06;
-assign b_data_valid_pong_delay6_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay07;
-assign b_data_valid_pong_delay7_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay08;
-assign b_data_valid_pong_delay8_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay09;
-assign b_data_valid_pong_delay9_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay010;
-assign b_data_valid_pong_delay10_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay011;
-assign b_data_valid_pong_delay11_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay12_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay13_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay14_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay15_1 = b_data_valid_pong_delay01 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay1_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay03;
-assign b_data_valid_pong_delay2_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay04;
-assign b_data_valid_pong_delay3_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay05;
-assign b_data_valid_pong_delay4_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay06;
-assign b_data_valid_pong_delay5_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay07;
-assign b_data_valid_pong_delay6_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay08;
-assign b_data_valid_pong_delay7_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay09;
-assign b_data_valid_pong_delay8_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay010;
-assign b_data_valid_pong_delay9_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay011;
-assign b_data_valid_pong_delay10_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay11_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay12_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay13_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay14_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay15_2 = b_data_valid_pong_delay02 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay1_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay04;
-assign b_data_valid_pong_delay2_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay05;
-assign b_data_valid_pong_delay3_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay06;
-assign b_data_valid_pong_delay4_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay07;
-assign b_data_valid_pong_delay5_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay08;
-assign b_data_valid_pong_delay6_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay09;
-assign b_data_valid_pong_delay7_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay010;
-assign b_data_valid_pong_delay8_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay011;
-assign b_data_valid_pong_delay9_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay10_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay11_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay12_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay13_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay14_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay15_3 = b_data_valid_pong_delay03 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay1_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay05;
-assign b_data_valid_pong_delay2_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay06;
-assign b_data_valid_pong_delay3_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay07;
-assign b_data_valid_pong_delay4_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay08;
-assign b_data_valid_pong_delay5_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay09;
-assign b_data_valid_pong_delay6_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay010;
-assign b_data_valid_pong_delay7_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay011;
-assign b_data_valid_pong_delay8_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay9_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay10_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay11_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay12_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay13_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay14_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay15_4 = b_data_valid_pong_delay04 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay1_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay06;
-assign b_data_valid_pong_delay2_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay07;
-assign b_data_valid_pong_delay3_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay08;
-assign b_data_valid_pong_delay4_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay09;
-assign b_data_valid_pong_delay5_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay010;
-assign b_data_valid_pong_delay6_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay011;
-assign b_data_valid_pong_delay7_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay8_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay9_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay10_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay11_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay12_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay13_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay14_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay15_5 = b_data_valid_pong_delay05 & b_data_valid_pong_delay020;
-assign b_data_valid_pong_delay1_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay07;
-assign b_data_valid_pong_delay2_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay08;
-assign b_data_valid_pong_delay3_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay09;
-assign b_data_valid_pong_delay4_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay010;
-assign b_data_valid_pong_delay5_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay011;
-assign b_data_valid_pong_delay6_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay7_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay8_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay9_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay10_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay11_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay12_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay13_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay14_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay020;
-assign b_data_valid_pong_delay15_6 = b_data_valid_pong_delay06 & b_data_valid_pong_delay021;
-assign b_data_valid_pong_delay1_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay08;
-assign b_data_valid_pong_delay2_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay09;
-assign b_data_valid_pong_delay3_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay010;
-assign b_data_valid_pong_delay4_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay011;
-assign b_data_valid_pong_delay5_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay6_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay7_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay8_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay9_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay10_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay11_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay12_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay13_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay020;
-assign b_data_valid_pong_delay14_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay021;
-assign b_data_valid_pong_delay15_7 = b_data_valid_pong_delay07 & b_data_valid_pong_delay022;
-assign b_data_valid_pong_delay1_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay09;
-assign b_data_valid_pong_delay2_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay010;
-assign b_data_valid_pong_delay3_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay011;
-assign b_data_valid_pong_delay4_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay5_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay6_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay7_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay8_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay9_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay10_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay11_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay12_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay020;
-assign b_data_valid_pong_delay13_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay021;
-assign b_data_valid_pong_delay14_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay022;
-assign b_data_valid_pong_delay15_8 = b_data_valid_pong_delay08 & b_data_valid_pong_delay023;
-assign b_data_valid_pong_delay1_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay010;
-assign b_data_valid_pong_delay2_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay011;
-assign b_data_valid_pong_delay3_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay4_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay5_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay6_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay7_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay8_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay9_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay10_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay11_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay020;
-assign b_data_valid_pong_delay12_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay021;
-assign b_data_valid_pong_delay13_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay022;
-assign b_data_valid_pong_delay14_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay023;
-assign b_data_valid_pong_delay15_9 = b_data_valid_pong_delay09 & b_data_valid_pong_delay024;
-assign b_data_valid_pong_delay1_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay011;
-assign b_data_valid_pong_delay2_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay3_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay4_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay5_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay6_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay7_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay8_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay9_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay10_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay020;
-assign b_data_valid_pong_delay11_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay021;
-assign b_data_valid_pong_delay12_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay022;
-assign b_data_valid_pong_delay13_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay023;
-assign b_data_valid_pong_delay14_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay024;
-assign b_data_valid_pong_delay15_10 = b_data_valid_pong_delay010 & b_data_valid_pong_delay025;
-assign b_data_valid_pong_delay1_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay012;
-assign b_data_valid_pong_delay2_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay3_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay4_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay5_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay6_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay7_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay8_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay9_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay020;
-assign b_data_valid_pong_delay10_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay021;
-assign b_data_valid_pong_delay11_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay022;
-assign b_data_valid_pong_delay12_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay023;
-assign b_data_valid_pong_delay13_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay024;
-assign b_data_valid_pong_delay14_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay025;
-assign b_data_valid_pong_delay15_11 = b_data_valid_pong_delay011 & b_data_valid_pong_delay026;
-assign b_data_valid_pong_delay1_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay013;
-assign b_data_valid_pong_delay2_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay3_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay4_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay5_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay6_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay7_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay8_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay020;
-assign b_data_valid_pong_delay9_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay021;
-assign b_data_valid_pong_delay10_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay022;
-assign b_data_valid_pong_delay11_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay023;
-assign b_data_valid_pong_delay12_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay024;
-assign b_data_valid_pong_delay13_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay025;
-assign b_data_valid_pong_delay14_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay026;
-assign b_data_valid_pong_delay15_12 = b_data_valid_pong_delay012 & b_data_valid_pong_delay027;
-assign b_data_valid_pong_delay1_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay014;
-assign b_data_valid_pong_delay2_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay3_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay4_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay5_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay6_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay7_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay020;
-assign b_data_valid_pong_delay8_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay021;
-assign b_data_valid_pong_delay9_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay022;
-assign b_data_valid_pong_delay10_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay023;
-assign b_data_valid_pong_delay11_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay024;
-assign b_data_valid_pong_delay12_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay025;
-assign b_data_valid_pong_delay13_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay026;
-assign b_data_valid_pong_delay14_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay027;
-assign b_data_valid_pong_delay15_13 = b_data_valid_pong_delay013 & b_data_valid_pong_delay028;
-assign b_data_valid_pong_delay1_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay015;
-assign b_data_valid_pong_delay2_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay3_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay4_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay5_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay6_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay020;
-assign b_data_valid_pong_delay7_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay021;
-assign b_data_valid_pong_delay8_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay022;
-assign b_data_valid_pong_delay9_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay023;
-assign b_data_valid_pong_delay10_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay024;
-assign b_data_valid_pong_delay11_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay025;
-assign b_data_valid_pong_delay12_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay026;
-assign b_data_valid_pong_delay13_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay027;
-assign b_data_valid_pong_delay14_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay028;
-assign b_data_valid_pong_delay15_14 = b_data_valid_pong_delay014 & b_data_valid_pong_delay029;
-assign b_data_valid_pong_delay1_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay016;
-assign b_data_valid_pong_delay2_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay017;
-assign b_data_valid_pong_delay3_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay018;
-assign b_data_valid_pong_delay4_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay019;
-assign b_data_valid_pong_delay5_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay020;
-assign b_data_valid_pong_delay6_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay021;
-assign b_data_valid_pong_delay7_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay022;
-assign b_data_valid_pong_delay8_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay023;
-assign b_data_valid_pong_delay9_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay024;
-assign b_data_valid_pong_delay10_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay025;
-assign b_data_valid_pong_delay11_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay026;
-assign b_data_valid_pong_delay12_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay027;
-assign b_data_valid_pong_delay13_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay028;
-assign b_data_valid_pong_delay14_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay029;
-assign b_data_valid_pong_delay15_15 = b_data_valid_pong_delay015 & b_data_valid_pong_delay030;
+assign b_data_valid_pong_delay1_0 = b_data_valid_pong & b_data_valid_pong_delay0_1;
+assign b_data_valid_pong_delay2_0 = b_data_valid_pong & b_data_valid_pong_delay0_2;
+assign b_data_valid_pong_delay3_0 = b_data_valid_pong & b_data_valid_pong_delay0_3;
+assign b_data_valid_pong_delay4_0 = b_data_valid_pong & b_data_valid_pong_delay0_4;
+assign b_data_valid_pong_delay5_0 = b_data_valid_pong & b_data_valid_pong_delay0_5;
+assign b_data_valid_pong_delay6_0 = b_data_valid_pong & b_data_valid_pong_delay0_6;
+assign b_data_valid_pong_delay7_0 = b_data_valid_pong & b_data_valid_pong_delay0_7;
+assign b_data_valid_pong_delay8_0 = b_data_valid_pong & b_data_valid_pong_delay0_8;
+assign b_data_valid_pong_delay9_0 = b_data_valid_pong & b_data_valid_pong_delay0_9;
+assign b_data_valid_pong_delay10_0 = b_data_valid_pong & b_data_valid_pong_delay0_10;
+assign b_data_valid_pong_delay11_0 = b_data_valid_pong & b_data_valid_pong_delay0_11;
+assign b_data_valid_pong_delay12_0 = b_data_valid_pong & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay13_0 = b_data_valid_pong & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay14_0 = b_data_valid_pong & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay15_0 = b_data_valid_pong & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay1_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_2;
+assign b_data_valid_pong_delay2_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_3;
+assign b_data_valid_pong_delay3_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_4;
+assign b_data_valid_pong_delay4_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_5;
+assign b_data_valid_pong_delay5_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_6;
+assign b_data_valid_pong_delay6_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_7;
+assign b_data_valid_pong_delay7_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_8;
+assign b_data_valid_pong_delay8_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_9;
+assign b_data_valid_pong_delay9_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_10;
+assign b_data_valid_pong_delay10_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_11;
+assign b_data_valid_pong_delay11_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay12_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay13_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay14_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay15_1 = b_data_valid_pong_delay0_1 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay1_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_3;
+assign b_data_valid_pong_delay2_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_4;
+assign b_data_valid_pong_delay3_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_5;
+assign b_data_valid_pong_delay4_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_6;
+assign b_data_valid_pong_delay5_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_7;
+assign b_data_valid_pong_delay6_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_8;
+assign b_data_valid_pong_delay7_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_9;
+assign b_data_valid_pong_delay8_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_10;
+assign b_data_valid_pong_delay9_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_11;
+assign b_data_valid_pong_delay10_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay11_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay12_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay13_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay14_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay15_2 = b_data_valid_pong_delay0_2 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay1_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_4;
+assign b_data_valid_pong_delay2_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_5;
+assign b_data_valid_pong_delay3_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_6;
+assign b_data_valid_pong_delay4_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_7;
+assign b_data_valid_pong_delay5_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_8;
+assign b_data_valid_pong_delay6_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_9;
+assign b_data_valid_pong_delay7_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_10;
+assign b_data_valid_pong_delay8_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_11;
+assign b_data_valid_pong_delay9_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay10_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay11_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay12_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay13_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay14_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay15_3 = b_data_valid_pong_delay0_3 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay1_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_5;
+assign b_data_valid_pong_delay2_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_6;
+assign b_data_valid_pong_delay3_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_7;
+assign b_data_valid_pong_delay4_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_8;
+assign b_data_valid_pong_delay5_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_9;
+assign b_data_valid_pong_delay6_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_10;
+assign b_data_valid_pong_delay7_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_11;
+assign b_data_valid_pong_delay8_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay9_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay10_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay11_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay12_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay13_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay14_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay15_4 = b_data_valid_pong_delay0_4 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay1_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_6;
+assign b_data_valid_pong_delay2_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_7;
+assign b_data_valid_pong_delay3_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_8;
+assign b_data_valid_pong_delay4_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_9;
+assign b_data_valid_pong_delay5_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_10;
+assign b_data_valid_pong_delay6_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_11;
+assign b_data_valid_pong_delay7_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay8_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay9_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay10_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay11_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay12_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay13_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay14_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay15_5 = b_data_valid_pong_delay0_5 & b_data_valid_pong_delay0_20;
+assign b_data_valid_pong_delay1_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_7;
+assign b_data_valid_pong_delay2_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_8;
+assign b_data_valid_pong_delay3_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_9;
+assign b_data_valid_pong_delay4_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_10;
+assign b_data_valid_pong_delay5_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_11;
+assign b_data_valid_pong_delay6_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay7_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay8_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay9_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay10_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay11_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay12_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay13_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay14_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_20;
+assign b_data_valid_pong_delay15_6 = b_data_valid_pong_delay0_6 & b_data_valid_pong_delay0_21;
+assign b_data_valid_pong_delay1_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_8;
+assign b_data_valid_pong_delay2_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_9;
+assign b_data_valid_pong_delay3_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_10;
+assign b_data_valid_pong_delay4_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_11;
+assign b_data_valid_pong_delay5_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay6_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay7_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay8_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay9_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay10_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay11_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay12_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay13_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_20;
+assign b_data_valid_pong_delay14_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_21;
+assign b_data_valid_pong_delay15_7 = b_data_valid_pong_delay0_7 & b_data_valid_pong_delay0_22;
+assign b_data_valid_pong_delay1_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_9;
+assign b_data_valid_pong_delay2_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_10;
+assign b_data_valid_pong_delay3_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_11;
+assign b_data_valid_pong_delay4_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay5_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay6_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay7_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay8_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay9_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay10_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay11_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay12_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_20;
+assign b_data_valid_pong_delay13_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_21;
+assign b_data_valid_pong_delay14_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_22;
+assign b_data_valid_pong_delay15_8 = b_data_valid_pong_delay0_8 & b_data_valid_pong_delay0_23;
+assign b_data_valid_pong_delay1_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_10;
+assign b_data_valid_pong_delay2_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_11;
+assign b_data_valid_pong_delay3_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay4_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay5_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay6_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay7_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay8_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay9_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay10_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay11_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_20;
+assign b_data_valid_pong_delay12_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_21;
+assign b_data_valid_pong_delay13_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_22;
+assign b_data_valid_pong_delay14_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_23;
+assign b_data_valid_pong_delay15_9 = b_data_valid_pong_delay0_9 & b_data_valid_pong_delay0_24;
+assign b_data_valid_pong_delay1_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_11;
+assign b_data_valid_pong_delay2_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay3_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay4_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay5_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay6_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay7_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay8_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay9_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay10_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_20;
+assign b_data_valid_pong_delay11_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_21;
+assign b_data_valid_pong_delay12_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_22;
+assign b_data_valid_pong_delay13_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_23;
+assign b_data_valid_pong_delay14_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_24;
+assign b_data_valid_pong_delay15_10 = b_data_valid_pong_delay0_10 & b_data_valid_pong_delay0_25;
+assign b_data_valid_pong_delay1_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_12;
+assign b_data_valid_pong_delay2_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay3_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay4_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay5_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay6_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay7_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay8_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay9_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_20;
+assign b_data_valid_pong_delay10_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_21;
+assign b_data_valid_pong_delay11_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_22;
+assign b_data_valid_pong_delay12_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_23;
+assign b_data_valid_pong_delay13_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_24;
+assign b_data_valid_pong_delay14_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_25;
+assign b_data_valid_pong_delay15_11 = b_data_valid_pong_delay0_11 & b_data_valid_pong_delay0_26;
+assign b_data_valid_pong_delay1_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_13;
+assign b_data_valid_pong_delay2_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay3_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay4_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay5_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay6_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay7_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay8_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_20;
+assign b_data_valid_pong_delay9_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_21;
+assign b_data_valid_pong_delay10_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_22;
+assign b_data_valid_pong_delay11_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_23;
+assign b_data_valid_pong_delay12_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_24;
+assign b_data_valid_pong_delay13_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_25;
+assign b_data_valid_pong_delay14_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_26;
+assign b_data_valid_pong_delay15_12 = b_data_valid_pong_delay0_12 & b_data_valid_pong_delay0_27;
+assign b_data_valid_pong_delay1_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_14;
+assign b_data_valid_pong_delay2_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay3_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay4_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay5_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay6_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay7_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_20;
+assign b_data_valid_pong_delay8_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_21;
+assign b_data_valid_pong_delay9_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_22;
+assign b_data_valid_pong_delay10_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_23;
+assign b_data_valid_pong_delay11_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_24;
+assign b_data_valid_pong_delay12_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_25;
+assign b_data_valid_pong_delay13_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_26;
+assign b_data_valid_pong_delay14_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_27;
+assign b_data_valid_pong_delay15_13 = b_data_valid_pong_delay0_13 & b_data_valid_pong_delay0_28;
+assign b_data_valid_pong_delay1_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_15;
+assign b_data_valid_pong_delay2_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay3_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay4_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay5_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay6_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_20;
+assign b_data_valid_pong_delay7_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_21;
+assign b_data_valid_pong_delay8_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_22;
+assign b_data_valid_pong_delay9_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_23;
+assign b_data_valid_pong_delay10_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_24;
+assign b_data_valid_pong_delay11_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_25;
+assign b_data_valid_pong_delay12_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_26;
+assign b_data_valid_pong_delay13_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_27;
+assign b_data_valid_pong_delay14_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_28;
+assign b_data_valid_pong_delay15_14 = b_data_valid_pong_delay0_14 & b_data_valid_pong_delay0_29;
+assign b_data_valid_pong_delay1_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_16;
+assign b_data_valid_pong_delay2_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_17;
+assign b_data_valid_pong_delay3_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_18;
+assign b_data_valid_pong_delay4_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_19;
+assign b_data_valid_pong_delay5_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_20;
+assign b_data_valid_pong_delay6_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_21;
+assign b_data_valid_pong_delay7_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_22;
+assign b_data_valid_pong_delay8_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_23;
+assign b_data_valid_pong_delay9_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_24;
+assign b_data_valid_pong_delay10_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_25;
+assign b_data_valid_pong_delay11_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_26;
+assign b_data_valid_pong_delay12_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_27;
+assign b_data_valid_pong_delay13_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_28;
+assign b_data_valid_pong_delay14_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_29;
+assign b_data_valid_pong_delay15_15 = b_data_valid_pong_delay0_15 & b_data_valid_pong_delay0_30;
 
 // Signals for Each PING buffer
 
-reg b_data_valid_ping_delay01;
-reg b_data_valid_ping_delay02;
-reg b_data_valid_ping_delay03;
-reg b_data_valid_ping_delay04;
-reg b_data_valid_ping_delay05;
-reg b_data_valid_ping_delay06;
-reg b_data_valid_ping_delay07;
-reg b_data_valid_ping_delay08;
-reg b_data_valid_ping_delay09;
-reg b_data_valid_ping_delay010;
-reg b_data_valid_ping_delay011;
-reg b_data_valid_ping_delay012;
-reg b_data_valid_ping_delay013;
-reg b_data_valid_ping_delay014;
-reg b_data_valid_ping_delay015;
-reg b_data_valid_ping_delay016;
-reg b_data_valid_ping_delay017;
-reg b_data_valid_ping_delay018;
-reg b_data_valid_ping_delay019;
-reg b_data_valid_ping_delay020;
-reg b_data_valid_ping_delay021;
-reg b_data_valid_ping_delay022;
-reg b_data_valid_ping_delay023;
-reg b_data_valid_ping_delay024;
-reg b_data_valid_ping_delay025;
-reg b_data_valid_ping_delay026;
-reg b_data_valid_ping_delay027;
-reg b_data_valid_ping_delay028;
-reg b_data_valid_ping_delay029;
-reg b_data_valid_ping_delay030;
+reg b_data_valid_ping_delay0_1;
+reg b_data_valid_ping_delay0_2;
+reg b_data_valid_ping_delay0_3;
+reg b_data_valid_ping_delay0_4;
+reg b_data_valid_ping_delay0_5;
+reg b_data_valid_ping_delay0_6;
+reg b_data_valid_ping_delay0_7;
+reg b_data_valid_ping_delay0_8;
+reg b_data_valid_ping_delay0_9;
+reg b_data_valid_ping_delay0_10;
+reg b_data_valid_ping_delay0_11;
+reg b_data_valid_ping_delay0_12;
+reg b_data_valid_ping_delay0_13;
+reg b_data_valid_ping_delay0_14;
+reg b_data_valid_ping_delay0_15;
+reg b_data_valid_ping_delay0_16;
+reg b_data_valid_ping_delay0_17;
+reg b_data_valid_ping_delay0_18;
+reg b_data_valid_ping_delay0_19;
+reg b_data_valid_ping_delay0_20;
+reg b_data_valid_ping_delay0_21;
+reg b_data_valid_ping_delay0_22;
+reg b_data_valid_ping_delay0_23;
+reg b_data_valid_ping_delay0_24;
+reg b_data_valid_ping_delay0_25;
+reg b_data_valid_ping_delay0_26;
+reg b_data_valid_ping_delay0_27;
+reg b_data_valid_ping_delay0_28;
+reg b_data_valid_ping_delay0_29;
+reg b_data_valid_ping_delay0_30;
 wire b_data_valid_ping_delay1_0;
 wire b_data_valid_ping_delay2_0;
 wire b_data_valid_ping_delay3_0;
@@ -4183,278 +4185,278 @@ wire b_data_valid_ping_delay14_15;
 wire b_data_valid_ping_delay15_15;
   
 always @ (posedge clk) begin
-    b_data_valid_ping_delay01 <= b_data_valid_ping;
-    b_data_valid_ping_delay02 <= b_data_valid_ping_delay01;
-    b_data_valid_ping_delay03 <= b_data_valid_ping_delay02;
-    b_data_valid_ping_delay04 <= b_data_valid_ping_delay03;
-    b_data_valid_ping_delay05 <= b_data_valid_ping_delay04;
-    b_data_valid_ping_delay06 <= b_data_valid_ping_delay05;
-    b_data_valid_ping_delay07 <= b_data_valid_ping_delay06;
-    b_data_valid_ping_delay08 <= b_data_valid_ping_delay07;
-    b_data_valid_ping_delay09 <= b_data_valid_ping_delay08;
-    b_data_valid_ping_delay010 <= b_data_valid_ping_delay09;
-    b_data_valid_ping_delay011 <= b_data_valid_ping_delay010;
-    b_data_valid_ping_delay012 <= b_data_valid_ping_delay011;
-    b_data_valid_ping_delay013 <= b_data_valid_ping_delay012;
-    b_data_valid_ping_delay014 <= b_data_valid_ping_delay013;
-    b_data_valid_ping_delay015 <= b_data_valid_ping_delay014;
-    b_data_valid_ping_delay016 <= b_data_valid_ping_delay015;
-    b_data_valid_ping_delay017 <= b_data_valid_ping_delay016;
-    b_data_valid_ping_delay018 <= b_data_valid_ping_delay017;
-    b_data_valid_ping_delay019 <= b_data_valid_ping_delay018;
-    b_data_valid_ping_delay020 <= b_data_valid_ping_delay019;
-    b_data_valid_ping_delay021 <= b_data_valid_ping_delay020;
-    b_data_valid_ping_delay022 <= b_data_valid_ping_delay021;
-    b_data_valid_ping_delay023 <= b_data_valid_ping_delay022;
-    b_data_valid_ping_delay024 <= b_data_valid_ping_delay023;
-    b_data_valid_ping_delay025 <= b_data_valid_ping_delay024;
-    b_data_valid_ping_delay026 <= b_data_valid_ping_delay025;
-    b_data_valid_ping_delay027 <= b_data_valid_ping_delay026;
-    b_data_valid_ping_delay028 <= b_data_valid_ping_delay027;
-    b_data_valid_ping_delay029 <= b_data_valid_ping_delay028;
-    b_data_valid_ping_delay030 <= b_data_valid_ping_delay029;
+    b_data_valid_ping_delay0_1 <= b_data_valid_ping;
+    b_data_valid_ping_delay0_2 <= b_data_valid_ping_delay0_1;
+    b_data_valid_ping_delay0_3 <= b_data_valid_ping_delay0_2;
+    b_data_valid_ping_delay0_4 <= b_data_valid_ping_delay0_3;
+    b_data_valid_ping_delay0_5 <= b_data_valid_ping_delay0_4;
+    b_data_valid_ping_delay0_6 <= b_data_valid_ping_delay0_5;
+    b_data_valid_ping_delay0_7 <= b_data_valid_ping_delay0_6;
+    b_data_valid_ping_delay0_8 <= b_data_valid_ping_delay0_7;
+    b_data_valid_ping_delay0_9 <= b_data_valid_ping_delay0_8;
+    b_data_valid_ping_delay0_10 <= b_data_valid_ping_delay0_9;
+    b_data_valid_ping_delay0_11 <= b_data_valid_ping_delay0_10;
+    b_data_valid_ping_delay0_12 <= b_data_valid_ping_delay0_11;
+    b_data_valid_ping_delay0_13 <= b_data_valid_ping_delay0_12;
+    b_data_valid_ping_delay0_14 <= b_data_valid_ping_delay0_13;
+    b_data_valid_ping_delay0_15 <= b_data_valid_ping_delay0_14;
+    b_data_valid_ping_delay0_16 <= b_data_valid_ping_delay0_15;
+    b_data_valid_ping_delay0_17 <= b_data_valid_ping_delay0_16;
+    b_data_valid_ping_delay0_18 <= b_data_valid_ping_delay0_17;
+    b_data_valid_ping_delay0_19 <= b_data_valid_ping_delay0_18;
+    b_data_valid_ping_delay0_20 <= b_data_valid_ping_delay0_19;
+    b_data_valid_ping_delay0_21 <= b_data_valid_ping_delay0_20;
+    b_data_valid_ping_delay0_22 <= b_data_valid_ping_delay0_21;
+    b_data_valid_ping_delay0_23 <= b_data_valid_ping_delay0_22;
+    b_data_valid_ping_delay0_24 <= b_data_valid_ping_delay0_23;
+    b_data_valid_ping_delay0_25 <= b_data_valid_ping_delay0_24;
+    b_data_valid_ping_delay0_26 <= b_data_valid_ping_delay0_25;
+    b_data_valid_ping_delay0_27 <= b_data_valid_ping_delay0_26;
+    b_data_valid_ping_delay0_28 <= b_data_valid_ping_delay0_27;
+    b_data_valid_ping_delay0_29 <= b_data_valid_ping_delay0_28;
+    b_data_valid_ping_delay0_30 <= b_data_valid_ping_delay0_29;
 end
 
-assign b_data_valid_ping_delay1_0 = b_data_valid_ping & b_data_valid_ping_delay01;
-assign b_data_valid_ping_delay2_0 = b_data_valid_ping & b_data_valid_ping_delay02;
-assign b_data_valid_ping_delay3_0 = b_data_valid_ping & b_data_valid_ping_delay03;
-assign b_data_valid_ping_delay4_0 = b_data_valid_ping & b_data_valid_ping_delay04;
-assign b_data_valid_ping_delay5_0 = b_data_valid_ping & b_data_valid_ping_delay05;
-assign b_data_valid_ping_delay6_0 = b_data_valid_ping & b_data_valid_ping_delay06;
-assign b_data_valid_ping_delay7_0 = b_data_valid_ping & b_data_valid_ping_delay07;
-assign b_data_valid_ping_delay8_0 = b_data_valid_ping & b_data_valid_ping_delay08;
-assign b_data_valid_ping_delay9_0 = b_data_valid_ping & b_data_valid_ping_delay09;
-assign b_data_valid_ping_delay10_0 = b_data_valid_ping & b_data_valid_ping_delay010;
-assign b_data_valid_ping_delay11_0 = b_data_valid_ping & b_data_valid_ping_delay011;
-assign b_data_valid_ping_delay12_0 = b_data_valid_ping & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay13_0 = b_data_valid_ping & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay14_0 = b_data_valid_ping & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay15_0 = b_data_valid_ping & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay1_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay02;
-assign b_data_valid_ping_delay2_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay03;
-assign b_data_valid_ping_delay3_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay04;
-assign b_data_valid_ping_delay4_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay05;
-assign b_data_valid_ping_delay5_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay06;
-assign b_data_valid_ping_delay6_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay07;
-assign b_data_valid_ping_delay7_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay08;
-assign b_data_valid_ping_delay8_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay09;
-assign b_data_valid_ping_delay9_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay010;
-assign b_data_valid_ping_delay10_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay011;
-assign b_data_valid_ping_delay11_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay12_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay13_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay14_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay15_1 = b_data_valid_ping_delay01 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay1_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay03;
-assign b_data_valid_ping_delay2_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay04;
-assign b_data_valid_ping_delay3_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay05;
-assign b_data_valid_ping_delay4_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay06;
-assign b_data_valid_ping_delay5_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay07;
-assign b_data_valid_ping_delay6_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay08;
-assign b_data_valid_ping_delay7_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay09;
-assign b_data_valid_ping_delay8_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay010;
-assign b_data_valid_ping_delay9_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay011;
-assign b_data_valid_ping_delay10_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay11_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay12_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay13_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay14_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay15_2 = b_data_valid_ping_delay02 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay1_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay04;
-assign b_data_valid_ping_delay2_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay05;
-assign b_data_valid_ping_delay3_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay06;
-assign b_data_valid_ping_delay4_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay07;
-assign b_data_valid_ping_delay5_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay08;
-assign b_data_valid_ping_delay6_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay09;
-assign b_data_valid_ping_delay7_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay010;
-assign b_data_valid_ping_delay8_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay011;
-assign b_data_valid_ping_delay9_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay10_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay11_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay12_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay13_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay14_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay15_3 = b_data_valid_ping_delay03 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay1_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay05;
-assign b_data_valid_ping_delay2_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay06;
-assign b_data_valid_ping_delay3_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay07;
-assign b_data_valid_ping_delay4_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay08;
-assign b_data_valid_ping_delay5_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay09;
-assign b_data_valid_ping_delay6_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay010;
-assign b_data_valid_ping_delay7_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay011;
-assign b_data_valid_ping_delay8_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay9_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay10_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay11_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay12_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay13_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay14_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay15_4 = b_data_valid_ping_delay04 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay1_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay06;
-assign b_data_valid_ping_delay2_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay07;
-assign b_data_valid_ping_delay3_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay08;
-assign b_data_valid_ping_delay4_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay09;
-assign b_data_valid_ping_delay5_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay010;
-assign b_data_valid_ping_delay6_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay011;
-assign b_data_valid_ping_delay7_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay8_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay9_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay10_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay11_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay12_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay13_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay14_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay15_5 = b_data_valid_ping_delay05 & b_data_valid_ping_delay020;
-assign b_data_valid_ping_delay1_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay07;
-assign b_data_valid_ping_delay2_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay08;
-assign b_data_valid_ping_delay3_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay09;
-assign b_data_valid_ping_delay4_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay010;
-assign b_data_valid_ping_delay5_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay011;
-assign b_data_valid_ping_delay6_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay7_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay8_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay9_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay10_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay11_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay12_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay13_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay14_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay020;
-assign b_data_valid_ping_delay15_6 = b_data_valid_ping_delay06 & b_data_valid_ping_delay021;
-assign b_data_valid_ping_delay1_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay08;
-assign b_data_valid_ping_delay2_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay09;
-assign b_data_valid_ping_delay3_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay010;
-assign b_data_valid_ping_delay4_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay011;
-assign b_data_valid_ping_delay5_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay6_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay7_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay8_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay9_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay10_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay11_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay12_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay13_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay020;
-assign b_data_valid_ping_delay14_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay021;
-assign b_data_valid_ping_delay15_7 = b_data_valid_ping_delay07 & b_data_valid_ping_delay022;
-assign b_data_valid_ping_delay1_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay09;
-assign b_data_valid_ping_delay2_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay010;
-assign b_data_valid_ping_delay3_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay011;
-assign b_data_valid_ping_delay4_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay5_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay6_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay7_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay8_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay9_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay10_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay11_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay12_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay020;
-assign b_data_valid_ping_delay13_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay021;
-assign b_data_valid_ping_delay14_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay022;
-assign b_data_valid_ping_delay15_8 = b_data_valid_ping_delay08 & b_data_valid_ping_delay023;
-assign b_data_valid_ping_delay1_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay010;
-assign b_data_valid_ping_delay2_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay011;
-assign b_data_valid_ping_delay3_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay4_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay5_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay6_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay7_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay8_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay9_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay10_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay11_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay020;
-assign b_data_valid_ping_delay12_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay021;
-assign b_data_valid_ping_delay13_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay022;
-assign b_data_valid_ping_delay14_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay023;
-assign b_data_valid_ping_delay15_9 = b_data_valid_ping_delay09 & b_data_valid_ping_delay024;
-assign b_data_valid_ping_delay1_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay011;
-assign b_data_valid_ping_delay2_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay3_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay4_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay5_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay6_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay7_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay8_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay9_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay10_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay020;
-assign b_data_valid_ping_delay11_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay021;
-assign b_data_valid_ping_delay12_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay022;
-assign b_data_valid_ping_delay13_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay023;
-assign b_data_valid_ping_delay14_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay024;
-assign b_data_valid_ping_delay15_10 = b_data_valid_ping_delay010 & b_data_valid_ping_delay025;
-assign b_data_valid_ping_delay1_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay012;
-assign b_data_valid_ping_delay2_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay3_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay4_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay5_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay6_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay7_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay8_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay9_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay020;
-assign b_data_valid_ping_delay10_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay021;
-assign b_data_valid_ping_delay11_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay022;
-assign b_data_valid_ping_delay12_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay023;
-assign b_data_valid_ping_delay13_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay024;
-assign b_data_valid_ping_delay14_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay025;
-assign b_data_valid_ping_delay15_11 = b_data_valid_ping_delay011 & b_data_valid_ping_delay026;
-assign b_data_valid_ping_delay1_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay013;
-assign b_data_valid_ping_delay2_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay3_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay4_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay5_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay6_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay7_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay8_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay020;
-assign b_data_valid_ping_delay9_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay021;
-assign b_data_valid_ping_delay10_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay022;
-assign b_data_valid_ping_delay11_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay023;
-assign b_data_valid_ping_delay12_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay024;
-assign b_data_valid_ping_delay13_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay025;
-assign b_data_valid_ping_delay14_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay026;
-assign b_data_valid_ping_delay15_12 = b_data_valid_ping_delay012 & b_data_valid_ping_delay027;
-assign b_data_valid_ping_delay1_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay014;
-assign b_data_valid_ping_delay2_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay3_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay4_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay5_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay6_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay7_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay020;
-assign b_data_valid_ping_delay8_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay021;
-assign b_data_valid_ping_delay9_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay022;
-assign b_data_valid_ping_delay10_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay023;
-assign b_data_valid_ping_delay11_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay024;
-assign b_data_valid_ping_delay12_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay025;
-assign b_data_valid_ping_delay13_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay026;
-assign b_data_valid_ping_delay14_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay027;
-assign b_data_valid_ping_delay15_13 = b_data_valid_ping_delay013 & b_data_valid_ping_delay028;
-assign b_data_valid_ping_delay1_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay015;
-assign b_data_valid_ping_delay2_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay3_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay4_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay5_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay6_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay020;
-assign b_data_valid_ping_delay7_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay021;
-assign b_data_valid_ping_delay8_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay022;
-assign b_data_valid_ping_delay9_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay023;
-assign b_data_valid_ping_delay10_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay024;
-assign b_data_valid_ping_delay11_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay025;
-assign b_data_valid_ping_delay12_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay026;
-assign b_data_valid_ping_delay13_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay027;
-assign b_data_valid_ping_delay14_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay028;
-assign b_data_valid_ping_delay15_14 = b_data_valid_ping_delay014 & b_data_valid_ping_delay029;
-assign b_data_valid_ping_delay1_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay016;
-assign b_data_valid_ping_delay2_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay017;
-assign b_data_valid_ping_delay3_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay018;
-assign b_data_valid_ping_delay4_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay019;
-assign b_data_valid_ping_delay5_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay020;
-assign b_data_valid_ping_delay6_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay021;
-assign b_data_valid_ping_delay7_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay022;
-assign b_data_valid_ping_delay8_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay023;
-assign b_data_valid_ping_delay9_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay024;
-assign b_data_valid_ping_delay10_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay025;
-assign b_data_valid_ping_delay11_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay026;
-assign b_data_valid_ping_delay12_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay027;
-assign b_data_valid_ping_delay13_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay028;
-assign b_data_valid_ping_delay14_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay029;
-assign b_data_valid_ping_delay15_15 = b_data_valid_ping_delay015 & b_data_valid_ping_delay030;
+assign b_data_valid_ping_delay1_0 = b_data_valid_ping & b_data_valid_ping_delay0_1;
+assign b_data_valid_ping_delay2_0 = b_data_valid_ping & b_data_valid_ping_delay0_2;
+assign b_data_valid_ping_delay3_0 = b_data_valid_ping & b_data_valid_ping_delay0_3;
+assign b_data_valid_ping_delay4_0 = b_data_valid_ping & b_data_valid_ping_delay0_4;
+assign b_data_valid_ping_delay5_0 = b_data_valid_ping & b_data_valid_ping_delay0_5;
+assign b_data_valid_ping_delay6_0 = b_data_valid_ping & b_data_valid_ping_delay0_6;
+assign b_data_valid_ping_delay7_0 = b_data_valid_ping & b_data_valid_ping_delay0_7;
+assign b_data_valid_ping_delay8_0 = b_data_valid_ping & b_data_valid_ping_delay0_8;
+assign b_data_valid_ping_delay9_0 = b_data_valid_ping & b_data_valid_ping_delay0_9;
+assign b_data_valid_ping_delay10_0 = b_data_valid_ping & b_data_valid_ping_delay0_10;
+assign b_data_valid_ping_delay11_0 = b_data_valid_ping & b_data_valid_ping_delay0_11;
+assign b_data_valid_ping_delay12_0 = b_data_valid_ping & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay13_0 = b_data_valid_ping & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay14_0 = b_data_valid_ping & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay15_0 = b_data_valid_ping & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay1_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_2;
+assign b_data_valid_ping_delay2_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_3;
+assign b_data_valid_ping_delay3_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_4;
+assign b_data_valid_ping_delay4_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_5;
+assign b_data_valid_ping_delay5_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_6;
+assign b_data_valid_ping_delay6_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_7;
+assign b_data_valid_ping_delay7_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_8;
+assign b_data_valid_ping_delay8_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_9;
+assign b_data_valid_ping_delay9_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_10;
+assign b_data_valid_ping_delay10_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_11;
+assign b_data_valid_ping_delay11_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay12_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay13_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay14_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay15_1 = b_data_valid_ping_delay0_1 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay1_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_3;
+assign b_data_valid_ping_delay2_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_4;
+assign b_data_valid_ping_delay3_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_5;
+assign b_data_valid_ping_delay4_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_6;
+assign b_data_valid_ping_delay5_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_7;
+assign b_data_valid_ping_delay6_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_8;
+assign b_data_valid_ping_delay7_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_9;
+assign b_data_valid_ping_delay8_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_10;
+assign b_data_valid_ping_delay9_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_11;
+assign b_data_valid_ping_delay10_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay11_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay12_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay13_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay14_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay15_2 = b_data_valid_ping_delay0_2 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay1_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_4;
+assign b_data_valid_ping_delay2_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_5;
+assign b_data_valid_ping_delay3_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_6;
+assign b_data_valid_ping_delay4_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_7;
+assign b_data_valid_ping_delay5_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_8;
+assign b_data_valid_ping_delay6_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_9;
+assign b_data_valid_ping_delay7_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_10;
+assign b_data_valid_ping_delay8_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_11;
+assign b_data_valid_ping_delay9_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay10_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay11_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay12_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay13_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay14_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay15_3 = b_data_valid_ping_delay0_3 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay1_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_5;
+assign b_data_valid_ping_delay2_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_6;
+assign b_data_valid_ping_delay3_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_7;
+assign b_data_valid_ping_delay4_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_8;
+assign b_data_valid_ping_delay5_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_9;
+assign b_data_valid_ping_delay6_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_10;
+assign b_data_valid_ping_delay7_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_11;
+assign b_data_valid_ping_delay8_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay9_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay10_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay11_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay12_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay13_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay14_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay15_4 = b_data_valid_ping_delay0_4 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay1_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_6;
+assign b_data_valid_ping_delay2_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_7;
+assign b_data_valid_ping_delay3_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_8;
+assign b_data_valid_ping_delay4_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_9;
+assign b_data_valid_ping_delay5_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_10;
+assign b_data_valid_ping_delay6_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_11;
+assign b_data_valid_ping_delay7_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay8_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay9_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay10_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay11_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay12_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay13_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay14_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay15_5 = b_data_valid_ping_delay0_5 & b_data_valid_ping_delay0_20;
+assign b_data_valid_ping_delay1_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_7;
+assign b_data_valid_ping_delay2_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_8;
+assign b_data_valid_ping_delay3_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_9;
+assign b_data_valid_ping_delay4_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_10;
+assign b_data_valid_ping_delay5_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_11;
+assign b_data_valid_ping_delay6_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay7_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay8_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay9_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay10_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay11_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay12_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay13_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay14_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_20;
+assign b_data_valid_ping_delay15_6 = b_data_valid_ping_delay0_6 & b_data_valid_ping_delay0_21;
+assign b_data_valid_ping_delay1_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_8;
+assign b_data_valid_ping_delay2_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_9;
+assign b_data_valid_ping_delay3_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_10;
+assign b_data_valid_ping_delay4_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_11;
+assign b_data_valid_ping_delay5_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay6_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay7_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay8_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay9_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay10_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay11_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay12_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay13_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_20;
+assign b_data_valid_ping_delay14_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_21;
+assign b_data_valid_ping_delay15_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_22;
+assign b_data_valid_ping_delay1_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_9;
+assign b_data_valid_ping_delay2_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_10;
+assign b_data_valid_ping_delay3_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_11;
+assign b_data_valid_ping_delay4_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay5_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay6_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay7_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay8_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay9_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay10_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay11_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay12_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_20;
+assign b_data_valid_ping_delay13_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_21;
+assign b_data_valid_ping_delay14_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_22;
+assign b_data_valid_ping_delay15_8 = b_data_valid_ping_delay0_8 & b_data_valid_ping_delay0_23;
+assign b_data_valid_ping_delay1_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_10;
+assign b_data_valid_ping_delay2_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_11;
+assign b_data_valid_ping_delay3_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay4_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay5_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay6_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay7_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay8_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay9_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay10_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay11_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_20;
+assign b_data_valid_ping_delay12_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_21;
+assign b_data_valid_ping_delay13_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_22;
+assign b_data_valid_ping_delay14_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_23;
+assign b_data_valid_ping_delay15_9 = b_data_valid_ping_delay0_9 & b_data_valid_ping_delay0_24;
+assign b_data_valid_ping_delay1_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_11;
+assign b_data_valid_ping_delay2_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay3_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay4_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay5_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay6_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay7_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay8_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay9_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay10_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_20;
+assign b_data_valid_ping_delay11_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_21;
+assign b_data_valid_ping_delay12_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_22;
+assign b_data_valid_ping_delay13_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_23;
+assign b_data_valid_ping_delay14_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_24;
+assign b_data_valid_ping_delay15_10 = b_data_valid_ping_delay0_10 & b_data_valid_ping_delay0_25;
+assign b_data_valid_ping_delay1_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_12;
+assign b_data_valid_ping_delay2_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay3_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay4_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay5_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay6_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay7_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay8_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay9_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_20;
+assign b_data_valid_ping_delay10_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_21;
+assign b_data_valid_ping_delay11_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_22;
+assign b_data_valid_ping_delay12_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_23;
+assign b_data_valid_ping_delay13_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_24;
+assign b_data_valid_ping_delay14_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_25;
+assign b_data_valid_ping_delay15_11 = b_data_valid_ping_delay0_11 & b_data_valid_ping_delay0_26;
+assign b_data_valid_ping_delay1_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_13;
+assign b_data_valid_ping_delay2_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay3_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay4_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay5_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay6_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay7_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay8_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_20;
+assign b_data_valid_ping_delay9_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_21;
+assign b_data_valid_ping_delay10_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_22;
+assign b_data_valid_ping_delay11_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_23;
+assign b_data_valid_ping_delay12_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_24;
+assign b_data_valid_ping_delay13_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_25;
+assign b_data_valid_ping_delay14_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_26;
+assign b_data_valid_ping_delay15_12 = b_data_valid_ping_delay0_12 & b_data_valid_ping_delay0_27;
+assign b_data_valid_ping_delay1_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_14;
+assign b_data_valid_ping_delay2_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay3_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay4_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay5_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay6_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay7_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_20;
+assign b_data_valid_ping_delay8_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_21;
+assign b_data_valid_ping_delay9_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_22;
+assign b_data_valid_ping_delay10_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_23;
+assign b_data_valid_ping_delay11_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_24;
+assign b_data_valid_ping_delay12_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_25;
+assign b_data_valid_ping_delay13_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_26;
+assign b_data_valid_ping_delay14_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_27;
+assign b_data_valid_ping_delay15_13 = b_data_valid_ping_delay0_13 & b_data_valid_ping_delay0_28;
+assign b_data_valid_ping_delay1_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_15;
+assign b_data_valid_ping_delay2_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay3_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay4_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay5_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay6_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_20;
+assign b_data_valid_ping_delay7_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_21;
+assign b_data_valid_ping_delay8_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_22;
+assign b_data_valid_ping_delay9_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_23;
+assign b_data_valid_ping_delay10_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_24;
+assign b_data_valid_ping_delay11_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_25;
+assign b_data_valid_ping_delay12_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_26;
+assign b_data_valid_ping_delay13_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_27;
+assign b_data_valid_ping_delay14_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_28;
+assign b_data_valid_ping_delay15_14 = b_data_valid_ping_delay0_14 & b_data_valid_ping_delay0_29;
+assign b_data_valid_ping_delay1_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_16;
+assign b_data_valid_ping_delay2_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_17;
+assign b_data_valid_ping_delay3_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_18;
+assign b_data_valid_ping_delay4_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_19;
+assign b_data_valid_ping_delay5_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_20;
+assign b_data_valid_ping_delay6_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_21;
+assign b_data_valid_ping_delay7_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_22;
+assign b_data_valid_ping_delay8_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_23;
+assign b_data_valid_ping_delay9_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_24;
+assign b_data_valid_ping_delay10_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_25;
+assign b_data_valid_ping_delay11_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_26;
+assign b_data_valid_ping_delay12_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_27;
+assign b_data_valid_ping_delay13_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_28;
+assign b_data_valid_ping_delay14_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_29;
+assign b_data_valid_ping_delay15_15 = b_data_valid_ping_delay0_15 & b_data_valid_ping_delay0_30;
 
 processing_element pe0_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel),        .in_a(a0),      .in_b(b0),      .in_c(c0),        .out_a(a0_0to0_1), .out_b(b0_0to1_0), .out_b0(b0_0to1_0_ping), .out_b1(b0_0to1_0_pong), .out_c(matrixC0_0), .b_data_valid_ping(b_data_valid_ping),         .b_data_valid_pong(b_data_valid_pong        ));
 processing_element pe0_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay1), .in_a(a0_0to0_1), .in_b(b1),      .in_c(c1),        .out_a(a0_1to0_2), .out_b(b0_1to1_1), .out_b0(b0_1to1_1_ping), .out_b1(b0_1to1_1_pong), .out_c(matrixC0_1), .b_data_valid_ping(b_data_valid_ping_delay0_1), .b_data_valid_pong(b_data_valid_pong_delay0_1));
@@ -5193,6 +5195,10 @@ end
 
 endmodule
 
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_norm.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 module norm(
     input enable_norm,
     input [`DWIDTH-1:0] mean,
@@ -5274,7 +5280,6 @@ end
 assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
 
 wire out_data_available_internal;
-wire out_data_available_NC;
 wire out_data_available_final;
 
 reg [`DWIDTH-1:0] done_count;
@@ -5306,6 +5311,7 @@ norm_sub norm0(
     .reset(reset)
 );
 
+wire out_data_available_NC1;
 norm_sub norm1(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5313,12 +5319,13 @@ norm_sub norm1(
     .in_data_available(in_data_available1),
     .inp_data(inp_data1),
     .out_data(out_data1),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC1),
     .validity_mask(validity_mask[1]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC2;
 norm_sub norm2(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5326,12 +5333,13 @@ norm_sub norm2(
     .in_data_available(in_data_available2),
     .inp_data(inp_data2),
     .out_data(out_data2),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC2),
     .validity_mask(validity_mask[2]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC3;
 norm_sub norm3(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5339,12 +5347,13 @@ norm_sub norm3(
     .in_data_available(in_data_available3),
     .inp_data(inp_data3),
     .out_data(out_data3),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC3),
     .validity_mask(validity_mask[3]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC4;
 norm_sub norm4(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5352,12 +5361,13 @@ norm_sub norm4(
     .in_data_available(in_data_available4),
     .inp_data(inp_data4),
     .out_data(out_data4),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC4),
     .validity_mask(validity_mask[4]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC5;
 norm_sub norm5(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5365,12 +5375,13 @@ norm_sub norm5(
     .in_data_available(in_data_available5),
     .inp_data(inp_data5),
     .out_data(out_data5),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC5),
     .validity_mask(validity_mask[5]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC6;
 norm_sub norm6(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5378,12 +5389,13 @@ norm_sub norm6(
     .in_data_available(in_data_available6),
     .inp_data(inp_data6),
     .out_data(out_data6),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC6),
     .validity_mask(validity_mask[6]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC7;
 norm_sub norm7(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5391,12 +5403,13 @@ norm_sub norm7(
     .in_data_available(in_data_available7),
     .inp_data(inp_data7),
     .out_data(out_data7),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC7),
     .validity_mask(validity_mask[7]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC8;
 norm_sub norm8(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5404,12 +5417,13 @@ norm_sub norm8(
     .in_data_available(in_data_available8),
     .inp_data(inp_data8),
     .out_data(out_data8),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC8),
     .validity_mask(validity_mask[8]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC9;
 norm_sub norm9(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5417,12 +5431,13 @@ norm_sub norm9(
     .in_data_available(in_data_available9),
     .inp_data(inp_data9),
     .out_data(out_data9),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC9),
     .validity_mask(validity_mask[9]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC10;
 norm_sub norm10(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5430,12 +5445,13 @@ norm_sub norm10(
     .in_data_available(in_data_available10),
     .inp_data(inp_data10),
     .out_data(out_data10),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC10),
     .validity_mask(validity_mask[10]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC11;
 norm_sub norm11(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5443,12 +5459,13 @@ norm_sub norm11(
     .in_data_available(in_data_available11),
     .inp_data(inp_data11),
     .out_data(out_data11),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC11),
     .validity_mask(validity_mask[11]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC12;
 norm_sub norm12(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5456,12 +5473,13 @@ norm_sub norm12(
     .in_data_available(in_data_available12),
     .inp_data(inp_data12),
     .out_data(out_data12),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC12),
     .validity_mask(validity_mask[12]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC13;
 norm_sub norm13(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5469,12 +5487,13 @@ norm_sub norm13(
     .in_data_available(in_data_available13),
     .inp_data(inp_data13),
     .out_data(out_data13),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC13),
     .validity_mask(validity_mask[13]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC14;
 norm_sub norm14(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -5482,7 +5501,7 @@ norm_sub norm14(
     .in_data_available(in_data_available14),
     .inp_data(inp_data14),
     .out_data(out_data14),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC14),
     .validity_mask(validity_mask[14]),
     .clk(clk),
     .reset(reset)
@@ -5560,7 +5579,9 @@ end
 
 assign out_data_internal = variance_applied_data;
 
-endmodule//////////////////////////////////
+endmodule
+
+//////////////////////////////////
 //Dual port RAM
 //////////////////////////////////
 //////////////////////////////////
@@ -5628,7 +5649,9 @@ dual_port_ram u_dual_port_ram(
 `endif
 
 
-endmodule//Top level state machine
+endmodule
+
+//Top level state machine
 module control(
     input clk,
     input reset,
@@ -5750,6 +5773,10 @@ always @( posedge clk) begin
 end
 endmodule
 
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_accum.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 module accumulator (
     clk,
     resetn,
@@ -5844,22 +5871,6 @@ input [`AWIDTH-1:0] raddr_accum12_pool;
 input [`AWIDTH-1:0] raddr_accum13_pool;
 input [`AWIDTH-1:0] raddr_accum14_pool;
 input [`AWIDTH-1:0] raddr_accum15_pool;
-output [`DWIDTH-1:0] rdata_accum0;
-output [`DWIDTH-1:0] rdata_accum1;
-output [`DWIDTH-1:0] rdata_accum2;
-output [`DWIDTH-1:0] rdata_accum3;
-output [`DWIDTH-1:0] rdata_accum4;
-output [`DWIDTH-1:0] rdata_accum5;
-output [`DWIDTH-1:0] rdata_accum6;
-output [`DWIDTH-1:0] rdata_accum7;
-output [`DWIDTH-1:0] rdata_accum8;
-output [`DWIDTH-1:0] rdata_accum9;
-output [`DWIDTH-1:0] rdata_accum10;
-output [`DWIDTH-1:0] rdata_accum11;
-output [`DWIDTH-1:0] rdata_accum12;
-output [`DWIDTH-1:0] rdata_accum13;
-output [`DWIDTH-1:0] rdata_accum14;
-output [`DWIDTH-1:0] rdata_accum15;
 output [`DWIDTH-1:0] rdata_accum0_pool;
 output [`DWIDTH-1:0] rdata_accum1_pool;
 output [`DWIDTH-1:0] rdata_accum2_pool;
@@ -6214,7 +6225,7 @@ wire [`DWIDTH-1:0] rdata_buffer12_pong;
 wire [`DWIDTH-1:0] rdata_buffer13_pong;
 wire [`DWIDTH-1:0] rdata_buffer14_pong;
 wire [`DWIDTH-1:0] rdata_buffer15_pong;
-   
+    
 // Based on the Accumulator Adder MUX select signal either 0 or data read from the RAM goes into the Adder
 assign wdata_accum0_in = (~add_accum_mux0)?  8'b0 : (buffer_select)? rdata_buffer0 : rdata_buffer0_pong;
 assign wdata_accum1_in = (~add_accum_mux1)?  8'b0 : (buffer_select)? rdata_buffer1 : rdata_buffer1_pong;
@@ -6372,24 +6383,24 @@ buffer_select_accum14 <= buffer_select_accum13;
 buffer_select_accum15 <= buffer_select_accum14;
 end
 
-assign raddr_buffer0 = (buffer_select_pool)? raddr_accum0_pool : (buffer_select_accum)? raddr_accum0 : 11'bx;
-assign raddr_buffer1 = (buffer_select_pool1)? raddr_accum1_pool : (buffer_select_accum1)? raddr_accum1 : 11'bx;
-assign raddr_buffer2 = (buffer_select_pool2)? raddr_accum2_pool : (buffer_select_accum2)? raddr_accum2 : 11'bx;
-assign raddr_buffer3 = (buffer_select_pool3)? raddr_accum3_pool : (buffer_select_accum3)? raddr_accum3 : 11'bx;
-assign raddr_buffer4 = (buffer_select_pool4)? raddr_accum4_pool : (buffer_select_accum4)? raddr_accum4 : 11'bx;
-assign raddr_buffer5 = (buffer_select_pool5)? raddr_accum5_pool : (buffer_select_accum5)? raddr_accum5 : 11'bx;
-assign raddr_buffer6 = (buffer_select_pool6)? raddr_accum6_pool : (buffer_select_accum6)? raddr_accum6 : 11'bx;
-assign raddr_buffer7 = (buffer_select_pool7)? raddr_accum7_pool : (buffer_select_accum7)? raddr_accum7 : 11'bx;
-assign raddr_buffer8 = (buffer_select_pool8)? raddr_accum8_pool : (buffer_select_accum8)? raddr_accum8 : 11'bx;
-assign raddr_buffer9 = (buffer_select_pool9)? raddr_accum9_pool : (buffer_select_accum9)? raddr_accum9 : 11'bx;
-assign raddr_buffer10 = (buffer_select_pool10)? raddr_accum10_pool : (buffer_select_accum10)? raddr_accum10 : 11'bx;
-assign raddr_buffer11 = (buffer_select_pool11)? raddr_accum11_pool : (buffer_select_accum11)? raddr_accum11 : 11'bx;
-assign raddr_buffer12 = (buffer_select_pool12)? raddr_accum12_pool : (buffer_select_accum12)? raddr_accum12 : 11'bx;
-assign raddr_buffer13 = (buffer_select_pool13)? raddr_accum13_pool : (buffer_select_accum13)? raddr_accum13 : 11'bx;
-assign raddr_buffer14 = (buffer_select_pool14)? raddr_accum14_pool : (buffer_select_accum14)? raddr_accum14 : 11'bx;
-assign raddr_buffer15 = (buffer_select_pool15)? raddr_accum15_pool : (buffer_select_accum15)? raddr_accum15 : 11'bx;
+assign raddr_buffer0 = (buffer_select_pool)? raddr_accum0_pool : (buffer_select_accum)? raddr_accum0:11'bx;
+assign raddr_buffer1 = (buffer_select_pool1)? raddr_accum1_pool : (buffer_select_accum1)? raddr_accum1:11'bx;
+assign raddr_buffer2 = (buffer_select_pool2)? raddr_accum2_pool : (buffer_select_accum2)? raddr_accum2:11'bx;
+assign raddr_buffer3 = (buffer_select_pool3)? raddr_accum3_pool : (buffer_select_accum3)? raddr_accum3:11'bx;
+assign raddr_buffer4 = (buffer_select_pool4)? raddr_accum4_pool : (buffer_select_accum4)? raddr_accum4:11'bx;
+assign raddr_buffer5 = (buffer_select_pool5)? raddr_accum5_pool : (buffer_select_accum5)? raddr_accum5:11'bx;
+assign raddr_buffer6 = (buffer_select_pool6)? raddr_accum6_pool : (buffer_select_accum6)? raddr_accum6:11'bx;
+assign raddr_buffer7 = (buffer_select_pool7)? raddr_accum7_pool : (buffer_select_accum7)? raddr_accum7:11'bx;
+assign raddr_buffer8 = (buffer_select_pool8)? raddr_accum8_pool : (buffer_select_accum8)? raddr_accum8:11'bx;
+assign raddr_buffer9 = (buffer_select_pool9)? raddr_accum9_pool : (buffer_select_accum9)? raddr_accum9:11'bx;
+assign raddr_buffer10 = (buffer_select_pool10)? raddr_accum10_pool : (buffer_select_accum10)? raddr_accum10:11'bx;
+assign raddr_buffer11 = (buffer_select_pool11)? raddr_accum11_pool : (buffer_select_accum11)? raddr_accum11:11'bx;
+assign raddr_buffer12 = (buffer_select_pool12)? raddr_accum12_pool : (buffer_select_accum12)? raddr_accum12:11'bx;
+assign raddr_buffer13 = (buffer_select_pool13)? raddr_accum13_pool : (buffer_select_accum13)? raddr_accum13:11'bx;
+assign raddr_buffer14 = (buffer_select_pool14)? raddr_accum14_pool : (buffer_select_accum14)? raddr_accum14:11'bx;
+assign raddr_buffer15 = (buffer_select_pool15)? raddr_accum15_pool : (buffer_select_accum15)? raddr_accum15:11'bx;
   
-assign rdata_accum0_pool =  (buffer_select_pool)? (buffer_select)? rdata_buffer0 : rdata_buffer0_pong : 8'b0;
+assign rdata_accum0_pool =  (buffer_select_pool)?  (buffer_select)? rdata_buffer0 : rdata_buffer0_pong : 8'b0;
 assign rdata_accum1_pool =  (buffer_select_pool1)? (buffer_select)? rdata_buffer1 : rdata_buffer1_pong : 8'b0;
 assign rdata_accum2_pool =  (buffer_select_pool2)? (buffer_select)? rdata_buffer2 : rdata_buffer2_pong : 8'b0;
 assign rdata_accum3_pool =  (buffer_select_pool3)? (buffer_select)? rdata_buffer3 : rdata_buffer3_pong : 8'b0;
@@ -6405,7 +6416,6 @@ assign rdata_accum12_pool =  (buffer_select_pool12)? (buffer_select)? rdata_buff
 assign rdata_accum13_pool =  (buffer_select_pool13)? (buffer_select)? rdata_buffer13 : rdata_buffer13_pong : 8'b0;
 assign rdata_accum14_pool =  (buffer_select_pool14)? (buffer_select)? rdata_buffer14 : rdata_buffer14_pong : 8'b0;
 assign rdata_accum15_pool =  (buffer_select_pool15)? (buffer_select)? rdata_buffer15 : rdata_buffer15_pong : 8'b0;
-
   
 ////////////////////////////////////////////////
 // PING ACCUMULATORS
@@ -6848,8 +6858,12 @@ ram #(.AW(`AWIDTH), .MW(MWIDTH), .DW(`DWIDTH)) accum15_pong (
     .clk(clk)
 );
 
-
 endmodule
+
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_pool.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 
 module pooling(
     clk,
@@ -7105,22 +7119,22 @@ reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg13_int;
 reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg14_int;
 reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg15_int;
 
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average0;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average1;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average2;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average3;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average4;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average5;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average6;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average7;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average8;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average9;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average10;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average11;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average12;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average13;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average14;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average15;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average0;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average1;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average2;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average3;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average4;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average5;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average6;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average7;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average8;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average9;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average10;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average11;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average12;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average13;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average14;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average15;
 
 assign pool_norm_valid = (pool_count1 == (filter_size_int*filter_size_int))?1'b1:1'b0;
 
@@ -7586,6 +7600,10 @@ assign pool15 = (pool_count16 == (filter_size_int*filter_size_int))? ((pool_sele
 
 endmodule
 
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_activation.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 module activation(
     input activation_type,
     input enable_activation,
@@ -7668,20 +7686,24 @@ wire out_data_available_internal;
 assign out_data_available   = enable_pool? enable_activation ? out_data_available_internal : in_data_available : in_data_available2;
 
 
-wire out_data_available_NC;
 wire out_data_available_final;
 reg [`DWIDTH-1:0] act_count;
 reg done_activation;
+reg [`DWIDTH-1:0] done_activation_count;
 
 always @(posedge clk) begin
 	if (reset) begin
 		done_activation <= 0;
+      done_activation_count <= 0;
 		act_count <= 0;
 	end
-	if (act_count == 4) begin
+   else if (done_activation_count == `MAT_MUL_SIZE)
+      done_activation <= 0;
+	else if (act_count == 4) begin
 		done_activation <= 1;
+      done_activation_count <= done_activation_count + 1;
 	end
-	if (out_data_available_final == 1) begin
+	else if (out_data_available_final == 1) begin
 		act_count <= act_count + 1;
 	end
 end
@@ -7698,169 +7720,183 @@ sub_activation activation0(
     .reset(reset)
 );
 
+wire out_data_available_NC1;
 sub_activation activation1(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available1),
     .inp_data(inp_data1),
     .out_data(out_data1),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC1),
     .validity_mask(validity_mask[1]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC2;
 sub_activation activation2(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available2),
     .inp_data(inp_data2),
     .out_data(out_data2),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC2),
     .validity_mask(validity_mask[2]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC3;
 sub_activation activation3(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available3),
     .inp_data(inp_data3),
     .out_data(out_data3),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC3),
     .validity_mask(validity_mask[3]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC4;
 sub_activation activation4(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available4),
     .inp_data(inp_data4),
     .out_data(out_data4),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC4),
     .validity_mask(validity_mask[4]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC5;
 sub_activation activation5(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available5),
     .inp_data(inp_data5),
     .out_data(out_data5),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC5),
     .validity_mask(validity_mask[5]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC6;
 sub_activation activation6(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available6),
     .inp_data(inp_data6),
     .out_data(out_data6),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC6),
     .validity_mask(validity_mask[6]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC7;
 sub_activation activation7(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available7),
     .inp_data(inp_data7),
     .out_data(out_data7),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC7),
     .validity_mask(validity_mask[7]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC8;
 sub_activation activation8(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available8),
     .inp_data(inp_data8),
     .out_data(out_data8),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC8),
     .validity_mask(validity_mask[8]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC9;
 sub_activation activation9(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available9),
     .inp_data(inp_data9),
     .out_data(out_data9),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC9),
     .validity_mask(validity_mask[9]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC10;
 sub_activation activation10(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available10),
     .inp_data(inp_data10),
     .out_data(out_data10),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC10),
     .validity_mask(validity_mask[10]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC11;
 sub_activation activation11(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available11),
     .inp_data(inp_data11),
     .out_data(out_data11),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC11),
     .validity_mask(validity_mask[11]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC12;
 sub_activation activation12(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available12),
     .inp_data(inp_data12),
     .out_data(out_data12),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC12),
     .validity_mask(validity_mask[12]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC13;
 sub_activation activation13(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available13),
     .inp_data(inp_data13),
     .out_data(out_data13),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC13),
     .validity_mask(validity_mask[13]),
     .clk(clk),
     .reset(reset)
 );    
 
+wire out_data_available_NC14;
 sub_activation activation14(
     .activation_type(activation_type),
     .enable_activation(enable_activation),
     .in_data_available(in_data_available14),
     .inp_data(inp_data14),
     .out_data(out_data14),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC14),
     .validity_mask(validity_mask[14]),
     .clk(clk),
     .reset(reset)
@@ -7893,10 +7929,11 @@ module sub_activation(
 );
 
 reg  out_data_available_internal;
-wire [`DWIDTH-1:0] out_data_internal;
+reg [`DWIDTH-1:0] out_data_internal;
 reg [`DWIDTH-1:0] slope_applied_data_internal;
 reg [`DWIDTH-1:0] intercept_applied_data_internal;
 reg [`DWIDTH-1:0] relu_applied_data_internal;
+
 reg [31:0] cycle_count;
 reg activation_in_progress;
 
@@ -7968,7 +8005,12 @@ always @(posedge clk) begin
    end
 end
 
-assign out_data_internal = (activation_type) ? intercept_applied_data_internal : relu_applied_data_internal;
+always @ (posedge clk) begin
+   if (activation_type == 1'b1)
+      out_data_internal <= intercept_applied_data_internal;
+   else
+      out_data_internal <= relu_applied_data_internal;
+end
 
 //Our equation of tanh is Y=AX+B
 //A is the slope and B is the intercept.
@@ -8056,6 +8098,7 @@ assign dummy = validity_mask;
 
 
 endmodule
+
 module top(
     input  clk,
     input  clk_mem,
@@ -9943,3 +9986,4 @@ reg [31:0] i;
  
 
 endmodule
+

@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_norm.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 module norm(
     input enable_norm,
     input [`DWIDTH-1:0] mean,
@@ -35,19 +39,18 @@ reg in_data_available6;
 reg in_data_available7;
 
 always @(posedge clk) begin
-	in_data_available1 <= in_data_available;
+    in_data_available1 <= in_data_available;
 	in_data_available2 <= in_data_available1;
 	in_data_available3 <= in_data_available2;
 	in_data_available4 <= in_data_available3;
 	in_data_available5 <= in_data_available4;
 	in_data_available6 <= in_data_available5;
-	in_data_available7 <= in_data_available6;	
+	in_data_available7 <= in_data_available6;
 end
 
 assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
 
 wire out_data_available_internal;
-wire out_data_available_NC;
 wire out_data_available_final;
 
 reg [`DWIDTH-1:0] done_count;
@@ -65,7 +68,7 @@ always @(posedge clk) begin
 		done_count <= done_count + 1;
 	end
 end
-	
+
 norm_sub norm0(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -79,6 +82,7 @@ norm_sub norm0(
     .reset(reset)
 );
 
+wire out_data_available_NC1;
 norm_sub norm1(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -86,12 +90,13 @@ norm_sub norm1(
     .in_data_available(in_data_available1),
     .inp_data(inp_data1),
     .out_data(out_data1),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC1),
     .validity_mask(validity_mask[1]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC2;
 norm_sub norm2(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -99,12 +104,13 @@ norm_sub norm2(
     .in_data_available(in_data_available2),
     .inp_data(inp_data2),
     .out_data(out_data2),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC2),
     .validity_mask(validity_mask[2]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC3;
 norm_sub norm3(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -112,12 +118,13 @@ norm_sub norm3(
     .in_data_available(in_data_available3),
     .inp_data(inp_data3),
     .out_data(out_data3),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC3),
     .validity_mask(validity_mask[3]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC4;
 norm_sub norm4(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -125,12 +132,13 @@ norm_sub norm4(
     .in_data_available(in_data_available4),
     .inp_data(inp_data4),
     .out_data(out_data4),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC4),
     .validity_mask(validity_mask[4]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC5;
 norm_sub norm5(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -138,12 +146,13 @@ norm_sub norm5(
     .in_data_available(in_data_available5),
     .inp_data(inp_data5),
     .out_data(out_data5),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC5),
     .validity_mask(validity_mask[5]),
     .clk(clk),
     .reset(reset)
 );
 
+wire out_data_available_NC6;
 norm_sub norm6(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -151,7 +160,7 @@ norm_sub norm6(
     .in_data_available(in_data_available6),
     .inp_data(inp_data6),
     .out_data(out_data6),
-    .out_data_available(out_data_available_NC),
+    .out_data_available(out_data_available_NC6),
     .validity_mask(validity_mask[6]),
     .clk(clk),
     .reset(reset)
@@ -230,3 +239,4 @@ end
 assign out_data_internal = variance_applied_data;
 
 endmodule
+

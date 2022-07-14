@@ -67,3 +67,4 @@ dual_port_ram u_dual_port_ram(
 
 
 endmodule
+

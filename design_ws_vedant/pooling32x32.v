@@ -483,38 +483,38 @@ reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg29_int;
 reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg30_int;
 reg [`DWIDTH+`MAT_MUL_SIZE-1:0] avg31_int;
 
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average0;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average1;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average2;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average3;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average4;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average5;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average6;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average7;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average8;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average9;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average10;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average11;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average12;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average13;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average14;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average15;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average16;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average17;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average18;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average19;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average20;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average21;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average22;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average23;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average24;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average25;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average26;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average27;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average28;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average29;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average30;
-reg [`DWIDTH+`MAT_MUL_SIZE-1:0] average31;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average0;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average1;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average2;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average3;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average4;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average5;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average6;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average7;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average8;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average9;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average10;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average11;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average12;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average13;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average14;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average15;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average16;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average17;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average18;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average19;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average20;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average21;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average22;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average23;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average24;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average25;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average26;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average27;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average28;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average29;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average30;
+wire [`DWIDTH+`MAT_MUL_SIZE-1:0] average31;
 
 assign pool_norm_valid = (pool_count1 == (filter_size_int*filter_size_int))?1'b1:1'b0;
 
@@ -1411,3 +1411,4 @@ assign pool31 = (pool_count32 == (filter_size_int*filter_size_int))? ((pool_sele
 
 
 endmodule
+

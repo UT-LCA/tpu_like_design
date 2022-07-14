@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////
+// THIS FILE WAS AUTOMATICALLY GENERATED FROM generate_activation.v.mako
+// DO NOT EDIT
+////////////////////////////////////////////////////////////////////////////////
 module activation(
     input activation_type,
     input enable_activation,
@@ -35,20 +39,19 @@ reg in_data_available6;
 reg in_data_available7;
 
 always @(posedge clk) begin
-	in_data_available1 <= in_data_available;
+    in_data_available1 <= in_data_available;
 	in_data_available2 <= in_data_available1;
 	in_data_available3 <= in_data_available2;
 	in_data_available4 <= in_data_available3;
 	in_data_available5 <= in_data_available4;
 	in_data_available6 <= in_data_available5;
-	in_data_available7 <= in_data_available6;	
+	in_data_available7 <= in_data_available6;
 end
 
 wire out_data_available_internal;
 assign out_data_available   = enable_pool? enable_activation ? out_data_available_internal : in_data_available : in_data_available2;
 
 
-wire out_data_available_NC;
 wire out_data_available_final;
 reg [`DWIDTH-1:0] act_count;
 reg done_activation;
@@ -72,88 +75,94 @@ always @(posedge clk) begin
 end
 
 sub_activation activation0(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available),
-  .inp_data(inp_data0),
-  .out_data(out_data0),
-  .out_data_available(out_data_available_internal),
-  .validity_mask(validity_mask[0]),
-  .clk(clk),
-  .reset(reset)
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available),
+    .inp_data(inp_data0),
+    .out_data(out_data0),
+    .out_data_available(out_data_available_internal),
+    .validity_mask(validity_mask[0]),
+    .clk(clk),
+    .reset(reset)
 );
 
+wire out_data_available_NC1;
 sub_activation activation1(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available1),
-  .inp_data(inp_data1),
-  .out_data(out_data1),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[1]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available1),
+    .inp_data(inp_data1),
+    .out_data(out_data1),
+    .out_data_available(out_data_available_NC1),
+    .validity_mask(validity_mask[1]),
+    .clk(clk),
+    .reset(reset)
+);    
 
+wire out_data_available_NC2;
 sub_activation activation2(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available2),
-  .inp_data(inp_data2),
-  .out_data(out_data2),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[2]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available2),
+    .inp_data(inp_data2),
+    .out_data(out_data2),
+    .out_data_available(out_data_available_NC2),
+    .validity_mask(validity_mask[2]),
+    .clk(clk),
+    .reset(reset)
+);    
 
+wire out_data_available_NC3;
 sub_activation activation3(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available3),
-  .inp_data(inp_data3),
-  .out_data(out_data3),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[3]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available3),
+    .inp_data(inp_data3),
+    .out_data(out_data3),
+    .out_data_available(out_data_available_NC3),
+    .validity_mask(validity_mask[3]),
+    .clk(clk),
+    .reset(reset)
+);    
 
+wire out_data_available_NC4;
 sub_activation activation4(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available4),
-  .inp_data(inp_data4),
-  .out_data(out_data4),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[4]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available4),
+    .inp_data(inp_data4),
+    .out_data(out_data4),
+    .out_data_available(out_data_available_NC4),
+    .validity_mask(validity_mask[4]),
+    .clk(clk),
+    .reset(reset)
+);    
 
+wire out_data_available_NC5;
 sub_activation activation5(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available5),
-  .inp_data(inp_data5),
-  .out_data(out_data5),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[5]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available5),
+    .inp_data(inp_data5),
+    .out_data(out_data5),
+    .out_data_available(out_data_available_NC5),
+    .validity_mask(validity_mask[5]),
+    .clk(clk),
+    .reset(reset)
+);    
 
+wire out_data_available_NC6;
 sub_activation activation6(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available6),
-  .inp_data(inp_data6),
-  .out_data(out_data6),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[6]),
-  .clk(clk),
-  .reset(reset)
-);
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available6),
+    .inp_data(inp_data6),
+    .out_data(out_data6),
+    .out_data_available(out_data_available_NC6),
+    .validity_mask(validity_mask[6]),
+    .clk(clk),
+    .reset(reset)
+);    
 
 sub_activation activation7(
   .activation_type(activation_type),
@@ -351,3 +360,4 @@ assign dummy = validity_mask;
 
 
 endmodule
+
