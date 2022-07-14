@@ -99,72 +99,72 @@ wire start_pool;
 wire pool_norm_valid;
 
 `ifdef DESIGN_SIZE_32
-wire [`DWIDTH-1:0] matrixC310;
-wire [`DWIDTH-1:0] matrixC311;
-wire [`DWIDTH-1:0] matrixC312;
-wire [`DWIDTH-1:0] matrixC313;
-wire [`DWIDTH-1:0] matrixC314;
-wire [`DWIDTH-1:0] matrixC315;
-wire [`DWIDTH-1:0] matrixC316;
-wire [`DWIDTH-1:0] matrixC317;
-wire [`DWIDTH-1:0] matrixC318;
-wire [`DWIDTH-1:0] matrixC319;
-wire [`DWIDTH-1:0] matrixC3110;
-wire [`DWIDTH-1:0] matrixC3111;
-wire [`DWIDTH-1:0] matrixC3112;
-wire [`DWIDTH-1:0] matrixC3113;
-wire [`DWIDTH-1:0] matrixC3114;
-wire [`DWIDTH-1:0] matrixC3115;
-wire [`DWIDTH-1:0] matrixC3116;
-wire [`DWIDTH-1:0] matrixC3117;
-wire [`DWIDTH-1:0] matrixC3118;
-wire [`DWIDTH-1:0] matrixC3119;
-wire [`DWIDTH-1:0] matrixC3120;
-wire [`DWIDTH-1:0] matrixC3121;
-wire [`DWIDTH-1:0] matrixC3122;
-wire [`DWIDTH-1:0] matrixC3123;
-wire [`DWIDTH-1:0] matrixC3124;
-wire [`DWIDTH-1:0] matrixC3125;
-wire [`DWIDTH-1:0] matrixC3126;
-wire [`DWIDTH-1:0] matrixC3127;
-wire [`DWIDTH-1:0] matrixC3128;
-wire [`DWIDTH-1:0] matrixC3129;
-wire [`DWIDTH-1:0] matrixC3130;
-wire [`DWIDTH-1:0] matrixC3131;
+wire [`DWIDTH-1:0] matrixC31_0;
+wire [`DWIDTH-1:0] matrixC31_1;
+wire [`DWIDTH-1:0] matrixC31_2;
+wire [`DWIDTH-1:0] matrixC31_3;
+wire [`DWIDTH-1:0] matrixC31_4;
+wire [`DWIDTH-1:0] matrixC31_5;
+wire [`DWIDTH-1:0] matrixC31_6;
+wire [`DWIDTH-1:0] matrixC31_7;
+wire [`DWIDTH-1:0] matrixC31_8;
+wire [`DWIDTH-1:0] matrixC31_9;
+wire [`DWIDTH-1:0] matrixC31_10;
+wire [`DWIDTH-1:0] matrixC31_11;
+wire [`DWIDTH-1:0] matrixC31_12;
+wire [`DWIDTH-1:0] matrixC31_13;
+wire [`DWIDTH-1:0] matrixC31_14;
+wire [`DWIDTH-1:0] matrixC31_15;
+wire [`DWIDTH-1:0] matrixC31_16;
+wire [`DWIDTH-1:0] matrixC31_17;
+wire [`DWIDTH-1:0] matrixC31_18;
+wire [`DWIDTH-1:0] matrixC31_19;
+wire [`DWIDTH-1:0] matrixC31_20;
+wire [`DWIDTH-1:0] matrixC31_21;
+wire [`DWIDTH-1:0] matrixC31_22;
+wire [`DWIDTH-1:0] matrixC31_23;
+wire [`DWIDTH-1:0] matrixC31_24;
+wire [`DWIDTH-1:0] matrixC31_25;
+wire [`DWIDTH-1:0] matrixC31_26;
+wire [`DWIDTH-1:0] matrixC31_27;
+wire [`DWIDTH-1:0] matrixC31_28;
+wire [`DWIDTH-1:0] matrixC31_29;
+wire [`DWIDTH-1:0] matrixC31_30;
+wire [`DWIDTH-1:0] matrixC31_31;
 `endif
 `ifdef DESIGN_SIZE_16
-wire [`DWIDTH-1:0] matrixC150;
-wire [`DWIDTH-1:0] matrixC151;
-wire [`DWIDTH-1:0] matrixC152;
-wire [`DWIDTH-1:0] matrixC153;
-wire [`DWIDTH-1:0] matrixC154;
-wire [`DWIDTH-1:0] matrixC155;
-wire [`DWIDTH-1:0] matrixC156;
-wire [`DWIDTH-1:0] matrixC157;
-wire [`DWIDTH-1:0] matrixC158;
-wire [`DWIDTH-1:0] matrixC159;
-wire [`DWIDTH-1:0] matrixC1510;
-wire [`DWIDTH-1:0] matrixC1511;
-wire [`DWIDTH-1:0] matrixC1512;
-wire [`DWIDTH-1:0] matrixC1513;
-wire [`DWIDTH-1:0] matrixC1514;
-wire [`DWIDTH-1:0] matrixC1515;
+wire [`DWIDTH-1:0] matrixC15_0;
+wire [`DWIDTH-1:0] matrixC15_1;
+wire [`DWIDTH-1:0] matrixC15_2;
+wire [`DWIDTH-1:0] matrixC15_3;
+wire [`DWIDTH-1:0] matrixC15_4;
+wire [`DWIDTH-1:0] matrixC15_5;
+wire [`DWIDTH-1:0] matrixC15_6;
+wire [`DWIDTH-1:0] matrixC15_7;
+wire [`DWIDTH-1:0] matrixC15_8;
+wire [`DWIDTH-1:0] matrixC15_9;
+wire [`DWIDTH-1:0] matrixC15_10;
+wire [`DWIDTH-1:0] matrixC15_11;
+wire [`DWIDTH-1:0] matrixC15_12;
+wire [`DWIDTH-1:0] matrixC15_13;
+wire [`DWIDTH-1:0] matrixC15_14;
+wire [`DWIDTH-1:0] matrixC15_15;
 `endif
 `ifdef DESIGN_SIZE_8
-wire [`DWIDTH-1:0] matrixC70;
-wire [`DWIDTH-1:0] matrixC71;
-wire [`DWIDTH-1:0] matrixC72;
-wire [`DWIDTH-1:0] matrixC73;
-wire [`DWIDTH-1:0] matrixC74;
-wire [`DWIDTH-1:0] matrixC75;
-wire [`DWIDTH-1:0] matrixC76;
-wire [`DWIDTH-1:0] matrixC77;
+wire [`DWIDTH-1:0] matrixC7_0;
+wire [`DWIDTH-1:0] matrixC7_1;
+wire [`DWIDTH-1:0] matrixC7_2;
+wire [`DWIDTH-1:0] matrixC7_3;
+wire [`DWIDTH-1:0] matrixC7_4;
+wire [`DWIDTH-1:0] matrixC7_5;
+wire [`DWIDTH-1:0] matrixC7_6;
+wire [`DWIDTH-1:0] matrixC7_7;
 `endif
 `ifdef DESIGN_SIZE_4
-wire [`DWIDTH-1:0] matrixC30;
-wire [`DWIDTH-1:0] matrixC31;
-wire [`DWIDTH-1:0] matrixC32;
-wire [`DWIDTH-1:0] matrixC33;
+wire [`DWIDTH-1:0] matrixC3_0;
+wire [`DWIDTH-1:0] matrixC3_1;
+wire [`DWIDTH-1:0] matrixC3_2;
+wire [`DWIDTH-1:0] matrixC3_3;
 `endif
 
 wire [`AWIDTH-1:0] start_waddr_accum0;
@@ -466,72 +466,72 @@ matmul_4x4_systolic u_matmul(
   .c_addr(bram_addr_c_NC),
   .c_data_available(matmul_c_data_available),
   `ifdef DESIGN_SIZE_32
-  .matrixC310(matrixC310),
-  .matrixC311(matrixC311),
-  .matrixC312(matrixC312),
-  .matrixC313(matrixC313),
-  .matrixC314(matrixC314),
-  .matrixC315(matrixC315),
-  .matrixC316(matrixC316),
-  .matrixC317(matrixC317),
-  .matrixC318(matrixC318),
-  .matrixC319(matrixC319),
-  .matrixC3110(matrixC3110),
-  .matrixC3111(matrixC3111),
-  .matrixC3112(matrixC3112),
-  .matrixC3113(matrixC3113),
-  .matrixC3114(matrixC3114),
-  .matrixC3115(matrixC3115),
-  .matrixC3116(matrixC3116),
-  .matrixC3117(matrixC3117),
-  .matrixC3118(matrixC3118),
-  .matrixC3119(matrixC3119),
-  .matrixC3120(matrixC3120),
-  .matrixC3121(matrixC3121),
-  .matrixC3122(matrixC3122),
-  .matrixC3123(matrixC3123),
-  .matrixC3124(matrixC3124),
-  .matrixC3125(matrixC3125),
-  .matrixC3126(matrixC3126),
-  .matrixC3127(matrixC3127),
-  .matrixC3128(matrixC3128),
-  .matrixC3129(matrixC3129),
-  .matrixC3130(matrixC3130),
-  .matrixC3131(matrixC3131),
+  .matrixC31_0(matrixC31_0),
+  .matrixC31_1(matrixC31_1),
+  .matrixC31_2(matrixC31_2),
+  .matrixC31_3(matrixC31_3),
+  .matrixC31_4(matrixC31_4),
+  .matrixC31_5(matrixC31_5),
+  .matrixC31_6(matrixC31_6),
+  .matrixC31_7(matrixC31_7),
+  .matrixC31_8(matrixC31_8),
+  .matrixC31_9(matrixC31_9),
+  .matrixC31_10(matrixC31_10),
+  .matrixC31_11(matrixC31_11),
+  .matrixC31_12(matrixC31_12),
+  .matrixC31_13(matrixC31_13),
+  .matrixC31_14(matrixC31_14),
+  .matrixC31_15(matrixC31_15),
+  .matrixC31_16(matrixC31_16),
+  .matrixC31_17(matrixC31_17),
+  .matrixC31_18(matrixC31_18),
+  .matrixC31_19(matrixC31_19),
+  .matrixC31_20(matrixC31_20),
+  .matrixC31_21(matrixC31_21),
+  .matrixC31_22(matrixC31_22),
+  .matrixC31_23(matrixC31_23),
+  .matrixC31_24(matrixC31_24),
+  .matrixC31_25(matrixC31_25),
+  .matrixC31_26(matrixC31_26),
+  .matrixC31_27(matrixC31_27),
+  .matrixC31_28(matrixC31_28),
+  .matrixC31_29(matrixC31_29),
+  .matrixC31_30(matrixC31_30),
+  .matrixC31_31(matrixC31_31),
   `endif
   `ifdef DESIGN_SIZE_16
-  .matrixC150(matrixC150),
-  .matrixC151(matrixC151),
-  .matrixC152(matrixC152),
-  .matrixC153(matrixC153),
-  .matrixC154(matrixC154),
-  .matrixC155(matrixC155),
-  .matrixC156(matrixC156),
-  .matrixC157(matrixC157),
-  .matrixC158(matrixC158),
-  .matrixC159(matrixC159),
-  .matrixC1510(matrixC1510),
-  .matrixC1511(matrixC1511),
-  .matrixC1512(matrixC1512),
-  .matrixC1513(matrixC1513),
-  .matrixC1514(matrixC1514),
-  .matrixC1515(matrixC1515),
+  .matrixC15_0(matrixC15_0),
+  .matrixC15_1(matrixC15_1),
+  .matrixC15_2(matrixC15_2),
+  .matrixC15_3(matrixC15_3),
+  .matrixC15_4(matrixC15_4),
+  .matrixC15_5(matrixC15_5),
+  .matrixC15_6(matrixC15_6),
+  .matrixC15_7(matrixC15_7),
+  .matrixC15_8(matrixC15_8),
+  .matrixC15_9(matrixC15_9),
+  .matrixC15_10(matrixC15_10),
+  .matrixC15_11(matrixC15_11),
+  .matrixC15_12(matrixC15_12),
+  .matrixC15_13(matrixC15_13),
+  .matrixC15_14(matrixC15_14),
+  .matrixC15_15(matrixC15_15),
   `endif
   `ifdef DESIGN_SIZE_8
-  .matrixC70(matrixC70),
-  .matrixC71(matrixC71),
-  .matrixC72(matrixC72),
-  .matrixC73(matrixC73),
-  .matrixC74(matrixC74),
-  .matrixC75(matrixC75),
-  .matrixC76(matrixC76),
-  .matrixC77(matrixC77),
+  .matrixC7_0(matrixC7_0),
+  .matrixC7_1(matrixC7_1),
+  .matrixC7_2(matrixC7_2),
+  .matrixC7_3(matrixC7_3),
+  .matrixC7_4(matrixC7_4),
+  .matrixC7_5(matrixC7_5),
+  .matrixC7_6(matrixC7_6),
+  .matrixC7_7(matrixC7_7),
   `endif
   `ifdef DESIGN_SIZE_4
-  .matrixC30(matrixC30),
-  .matrixC31(matrixC31),
-  .matrixC32(matrixC32),
-  .matrixC33(matrixC33),
+  .matrixC3_0(matrixC3_0),
+  .matrixC3_1(matrixC3_1),
+  .matrixC3_2(matrixC3_2),
+  .matrixC3_3(matrixC3_3),
   `endif
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
@@ -553,14 +553,14 @@ accumulator u_accum (
   .wdata_available(matmul_c_data_available),
   .start_waddr_accum0(start_waddr_accum0),
   `ifdef DESIGN_SIZE_8
-  .wdata_accum0(matrixC70),
-  .wdata_accum1(matrixC71),
-  .wdata_accum2(matrixC72),
-  .wdata_accum3(matrixC73),
-  .wdata_accum4(matrixC74),
-  .wdata_accum5(matrixC75),
-  .wdata_accum6(matrixC76),
-  .wdata_accum7(matrixC77),
+  .wdata_accum0(matrixC7_0),
+  .wdata_accum1(matrixC7_1),
+  .wdata_accum2(matrixC7_2),
+  .wdata_accum3(matrixC7_3),
+  .wdata_accum4(matrixC7_4),
+  .wdata_accum5(matrixC7_5),
+  .wdata_accum6(matrixC7_6),
+  .wdata_accum7(matrixC7_7),
   .raddr_accum0_pool(raddr_accum0_pool),
   .raddr_accum1_pool(raddr_accum1_pool),
   .raddr_accum2_pool(raddr_accum2_pool),
@@ -579,22 +579,22 @@ accumulator u_accum (
   .rdata_accum7_pool(rdata_accum7_pool)
   `endif
   `ifdef DESIGN_SIZE_16
-  .wdata_accum0(matrixC150),
-  .wdata_accum1(matrixC151),
-  .wdata_accum2(matrixC152),
-  .wdata_accum3(matrixC153),
-  .wdata_accum4(matrixC154),
-  .wdata_accum5(matrixC155),
-  .wdata_accum6(matrixC156),
-  .wdata_accum7(matrixC157),
-  .wdata_accum8(matrixC158),
-  .wdata_accum9(matrixC159),
-  .wdata_accum10(matrixC1510),
-  .wdata_accum11(matrixC1511),
-  .wdata_accum12(matrixC1512),
-  .wdata_accum13(matrixC1513),
-  .wdata_accum14(matrixC1514),
-  .wdata_accum15(matrixC1515),
+  .wdata_accum0(matrixC15_0),
+  .wdata_accum1(matrixC15_1),
+  .wdata_accum2(matrixC15_2),
+  .wdata_accum3(matrixC15_3),
+  .wdata_accum4(matrixC15_4),
+  .wdata_accum5(matrixC15_5),
+  .wdata_accum6(matrixC15_6),
+  .wdata_accum7(matrixC15_7),
+  .wdata_accum8(matrixC15_8),
+  .wdata_accum9(matrixC15_9),
+  .wdata_accum10(matrixC15_10),
+  .wdata_accum11(matrixC15_11),
+  .wdata_accum12(matrixC15_12),
+  .wdata_accum13(matrixC15_13),
+  .wdata_accum14(matrixC15_14),
+  .wdata_accum15(matrixC15_15),
   .raddr_accum0_pool(raddr_accum0_pool),
   .raddr_accum1_pool(raddr_accum1_pool),
   .raddr_accum2_pool(raddr_accum2_pool),
@@ -629,38 +629,38 @@ accumulator u_accum (
   .rdata_accum15_pool(rdata_accum15_pool)
   `endif
   `ifdef DESIGN_SIZE_32
-  .wdata_accum0(matrixC310),
-  .wdata_accum1(matrixC311),
-  .wdata_accum2(matrixC312),
-  .wdata_accum3(matrixC313),
-  .wdata_accum4(matrixC314),
-  .wdata_accum5(matrixC315),
-  .wdata_accum6(matrixC316),
-  .wdata_accum7(matrixC317),
-  .wdata_accum8(matrixC318),
-  .wdata_accum9(matrixC319),
-  .wdata_accum10(matrixC3110),
-  .wdata_accum11(matrixC3111),
-  .wdata_accum12(matrixC3112),
-  .wdata_accum13(matrixC3113),
-  .wdata_accum14(matrixC3114),
-  .wdata_accum15(matrixC3115),
-  .wdata_accum16(matrixC3116),
-  .wdata_accum17(matrixC3117),
-  .wdata_accum18(matrixC3118),
-  .wdata_accum19(matrixC3119),
-  .wdata_accum20(matrixC3120),
-  .wdata_accum21(matrixC3121),
-  .wdata_accum22(matrixC3122),
-  .wdata_accum23(matrixC3123),
-  .wdata_accum24(matrixC3124),
-  .wdata_accum25(matrixC3125),
-  .wdata_accum26(matrixC3126),
-  .wdata_accum27(matrixC3127),
-  .wdata_accum28(matrixC3128),
-  .wdata_accum29(matrixC3129),
-  .wdata_accum30(matrixC3130),
-  .wdata_accum31(matrixC3131),
+  .wdata_accum0(matrixC31_0),
+  .wdata_accum1(matrixC31_1),
+  .wdata_accum2(matrixC31_2),
+  .wdata_accum3(matrixC31_3),
+  .wdata_accum4(matrixC31_4),
+  .wdata_accum5(matrixC31_5),
+  .wdata_accum6(matrixC31_6),
+  .wdata_accum7(matrixC31_7),
+  .wdata_accum8(matrixC31_8),
+  .wdata_accum9(matrixC31_9),
+  .wdata_accum10(matrixC31_10),
+  .wdata_accum11(matrixC31_11),
+  .wdata_accum12(matrixC31_12),
+  .wdata_accum13(matrixC31_13),
+  .wdata_accum14(matrixC31_14),
+  .wdata_accum15(matrixC31_15),
+  .wdata_accum16(matrixC31_16),
+  .wdata_accum17(matrixC31_17),
+  .wdata_accum18(matrixC31_18),
+  .wdata_accum19(matrixC31_19),
+  .wdata_accum20(matrixC31_20),
+  .wdata_accum21(matrixC31_21),
+  .wdata_accum22(matrixC31_22),
+  .wdata_accum23(matrixC31_23),
+  .wdata_accum24(matrixC31_24),
+  .wdata_accum25(matrixC31_25),
+  .wdata_accum26(matrixC31_26),
+  .wdata_accum27(matrixC31_27),
+  .wdata_accum28(matrixC31_28),
+  .wdata_accum29(matrixC31_29),
+  .wdata_accum30(matrixC31_30),
+  .wdata_accum31(matrixC31_31),
   .raddr_accum0_pool(raddr_accum0_pool),
   .raddr_accum1_pool(raddr_accum1_pool),
   .raddr_accum2_pool(raddr_accum2_pool),
@@ -897,7 +897,7 @@ pooling u_pooling (
   .pool12(pool12),
   .pool13(pool13),
   .pool14(pool14),
-  .pool15(pool15),
+  .pool15(pool15)
   `endif
   `ifdef DESIGN_SIZE_32
   .raddr_accum0_pool(raddr_accum0_pool),
@@ -963,7 +963,7 @@ pooling u_pooling (
   .pool28(pool28),
   .pool29(pool29),
   .pool30(pool30),
-  .pool31(pool31),
+  .pool31(pool31)
   `endif
 );
 

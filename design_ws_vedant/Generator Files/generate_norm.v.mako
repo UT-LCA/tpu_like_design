@@ -1,24 +1,21 @@
+<%!
+    import math
+%>\
+<% 
+    mat_mul_size = int(matmul_size)
+    log2_mat_mul_size = int(math.log2(mat_mul_size))
+%>\
 module norm(
     input enable_norm,
     input [`DWIDTH-1:0] mean,
     input [`DWIDTH-1:0] inv_var,
     input in_data_available,
-    input [`DWIDTH-1:0] inp_data0,
-    input [`DWIDTH-1:0] inp_data1,
-    input [`DWIDTH-1:0] inp_data2,
-    input [`DWIDTH-1:0] inp_data3,
-    input [`DWIDTH-1:0] inp_data4,
-    input [`DWIDTH-1:0] inp_data5,
-    input [`DWIDTH-1:0] inp_data6,
-    input [`DWIDTH-1:0] inp_data7,
-    output [`DWIDTH-1:0] out_data0,
-    output [`DWIDTH-1:0] out_data1,
-    output [`DWIDTH-1:0] out_data2,
-    output [`DWIDTH-1:0] out_data3,
-    output [`DWIDTH-1:0] out_data4,
-    output [`DWIDTH-1:0] out_data5,
-    output [`DWIDTH-1:0] out_data6,
-    output [`DWIDTH-1:0] out_data7,
+    % for i in range(mat_mul_size):
+    input [`DWIDTH-1:0] inp_data${i},
+    % endfor
+    % for i in range(mat_mul_size):
+    output [`DWIDTH-1:0] out_data${i},
+    % endfor
     output out_data_available,
     input [`MASK_WIDTH-1:0] validity_mask,
     output done_norm,
@@ -26,22 +23,15 @@ module norm(
     input reset
 );
 
-reg in_data_available1;
-reg in_data_available2;
-reg in_data_available3;
-reg in_data_available4;
-reg in_data_available5;
-reg in_data_available6;
-reg in_data_available7;
+% for i in range(1, mat_mul_size):
+reg in_data_available${i};
+% endfor
 
 always @(posedge clk) begin
-	in_data_available1 <= in_data_available;
-	in_data_available2 <= in_data_available1;
-	in_data_available3 <= in_data_available2;
-	in_data_available4 <= in_data_available3;
-	in_data_available5 <= in_data_available4;
-	in_data_available6 <= in_data_available5;
-	in_data_available7 <= in_data_available6;	
+    in_data_available1 <= in_data_available;
+    % for i in range(1, mat_mul_size-1):
+	in_data_available${i+1} <= in_data_available${i};
+    % endfor
 end
 
 assign out_data_available = (enable_norm) ? out_data_available_internal : in_data_available;
@@ -65,7 +55,7 @@ always @(posedge clk) begin
 		done_count <= done_count + 1;
 	end
 end
-	
+
 norm_sub norm0(
 	.enable_norm(enable_norm),
     .mean(mean),
@@ -79,93 +69,30 @@ norm_sub norm0(
     .reset(reset)
 );
 
-norm_sub norm1(
+% for i in range(1, mat_mul_size-1):
+norm_sub norm${i}(
 	.enable_norm(enable_norm),
     .mean(mean),
     .inv_var(inv_var),
-    .in_data_available(in_data_available1),
-    .inp_data(inp_data1),
-    .out_data(out_data1),
+    .in_data_available(in_data_available${i}),
+    .inp_data(inp_data${i}),
+    .out_data(out_data${i}),
     .out_data_available(out_data_available_NC),
-    .validity_mask(validity_mask[1]),
+    .validity_mask(validity_mask[${i}]),
     .clk(clk),
     .reset(reset)
 );
 
-norm_sub norm2(
+% endfor
+norm_sub norm${mat_mul_size-1}(
 	.enable_norm(enable_norm),
     .mean(mean),
     .inv_var(inv_var),
-    .in_data_available(in_data_available2),
-    .inp_data(inp_data2),
-    .out_data(out_data2),
-    .out_data_available(out_data_available_NC),
-    .validity_mask(validity_mask[2]),
-    .clk(clk),
-    .reset(reset)
-);
-
-norm_sub norm3(
-	.enable_norm(enable_norm),
-    .mean(mean),
-    .inv_var(inv_var),
-    .in_data_available(in_data_available3),
-    .inp_data(inp_data3),
-    .out_data(out_data3),
-    .out_data_available(out_data_available_NC),
-    .validity_mask(validity_mask[3]),
-    .clk(clk),
-    .reset(reset)
-);
-
-norm_sub norm4(
-	.enable_norm(enable_norm),
-    .mean(mean),
-    .inv_var(inv_var),
-    .in_data_available(in_data_available4),
-    .inp_data(inp_data4),
-    .out_data(out_data4),
-    .out_data_available(out_data_available_NC),
-    .validity_mask(validity_mask[4]),
-    .clk(clk),
-    .reset(reset)
-);
-
-norm_sub norm5(
-	.enable_norm(enable_norm),
-    .mean(mean),
-    .inv_var(inv_var),
-    .in_data_available(in_data_available5),
-    .inp_data(inp_data5),
-    .out_data(out_data5),
-    .out_data_available(out_data_available_NC),
-    .validity_mask(validity_mask[5]),
-    .clk(clk),
-    .reset(reset)
-);
-
-norm_sub norm6(
-	.enable_norm(enable_norm),
-    .mean(mean),
-    .inv_var(inv_var),
-    .in_data_available(in_data_available6),
-    .inp_data(inp_data6),
-    .out_data(out_data6),
-    .out_data_available(out_data_available_NC),
-    .validity_mask(validity_mask[6]),
-    .clk(clk),
-    .reset(reset)
-);
-
-norm_sub norm7(
-	.enable_norm(enable_norm),
-    .mean(mean),
-    .inv_var(inv_var),
-    .in_data_available(in_data_available7),
-    .inp_data(inp_data7),
-    .out_data(out_data7),
+    .in_data_available(in_data_available${mat_mul_size-1}),
+    .inp_data(inp_data${mat_mul_size-1}),
+    .out_data(out_data${mat_mul_size-1}),
     .out_data_available(out_data_available_final),
-    .validity_mask(validity_mask[7]),
+    .validity_mask(validity_mask[${mat_mul_size-1}]),
     .clk(clk),
     .reset(reset)
 );

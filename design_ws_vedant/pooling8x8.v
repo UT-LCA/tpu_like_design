@@ -240,7 +240,7 @@ end
 
 assign cmp0 = (pool_count0 == 1)? 0 : compare0;
 assign avg0 = (pool_count0 == 1)? 0 : avg0_int;
-assign average0 = (filter_size_int == 8'b1)? avg0_int : (filter_size_int == 8'b10)? avg0_int >> 2 : (filter_size_int == 8'b11)? avg0_int * 0.1111 : (filter_size_int == 8'b100)? avg0_int >> 4 : avg0_int;
+assign average0 = (filter_size_int == 8'b1)? avg0_int : (filter_size_int == 8'b10)? avg0_int >> 2 : (filter_size_int == 8'b11)? avg0_int >> 3 : (filter_size_int == 8'b100)? avg0_int >> 4 : avg0_int;
 assign pool0 = (pool_count1 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare0 : average0) : 8'b0;
 
 always @ (posedge clk) begin
@@ -266,7 +266,7 @@ end
 
 assign cmp1 = (pool_count1 == 1)? 0 : compare1;
 assign avg1 = (pool_count1 == 1)? 0 : avg1_int;
-assign average1 = (filter_size_int == 8'b1)? avg1_int : (filter_size_int == 8'b10)? avg1_int >> 2 : (filter_size_int == 8'b11)? avg1_int * 0.1111 : (filter_size_int == 8'b100)? avg1_int >> 4 : avg1_int;
+assign average1 = (filter_size_int == 8'b1)? avg1_int : (filter_size_int == 8'b10)? avg1_int >> 2 : (filter_size_int == 8'b11)? avg1_int >> 3 : (filter_size_int == 8'b100)? avg1_int >> 4 : avg1_int;
 assign pool1 = (pool_count2 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare1 : average1) : 8'b0;
 
 always @ (posedge clk) begin
@@ -292,7 +292,7 @@ end
 
 assign cmp2 = (pool_count2 == 1)? 0 : compare2;
 assign avg2 = (pool_count2 == 1)? 0 : avg2_int;
-assign average2 = (filter_size_int == 8'b1)? avg2_int : (filter_size_int == 8'b10)? avg2_int >> 2 : (filter_size_int == 8'b11)? avg2_int * 0.1111 : (filter_size_int == 8'b100)? avg2_int >> 4 : avg2_int;
+assign average2 = (filter_size_int == 8'b1)? avg2_int : (filter_size_int == 8'b10)? avg2_int >> 2 : (filter_size_int == 8'b11)? avg2_int >> 3 : (filter_size_int == 8'b100)? avg2_int >> 4 : avg2_int;
 assign pool2 = (pool_count3 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare2 : average2) : 8'b0;
 
 always @ (posedge clk) begin
@@ -318,7 +318,7 @@ end
 
 assign cmp3 = (pool_count3 == 1)? 0 : compare3;
 assign avg3 = (pool_count3 == 1)? 0 : avg3_int;
-assign average3 = (filter_size_int == 8'b1)? avg3_int : (filter_size_int == 8'b10)? avg3_int >> 2 : (filter_size_int == 8'b11)? avg3_int * 0.1111 : (filter_size_int == 8'b100)? avg3_int >> 4 : avg3_int;
+assign average3 = (filter_size_int == 8'b1)? avg3_int : (filter_size_int == 8'b10)? avg3_int >> 2 : (filter_size_int == 8'b11)? avg3_int >> 3 : (filter_size_int == 8'b100)? avg3_int >> 4 : avg3_int;
 assign pool3 = (pool_count4 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare3 : average3) : 8'b0;
 
 always @ (posedge clk) begin
@@ -344,7 +344,7 @@ end
 
 assign cmp4 = (pool_count4 == 1)? 0 : compare4;
 assign avg4 = (pool_count4 == 1)? 0 : avg4_int;
-assign average4 = (filter_size_int == 8'b1)? avg4_int : (filter_size_int == 8'b10)? avg4_int >> 2 : (filter_size_int == 8'b11)? avg4_int * 0.1111 : (filter_size_int == 8'b100)? avg4_int >> 4 : avg4_int;
+assign average4 = (filter_size_int == 8'b1)? avg4_int : (filter_size_int == 8'b10)? avg4_int >> 2 : (filter_size_int == 8'b11)? avg4_int >> 3 : (filter_size_int == 8'b100)? avg4_int >> 4 : avg4_int;
 assign pool4 = (pool_count5 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare4 : average4) : 8'b0;
 
 always @ (posedge clk) begin
@@ -370,7 +370,7 @@ end
 
 assign cmp5 = (pool_count5 == 1)? 0 : compare5;
 assign avg5 = (pool_count5 == 1)? 0 : avg5_int;
-assign average5 = (filter_size_int == 8'b1)? avg5_int : (filter_size_int == 8'b10)? avg5_int >> 2 : (filter_size_int == 8'b11)? avg5_int * 0.1111 : (filter_size_int == 8'b100)? avg5_int >> 4 : avg5_int;
+assign average5 = (filter_size_int == 8'b1)? avg5_int : (filter_size_int == 8'b10)? avg5_int >> 2 : (filter_size_int == 8'b11)? avg5_int >> 3 : (filter_size_int == 8'b100)? avg5_int >> 4 : avg5_int;
 assign pool5 = (pool_count6 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare5 : average5) : 8'b0;
 
 always @ (posedge clk) begin
@@ -396,7 +396,7 @@ end
 
 assign cmp6 = (pool_count6 == 1)? 0 : compare6;
 assign avg6 = (pool_count6 == 1)? 0 : avg6_int;
-assign average6 = (filter_size_int == 8'b1)? avg6_int : (filter_size_int == 8'b10)? avg6_int >> 2 : (filter_size_int == 8'b11)? avg6_int * 0.1111 : (filter_size_int == 8'b100)? avg6_int >> 4 : avg6_int;
+assign average6 = (filter_size_int == 8'b1)? avg6_int : (filter_size_int == 8'b10)? avg6_int >> 2 : (filter_size_int == 8'b11)? avg6_int >> 3 : (filter_size_int == 8'b100)? avg6_int >> 4 : avg6_int;
 assign pool6 = (pool_count7 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare6 : average6) : 8'b0;
 
 always @ (posedge clk) begin
@@ -422,7 +422,7 @@ end
 
 assign cmp7 = (pool_count7 == 1)? 0 : compare7;
 assign avg7 = (pool_count7 == 1)? 0 : avg7_int;
-assign average7 = (filter_size_int == 8'b1)? avg7_int : (filter_size_int == 8'b10)? avg7_int >> 2 : (filter_size_int == 8'b11)? avg7_int * 0.1111 : (filter_size_int == 8'b100)? avg7_int >> 4 : avg7_int;
+assign average7 = (filter_size_int == 8'b1)? avg7_int : (filter_size_int == 8'b10)? avg7_int >> 2 : (filter_size_int == 8'b11)? avg7_int >> 3 : (filter_size_int == 8'b100)? avg7_int >> 4 : avg7_int;
 assign pool7 = (pool_count8 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare7 : average7) : 8'b0;
 
 

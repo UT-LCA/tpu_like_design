@@ -1,24 +1,21 @@
+<%!
+    import math
+%>\
+<% 
+    mat_mul_size = int(matmul_size)
+    log2_mat_mul_size = int(math.log2(mat_mul_size))
+%>\
 module activation(
     input activation_type,
     input enable_activation,
     input enable_pool,
     input in_data_available,
-    input [`DWIDTH-1:0] inp_data0,
-    input [`DWIDTH-1:0] inp_data1,
-    input [`DWIDTH-1:0] inp_data2,
-    input [`DWIDTH-1:0] inp_data3,
-    input [`DWIDTH-1:0] inp_data4,
-    input [`DWIDTH-1:0] inp_data5,
-    input [`DWIDTH-1:0] inp_data6,
-    input [`DWIDTH-1:0] inp_data7,
-    output [`DWIDTH-1:0] out_data0,
-    output [`DWIDTH-1:0] out_data1,
-    output [`DWIDTH-1:0] out_data2,
-    output [`DWIDTH-1:0] out_data3,
-    output [`DWIDTH-1:0] out_data4,
-    output [`DWIDTH-1:0] out_data5,
-    output [`DWIDTH-1:0] out_data6,
-    output [`DWIDTH-1:0] out_data7,
+    % for i in range(mat_mul_size):
+    input [`DWIDTH-1:0] inp_data${i},
+    % endfor
+    % for i in range(mat_mul_size):
+    output [`DWIDTH-1:0] out_data${i},
+    % endfor
     output out_data_available,
     input [`MASK_WIDTH-1:0] validity_mask,
     output done_activation,
@@ -26,22 +23,15 @@ module activation(
     input reset
 );
 
-reg in_data_available1;
-reg in_data_available2;
-reg in_data_available3;
-reg in_data_available4;
-reg in_data_available5;
-reg in_data_available6;
-reg in_data_available7;
+% for i in range(1, mat_mul_size):
+reg in_data_available${i};
+% endfor
 
 always @(posedge clk) begin
-	in_data_available1 <= in_data_available;
-	in_data_available2 <= in_data_available1;
-	in_data_available3 <= in_data_available2;
-	in_data_available4 <= in_data_available3;
-	in_data_available5 <= in_data_available4;
-	in_data_available6 <= in_data_available5;
-	in_data_available7 <= in_data_available6;	
+    in_data_available1 <= in_data_available;
+    % for i in range(1, mat_mul_size-1):
+	in_data_available${i+1} <= in_data_available${i};
+    % endfor
 end
 
 wire out_data_available_internal;
@@ -72,97 +62,39 @@ always @(posedge clk) begin
 end
 
 sub_activation activation0(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available),
-  .inp_data(inp_data0),
-  .out_data(out_data0),
-  .out_data_available(out_data_available_internal),
-  .validity_mask(validity_mask[0]),
-  .clk(clk),
-  .reset(reset)
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available),
+    .inp_data(inp_data0),
+    .out_data(out_data0),
+    .out_data_available(out_data_available_internal),
+    .validity_mask(validity_mask[0]),
+    .clk(clk),
+    .reset(reset)
 );
 
-sub_activation activation1(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available1),
-  .inp_data(inp_data1),
-  .out_data(out_data1),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[1]),
-  .clk(clk),
-  .reset(reset)
-);
+% for i in range(1, mat_mul_size-1):
+sub_activation activation${i}(
+    .activation_type(activation_type),
+    .enable_activation(enable_activation),
+    .in_data_available(in_data_available${i}),
+    .inp_data(inp_data${i}),
+    .out_data(out_data${i}),
+    .out_data_available(out_data_available_NC),
+    .validity_mask(validity_mask[${i}]),
+    .clk(clk),
+    .reset(reset)
+);    
 
-sub_activation activation2(
+% endfor
+sub_activation activation${mat_mul_size-1}(
   .activation_type(activation_type),
   .enable_activation(enable_activation),
-  .in_data_available(in_data_available2),
-  .inp_data(inp_data2),
-  .out_data(out_data2),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[2]),
-  .clk(clk),
-  .reset(reset)
-);
-
-sub_activation activation3(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available3),
-  .inp_data(inp_data3),
-  .out_data(out_data3),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[3]),
-  .clk(clk),
-  .reset(reset)
-);
-
-sub_activation activation4(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available4),
-  .inp_data(inp_data4),
-  .out_data(out_data4),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[4]),
-  .clk(clk),
-  .reset(reset)
-);
-
-sub_activation activation5(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available5),
-  .inp_data(inp_data5),
-  .out_data(out_data5),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[5]),
-  .clk(clk),
-  .reset(reset)
-);
-
-sub_activation activation6(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available6),
-  .inp_data(inp_data6),
-  .out_data(out_data6),
-  .out_data_available(out_data_available_NC),
-  .validity_mask(validity_mask[6]),
-  .clk(clk),
-  .reset(reset)
-);
-
-sub_activation activation7(
-  .activation_type(activation_type),
-  .enable_activation(enable_activation),
-  .in_data_available(in_data_available7),
-  .inp_data(inp_data7),
-  .out_data(out_data7),
+  .in_data_available(in_data_available${mat_mul_size-1}),
+  .inp_data(inp_data${mat_mul_size-1}),
+  .out_data(out_data${mat_mul_size-1}),
   .out_data_available(out_data_available_final),
-  .validity_mask(validity_mask[7]),
+  .validity_mask(validity_mask[${mat_mul_size-1}]),
   .clk(clk),
   .reset(reset)
 );
