@@ -536,8 +536,12 @@ matmul_4x4_systolic u_matmul(
   .validity_mask_a_rows(validity_mask_a_rows),
   .validity_mask_a_cols_b_rows(validity_mask_a_cols_b_rows),
   .validity_mask_b_cols(validity_mask_b_cols),
-  .a_loc(8'd0),
-  .b_loc(8'd0)
+//TODO: Need to change the width of this. 
+//For 8x8 matmul, this is 16 bits
+//For 16x16 matmul, this is 32 bits
+//For 32x32 matmul, this is 64 bits
+  .a_loc(16'd0),
+  .b_loc(16'd0)
 );
 
 ////////////////////////////////////////////////////////////////

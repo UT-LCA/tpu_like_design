@@ -49,17 +49,17 @@ cat \
 ../top.v \
 > ../small_tpu_16x16.v.jul14
 
-##Generate 32x32 TPU
-#cat \
-#../defines.v \
-#../matmul32x32_ws.v \
-#../cfg.v \
-#../norm32x32.v \
-#../ram.v \
-#../control.v \
-#../accumulator32x32.v \
-#../pooling32x32.v \
-#../activation32x32.v \
-#../top.v \
-#> ../med_tpu_32x32.v.jul14
+#Generate 32x32 TPU
+cat \
+../defines.v \
+../matmul32x32_ws.v \
+../cfg.v \
+../norm32x32.v \
+../ram.v \
+../control.v \
+../accumulator32x32.v \
+../pooling32x32.v \
+../activation32x32.v \
+../top.v \
+> ../med_tpu_32x32.v.jul14
 
