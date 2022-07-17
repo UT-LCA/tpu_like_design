@@ -601,7 +601,12 @@ end
 assign cmp0 = (pool_count0 == 1)? 0 : compare0;
 assign avg0 = (pool_count0 == 1)? 0 : avg0_int;
 assign average0 = (filter_size_int == 8'b1)? avg0_int : (filter_size_int == 8'b10)? avg0_int >> 2 : (filter_size_int == 8'b11)? avg0_int >> 3 : (filter_size_int == 8'b100)? avg0_int >> 4 : avg0_int;
-assign pool0 = (pool_count1 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare0 : average0) : 8'b0;
+
+wire [`DWIDTH-1:0] pool0_wire;
+assign pool0_wire = (pool_count1 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare0 : average0) : 8'b0;
+always @(posedge clk) begin
+ pool0 <= pool0_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -627,7 +632,12 @@ end
 assign cmp1 = (pool_count1 == 1)? 0 : compare1;
 assign avg1 = (pool_count1 == 1)? 0 : avg1_int;
 assign average1 = (filter_size_int == 8'b1)? avg1_int : (filter_size_int == 8'b10)? avg1_int >> 2 : (filter_size_int == 8'b11)? avg1_int >> 3 : (filter_size_int == 8'b100)? avg1_int >> 4 : avg1_int;
-assign pool1 = (pool_count2 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare1 : average1) : 8'b0;
+
+wire [`DWIDTH-1:0] pool1_wire;
+assign pool1_wire = (pool_count2 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare1 : average1) : 8'b0;
+always @(posedge clk) begin
+ pool1 <= pool1_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -653,7 +663,12 @@ end
 assign cmp2 = (pool_count2 == 1)? 0 : compare2;
 assign avg2 = (pool_count2 == 1)? 0 : avg2_int;
 assign average2 = (filter_size_int == 8'b1)? avg2_int : (filter_size_int == 8'b10)? avg2_int >> 2 : (filter_size_int == 8'b11)? avg2_int >> 3 : (filter_size_int == 8'b100)? avg2_int >> 4 : avg2_int;
-assign pool2 = (pool_count3 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare2 : average2) : 8'b0;
+
+wire [`DWIDTH-1:0] pool2_wire;
+assign pool2_wire = (pool_count3 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare2 : average2) : 8'b0;
+always @(posedge clk) begin
+ pool2 <= pool2_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -679,7 +694,12 @@ end
 assign cmp3 = (pool_count3 == 1)? 0 : compare3;
 assign avg3 = (pool_count3 == 1)? 0 : avg3_int;
 assign average3 = (filter_size_int == 8'b1)? avg3_int : (filter_size_int == 8'b10)? avg3_int >> 2 : (filter_size_int == 8'b11)? avg3_int >> 3 : (filter_size_int == 8'b100)? avg3_int >> 4 : avg3_int;
-assign pool3 = (pool_count4 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare3 : average3) : 8'b0;
+
+wire [`DWIDTH-1:0] pool3_wire;
+assign pool3_wire = (pool_count4 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare3 : average3) : 8'b0;
+always @(posedge clk) begin
+ pool3 <= pool3_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -705,7 +725,12 @@ end
 assign cmp4 = (pool_count4 == 1)? 0 : compare4;
 assign avg4 = (pool_count4 == 1)? 0 : avg4_int;
 assign average4 = (filter_size_int == 8'b1)? avg4_int : (filter_size_int == 8'b10)? avg4_int >> 2 : (filter_size_int == 8'b11)? avg4_int >> 3 : (filter_size_int == 8'b100)? avg4_int >> 4 : avg4_int;
-assign pool4 = (pool_count5 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare4 : average4) : 8'b0;
+
+wire [`DWIDTH-1:0] pool4_wire;
+assign pool4_wire = (pool_count5 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare4 : average4) : 8'b0;
+always @(posedge clk) begin
+ pool4 <= pool4_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -731,7 +756,12 @@ end
 assign cmp5 = (pool_count5 == 1)? 0 : compare5;
 assign avg5 = (pool_count5 == 1)? 0 : avg5_int;
 assign average5 = (filter_size_int == 8'b1)? avg5_int : (filter_size_int == 8'b10)? avg5_int >> 2 : (filter_size_int == 8'b11)? avg5_int >> 3 : (filter_size_int == 8'b100)? avg5_int >> 4 : avg5_int;
-assign pool5 = (pool_count6 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare5 : average5) : 8'b0;
+
+wire [`DWIDTH-1:0] pool5_wire;
+assign pool5_wire = (pool_count6 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare5 : average5) : 8'b0;
+always @(posedge clk) begin
+ pool5 <= pool5_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -757,7 +787,12 @@ end
 assign cmp6 = (pool_count6 == 1)? 0 : compare6;
 assign avg6 = (pool_count6 == 1)? 0 : avg6_int;
 assign average6 = (filter_size_int == 8'b1)? avg6_int : (filter_size_int == 8'b10)? avg6_int >> 2 : (filter_size_int == 8'b11)? avg6_int >> 3 : (filter_size_int == 8'b100)? avg6_int >> 4 : avg6_int;
-assign pool6 = (pool_count7 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare6 : average6) : 8'b0;
+
+wire [`DWIDTH-1:0] pool6_wire;
+assign pool6_wire = (pool_count7 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare6 : average6) : 8'b0;
+always @(posedge clk) begin
+ pool6 <= pool6_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -783,7 +818,12 @@ end
 assign cmp7 = (pool_count7 == 1)? 0 : compare7;
 assign avg7 = (pool_count7 == 1)? 0 : avg7_int;
 assign average7 = (filter_size_int == 8'b1)? avg7_int : (filter_size_int == 8'b10)? avg7_int >> 2 : (filter_size_int == 8'b11)? avg7_int >> 3 : (filter_size_int == 8'b100)? avg7_int >> 4 : avg7_int;
-assign pool7 = (pool_count8 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare7 : average7) : 8'b0;
+
+wire [`DWIDTH-1:0] pool7_wire;
+assign pool7_wire = (pool_count8 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare7 : average7) : 8'b0;
+always @(posedge clk) begin
+ pool7 <= pool7_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -809,7 +849,12 @@ end
 assign cmp8 = (pool_count8 == 1)? 0 : compare8;
 assign avg8 = (pool_count8 == 1)? 0 : avg8_int;
 assign average8 = (filter_size_int == 8'b1)? avg8_int : (filter_size_int == 8'b10)? avg8_int >> 2 : (filter_size_int == 8'b11)? avg8_int >> 3 : (filter_size_int == 8'b100)? avg8_int >> 4 : avg8_int;
-assign pool8 = (pool_count9 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare8 : average8) : 8'b0;
+
+wire [`DWIDTH-1:0] pool8_wire;
+assign pool8_wire = (pool_count9 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare8 : average8) : 8'b0;
+always @(posedge clk) begin
+ pool8 <= pool8_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -835,7 +880,12 @@ end
 assign cmp9 = (pool_count9 == 1)? 0 : compare9;
 assign avg9 = (pool_count9 == 1)? 0 : avg9_int;
 assign average9 = (filter_size_int == 8'b1)? avg9_int : (filter_size_int == 8'b10)? avg9_int >> 2 : (filter_size_int == 8'b11)? avg9_int >> 3 : (filter_size_int == 8'b100)? avg9_int >> 4 : avg9_int;
-assign pool9 = (pool_count10 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare9 : average9) : 8'b0;
+
+wire [`DWIDTH-1:0] pool9_wire;
+assign pool9_wire = (pool_count10 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare9 : average9) : 8'b0;
+always @(posedge clk) begin
+ pool9 <= pool9_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -861,7 +911,12 @@ end
 assign cmp10 = (pool_count10 == 1)? 0 : compare10;
 assign avg10 = (pool_count10 == 1)? 0 : avg10_int;
 assign average10 = (filter_size_int == 8'b1)? avg10_int : (filter_size_int == 8'b10)? avg10_int >> 2 : (filter_size_int == 8'b11)? avg10_int >> 3 : (filter_size_int == 8'b100)? avg10_int >> 4 : avg10_int;
-assign pool10 = (pool_count11 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare10 : average10) : 8'b0;
+
+wire [`DWIDTH-1:0] pool10_wire;
+assign pool10_wire = (pool_count11 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare10 : average10) : 8'b0;
+always @(posedge clk) begin
+ pool10 <= pool10_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -887,7 +942,12 @@ end
 assign cmp11 = (pool_count11 == 1)? 0 : compare11;
 assign avg11 = (pool_count11 == 1)? 0 : avg11_int;
 assign average11 = (filter_size_int == 8'b1)? avg11_int : (filter_size_int == 8'b10)? avg11_int >> 2 : (filter_size_int == 8'b11)? avg11_int >> 3 : (filter_size_int == 8'b100)? avg11_int >> 4 : avg11_int;
-assign pool11 = (pool_count12 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare11 : average11) : 8'b0;
+
+wire [`DWIDTH-1:0] pool11_wire;
+assign pool11_wire = (pool_count12 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare11 : average11) : 8'b0;
+always @(posedge clk) begin
+ pool11 <= pool11_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -913,7 +973,12 @@ end
 assign cmp12 = (pool_count12 == 1)? 0 : compare12;
 assign avg12 = (pool_count12 == 1)? 0 : avg12_int;
 assign average12 = (filter_size_int == 8'b1)? avg12_int : (filter_size_int == 8'b10)? avg12_int >> 2 : (filter_size_int == 8'b11)? avg12_int >> 3 : (filter_size_int == 8'b100)? avg12_int >> 4 : avg12_int;
-assign pool12 = (pool_count13 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare12 : average12) : 8'b0;
+
+wire [`DWIDTH-1:0] pool12_wire;
+assign pool12_wire = (pool_count13 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare12 : average12) : 8'b0;
+always @(posedge clk) begin
+ pool12 <= pool12_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -939,7 +1004,12 @@ end
 assign cmp13 = (pool_count13 == 1)? 0 : compare13;
 assign avg13 = (pool_count13 == 1)? 0 : avg13_int;
 assign average13 = (filter_size_int == 8'b1)? avg13_int : (filter_size_int == 8'b10)? avg13_int >> 2 : (filter_size_int == 8'b11)? avg13_int >> 3 : (filter_size_int == 8'b100)? avg13_int >> 4 : avg13_int;
-assign pool13 = (pool_count14 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare13 : average13) : 8'b0;
+
+wire [`DWIDTH-1:0] pool13_wire;
+assign pool13_wire = (pool_count14 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare13 : average13) : 8'b0;
+always @(posedge clk) begin
+ pool13 <= pool13_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -965,7 +1035,12 @@ end
 assign cmp14 = (pool_count14 == 1)? 0 : compare14;
 assign avg14 = (pool_count14 == 1)? 0 : avg14_int;
 assign average14 = (filter_size_int == 8'b1)? avg14_int : (filter_size_int == 8'b10)? avg14_int >> 2 : (filter_size_int == 8'b11)? avg14_int >> 3 : (filter_size_int == 8'b100)? avg14_int >> 4 : avg14_int;
-assign pool14 = (pool_count15 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare14 : average14) : 8'b0;
+
+wire [`DWIDTH-1:0] pool14_wire;
+assign pool14_wire = (pool_count15 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare14 : average14) : 8'b0;
+always @(posedge clk) begin
+ pool14 <= pool14_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -991,7 +1066,12 @@ end
 assign cmp15 = (pool_count15 == 1)? 0 : compare15;
 assign avg15 = (pool_count15 == 1)? 0 : avg15_int;
 assign average15 = (filter_size_int == 8'b1)? avg15_int : (filter_size_int == 8'b10)? avg15_int >> 2 : (filter_size_int == 8'b11)? avg15_int >> 3 : (filter_size_int == 8'b100)? avg15_int >> 4 : avg15_int;
-assign pool15 = (pool_count16 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare15 : average15) : 8'b0;
+
+wire [`DWIDTH-1:0] pool15_wire;
+assign pool15_wire = (pool_count16 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare15 : average15) : 8'b0;
+always @(posedge clk) begin
+ pool15 <= pool15_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1017,7 +1097,12 @@ end
 assign cmp16 = (pool_count16 == 1)? 0 : compare16;
 assign avg16 = (pool_count16 == 1)? 0 : avg16_int;
 assign average16 = (filter_size_int == 8'b1)? avg16_int : (filter_size_int == 8'b10)? avg16_int >> 2 : (filter_size_int == 8'b11)? avg16_int >> 3 : (filter_size_int == 8'b100)? avg16_int >> 4 : avg16_int;
-assign pool16 = (pool_count17 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare16 : average16) : 8'b0;
+
+wire [`DWIDTH-1:0] pool16_wire;
+assign pool16_wire = (pool_count17 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare16 : average16) : 8'b0;
+always @(posedge clk) begin
+ pool16 <= pool16_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1043,7 +1128,12 @@ end
 assign cmp17 = (pool_count17 == 1)? 0 : compare17;
 assign avg17 = (pool_count17 == 1)? 0 : avg17_int;
 assign average17 = (filter_size_int == 8'b1)? avg17_int : (filter_size_int == 8'b10)? avg17_int >> 2 : (filter_size_int == 8'b11)? avg17_int >> 3 : (filter_size_int == 8'b100)? avg17_int >> 4 : avg17_int;
-assign pool17 = (pool_count18 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare17 : average17) : 8'b0;
+
+wire [`DWIDTH-1:0] pool17_wire;
+assign pool17_wire = (pool_count18 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare17 : average17) : 8'b0;
+always @(posedge clk) begin
+ pool17 <= pool17_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1069,7 +1159,12 @@ end
 assign cmp18 = (pool_count18 == 1)? 0 : compare18;
 assign avg18 = (pool_count18 == 1)? 0 : avg18_int;
 assign average18 = (filter_size_int == 8'b1)? avg18_int : (filter_size_int == 8'b10)? avg18_int >> 2 : (filter_size_int == 8'b11)? avg18_int >> 3 : (filter_size_int == 8'b100)? avg18_int >> 4 : avg18_int;
-assign pool18 = (pool_count19 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare18 : average18) : 8'b0;
+
+wire [`DWIDTH-1:0] pool18_wire;
+assign pool18_wire = (pool_count19 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare18 : average18) : 8'b0;
+always @(posedge clk) begin
+ pool18 <= pool18_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1095,7 +1190,12 @@ end
 assign cmp19 = (pool_count19 == 1)? 0 : compare19;
 assign avg19 = (pool_count19 == 1)? 0 : avg19_int;
 assign average19 = (filter_size_int == 8'b1)? avg19_int : (filter_size_int == 8'b10)? avg19_int >> 2 : (filter_size_int == 8'b11)? avg19_int >> 3 : (filter_size_int == 8'b100)? avg19_int >> 4 : avg19_int;
-assign pool19 = (pool_count20 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare19 : average19) : 8'b0;
+
+wire [`DWIDTH-1:0] pool19_wire;
+assign pool19_wire = (pool_count20 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare19 : average19) : 8'b0;
+always @(posedge clk) begin
+ pool19 <= pool19_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1121,7 +1221,12 @@ end
 assign cmp20 = (pool_count20 == 1)? 0 : compare20;
 assign avg20 = (pool_count20 == 1)? 0 : avg20_int;
 assign average20 = (filter_size_int == 8'b1)? avg20_int : (filter_size_int == 8'b10)? avg20_int >> 2 : (filter_size_int == 8'b11)? avg20_int >> 3 : (filter_size_int == 8'b100)? avg20_int >> 4 : avg20_int;
-assign pool20 = (pool_count21 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare20 : average20) : 8'b0;
+
+wire [`DWIDTH-1:0] pool20_wire;
+assign pool20_wire = (pool_count21 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare20 : average20) : 8'b0;
+always @(posedge clk) begin
+ pool20 <= pool20_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1147,7 +1252,12 @@ end
 assign cmp21 = (pool_count21 == 1)? 0 : compare21;
 assign avg21 = (pool_count21 == 1)? 0 : avg21_int;
 assign average21 = (filter_size_int == 8'b1)? avg21_int : (filter_size_int == 8'b10)? avg21_int >> 2 : (filter_size_int == 8'b11)? avg21_int >> 3 : (filter_size_int == 8'b100)? avg21_int >> 4 : avg21_int;
-assign pool21 = (pool_count22 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare21 : average21) : 8'b0;
+
+wire [`DWIDTH-1:0] pool21_wire;
+assign pool21_wire = (pool_count22 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare21 : average21) : 8'b0;
+always @(posedge clk) begin
+ pool21 <= pool21_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1173,7 +1283,12 @@ end
 assign cmp22 = (pool_count22 == 1)? 0 : compare22;
 assign avg22 = (pool_count22 == 1)? 0 : avg22_int;
 assign average22 = (filter_size_int == 8'b1)? avg22_int : (filter_size_int == 8'b10)? avg22_int >> 2 : (filter_size_int == 8'b11)? avg22_int >> 3 : (filter_size_int == 8'b100)? avg22_int >> 4 : avg22_int;
-assign pool22 = (pool_count23 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare22 : average22) : 8'b0;
+
+wire [`DWIDTH-1:0] pool22_wire;
+assign pool22_wire = (pool_count23 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare22 : average22) : 8'b0;
+always @(posedge clk) begin
+ pool22 <= pool22_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1199,7 +1314,12 @@ end
 assign cmp23 = (pool_count23 == 1)? 0 : compare23;
 assign avg23 = (pool_count23 == 1)? 0 : avg23_int;
 assign average23 = (filter_size_int == 8'b1)? avg23_int : (filter_size_int == 8'b10)? avg23_int >> 2 : (filter_size_int == 8'b11)? avg23_int >> 3 : (filter_size_int == 8'b100)? avg23_int >> 4 : avg23_int;
-assign pool23 = (pool_count24 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare23 : average23) : 8'b0;
+
+wire [`DWIDTH-1:0] pool23_wire;
+assign pool23_wire = (pool_count24 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare23 : average23) : 8'b0;
+always @(posedge clk) begin
+ pool23 <= pool23_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1225,7 +1345,12 @@ end
 assign cmp24 = (pool_count24 == 1)? 0 : compare24;
 assign avg24 = (pool_count24 == 1)? 0 : avg24_int;
 assign average24 = (filter_size_int == 8'b1)? avg24_int : (filter_size_int == 8'b10)? avg24_int >> 2 : (filter_size_int == 8'b11)? avg24_int >> 3 : (filter_size_int == 8'b100)? avg24_int >> 4 : avg24_int;
-assign pool24 = (pool_count25 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare24 : average24) : 8'b0;
+
+wire [`DWIDTH-1:0] pool24_wire;
+assign pool24_wire = (pool_count25 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare24 : average24) : 8'b0;
+always @(posedge clk) begin
+ pool24 <= pool24_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1251,7 +1376,12 @@ end
 assign cmp25 = (pool_count25 == 1)? 0 : compare25;
 assign avg25 = (pool_count25 == 1)? 0 : avg25_int;
 assign average25 = (filter_size_int == 8'b1)? avg25_int : (filter_size_int == 8'b10)? avg25_int >> 2 : (filter_size_int == 8'b11)? avg25_int >> 3 : (filter_size_int == 8'b100)? avg25_int >> 4 : avg25_int;
-assign pool25 = (pool_count26 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare25 : average25) : 8'b0;
+
+wire [`DWIDTH-1:0] pool25_wire;
+assign pool25_wire = (pool_count26 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare25 : average25) : 8'b0;
+always @(posedge clk) begin
+ pool25 <= pool25_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1277,7 +1407,12 @@ end
 assign cmp26 = (pool_count26 == 1)? 0 : compare26;
 assign avg26 = (pool_count26 == 1)? 0 : avg26_int;
 assign average26 = (filter_size_int == 8'b1)? avg26_int : (filter_size_int == 8'b10)? avg26_int >> 2 : (filter_size_int == 8'b11)? avg26_int >> 3 : (filter_size_int == 8'b100)? avg26_int >> 4 : avg26_int;
-assign pool26 = (pool_count27 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare26 : average26) : 8'b0;
+
+wire [`DWIDTH-1:0] pool26_wire;
+assign pool26_wire = (pool_count27 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare26 : average26) : 8'b0;
+always @(posedge clk) begin
+ pool26 <= pool26_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1303,7 +1438,12 @@ end
 assign cmp27 = (pool_count27 == 1)? 0 : compare27;
 assign avg27 = (pool_count27 == 1)? 0 : avg27_int;
 assign average27 = (filter_size_int == 8'b1)? avg27_int : (filter_size_int == 8'b10)? avg27_int >> 2 : (filter_size_int == 8'b11)? avg27_int >> 3 : (filter_size_int == 8'b100)? avg27_int >> 4 : avg27_int;
-assign pool27 = (pool_count28 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare27 : average27) : 8'b0;
+
+wire [`DWIDTH-1:0] pool27_wire;
+assign pool27_wire = (pool_count28 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare27 : average27) : 8'b0;
+always @(posedge clk) begin
+ pool27 <= pool27_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1329,7 +1469,12 @@ end
 assign cmp28 = (pool_count28 == 1)? 0 : compare28;
 assign avg28 = (pool_count28 == 1)? 0 : avg28_int;
 assign average28 = (filter_size_int == 8'b1)? avg28_int : (filter_size_int == 8'b10)? avg28_int >> 2 : (filter_size_int == 8'b11)? avg28_int >> 3 : (filter_size_int == 8'b100)? avg28_int >> 4 : avg28_int;
-assign pool28 = (pool_count29 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare28 : average28) : 8'b0;
+
+wire [`DWIDTH-1:0] pool28_wire;
+assign pool28_wire = (pool_count29 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare28 : average28) : 8'b0;
+always @(posedge clk) begin
+ pool28 <= pool28_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1355,7 +1500,12 @@ end
 assign cmp29 = (pool_count29 == 1)? 0 : compare29;
 assign avg29 = (pool_count29 == 1)? 0 : avg29_int;
 assign average29 = (filter_size_int == 8'b1)? avg29_int : (filter_size_int == 8'b10)? avg29_int >> 2 : (filter_size_int == 8'b11)? avg29_int >> 3 : (filter_size_int == 8'b100)? avg29_int >> 4 : avg29_int;
-assign pool29 = (pool_count30 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare29 : average29) : 8'b0;
+
+wire [`DWIDTH-1:0] pool29_wire;
+assign pool29_wire = (pool_count30 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare29 : average29) : 8'b0;
+always @(posedge clk) begin
+ pool29 <= pool29_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1381,7 +1531,12 @@ end
 assign cmp30 = (pool_count30 == 1)? 0 : compare30;
 assign avg30 = (pool_count30 == 1)? 0 : avg30_int;
 assign average30 = (filter_size_int == 8'b1)? avg30_int : (filter_size_int == 8'b10)? avg30_int >> 2 : (filter_size_int == 8'b11)? avg30_int >> 3 : (filter_size_int == 8'b100)? avg30_int >> 4 : avg30_int;
-assign pool30 = (pool_count31 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare30 : average30) : 8'b0;
+
+wire [`DWIDTH-1:0] pool30_wire;
+assign pool30_wire = (pool_count31 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare30 : average30) : 8'b0;
+always @(posedge clk) begin
+ pool30 <= pool30_wire;
+end
 
 always @ (posedge clk) begin
     if (~resetn) begin
@@ -1407,7 +1562,12 @@ end
 assign cmp31 = (pool_count31 == 1)? 0 : compare31;
 assign avg31 = (pool_count31 == 1)? 0 : avg31_int;
 assign average31 = (filter_size_int == 8'b1)? avg31_int : (filter_size_int == 8'b10)? avg31_int >> 2 : (filter_size_int == 8'b11)? avg31_int >> 3 : (filter_size_int == 8'b100)? avg31_int >> 4 : avg31_int;
-assign pool31 = (pool_count32 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare31 : average31) : 8'b0;
+
+wire [`DWIDTH-1:0] pool31_wire;
+assign pool31_wire = (pool_count32 == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare31 : average31) : 8'b0;
+always @(posedge clk) begin
+ pool31 <= pool31_wire;
+end
 
 
 endmodule

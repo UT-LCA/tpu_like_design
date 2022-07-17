@@ -174,7 +174,12 @@ end
 assign cmp${i} = (pool_count${i} == 1)? 0 : compare${i};
 assign avg${i} = (pool_count${i} == 1)? 0 : avg${i}_int;
 assign average${i} = (filter_size_int == 8'b1)? avg${i}_int : (filter_size_int == 8'b10)? avg${i}_int >> 2 : (filter_size_int == 8'b11)? avg${i}_int >> 3 : (filter_size_int == 8'b100)? avg${i}_int >> 4 : avg${i}_int;
-assign pool${i} = (pool_count${i+1} == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare${i} : average${i}) : 8'b0;
+
+wire [`DWIDTH-1:0] pool${i}_wire;
+assign pool${i}_wire = (pool_count${i+1} == (filter_size_int*filter_size_int))? ((pool_select == 0)? compare${i} : average${i}) : 8'b0;
+always @(posedge clk) begin
+ pool${i} <= pool${i}_wire;
+end
 
 % endfor
 

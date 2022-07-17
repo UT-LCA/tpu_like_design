@@ -708,27 +708,59 @@ assign b_data_valid_ping_delay${j}_${i} = b_data_valid_ping_delay0_${i} & b_data
 %   endfor
 % endfor
 
+wire [`DWIDTH-1:0] \
+% for i in range(mat_mul_size):
+%   for j in range(mat_mul_size):
+%      if ((i==mat_mul_size-1) and (j==mat_mul_size-1)):
+in_a_${i}_${j}_NC;
+%      else:
+in_a_${i}_${j}_NC, \
+%      endif
+%   endfor
+% endfor  
+
+wire [`DWIDTH-1:0] \
+% for i in range(mat_mul_size):
+%   for j in range(mat_mul_size):
+%      if ((i==mat_mul_size-1) and (j==mat_mul_size-1)):
+in_a_chain_${i}_${j}_NC;
+%      else:
+in_a_chain_${i}_${j}_NC, \
+%      endif
+%   endfor
+% endfor  
+
+wire [`DWIDTH-1:0] \
+% for i in range(mat_mul_size):
+%   for j in range(mat_mul_size):
+%      if ((i==mat_mul_size-1) and (j==mat_mul_size-1)):
+out_a_${i}_${j}_NC;
+%      else:
+out_a_${i}_${j}_NC, \
+%      endif
+%   endfor
+% endfor  
+
 % for i in range(mat_mul_size):
 %   for j in range(mat_mul_size):
 %       if (i+j == 0):
-processing_element pe${i}_${j}(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel),        .in_a(a${i}),      .in_b(b${i}),      .in_c(c${i}),        .out_a(a${i}_${j}to${i}_${j+1}), .out_b(b${i}_${j}to${i+1}_${j}), .out_b0(b${i}_${j}to${i+1}_${j}_ping), .out_b1(b${i}_${j}to${i+1}_${j}_pong), .out_c(matrixC${i}_${j}), .b_data_valid_ping(b_data_valid_ping),         .b_data_valid_pong(b_data_valid_pong        ));
+processing_element pe${i}_${j}(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel),             .in_a(a${i}),    .in_a_chain(in_a_chain_${i}_${j}_NC),  .in_b(b${i}),      .in_c(c${i}),        .out_a(out_a_${i}_${j}_NC), .out_a_chain(a${i}_${j}to${i}_${j+1}), .out_b(b${i}_${j}to${i+1}_${j}), .out_b0(b${i}_${j}to${i+1}_${j}_ping), .out_b1(b${i}_${j}to${i+1}_${j}_pong), .out_c(matrixC${i}_${j}), .b_data_valid_ping(b_data_valid_ping),         .b_data_valid_pong(b_data_valid_pong        ), .mode(1'b1));
 %       elif (i == 0):
-processing_element pe${i}_${j}(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay${i+j}), .in_a(a${i}_${j-1}to${i}_${j}), .in_b(b${j}),      .in_c(c${j}),        .out_a(a${i}_${j}to${i}_${j+1}), .out_b(b${i}_${j}to${i+1}_${j}), .out_b0(b${i}_${j}to${i+1}_${j}_ping), .out_b1(b${i}_${j}to${i+1}_${j}_pong), .out_c(matrixC${i}_${j}), .b_data_valid_ping(b_data_valid_ping_delay${i}_${j}), .b_data_valid_pong(b_data_valid_pong_delay${i}_${j}));
+processing_element pe${i}_${j}(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay${i+j}), .in_a(in_a_${i}_${j}_NC), .in_a_chain(a${i}_${j-1}to${i}_${j}), .in_b(b${j}),      .in_c(c${j}),        .out_a(out_a_${i}_${j}_NC), .out_a_chain(a${i}_${j}to${i}_${j+1}), .out_b(b${i}_${j}to${i+1}_${j}), .out_b0(b${i}_${j}to${i+1}_${j}_ping), .out_b1(b${i}_${j}to${i+1}_${j}_pong), .out_c(matrixC${i}_${j}), .b_data_valid_ping(b_data_valid_ping_delay${i}_${j}), .b_data_valid_pong(b_data_valid_pong_delay${i}_${j}), .mode(1'b0));
 %       elif (j == 0):
-processing_element pe${i}_${j}(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay${i+j}), .in_a(a${i}),      .in_b(b${i-1}_${j}to${i}_${j}), .in_c(matrixC${i-1}_${j}), .out_a(a${i}_${j}to${i}_${j+1}), .out_b(b${i}_${j}to${i+1}_${j}), .out_b0(b${i}_${j}to${i+1}_${j}_ping), .out_b1(b${i}_${j}to${i+1}_${j}_pong), .out_c(matrixC${i}_${j}), .b_data_valid_ping(b_data_valid_ping_delay${i}_${j}), .b_data_valid_pong(b_data_valid_pong_delay${i}_${j}));
+processing_element pe${i}_${j}(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay${i+j}), .in_a(a${i}),   .in_a_chain(in_a_chain_${i}_${j}_NC),   .in_b(b${i-1}_${j}to${i}_${j}), .in_c(matrixC${i-1}_${j}), .out_a(out_a_${i}_${j}_NC), .out_a_chain(a${i}_${j}to${i}_${j+1}), .out_b(b${i}_${j}to${i+1}_${j}), .out_b0(b${i}_${j}to${i+1}_${j}_ping), .out_b1(b${i}_${j}to${i+1}_${j}_pong), .out_c(matrixC${i}_${j}), .b_data_valid_ping(b_data_valid_ping_delay${i}_${j}), .b_data_valid_pong(b_data_valid_pong_delay${i}_${j}), .mode(1'b1));
 %       else:
-processing_element pe${i}_${j}(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay${i+j}), .in_a(a${i}_${j-1}to${i}_${j}), .in_b(b${i-1}_${j}to${i}_${j}), .in_c(matrixC${i-1}_${j}), .out_a(a${i}_${j}to${i}_${j+1}), .out_b(b${i}_${j}to${i+1}_${j}), .out_b0(b${i}_${j}to${i+1}_${j}_ping), .out_b1(b${i}_${j}to${i+1}_${j}_pong), .out_c(matrixC${i}_${j}), .b_data_valid_ping(b_data_valid_ping_delay${i}_${j}), .b_data_valid_pong(b_data_valid_pong_delay${i}_${j}));
+processing_element pe${i}_${j}(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay${i+j}), .in_a(in_a_${i}_${j}_NC),  .in_a_chain(a${i}_${j-1}to${i}_${j}), .in_b(b${i-1}_${j}to${i}_${j}), .in_c(matrixC${i-1}_${j}), .out_a(out_a_${i}_${j}_NC), .out_a_chain(a${i}_${j}to${i}_${j+1}), .out_b(b${i}_${j}to${i+1}_${j}), .out_b0(b${i}_${j}to${i+1}_${j}_ping), .out_b1(b${i}_${j}to${i+1}_${j}_pong), .out_c(matrixC${i}_${j}), .b_data_valid_ping(b_data_valid_ping_delay${i}_${j}), .b_data_valid_pong(b_data_valid_pong_delay${i}_${j}), .mode(1'b0));
 %       endif
 %   endfor
-
 % endfor  
   
-assign a_data_out = {\
+//assign a_data_out = {\
 % for i in range(mat_mul_size-1,0,-1):
 a${i}_${mat_mul_size-1}to${i}_${mat_mul_size}, \
 % endfor
 a0_${mat_mul_size-1}to0_${mat_mul_size}};
-assign b_data_out = {\
+//assign b_data_out = {\
 % for i in range(mat_mul_size-1,0,-1):
 b${mat_mul_size-1}_${i}to${mat_mul_size}_${i}, \
 % endfor
@@ -745,15 +777,18 @@ module processing_element(
     clk, 
     b_data_sel,
     in_a,
+    in_a_chain,
     in_b,
     in_c,
     out_a,
+    out_a_chain,
     out_b, 
     out_b0,
     out_b1,
     out_c,
     b_data_valid_ping,
-    b_data_valid_pong
+    b_data_valid_pong,
+    mode
  );
 
 input reset;
@@ -762,13 +797,85 @@ input b_data_sel;
 input b_data_valid_ping;
 input b_data_valid_pong;
 input  [`DWIDTH-1:0] in_a;
+input  [`DWIDTH-1:0] in_a_chain;
 input  [`DWIDTH-1:0] in_b; 
 input  [`DWIDTH-1:0] in_c; 
 output [`DWIDTH-1:0] out_a;
+output [`DWIDTH-1:0] out_a_chain;
 output [`DWIDTH-1:0] out_b;
 output [`DWIDTH-1:0] out_b0;
 output [`DWIDTH-1:0] out_b1;
-output [`DWIDTH-1:0] out_c;  // reduced precision
+output [`DWIDTH-1:0] out_c;  
+input mode;
+
+`ifdef complex_dsp
+
+ wire [18:0] scanout;
+ wire [63:0] chainout; //unconnected
+ wire [63:0] result;
+ wire [17:0] ax;
+ wire [18:0] ay;
+ wire [35:0] bx;
+ wire [63:0] chainin; 
+ wire [18:0] scanin;
+ wire [11:0] mode_sigs;
+
+ assign mode_sigs = 12'b010101010101;  //Any value of mode_sigs (structural, not functional, correctness)
+ assign ax = {{(18-`DWIDTH){1'b0}}, in_a};
+ assign ay = {{(19-`DWIDTH){1'b0}}, in_b};
+ assign bx = 36'b0;
+ assign scanin = {{(18-`DWIDTH){1'b0}}, in_a_chain};
+ assign chainin = in_c;
+
+  //We will instantiate DSP slices with input chaining and output chaining.
+  //Input chaining is only supported in the 18x19 mode or the 27x27 mode.
+  //We will use the input chain provided by the DSP for the A input. For B, the chain will be manual.
+
+  mult_add_int u_pe(
+    .clk(clk),
+    .reset(reset),
+    .mode_sigs(mode_sigs),
+    .ax(ax),
+    .ay(ay),
+    .bx(bx),
+    .chainin(chainin),
+    .scanin(scanin),
+    .result(result),
+    .chainout(chainout),
+    .scanout(scanout)
+  );
+
+reg [`DWIDTH-1:0] out_b0;
+reg [`DWIDTH-1:0] out_b1;
+
+wire [`DWIDTH-1:0] in_mac;
+wire [`DWIDTH-1:0] out_c;
+
+assign out_c = result;
+assign in_mac = (b_data_sel==0)? out_b0 : out_b1;
+        
+assign out_a = result; 
+assign out_a_chain = scanout;
+
+always @(posedge clk)begin 
+    if (reset) begin
+        out_b0<=0;
+    end
+    if(b_data_valid_ping == 1) begin
+        out_b0<=in_b;
+    end
+end
+
+always @(posedge clk)begin 
+    if (reset) begin
+        out_b1<=0;
+    end
+    if(b_data_valid_pong == 1) begin
+        out_b1<=in_b;
+    end
+end
+
+`else
 
 reg [`DWIDTH-1:0] out_a;
 reg [`DWIDTH-1:0] out_b;
@@ -789,9 +896,11 @@ always @(posedge clk)begin
         out_a<=0;
     end
     else begin  
-        out_a<=in_a;
+        out_a<=mode ? in_a : in_a_chain;
     end
 end
+
+assign out_a_chain = out_a;
 
 always @(posedge clk)begin
     if(reset) begin
@@ -820,7 +929,11 @@ always @(posedge clk)begin
     end
 end
 
+`endif
+
 endmodule
+
+`ifndef complex_dsp
 
 //////////////////////////////////////////////////////////////////////////
 // Multiply-and-accumulate (MAC) block
@@ -917,3 +1030,4 @@ assign c = a + b;
 
 endmodule
 
+`endif

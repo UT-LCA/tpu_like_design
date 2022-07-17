@@ -1518,81 +1518,79 @@ assign b_data_valid_ping_delay5_7 = b_data_valid_ping_delay0_7 & b_data_valid_pi
 assign b_data_valid_ping_delay6_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_13;
 assign b_data_valid_ping_delay7_7 = b_data_valid_ping_delay0_7 & b_data_valid_ping_delay0_14;
 
-processing_element pe0_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel),        .in_a(a0),      .in_b(b0),      .in_c(c0),        .out_a(a0_0to0_1), .out_b(b0_0to1_0), .out_b0(b0_0to1_0_ping), .out_b1(b0_0to1_0_pong), .out_c(matrixC0_0), .b_data_valid_ping(b_data_valid_ping),         .b_data_valid_pong(b_data_valid_pong        ));
-processing_element pe0_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay1), .in_a(a0_0to0_1), .in_b(b1),      .in_c(c1),        .out_a(a0_1to0_2), .out_b(b0_1to1_1), .out_b0(b0_1to1_1_ping), .out_b1(b0_1to1_1_pong), .out_c(matrixC0_1), .b_data_valid_ping(b_data_valid_ping_delay0_1), .b_data_valid_pong(b_data_valid_pong_delay0_1));
-processing_element pe0_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay2), .in_a(a0_1to0_2), .in_b(b2),      .in_c(c2),        .out_a(a0_2to0_3), .out_b(b0_2to1_2), .out_b0(b0_2to1_2_ping), .out_b1(b0_2to1_2_pong), .out_c(matrixC0_2), .b_data_valid_ping(b_data_valid_ping_delay0_2), .b_data_valid_pong(b_data_valid_pong_delay0_2));
-processing_element pe0_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay3), .in_a(a0_2to0_3), .in_b(b3),      .in_c(c3),        .out_a(a0_3to0_4), .out_b(b0_3to1_3), .out_b0(b0_3to1_3_ping), .out_b1(b0_3to1_3_pong), .out_c(matrixC0_3), .b_data_valid_ping(b_data_valid_ping_delay0_3), .b_data_valid_pong(b_data_valid_pong_delay0_3));
-processing_element pe0_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay4), .in_a(a0_3to0_4), .in_b(b4),      .in_c(c4),        .out_a(a0_4to0_5), .out_b(b0_4to1_4), .out_b0(b0_4to1_4_ping), .out_b1(b0_4to1_4_pong), .out_c(matrixC0_4), .b_data_valid_ping(b_data_valid_ping_delay0_4), .b_data_valid_pong(b_data_valid_pong_delay0_4));
-processing_element pe0_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(a0_4to0_5), .in_b(b5),      .in_c(c5),        .out_a(a0_5to0_6), .out_b(b0_5to1_5), .out_b0(b0_5to1_5_ping), .out_b1(b0_5to1_5_pong), .out_c(matrixC0_5), .b_data_valid_ping(b_data_valid_ping_delay0_5), .b_data_valid_pong(b_data_valid_pong_delay0_5));
-processing_element pe0_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(a0_5to0_6), .in_b(b6),      .in_c(c6),        .out_a(a0_6to0_7), .out_b(b0_6to1_6), .out_b0(b0_6to1_6_ping), .out_b1(b0_6to1_6_pong), .out_c(matrixC0_6), .b_data_valid_ping(b_data_valid_ping_delay0_6), .b_data_valid_pong(b_data_valid_pong_delay0_6));
-processing_element pe0_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(a0_6to0_7), .in_b(b7),      .in_c(c7),        .out_a(a0_7to0_8), .out_b(b0_7to1_7), .out_b0(b0_7to1_7_ping), .out_b1(b0_7to1_7_pong), .out_c(matrixC0_7), .b_data_valid_ping(b_data_valid_ping_delay0_7), .b_data_valid_pong(b_data_valid_pong_delay0_7));
+wire [`DWIDTH-1:0] in_a_0_0_NC, in_a_0_1_NC, in_a_0_2_NC, in_a_0_3_NC, in_a_0_4_NC, in_a_0_5_NC, in_a_0_6_NC, in_a_0_7_NC, in_a_1_0_NC, in_a_1_1_NC, in_a_1_2_NC, in_a_1_3_NC, in_a_1_4_NC, in_a_1_5_NC, in_a_1_6_NC, in_a_1_7_NC, in_a_2_0_NC, in_a_2_1_NC, in_a_2_2_NC, in_a_2_3_NC, in_a_2_4_NC, in_a_2_5_NC, in_a_2_6_NC, in_a_2_7_NC, in_a_3_0_NC, in_a_3_1_NC, in_a_3_2_NC, in_a_3_3_NC, in_a_3_4_NC, in_a_3_5_NC, in_a_3_6_NC, in_a_3_7_NC, in_a_4_0_NC, in_a_4_1_NC, in_a_4_2_NC, in_a_4_3_NC, in_a_4_4_NC, in_a_4_5_NC, in_a_4_6_NC, in_a_4_7_NC, in_a_5_0_NC, in_a_5_1_NC, in_a_5_2_NC, in_a_5_3_NC, in_a_5_4_NC, in_a_5_5_NC, in_a_5_6_NC, in_a_5_7_NC, in_a_6_0_NC, in_a_6_1_NC, in_a_6_2_NC, in_a_6_3_NC, in_a_6_4_NC, in_a_6_5_NC, in_a_6_6_NC, in_a_6_7_NC, in_a_7_0_NC, in_a_7_1_NC, in_a_7_2_NC, in_a_7_3_NC, in_a_7_4_NC, in_a_7_5_NC, in_a_7_6_NC, in_a_7_7_NC;
 
-processing_element pe1_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay1), .in_a(a1),      .in_b(b0_0to1_0), .in_c(matrixC0_0), .out_a(a1_0to1_1), .out_b(b1_0to2_0), .out_b0(b1_0to2_0_ping), .out_b1(b1_0to2_0_pong), .out_c(matrixC1_0), .b_data_valid_ping(b_data_valid_ping_delay1_0), .b_data_valid_pong(b_data_valid_pong_delay1_0));
-processing_element pe1_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay2), .in_a(a1_0to1_1), .in_b(b0_1to1_1), .in_c(matrixC0_1), .out_a(a1_1to1_2), .out_b(b1_1to2_1), .out_b0(b1_1to2_1_ping), .out_b1(b1_1to2_1_pong), .out_c(matrixC1_1), .b_data_valid_ping(b_data_valid_ping_delay1_1), .b_data_valid_pong(b_data_valid_pong_delay1_1));
-processing_element pe1_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay3), .in_a(a1_1to1_2), .in_b(b0_2to1_2), .in_c(matrixC0_2), .out_a(a1_2to1_3), .out_b(b1_2to2_2), .out_b0(b1_2to2_2_ping), .out_b1(b1_2to2_2_pong), .out_c(matrixC1_2), .b_data_valid_ping(b_data_valid_ping_delay1_2), .b_data_valid_pong(b_data_valid_pong_delay1_2));
-processing_element pe1_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay4), .in_a(a1_2to1_3), .in_b(b0_3to1_3), .in_c(matrixC0_3), .out_a(a1_3to1_4), .out_b(b1_3to2_3), .out_b0(b1_3to2_3_ping), .out_b1(b1_3to2_3_pong), .out_c(matrixC1_3), .b_data_valid_ping(b_data_valid_ping_delay1_3), .b_data_valid_pong(b_data_valid_pong_delay1_3));
-processing_element pe1_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(a1_3to1_4), .in_b(b0_4to1_4), .in_c(matrixC0_4), .out_a(a1_4to1_5), .out_b(b1_4to2_4), .out_b0(b1_4to2_4_ping), .out_b1(b1_4to2_4_pong), .out_c(matrixC1_4), .b_data_valid_ping(b_data_valid_ping_delay1_4), .b_data_valid_pong(b_data_valid_pong_delay1_4));
-processing_element pe1_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(a1_4to1_5), .in_b(b0_5to1_5), .in_c(matrixC0_5), .out_a(a1_5to1_6), .out_b(b1_5to2_5), .out_b0(b1_5to2_5_ping), .out_b1(b1_5to2_5_pong), .out_c(matrixC1_5), .b_data_valid_ping(b_data_valid_ping_delay1_5), .b_data_valid_pong(b_data_valid_pong_delay1_5));
-processing_element pe1_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(a1_5to1_6), .in_b(b0_6to1_6), .in_c(matrixC0_6), .out_a(a1_6to1_7), .out_b(b1_6to2_6), .out_b0(b1_6to2_6_ping), .out_b1(b1_6to2_6_pong), .out_c(matrixC1_6), .b_data_valid_ping(b_data_valid_ping_delay1_6), .b_data_valid_pong(b_data_valid_pong_delay1_6));
-processing_element pe1_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(a1_6to1_7), .in_b(b0_7to1_7), .in_c(matrixC0_7), .out_a(a1_7to1_8), .out_b(b1_7to2_7), .out_b0(b1_7to2_7_ping), .out_b1(b1_7to2_7_pong), .out_c(matrixC1_7), .b_data_valid_ping(b_data_valid_ping_delay1_7), .b_data_valid_pong(b_data_valid_pong_delay1_7));
+wire [`DWIDTH-1:0] in_a_chain_0_0_NC, in_a_chain_0_1_NC, in_a_chain_0_2_NC, in_a_chain_0_3_NC, in_a_chain_0_4_NC, in_a_chain_0_5_NC, in_a_chain_0_6_NC, in_a_chain_0_7_NC, in_a_chain_1_0_NC, in_a_chain_1_1_NC, in_a_chain_1_2_NC, in_a_chain_1_3_NC, in_a_chain_1_4_NC, in_a_chain_1_5_NC, in_a_chain_1_6_NC, in_a_chain_1_7_NC, in_a_chain_2_0_NC, in_a_chain_2_1_NC, in_a_chain_2_2_NC, in_a_chain_2_3_NC, in_a_chain_2_4_NC, in_a_chain_2_5_NC, in_a_chain_2_6_NC, in_a_chain_2_7_NC, in_a_chain_3_0_NC, in_a_chain_3_1_NC, in_a_chain_3_2_NC, in_a_chain_3_3_NC, in_a_chain_3_4_NC, in_a_chain_3_5_NC, in_a_chain_3_6_NC, in_a_chain_3_7_NC, in_a_chain_4_0_NC, in_a_chain_4_1_NC, in_a_chain_4_2_NC, in_a_chain_4_3_NC, in_a_chain_4_4_NC, in_a_chain_4_5_NC, in_a_chain_4_6_NC, in_a_chain_4_7_NC, in_a_chain_5_0_NC, in_a_chain_5_1_NC, in_a_chain_5_2_NC, in_a_chain_5_3_NC, in_a_chain_5_4_NC, in_a_chain_5_5_NC, in_a_chain_5_6_NC, in_a_chain_5_7_NC, in_a_chain_6_0_NC, in_a_chain_6_1_NC, in_a_chain_6_2_NC, in_a_chain_6_3_NC, in_a_chain_6_4_NC, in_a_chain_6_5_NC, in_a_chain_6_6_NC, in_a_chain_6_7_NC, in_a_chain_7_0_NC, in_a_chain_7_1_NC, in_a_chain_7_2_NC, in_a_chain_7_3_NC, in_a_chain_7_4_NC, in_a_chain_7_5_NC, in_a_chain_7_6_NC, in_a_chain_7_7_NC;
 
-processing_element pe2_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay2), .in_a(a2),      .in_b(b1_0to2_0), .in_c(matrixC1_0), .out_a(a2_0to2_1), .out_b(b2_0to3_0), .out_b0(b2_0to3_0_ping), .out_b1(b2_0to3_0_pong), .out_c(matrixC2_0), .b_data_valid_ping(b_data_valid_ping_delay2_0), .b_data_valid_pong(b_data_valid_pong_delay2_0));
-processing_element pe2_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay3), .in_a(a2_0to2_1), .in_b(b1_1to2_1), .in_c(matrixC1_1), .out_a(a2_1to2_2), .out_b(b2_1to3_1), .out_b0(b2_1to3_1_ping), .out_b1(b2_1to3_1_pong), .out_c(matrixC2_1), .b_data_valid_ping(b_data_valid_ping_delay2_1), .b_data_valid_pong(b_data_valid_pong_delay2_1));
-processing_element pe2_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay4), .in_a(a2_1to2_2), .in_b(b1_2to2_2), .in_c(matrixC1_2), .out_a(a2_2to2_3), .out_b(b2_2to3_2), .out_b0(b2_2to3_2_ping), .out_b1(b2_2to3_2_pong), .out_c(matrixC2_2), .b_data_valid_ping(b_data_valid_ping_delay2_2), .b_data_valid_pong(b_data_valid_pong_delay2_2));
-processing_element pe2_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(a2_2to2_3), .in_b(b1_3to2_3), .in_c(matrixC1_3), .out_a(a2_3to2_4), .out_b(b2_3to3_3), .out_b0(b2_3to3_3_ping), .out_b1(b2_3to3_3_pong), .out_c(matrixC2_3), .b_data_valid_ping(b_data_valid_ping_delay2_3), .b_data_valid_pong(b_data_valid_pong_delay2_3));
-processing_element pe2_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(a2_3to2_4), .in_b(b1_4to2_4), .in_c(matrixC1_4), .out_a(a2_4to2_5), .out_b(b2_4to3_4), .out_b0(b2_4to3_4_ping), .out_b1(b2_4to3_4_pong), .out_c(matrixC2_4), .b_data_valid_ping(b_data_valid_ping_delay2_4), .b_data_valid_pong(b_data_valid_pong_delay2_4));
-processing_element pe2_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(a2_4to2_5), .in_b(b1_5to2_5), .in_c(matrixC1_5), .out_a(a2_5to2_6), .out_b(b2_5to3_5), .out_b0(b2_5to3_5_ping), .out_b1(b2_5to3_5_pong), .out_c(matrixC2_5), .b_data_valid_ping(b_data_valid_ping_delay2_5), .b_data_valid_pong(b_data_valid_pong_delay2_5));
-processing_element pe2_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(a2_5to2_6), .in_b(b1_6to2_6), .in_c(matrixC1_6), .out_a(a2_6to2_7), .out_b(b2_6to3_6), .out_b0(b2_6to3_6_ping), .out_b1(b2_6to3_6_pong), .out_c(matrixC2_6), .b_data_valid_ping(b_data_valid_ping_delay2_6), .b_data_valid_pong(b_data_valid_pong_delay2_6));
-processing_element pe2_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(a2_6to2_7), .in_b(b1_7to2_7), .in_c(matrixC1_7), .out_a(a2_7to2_8), .out_b(b2_7to3_7), .out_b0(b2_7to3_7_ping), .out_b1(b2_7to3_7_pong), .out_c(matrixC2_7), .b_data_valid_ping(b_data_valid_ping_delay2_7), .b_data_valid_pong(b_data_valid_pong_delay2_7));
+wire [`DWIDTH-1:0] out_a_0_0_NC, out_a_0_1_NC, out_a_0_2_NC, out_a_0_3_NC, out_a_0_4_NC, out_a_0_5_NC, out_a_0_6_NC, out_a_0_7_NC, out_a_1_0_NC, out_a_1_1_NC, out_a_1_2_NC, out_a_1_3_NC, out_a_1_4_NC, out_a_1_5_NC, out_a_1_6_NC, out_a_1_7_NC, out_a_2_0_NC, out_a_2_1_NC, out_a_2_2_NC, out_a_2_3_NC, out_a_2_4_NC, out_a_2_5_NC, out_a_2_6_NC, out_a_2_7_NC, out_a_3_0_NC, out_a_3_1_NC, out_a_3_2_NC, out_a_3_3_NC, out_a_3_4_NC, out_a_3_5_NC, out_a_3_6_NC, out_a_3_7_NC, out_a_4_0_NC, out_a_4_1_NC, out_a_4_2_NC, out_a_4_3_NC, out_a_4_4_NC, out_a_4_5_NC, out_a_4_6_NC, out_a_4_7_NC, out_a_5_0_NC, out_a_5_1_NC, out_a_5_2_NC, out_a_5_3_NC, out_a_5_4_NC, out_a_5_5_NC, out_a_5_6_NC, out_a_5_7_NC, out_a_6_0_NC, out_a_6_1_NC, out_a_6_2_NC, out_a_6_3_NC, out_a_6_4_NC, out_a_6_5_NC, out_a_6_6_NC, out_a_6_7_NC, out_a_7_0_NC, out_a_7_1_NC, out_a_7_2_NC, out_a_7_3_NC, out_a_7_4_NC, out_a_7_5_NC, out_a_7_6_NC, out_a_7_7_NC;
 
-processing_element pe3_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay3), .in_a(a3),      .in_b(b2_0to3_0), .in_c(matrixC2_0), .out_a(a3_0to3_1), .out_b(b3_0to4_0), .out_b0(b3_0to4_0_ping), .out_b1(b3_0to4_0_pong), .out_c(matrixC3_0), .b_data_valid_ping(b_data_valid_ping_delay3_0), .b_data_valid_pong(b_data_valid_pong_delay3_0));
-processing_element pe3_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay4), .in_a(a3_0to3_1), .in_b(b2_1to3_1), .in_c(matrixC2_1), .out_a(a3_1to3_2), .out_b(b3_1to4_1), .out_b0(b3_1to4_1_ping), .out_b1(b3_1to4_1_pong), .out_c(matrixC3_1), .b_data_valid_ping(b_data_valid_ping_delay3_1), .b_data_valid_pong(b_data_valid_pong_delay3_1));
-processing_element pe3_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(a3_1to3_2), .in_b(b2_2to3_2), .in_c(matrixC2_2), .out_a(a3_2to3_3), .out_b(b3_2to4_2), .out_b0(b3_2to4_2_ping), .out_b1(b3_2to4_2_pong), .out_c(matrixC3_2), .b_data_valid_ping(b_data_valid_ping_delay3_2), .b_data_valid_pong(b_data_valid_pong_delay3_2));
-processing_element pe3_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(a3_2to3_3), .in_b(b2_3to3_3), .in_c(matrixC2_3), .out_a(a3_3to3_4), .out_b(b3_3to4_3), .out_b0(b3_3to4_3_ping), .out_b1(b3_3to4_3_pong), .out_c(matrixC3_3), .b_data_valid_ping(b_data_valid_ping_delay3_3), .b_data_valid_pong(b_data_valid_pong_delay3_3));
-processing_element pe3_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(a3_3to3_4), .in_b(b2_4to3_4), .in_c(matrixC2_4), .out_a(a3_4to3_5), .out_b(b3_4to4_4), .out_b0(b3_4to4_4_ping), .out_b1(b3_4to4_4_pong), .out_c(matrixC3_4), .b_data_valid_ping(b_data_valid_ping_delay3_4), .b_data_valid_pong(b_data_valid_pong_delay3_4));
-processing_element pe3_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(a3_4to3_5), .in_b(b2_5to3_5), .in_c(matrixC2_5), .out_a(a3_5to3_6), .out_b(b3_5to4_5), .out_b0(b3_5to4_5_ping), .out_b1(b3_5to4_5_pong), .out_c(matrixC3_5), .b_data_valid_ping(b_data_valid_ping_delay3_5), .b_data_valid_pong(b_data_valid_pong_delay3_5));
-processing_element pe3_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(a3_5to3_6), .in_b(b2_6to3_6), .in_c(matrixC2_6), .out_a(a3_6to3_7), .out_b(b3_6to4_6), .out_b0(b3_6to4_6_ping), .out_b1(b3_6to4_6_pong), .out_c(matrixC3_6), .b_data_valid_ping(b_data_valid_ping_delay3_6), .b_data_valid_pong(b_data_valid_pong_delay3_6));
-processing_element pe3_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay10), .in_a(a3_6to3_7), .in_b(b2_7to3_7), .in_c(matrixC2_7), .out_a(a3_7to3_8), .out_b(b3_7to4_7), .out_b0(b3_7to4_7_ping), .out_b1(b3_7to4_7_pong), .out_c(matrixC3_7), .b_data_valid_ping(b_data_valid_ping_delay3_7), .b_data_valid_pong(b_data_valid_pong_delay3_7));
-
-processing_element pe4_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay4), .in_a(a4),      .in_b(b3_0to4_0), .in_c(matrixC3_0), .out_a(a4_0to4_1), .out_b(b4_0to5_0), .out_b0(b4_0to5_0_ping), .out_b1(b4_0to5_0_pong), .out_c(matrixC4_0), .b_data_valid_ping(b_data_valid_ping_delay4_0), .b_data_valid_pong(b_data_valid_pong_delay4_0));
-processing_element pe4_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(a4_0to4_1), .in_b(b3_1to4_1), .in_c(matrixC3_1), .out_a(a4_1to4_2), .out_b(b4_1to5_1), .out_b0(b4_1to5_1_ping), .out_b1(b4_1to5_1_pong), .out_c(matrixC4_1), .b_data_valid_ping(b_data_valid_ping_delay4_1), .b_data_valid_pong(b_data_valid_pong_delay4_1));
-processing_element pe4_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(a4_1to4_2), .in_b(b3_2to4_2), .in_c(matrixC3_2), .out_a(a4_2to4_3), .out_b(b4_2to5_2), .out_b0(b4_2to5_2_ping), .out_b1(b4_2to5_2_pong), .out_c(matrixC4_2), .b_data_valid_ping(b_data_valid_ping_delay4_2), .b_data_valid_pong(b_data_valid_pong_delay4_2));
-processing_element pe4_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(a4_2to4_3), .in_b(b3_3to4_3), .in_c(matrixC3_3), .out_a(a4_3to4_4), .out_b(b4_3to5_3), .out_b0(b4_3to5_3_ping), .out_b1(b4_3to5_3_pong), .out_c(matrixC4_3), .b_data_valid_ping(b_data_valid_ping_delay4_3), .b_data_valid_pong(b_data_valid_pong_delay4_3));
-processing_element pe4_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(a4_3to4_4), .in_b(b3_4to4_4), .in_c(matrixC3_4), .out_a(a4_4to4_5), .out_b(b4_4to5_4), .out_b0(b4_4to5_4_ping), .out_b1(b4_4to5_4_pong), .out_c(matrixC4_4), .b_data_valid_ping(b_data_valid_ping_delay4_4), .b_data_valid_pong(b_data_valid_pong_delay4_4));
-processing_element pe4_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(a4_4to4_5), .in_b(b3_5to4_5), .in_c(matrixC3_5), .out_a(a4_5to4_6), .out_b(b4_5to5_5), .out_b0(b4_5to5_5_ping), .out_b1(b4_5to5_5_pong), .out_c(matrixC4_5), .b_data_valid_ping(b_data_valid_ping_delay4_5), .b_data_valid_pong(b_data_valid_pong_delay4_5));
-processing_element pe4_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay10), .in_a(a4_5to4_6), .in_b(b3_6to4_6), .in_c(matrixC3_6), .out_a(a4_6to4_7), .out_b(b4_6to5_6), .out_b0(b4_6to5_6_ping), .out_b1(b4_6to5_6_pong), .out_c(matrixC4_6), .b_data_valid_ping(b_data_valid_ping_delay4_6), .b_data_valid_pong(b_data_valid_pong_delay4_6));
-processing_element pe4_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay11), .in_a(a4_6to4_7), .in_b(b3_7to4_7), .in_c(matrixC3_7), .out_a(a4_7to4_8), .out_b(b4_7to5_7), .out_b0(b4_7to5_7_ping), .out_b1(b4_7to5_7_pong), .out_c(matrixC4_7), .b_data_valid_ping(b_data_valid_ping_delay4_7), .b_data_valid_pong(b_data_valid_pong_delay4_7));
-
-processing_element pe5_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(a5),      .in_b(b4_0to5_0), .in_c(matrixC4_0), .out_a(a5_0to5_1), .out_b(b5_0to6_0), .out_b0(b5_0to6_0_ping), .out_b1(b5_0to6_0_pong), .out_c(matrixC5_0), .b_data_valid_ping(b_data_valid_ping_delay5_0), .b_data_valid_pong(b_data_valid_pong_delay5_0));
-processing_element pe5_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(a5_0to5_1), .in_b(b4_1to5_1), .in_c(matrixC4_1), .out_a(a5_1to5_2), .out_b(b5_1to6_1), .out_b0(b5_1to6_1_ping), .out_b1(b5_1to6_1_pong), .out_c(matrixC5_1), .b_data_valid_ping(b_data_valid_ping_delay5_1), .b_data_valid_pong(b_data_valid_pong_delay5_1));
-processing_element pe5_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(a5_1to5_2), .in_b(b4_2to5_2), .in_c(matrixC4_2), .out_a(a5_2to5_3), .out_b(b5_2to6_2), .out_b0(b5_2to6_2_ping), .out_b1(b5_2to6_2_pong), .out_c(matrixC5_2), .b_data_valid_ping(b_data_valid_ping_delay5_2), .b_data_valid_pong(b_data_valid_pong_delay5_2));
-processing_element pe5_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(a5_2to5_3), .in_b(b4_3to5_3), .in_c(matrixC4_3), .out_a(a5_3to5_4), .out_b(b5_3to6_3), .out_b0(b5_3to6_3_ping), .out_b1(b5_3to6_3_pong), .out_c(matrixC5_3), .b_data_valid_ping(b_data_valid_ping_delay5_3), .b_data_valid_pong(b_data_valid_pong_delay5_3));
-processing_element pe5_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(a5_3to5_4), .in_b(b4_4to5_4), .in_c(matrixC4_4), .out_a(a5_4to5_5), .out_b(b5_4to6_4), .out_b0(b5_4to6_4_ping), .out_b1(b5_4to6_4_pong), .out_c(matrixC5_4), .b_data_valid_ping(b_data_valid_ping_delay5_4), .b_data_valid_pong(b_data_valid_pong_delay5_4));
-processing_element pe5_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay10), .in_a(a5_4to5_5), .in_b(b4_5to5_5), .in_c(matrixC4_5), .out_a(a5_5to5_6), .out_b(b5_5to6_5), .out_b0(b5_5to6_5_ping), .out_b1(b5_5to6_5_pong), .out_c(matrixC5_5), .b_data_valid_ping(b_data_valid_ping_delay5_5), .b_data_valid_pong(b_data_valid_pong_delay5_5));
-processing_element pe5_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay11), .in_a(a5_5to5_6), .in_b(b4_6to5_6), .in_c(matrixC4_6), .out_a(a5_6to5_7), .out_b(b5_6to6_6), .out_b0(b5_6to6_6_ping), .out_b1(b5_6to6_6_pong), .out_c(matrixC5_6), .b_data_valid_ping(b_data_valid_ping_delay5_6), .b_data_valid_pong(b_data_valid_pong_delay5_6));
-processing_element pe5_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay12), .in_a(a5_6to5_7), .in_b(b4_7to5_7), .in_c(matrixC4_7), .out_a(a5_7to5_8), .out_b(b5_7to6_7), .out_b0(b5_7to6_7_ping), .out_b1(b5_7to6_7_pong), .out_c(matrixC5_7), .b_data_valid_ping(b_data_valid_ping_delay5_7), .b_data_valid_pong(b_data_valid_pong_delay5_7));
-
-processing_element pe6_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(a6),      .in_b(b5_0to6_0), .in_c(matrixC5_0), .out_a(a6_0to6_1), .out_b(b6_0to7_0), .out_b0(b6_0to7_0_ping), .out_b1(b6_0to7_0_pong), .out_c(matrixC6_0), .b_data_valid_ping(b_data_valid_ping_delay6_0), .b_data_valid_pong(b_data_valid_pong_delay6_0));
-processing_element pe6_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(a6_0to6_1), .in_b(b5_1to6_1), .in_c(matrixC5_1), .out_a(a6_1to6_2), .out_b(b6_1to7_1), .out_b0(b6_1to7_1_ping), .out_b1(b6_1to7_1_pong), .out_c(matrixC6_1), .b_data_valid_ping(b_data_valid_ping_delay6_1), .b_data_valid_pong(b_data_valid_pong_delay6_1));
-processing_element pe6_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(a6_1to6_2), .in_b(b5_2to6_2), .in_c(matrixC5_2), .out_a(a6_2to6_3), .out_b(b6_2to7_2), .out_b0(b6_2to7_2_ping), .out_b1(b6_2to7_2_pong), .out_c(matrixC6_2), .b_data_valid_ping(b_data_valid_ping_delay6_2), .b_data_valid_pong(b_data_valid_pong_delay6_2));
-processing_element pe6_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(a6_2to6_3), .in_b(b5_3to6_3), .in_c(matrixC5_3), .out_a(a6_3to6_4), .out_b(b6_3to7_3), .out_b0(b6_3to7_3_ping), .out_b1(b6_3to7_3_pong), .out_c(matrixC6_3), .b_data_valid_ping(b_data_valid_ping_delay6_3), .b_data_valid_pong(b_data_valid_pong_delay6_3));
-processing_element pe6_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay10), .in_a(a6_3to6_4), .in_b(b5_4to6_4), .in_c(matrixC5_4), .out_a(a6_4to6_5), .out_b(b6_4to7_4), .out_b0(b6_4to7_4_ping), .out_b1(b6_4to7_4_pong), .out_c(matrixC6_4), .b_data_valid_ping(b_data_valid_ping_delay6_4), .b_data_valid_pong(b_data_valid_pong_delay6_4));
-processing_element pe6_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay11), .in_a(a6_4to6_5), .in_b(b5_5to6_5), .in_c(matrixC5_5), .out_a(a6_5to6_6), .out_b(b6_5to7_5), .out_b0(b6_5to7_5_ping), .out_b1(b6_5to7_5_pong), .out_c(matrixC6_5), .b_data_valid_ping(b_data_valid_ping_delay6_5), .b_data_valid_pong(b_data_valid_pong_delay6_5));
-processing_element pe6_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay12), .in_a(a6_5to6_6), .in_b(b5_6to6_6), .in_c(matrixC5_6), .out_a(a6_6to6_7), .out_b(b6_6to7_6), .out_b0(b6_6to7_6_ping), .out_b1(b6_6to7_6_pong), .out_c(matrixC6_6), .b_data_valid_ping(b_data_valid_ping_delay6_6), .b_data_valid_pong(b_data_valid_pong_delay6_6));
-processing_element pe6_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay13), .in_a(a6_6to6_7), .in_b(b5_7to6_7), .in_c(matrixC5_7), .out_a(a6_7to6_8), .out_b(b6_7to7_7), .out_b0(b6_7to7_7_ping), .out_b1(b6_7to7_7_pong), .out_c(matrixC6_7), .b_data_valid_ping(b_data_valid_ping_delay6_7), .b_data_valid_pong(b_data_valid_pong_delay6_7));
-
-processing_element pe7_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(a7),      .in_b(b6_0to7_0), .in_c(matrixC6_0), .out_a(a7_0to7_1), .out_b(b7_0to8_0), .out_b0(b7_0to8_0_ping), .out_b1(b7_0to8_0_pong), .out_c(matrixC7_0), .b_data_valid_ping(b_data_valid_ping_delay7_0), .b_data_valid_pong(b_data_valid_pong_delay7_0));
-processing_element pe7_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(a7_0to7_1), .in_b(b6_1to7_1), .in_c(matrixC6_1), .out_a(a7_1to7_2), .out_b(b7_1to8_1), .out_b0(b7_1to8_1_ping), .out_b1(b7_1to8_1_pong), .out_c(matrixC7_1), .b_data_valid_ping(b_data_valid_ping_delay7_1), .b_data_valid_pong(b_data_valid_pong_delay7_1));
-processing_element pe7_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(a7_1to7_2), .in_b(b6_2to7_2), .in_c(matrixC6_2), .out_a(a7_2to7_3), .out_b(b7_2to8_2), .out_b0(b7_2to8_2_ping), .out_b1(b7_2to8_2_pong), .out_c(matrixC7_2), .b_data_valid_ping(b_data_valid_ping_delay7_2), .b_data_valid_pong(b_data_valid_pong_delay7_2));
-processing_element pe7_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay10), .in_a(a7_2to7_3), .in_b(b6_3to7_3), .in_c(matrixC6_3), .out_a(a7_3to7_4), .out_b(b7_3to8_3), .out_b0(b7_3to8_3_ping), .out_b1(b7_3to8_3_pong), .out_c(matrixC7_3), .b_data_valid_ping(b_data_valid_ping_delay7_3), .b_data_valid_pong(b_data_valid_pong_delay7_3));
-processing_element pe7_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay11), .in_a(a7_3to7_4), .in_b(b6_4to7_4), .in_c(matrixC6_4), .out_a(a7_4to7_5), .out_b(b7_4to8_4), .out_b0(b7_4to8_4_ping), .out_b1(b7_4to8_4_pong), .out_c(matrixC7_4), .b_data_valid_ping(b_data_valid_ping_delay7_4), .b_data_valid_pong(b_data_valid_pong_delay7_4));
-processing_element pe7_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay12), .in_a(a7_4to7_5), .in_b(b6_5to7_5), .in_c(matrixC6_5), .out_a(a7_5to7_6), .out_b(b7_5to8_5), .out_b0(b7_5to8_5_ping), .out_b1(b7_5to8_5_pong), .out_c(matrixC7_5), .b_data_valid_ping(b_data_valid_ping_delay7_5), .b_data_valid_pong(b_data_valid_pong_delay7_5));
-processing_element pe7_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay13), .in_a(a7_5to7_6), .in_b(b6_6to7_6), .in_c(matrixC6_6), .out_a(a7_6to7_7), .out_b(b7_6to8_6), .out_b0(b7_6to8_6_ping), .out_b1(b7_6to8_6_pong), .out_c(matrixC7_6), .b_data_valid_ping(b_data_valid_ping_delay7_6), .b_data_valid_pong(b_data_valid_pong_delay7_6));
-processing_element pe7_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay14), .in_a(a7_6to7_7), .in_b(b6_7to7_7), .in_c(matrixC6_7), .out_a(a7_7to7_8), .out_b(b7_7to8_7), .out_b0(b7_7to8_7_ping), .out_b1(b7_7to8_7_pong), .out_c(matrixC7_7), .b_data_valid_ping(b_data_valid_ping_delay7_7), .b_data_valid_pong(b_data_valid_pong_delay7_7));
-
+processing_element pe0_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel),             .in_a(a0),    .in_a_chain(in_a_chain_0_0_NC),  .in_b(b0),      .in_c(c0),        .out_a(out_a_0_0_NC), .out_a_chain(a0_0to0_1), .out_b(b0_0to1_0), .out_b0(b0_0to1_0_ping), .out_b1(b0_0to1_0_pong), .out_c(matrixC0_0), .b_data_valid_ping(b_data_valid_ping),         .b_data_valid_pong(b_data_valid_pong        ), .mode(1'b1));
+processing_element pe0_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay1), .in_a(in_a_0_1_NC), .in_a_chain(a0_0to0_1), .in_b(b1),      .in_c(c1),        .out_a(out_a_0_1_NC), .out_a_chain(a0_1to0_2), .out_b(b0_1to1_1), .out_b0(b0_1to1_1_ping), .out_b1(b0_1to1_1_pong), .out_c(matrixC0_1), .b_data_valid_ping(b_data_valid_ping_delay0_1), .b_data_valid_pong(b_data_valid_pong_delay0_1), .mode(1'b0));
+processing_element pe0_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay2), .in_a(in_a_0_2_NC), .in_a_chain(a0_1to0_2), .in_b(b2),      .in_c(c2),        .out_a(out_a_0_2_NC), .out_a_chain(a0_2to0_3), .out_b(b0_2to1_2), .out_b0(b0_2to1_2_ping), .out_b1(b0_2to1_2_pong), .out_c(matrixC0_2), .b_data_valid_ping(b_data_valid_ping_delay0_2), .b_data_valid_pong(b_data_valid_pong_delay0_2), .mode(1'b0));
+processing_element pe0_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay3), .in_a(in_a_0_3_NC), .in_a_chain(a0_2to0_3), .in_b(b3),      .in_c(c3),        .out_a(out_a_0_3_NC), .out_a_chain(a0_3to0_4), .out_b(b0_3to1_3), .out_b0(b0_3to1_3_ping), .out_b1(b0_3to1_3_pong), .out_c(matrixC0_3), .b_data_valid_ping(b_data_valid_ping_delay0_3), .b_data_valid_pong(b_data_valid_pong_delay0_3), .mode(1'b0));
+processing_element pe0_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay4), .in_a(in_a_0_4_NC), .in_a_chain(a0_3to0_4), .in_b(b4),      .in_c(c4),        .out_a(out_a_0_4_NC), .out_a_chain(a0_4to0_5), .out_b(b0_4to1_4), .out_b0(b0_4to1_4_ping), .out_b1(b0_4to1_4_pong), .out_c(matrixC0_4), .b_data_valid_ping(b_data_valid_ping_delay0_4), .b_data_valid_pong(b_data_valid_pong_delay0_4), .mode(1'b0));
+processing_element pe0_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(in_a_0_5_NC), .in_a_chain(a0_4to0_5), .in_b(b5),      .in_c(c5),        .out_a(out_a_0_5_NC), .out_a_chain(a0_5to0_6), .out_b(b0_5to1_5), .out_b0(b0_5to1_5_ping), .out_b1(b0_5to1_5_pong), .out_c(matrixC0_5), .b_data_valid_ping(b_data_valid_ping_delay0_5), .b_data_valid_pong(b_data_valid_pong_delay0_5), .mode(1'b0));
+processing_element pe0_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(in_a_0_6_NC), .in_a_chain(a0_5to0_6), .in_b(b6),      .in_c(c6),        .out_a(out_a_0_6_NC), .out_a_chain(a0_6to0_7), .out_b(b0_6to1_6), .out_b0(b0_6to1_6_ping), .out_b1(b0_6to1_6_pong), .out_c(matrixC0_6), .b_data_valid_ping(b_data_valid_ping_delay0_6), .b_data_valid_pong(b_data_valid_pong_delay0_6), .mode(1'b0));
+processing_element pe0_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(in_a_0_7_NC), .in_a_chain(a0_6to0_7), .in_b(b7),      .in_c(c7),        .out_a(out_a_0_7_NC), .out_a_chain(a0_7to0_8), .out_b(b0_7to1_7), .out_b0(b0_7to1_7_ping), .out_b1(b0_7to1_7_pong), .out_c(matrixC0_7), .b_data_valid_ping(b_data_valid_ping_delay0_7), .b_data_valid_pong(b_data_valid_pong_delay0_7), .mode(1'b0));
+processing_element pe1_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay1), .in_a(a1),   .in_a_chain(in_a_chain_1_0_NC),   .in_b(b0_0to1_0), .in_c(matrixC0_0), .out_a(out_a_1_0_NC), .out_a_chain(a1_0to1_1), .out_b(b1_0to2_0), .out_b0(b1_0to2_0_ping), .out_b1(b1_0to2_0_pong), .out_c(matrixC1_0), .b_data_valid_ping(b_data_valid_ping_delay1_0), .b_data_valid_pong(b_data_valid_pong_delay1_0), .mode(1'b1));
+processing_element pe1_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay2), .in_a(in_a_1_1_NC),  .in_a_chain(a1_0to1_1), .in_b(b0_1to1_1), .in_c(matrixC0_1), .out_a(out_a_1_1_NC), .out_a_chain(a1_1to1_2), .out_b(b1_1to2_1), .out_b0(b1_1to2_1_ping), .out_b1(b1_1to2_1_pong), .out_c(matrixC1_1), .b_data_valid_ping(b_data_valid_ping_delay1_1), .b_data_valid_pong(b_data_valid_pong_delay1_1), .mode(1'b0));
+processing_element pe1_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay3), .in_a(in_a_1_2_NC),  .in_a_chain(a1_1to1_2), .in_b(b0_2to1_2), .in_c(matrixC0_2), .out_a(out_a_1_2_NC), .out_a_chain(a1_2to1_3), .out_b(b1_2to2_2), .out_b0(b1_2to2_2_ping), .out_b1(b1_2to2_2_pong), .out_c(matrixC1_2), .b_data_valid_ping(b_data_valid_ping_delay1_2), .b_data_valid_pong(b_data_valid_pong_delay1_2), .mode(1'b0));
+processing_element pe1_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay4), .in_a(in_a_1_3_NC),  .in_a_chain(a1_2to1_3), .in_b(b0_3to1_3), .in_c(matrixC0_3), .out_a(out_a_1_3_NC), .out_a_chain(a1_3to1_4), .out_b(b1_3to2_3), .out_b0(b1_3to2_3_ping), .out_b1(b1_3to2_3_pong), .out_c(matrixC1_3), .b_data_valid_ping(b_data_valid_ping_delay1_3), .b_data_valid_pong(b_data_valid_pong_delay1_3), .mode(1'b0));
+processing_element pe1_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(in_a_1_4_NC),  .in_a_chain(a1_3to1_4), .in_b(b0_4to1_4), .in_c(matrixC0_4), .out_a(out_a_1_4_NC), .out_a_chain(a1_4to1_5), .out_b(b1_4to2_4), .out_b0(b1_4to2_4_ping), .out_b1(b1_4to2_4_pong), .out_c(matrixC1_4), .b_data_valid_ping(b_data_valid_ping_delay1_4), .b_data_valid_pong(b_data_valid_pong_delay1_4), .mode(1'b0));
+processing_element pe1_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(in_a_1_5_NC),  .in_a_chain(a1_4to1_5), .in_b(b0_5to1_5), .in_c(matrixC0_5), .out_a(out_a_1_5_NC), .out_a_chain(a1_5to1_6), .out_b(b1_5to2_5), .out_b0(b1_5to2_5_ping), .out_b1(b1_5to2_5_pong), .out_c(matrixC1_5), .b_data_valid_ping(b_data_valid_ping_delay1_5), .b_data_valid_pong(b_data_valid_pong_delay1_5), .mode(1'b0));
+processing_element pe1_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(in_a_1_6_NC),  .in_a_chain(a1_5to1_6), .in_b(b0_6to1_6), .in_c(matrixC0_6), .out_a(out_a_1_6_NC), .out_a_chain(a1_6to1_7), .out_b(b1_6to2_6), .out_b0(b1_6to2_6_ping), .out_b1(b1_6to2_6_pong), .out_c(matrixC1_6), .b_data_valid_ping(b_data_valid_ping_delay1_6), .b_data_valid_pong(b_data_valid_pong_delay1_6), .mode(1'b0));
+processing_element pe1_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(in_a_1_7_NC),  .in_a_chain(a1_6to1_7), .in_b(b0_7to1_7), .in_c(matrixC0_7), .out_a(out_a_1_7_NC), .out_a_chain(a1_7to1_8), .out_b(b1_7to2_7), .out_b0(b1_7to2_7_ping), .out_b1(b1_7to2_7_pong), .out_c(matrixC1_7), .b_data_valid_ping(b_data_valid_ping_delay1_7), .b_data_valid_pong(b_data_valid_pong_delay1_7), .mode(1'b0));
+processing_element pe2_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay2), .in_a(a2),   .in_a_chain(in_a_chain_2_0_NC),   .in_b(b1_0to2_0), .in_c(matrixC1_0), .out_a(out_a_2_0_NC), .out_a_chain(a2_0to2_1), .out_b(b2_0to3_0), .out_b0(b2_0to3_0_ping), .out_b1(b2_0to3_0_pong), .out_c(matrixC2_0), .b_data_valid_ping(b_data_valid_ping_delay2_0), .b_data_valid_pong(b_data_valid_pong_delay2_0), .mode(1'b1));
+processing_element pe2_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay3), .in_a(in_a_2_1_NC),  .in_a_chain(a2_0to2_1), .in_b(b1_1to2_1), .in_c(matrixC1_1), .out_a(out_a_2_1_NC), .out_a_chain(a2_1to2_2), .out_b(b2_1to3_1), .out_b0(b2_1to3_1_ping), .out_b1(b2_1to3_1_pong), .out_c(matrixC2_1), .b_data_valid_ping(b_data_valid_ping_delay2_1), .b_data_valid_pong(b_data_valid_pong_delay2_1), .mode(1'b0));
+processing_element pe2_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay4), .in_a(in_a_2_2_NC),  .in_a_chain(a2_1to2_2), .in_b(b1_2to2_2), .in_c(matrixC1_2), .out_a(out_a_2_2_NC), .out_a_chain(a2_2to2_3), .out_b(b2_2to3_2), .out_b0(b2_2to3_2_ping), .out_b1(b2_2to3_2_pong), .out_c(matrixC2_2), .b_data_valid_ping(b_data_valid_ping_delay2_2), .b_data_valid_pong(b_data_valid_pong_delay2_2), .mode(1'b0));
+processing_element pe2_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(in_a_2_3_NC),  .in_a_chain(a2_2to2_3), .in_b(b1_3to2_3), .in_c(matrixC1_3), .out_a(out_a_2_3_NC), .out_a_chain(a2_3to2_4), .out_b(b2_3to3_3), .out_b0(b2_3to3_3_ping), .out_b1(b2_3to3_3_pong), .out_c(matrixC2_3), .b_data_valid_ping(b_data_valid_ping_delay2_3), .b_data_valid_pong(b_data_valid_pong_delay2_3), .mode(1'b0));
+processing_element pe2_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(in_a_2_4_NC),  .in_a_chain(a2_3to2_4), .in_b(b1_4to2_4), .in_c(matrixC1_4), .out_a(out_a_2_4_NC), .out_a_chain(a2_4to2_5), .out_b(b2_4to3_4), .out_b0(b2_4to3_4_ping), .out_b1(b2_4to3_4_pong), .out_c(matrixC2_4), .b_data_valid_ping(b_data_valid_ping_delay2_4), .b_data_valid_pong(b_data_valid_pong_delay2_4), .mode(1'b0));
+processing_element pe2_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(in_a_2_5_NC),  .in_a_chain(a2_4to2_5), .in_b(b1_5to2_5), .in_c(matrixC1_5), .out_a(out_a_2_5_NC), .out_a_chain(a2_5to2_6), .out_b(b2_5to3_5), .out_b0(b2_5to3_5_ping), .out_b1(b2_5to3_5_pong), .out_c(matrixC2_5), .b_data_valid_ping(b_data_valid_ping_delay2_5), .b_data_valid_pong(b_data_valid_pong_delay2_5), .mode(1'b0));
+processing_element pe2_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(in_a_2_6_NC),  .in_a_chain(a2_5to2_6), .in_b(b1_6to2_6), .in_c(matrixC1_6), .out_a(out_a_2_6_NC), .out_a_chain(a2_6to2_7), .out_b(b2_6to3_6), .out_b0(b2_6to3_6_ping), .out_b1(b2_6to3_6_pong), .out_c(matrixC2_6), .b_data_valid_ping(b_data_valid_ping_delay2_6), .b_data_valid_pong(b_data_valid_pong_delay2_6), .mode(1'b0));
+processing_element pe2_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(in_a_2_7_NC),  .in_a_chain(a2_6to2_7), .in_b(b1_7to2_7), .in_c(matrixC1_7), .out_a(out_a_2_7_NC), .out_a_chain(a2_7to2_8), .out_b(b2_7to3_7), .out_b0(b2_7to3_7_ping), .out_b1(b2_7to3_7_pong), .out_c(matrixC2_7), .b_data_valid_ping(b_data_valid_ping_delay2_7), .b_data_valid_pong(b_data_valid_pong_delay2_7), .mode(1'b0));
+processing_element pe3_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay3), .in_a(a3),   .in_a_chain(in_a_chain_3_0_NC),   .in_b(b2_0to3_0), .in_c(matrixC2_0), .out_a(out_a_3_0_NC), .out_a_chain(a3_0to3_1), .out_b(b3_0to4_0), .out_b0(b3_0to4_0_ping), .out_b1(b3_0to4_0_pong), .out_c(matrixC3_0), .b_data_valid_ping(b_data_valid_ping_delay3_0), .b_data_valid_pong(b_data_valid_pong_delay3_0), .mode(1'b1));
+processing_element pe3_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay4), .in_a(in_a_3_1_NC),  .in_a_chain(a3_0to3_1), .in_b(b2_1to3_1), .in_c(matrixC2_1), .out_a(out_a_3_1_NC), .out_a_chain(a3_1to3_2), .out_b(b3_1to4_1), .out_b0(b3_1to4_1_ping), .out_b1(b3_1to4_1_pong), .out_c(matrixC3_1), .b_data_valid_ping(b_data_valid_ping_delay3_1), .b_data_valid_pong(b_data_valid_pong_delay3_1), .mode(1'b0));
+processing_element pe3_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(in_a_3_2_NC),  .in_a_chain(a3_1to3_2), .in_b(b2_2to3_2), .in_c(matrixC2_2), .out_a(out_a_3_2_NC), .out_a_chain(a3_2to3_3), .out_b(b3_2to4_2), .out_b0(b3_2to4_2_ping), .out_b1(b3_2to4_2_pong), .out_c(matrixC3_2), .b_data_valid_ping(b_data_valid_ping_delay3_2), .b_data_valid_pong(b_data_valid_pong_delay3_2), .mode(1'b0));
+processing_element pe3_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(in_a_3_3_NC),  .in_a_chain(a3_2to3_3), .in_b(b2_3to3_3), .in_c(matrixC2_3), .out_a(out_a_3_3_NC), .out_a_chain(a3_3to3_4), .out_b(b3_3to4_3), .out_b0(b3_3to4_3_ping), .out_b1(b3_3to4_3_pong), .out_c(matrixC3_3), .b_data_valid_ping(b_data_valid_ping_delay3_3), .b_data_valid_pong(b_data_valid_pong_delay3_3), .mode(1'b0));
+processing_element pe3_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(in_a_3_4_NC),  .in_a_chain(a3_3to3_4), .in_b(b2_4to3_4), .in_c(matrixC2_4), .out_a(out_a_3_4_NC), .out_a_chain(a3_4to3_5), .out_b(b3_4to4_4), .out_b0(b3_4to4_4_ping), .out_b1(b3_4to4_4_pong), .out_c(matrixC3_4), .b_data_valid_ping(b_data_valid_ping_delay3_4), .b_data_valid_pong(b_data_valid_pong_delay3_4), .mode(1'b0));
+processing_element pe3_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(in_a_3_5_NC),  .in_a_chain(a3_4to3_5), .in_b(b2_5to3_5), .in_c(matrixC2_5), .out_a(out_a_3_5_NC), .out_a_chain(a3_5to3_6), .out_b(b3_5to4_5), .out_b0(b3_5to4_5_ping), .out_b1(b3_5to4_5_pong), .out_c(matrixC3_5), .b_data_valid_ping(b_data_valid_ping_delay3_5), .b_data_valid_pong(b_data_valid_pong_delay3_5), .mode(1'b0));
+processing_element pe3_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(in_a_3_6_NC),  .in_a_chain(a3_5to3_6), .in_b(b2_6to3_6), .in_c(matrixC2_6), .out_a(out_a_3_6_NC), .out_a_chain(a3_6to3_7), .out_b(b3_6to4_6), .out_b0(b3_6to4_6_ping), .out_b1(b3_6to4_6_pong), .out_c(matrixC3_6), .b_data_valid_ping(b_data_valid_ping_delay3_6), .b_data_valid_pong(b_data_valid_pong_delay3_6), .mode(1'b0));
+processing_element pe3_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay10), .in_a(in_a_3_7_NC),  .in_a_chain(a3_6to3_7), .in_b(b2_7to3_7), .in_c(matrixC2_7), .out_a(out_a_3_7_NC), .out_a_chain(a3_7to3_8), .out_b(b3_7to4_7), .out_b0(b3_7to4_7_ping), .out_b1(b3_7to4_7_pong), .out_c(matrixC3_7), .b_data_valid_ping(b_data_valid_ping_delay3_7), .b_data_valid_pong(b_data_valid_pong_delay3_7), .mode(1'b0));
+processing_element pe4_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay4), .in_a(a4),   .in_a_chain(in_a_chain_4_0_NC),   .in_b(b3_0to4_0), .in_c(matrixC3_0), .out_a(out_a_4_0_NC), .out_a_chain(a4_0to4_1), .out_b(b4_0to5_0), .out_b0(b4_0to5_0_ping), .out_b1(b4_0to5_0_pong), .out_c(matrixC4_0), .b_data_valid_ping(b_data_valid_ping_delay4_0), .b_data_valid_pong(b_data_valid_pong_delay4_0), .mode(1'b1));
+processing_element pe4_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(in_a_4_1_NC),  .in_a_chain(a4_0to4_1), .in_b(b3_1to4_1), .in_c(matrixC3_1), .out_a(out_a_4_1_NC), .out_a_chain(a4_1to4_2), .out_b(b4_1to5_1), .out_b0(b4_1to5_1_ping), .out_b1(b4_1to5_1_pong), .out_c(matrixC4_1), .b_data_valid_ping(b_data_valid_ping_delay4_1), .b_data_valid_pong(b_data_valid_pong_delay4_1), .mode(1'b0));
+processing_element pe4_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(in_a_4_2_NC),  .in_a_chain(a4_1to4_2), .in_b(b3_2to4_2), .in_c(matrixC3_2), .out_a(out_a_4_2_NC), .out_a_chain(a4_2to4_3), .out_b(b4_2to5_2), .out_b0(b4_2to5_2_ping), .out_b1(b4_2to5_2_pong), .out_c(matrixC4_2), .b_data_valid_ping(b_data_valid_ping_delay4_2), .b_data_valid_pong(b_data_valid_pong_delay4_2), .mode(1'b0));
+processing_element pe4_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(in_a_4_3_NC),  .in_a_chain(a4_2to4_3), .in_b(b3_3to4_3), .in_c(matrixC3_3), .out_a(out_a_4_3_NC), .out_a_chain(a4_3to4_4), .out_b(b4_3to5_3), .out_b0(b4_3to5_3_ping), .out_b1(b4_3to5_3_pong), .out_c(matrixC4_3), .b_data_valid_ping(b_data_valid_ping_delay4_3), .b_data_valid_pong(b_data_valid_pong_delay4_3), .mode(1'b0));
+processing_element pe4_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(in_a_4_4_NC),  .in_a_chain(a4_3to4_4), .in_b(b3_4to4_4), .in_c(matrixC3_4), .out_a(out_a_4_4_NC), .out_a_chain(a4_4to4_5), .out_b(b4_4to5_4), .out_b0(b4_4to5_4_ping), .out_b1(b4_4to5_4_pong), .out_c(matrixC4_4), .b_data_valid_ping(b_data_valid_ping_delay4_4), .b_data_valid_pong(b_data_valid_pong_delay4_4), .mode(1'b0));
+processing_element pe4_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(in_a_4_5_NC),  .in_a_chain(a4_4to4_5), .in_b(b3_5to4_5), .in_c(matrixC3_5), .out_a(out_a_4_5_NC), .out_a_chain(a4_5to4_6), .out_b(b4_5to5_5), .out_b0(b4_5to5_5_ping), .out_b1(b4_5to5_5_pong), .out_c(matrixC4_5), .b_data_valid_ping(b_data_valid_ping_delay4_5), .b_data_valid_pong(b_data_valid_pong_delay4_5), .mode(1'b0));
+processing_element pe4_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay10), .in_a(in_a_4_6_NC),  .in_a_chain(a4_5to4_6), .in_b(b3_6to4_6), .in_c(matrixC3_6), .out_a(out_a_4_6_NC), .out_a_chain(a4_6to4_7), .out_b(b4_6to5_6), .out_b0(b4_6to5_6_ping), .out_b1(b4_6to5_6_pong), .out_c(matrixC4_6), .b_data_valid_ping(b_data_valid_ping_delay4_6), .b_data_valid_pong(b_data_valid_pong_delay4_6), .mode(1'b0));
+processing_element pe4_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay11), .in_a(in_a_4_7_NC),  .in_a_chain(a4_6to4_7), .in_b(b3_7to4_7), .in_c(matrixC3_7), .out_a(out_a_4_7_NC), .out_a_chain(a4_7to4_8), .out_b(b4_7to5_7), .out_b0(b4_7to5_7_ping), .out_b1(b4_7to5_7_pong), .out_c(matrixC4_7), .b_data_valid_ping(b_data_valid_ping_delay4_7), .b_data_valid_pong(b_data_valid_pong_delay4_7), .mode(1'b0));
+processing_element pe5_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay5), .in_a(a5),   .in_a_chain(in_a_chain_5_0_NC),   .in_b(b4_0to5_0), .in_c(matrixC4_0), .out_a(out_a_5_0_NC), .out_a_chain(a5_0to5_1), .out_b(b5_0to6_0), .out_b0(b5_0to6_0_ping), .out_b1(b5_0to6_0_pong), .out_c(matrixC5_0), .b_data_valid_ping(b_data_valid_ping_delay5_0), .b_data_valid_pong(b_data_valid_pong_delay5_0), .mode(1'b1));
+processing_element pe5_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(in_a_5_1_NC),  .in_a_chain(a5_0to5_1), .in_b(b4_1to5_1), .in_c(matrixC4_1), .out_a(out_a_5_1_NC), .out_a_chain(a5_1to5_2), .out_b(b5_1to6_1), .out_b0(b5_1to6_1_ping), .out_b1(b5_1to6_1_pong), .out_c(matrixC5_1), .b_data_valid_ping(b_data_valid_ping_delay5_1), .b_data_valid_pong(b_data_valid_pong_delay5_1), .mode(1'b0));
+processing_element pe5_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(in_a_5_2_NC),  .in_a_chain(a5_1to5_2), .in_b(b4_2to5_2), .in_c(matrixC4_2), .out_a(out_a_5_2_NC), .out_a_chain(a5_2to5_3), .out_b(b5_2to6_2), .out_b0(b5_2to6_2_ping), .out_b1(b5_2to6_2_pong), .out_c(matrixC5_2), .b_data_valid_ping(b_data_valid_ping_delay5_2), .b_data_valid_pong(b_data_valid_pong_delay5_2), .mode(1'b0));
+processing_element pe5_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(in_a_5_3_NC),  .in_a_chain(a5_2to5_3), .in_b(b4_3to5_3), .in_c(matrixC4_3), .out_a(out_a_5_3_NC), .out_a_chain(a5_3to5_4), .out_b(b5_3to6_3), .out_b0(b5_3to6_3_ping), .out_b1(b5_3to6_3_pong), .out_c(matrixC5_3), .b_data_valid_ping(b_data_valid_ping_delay5_3), .b_data_valid_pong(b_data_valid_pong_delay5_3), .mode(1'b0));
+processing_element pe5_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(in_a_5_4_NC),  .in_a_chain(a5_3to5_4), .in_b(b4_4to5_4), .in_c(matrixC4_4), .out_a(out_a_5_4_NC), .out_a_chain(a5_4to5_5), .out_b(b5_4to6_4), .out_b0(b5_4to6_4_ping), .out_b1(b5_4to6_4_pong), .out_c(matrixC5_4), .b_data_valid_ping(b_data_valid_ping_delay5_4), .b_data_valid_pong(b_data_valid_pong_delay5_4), .mode(1'b0));
+processing_element pe5_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay10), .in_a(in_a_5_5_NC),  .in_a_chain(a5_4to5_5), .in_b(b4_5to5_5), .in_c(matrixC4_5), .out_a(out_a_5_5_NC), .out_a_chain(a5_5to5_6), .out_b(b5_5to6_5), .out_b0(b5_5to6_5_ping), .out_b1(b5_5to6_5_pong), .out_c(matrixC5_5), .b_data_valid_ping(b_data_valid_ping_delay5_5), .b_data_valid_pong(b_data_valid_pong_delay5_5), .mode(1'b0));
+processing_element pe5_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay11), .in_a(in_a_5_6_NC),  .in_a_chain(a5_5to5_6), .in_b(b4_6to5_6), .in_c(matrixC4_6), .out_a(out_a_5_6_NC), .out_a_chain(a5_6to5_7), .out_b(b5_6to6_6), .out_b0(b5_6to6_6_ping), .out_b1(b5_6to6_6_pong), .out_c(matrixC5_6), .b_data_valid_ping(b_data_valid_ping_delay5_6), .b_data_valid_pong(b_data_valid_pong_delay5_6), .mode(1'b0));
+processing_element pe5_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay12), .in_a(in_a_5_7_NC),  .in_a_chain(a5_6to5_7), .in_b(b4_7to5_7), .in_c(matrixC4_7), .out_a(out_a_5_7_NC), .out_a_chain(a5_7to5_8), .out_b(b5_7to6_7), .out_b0(b5_7to6_7_ping), .out_b1(b5_7to6_7_pong), .out_c(matrixC5_7), .b_data_valid_ping(b_data_valid_ping_delay5_7), .b_data_valid_pong(b_data_valid_pong_delay5_7), .mode(1'b0));
+processing_element pe6_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay6), .in_a(a6),   .in_a_chain(in_a_chain_6_0_NC),   .in_b(b5_0to6_0), .in_c(matrixC5_0), .out_a(out_a_6_0_NC), .out_a_chain(a6_0to6_1), .out_b(b6_0to7_0), .out_b0(b6_0to7_0_ping), .out_b1(b6_0to7_0_pong), .out_c(matrixC6_0), .b_data_valid_ping(b_data_valid_ping_delay6_0), .b_data_valid_pong(b_data_valid_pong_delay6_0), .mode(1'b1));
+processing_element pe6_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(in_a_6_1_NC),  .in_a_chain(a6_0to6_1), .in_b(b5_1to6_1), .in_c(matrixC5_1), .out_a(out_a_6_1_NC), .out_a_chain(a6_1to6_2), .out_b(b6_1to7_1), .out_b0(b6_1to7_1_ping), .out_b1(b6_1to7_1_pong), .out_c(matrixC6_1), .b_data_valid_ping(b_data_valid_ping_delay6_1), .b_data_valid_pong(b_data_valid_pong_delay6_1), .mode(1'b0));
+processing_element pe6_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(in_a_6_2_NC),  .in_a_chain(a6_1to6_2), .in_b(b5_2to6_2), .in_c(matrixC5_2), .out_a(out_a_6_2_NC), .out_a_chain(a6_2to6_3), .out_b(b6_2to7_2), .out_b0(b6_2to7_2_ping), .out_b1(b6_2to7_2_pong), .out_c(matrixC6_2), .b_data_valid_ping(b_data_valid_ping_delay6_2), .b_data_valid_pong(b_data_valid_pong_delay6_2), .mode(1'b0));
+processing_element pe6_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(in_a_6_3_NC),  .in_a_chain(a6_2to6_3), .in_b(b5_3to6_3), .in_c(matrixC5_3), .out_a(out_a_6_3_NC), .out_a_chain(a6_3to6_4), .out_b(b6_3to7_3), .out_b0(b6_3to7_3_ping), .out_b1(b6_3to7_3_pong), .out_c(matrixC6_3), .b_data_valid_ping(b_data_valid_ping_delay6_3), .b_data_valid_pong(b_data_valid_pong_delay6_3), .mode(1'b0));
+processing_element pe6_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay10), .in_a(in_a_6_4_NC),  .in_a_chain(a6_3to6_4), .in_b(b5_4to6_4), .in_c(matrixC5_4), .out_a(out_a_6_4_NC), .out_a_chain(a6_4to6_5), .out_b(b6_4to7_4), .out_b0(b6_4to7_4_ping), .out_b1(b6_4to7_4_pong), .out_c(matrixC6_4), .b_data_valid_ping(b_data_valid_ping_delay6_4), .b_data_valid_pong(b_data_valid_pong_delay6_4), .mode(1'b0));
+processing_element pe6_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay11), .in_a(in_a_6_5_NC),  .in_a_chain(a6_4to6_5), .in_b(b5_5to6_5), .in_c(matrixC5_5), .out_a(out_a_6_5_NC), .out_a_chain(a6_5to6_6), .out_b(b6_5to7_5), .out_b0(b6_5to7_5_ping), .out_b1(b6_5to7_5_pong), .out_c(matrixC6_5), .b_data_valid_ping(b_data_valid_ping_delay6_5), .b_data_valid_pong(b_data_valid_pong_delay6_5), .mode(1'b0));
+processing_element pe6_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay12), .in_a(in_a_6_6_NC),  .in_a_chain(a6_5to6_6), .in_b(b5_6to6_6), .in_c(matrixC5_6), .out_a(out_a_6_6_NC), .out_a_chain(a6_6to6_7), .out_b(b6_6to7_6), .out_b0(b6_6to7_6_ping), .out_b1(b6_6to7_6_pong), .out_c(matrixC6_6), .b_data_valid_ping(b_data_valid_ping_delay6_6), .b_data_valid_pong(b_data_valid_pong_delay6_6), .mode(1'b0));
+processing_element pe6_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay13), .in_a(in_a_6_7_NC),  .in_a_chain(a6_6to6_7), .in_b(b5_7to6_7), .in_c(matrixC5_7), .out_a(out_a_6_7_NC), .out_a_chain(a6_7to6_8), .out_b(b6_7to7_7), .out_b0(b6_7to7_7_ping), .out_b1(b6_7to7_7_pong), .out_c(matrixC6_7), .b_data_valid_ping(b_data_valid_ping_delay6_7), .b_data_valid_pong(b_data_valid_pong_delay6_7), .mode(1'b0));
+processing_element pe7_0(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay7), .in_a(a7),   .in_a_chain(in_a_chain_7_0_NC),   .in_b(b6_0to7_0), .in_c(matrixC6_0), .out_a(out_a_7_0_NC), .out_a_chain(a7_0to7_1), .out_b(b7_0to8_0), .out_b0(b7_0to8_0_ping), .out_b1(b7_0to8_0_pong), .out_c(matrixC7_0), .b_data_valid_ping(b_data_valid_ping_delay7_0), .b_data_valid_pong(b_data_valid_pong_delay7_0), .mode(1'b1));
+processing_element pe7_1(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay8), .in_a(in_a_7_1_NC),  .in_a_chain(a7_0to7_1), .in_b(b6_1to7_1), .in_c(matrixC6_1), .out_a(out_a_7_1_NC), .out_a_chain(a7_1to7_2), .out_b(b7_1to8_1), .out_b0(b7_1to8_1_ping), .out_b1(b7_1to8_1_pong), .out_c(matrixC7_1), .b_data_valid_ping(b_data_valid_ping_delay7_1), .b_data_valid_pong(b_data_valid_pong_delay7_1), .mode(1'b0));
+processing_element pe7_2(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay9), .in_a(in_a_7_2_NC),  .in_a_chain(a7_1to7_2), .in_b(b6_2to7_2), .in_c(matrixC6_2), .out_a(out_a_7_2_NC), .out_a_chain(a7_2to7_3), .out_b(b7_2to8_2), .out_b0(b7_2to8_2_ping), .out_b1(b7_2to8_2_pong), .out_c(matrixC7_2), .b_data_valid_ping(b_data_valid_ping_delay7_2), .b_data_valid_pong(b_data_valid_pong_delay7_2), .mode(1'b0));
+processing_element pe7_3(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay10), .in_a(in_a_7_3_NC),  .in_a_chain(a7_2to7_3), .in_b(b6_3to7_3), .in_c(matrixC6_3), .out_a(out_a_7_3_NC), .out_a_chain(a7_3to7_4), .out_b(b7_3to8_3), .out_b0(b7_3to8_3_ping), .out_b1(b7_3to8_3_pong), .out_c(matrixC7_3), .b_data_valid_ping(b_data_valid_ping_delay7_3), .b_data_valid_pong(b_data_valid_pong_delay7_3), .mode(1'b0));
+processing_element pe7_4(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay11), .in_a(in_a_7_4_NC),  .in_a_chain(a7_3to7_4), .in_b(b6_4to7_4), .in_c(matrixC6_4), .out_a(out_a_7_4_NC), .out_a_chain(a7_4to7_5), .out_b(b7_4to8_4), .out_b0(b7_4to8_4_ping), .out_b1(b7_4to8_4_pong), .out_c(matrixC7_4), .b_data_valid_ping(b_data_valid_ping_delay7_4), .b_data_valid_pong(b_data_valid_pong_delay7_4), .mode(1'b0));
+processing_element pe7_5(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay12), .in_a(in_a_7_5_NC),  .in_a_chain(a7_4to7_5), .in_b(b6_5to7_5), .in_c(matrixC6_5), .out_a(out_a_7_5_NC), .out_a_chain(a7_5to7_6), .out_b(b7_5to8_5), .out_b0(b7_5to8_5_ping), .out_b1(b7_5to8_5_pong), .out_c(matrixC7_5), .b_data_valid_ping(b_data_valid_ping_delay7_5), .b_data_valid_pong(b_data_valid_pong_delay7_5), .mode(1'b0));
+processing_element pe7_6(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay13), .in_a(in_a_7_6_NC),  .in_a_chain(a7_5to7_6), .in_b(b6_6to7_6), .in_c(matrixC6_6), .out_a(out_a_7_6_NC), .out_a_chain(a7_6to7_7), .out_b(b7_6to8_6), .out_b0(b7_6to8_6_ping), .out_b1(b7_6to8_6_pong), .out_c(matrixC7_6), .b_data_valid_ping(b_data_valid_ping_delay7_6), .b_data_valid_pong(b_data_valid_pong_delay7_6), .mode(1'b0));
+processing_element pe7_7(.reset(effective_rst), .clk(clk), .b_data_sel(b_data_sel_delay14), .in_a(in_a_7_7_NC),  .in_a_chain(a7_6to7_7), .in_b(b6_7to7_7), .in_c(matrixC6_7), .out_a(out_a_7_7_NC), .out_a_chain(a7_7to7_8), .out_b(b7_7to8_7), .out_b0(b7_7to8_7_ping), .out_b1(b7_7to8_7_pong), .out_c(matrixC7_7), .b_data_valid_ping(b_data_valid_ping_delay7_7), .b_data_valid_pong(b_data_valid_pong_delay7_7), .mode(1'b0));
   
-assign a_data_out = {a7_7to7_8, a6_7to6_8, a5_7to5_8, a4_7to4_8, a3_7to3_8, a2_7to2_8, a1_7to1_8, a0_7to0_8};
-assign b_data_out = {b7_7to8_7, b7_6to8_6, b7_5to8_5, b7_4to8_4, b7_3to8_3, b7_2to8_2, b7_1to8_1, b7_0to8_0};
+//assign a_data_out = {a7_7to7_8, a6_7to6_8, a5_7to5_8, a4_7to4_8, a3_7to3_8, a2_7to2_8, a1_7to1_8, a0_7to0_8};
+//assign b_data_out = {b7_7to8_7, b7_6to8_6, b7_5to8_5, b7_4to8_4, b7_3to8_3, b7_2to8_2, b7_1to8_1, b7_0to8_0};
 
 endmodule
 
@@ -1605,15 +1603,18 @@ module processing_element(
     clk, 
     b_data_sel,
     in_a,
+    in_a_chain,
     in_b,
     in_c,
     out_a,
+    out_a_chain,
     out_b, 
     out_b0,
     out_b1,
     out_c,
     b_data_valid_ping,
-    b_data_valid_pong
+    b_data_valid_pong,
+    mode
  );
 
 input reset;
@@ -1622,13 +1623,85 @@ input b_data_sel;
 input b_data_valid_ping;
 input b_data_valid_pong;
 input  [`DWIDTH-1:0] in_a;
+input  [`DWIDTH-1:0] in_a_chain;
 input  [`DWIDTH-1:0] in_b; 
 input  [`DWIDTH-1:0] in_c; 
 output [`DWIDTH-1:0] out_a;
+output [`DWIDTH-1:0] out_a_chain;
 output [`DWIDTH-1:0] out_b;
 output [`DWIDTH-1:0] out_b0;
 output [`DWIDTH-1:0] out_b1;
-output [`DWIDTH-1:0] out_c;  // reduced precision
+output [`DWIDTH-1:0] out_c;  
+input mode;
+
+`ifdef complex_dsp
+
+ wire [18:0] scanout;
+ wire [63:0] chainout; //unconnected
+ wire [63:0] result;
+ wire [17:0] ax;
+ wire [18:0] ay;
+ wire [35:0] bx;
+ wire [63:0] chainin; 
+ wire [18:0] scanin;
+ wire [11:0] mode_sigs;
+
+ assign mode_sigs = 12'b010101010101;  //Any value of mode_sigs (structural, not functional, correctness)
+ assign ax = {{(18-`DWIDTH){1'b0}}, in_a};
+ assign ay = {{(19-`DWIDTH){1'b0}}, in_b};
+ assign bx = 36'b0;
+ assign scanin = {{(18-`DWIDTH){1'b0}}, in_a_chain};
+ assign chainin = in_c;
+
+  //We will instantiate DSP slices with input chaining and output chaining.
+  //Input chaining is only supported in the 18x19 mode or the 27x27 mode.
+  //We will use the input chain provided by the DSP for the A input. For B, the chain will be manual.
+
+  mult_add_int u_pe(
+    .clk(clk),
+    .reset(reset),
+    .mode_sigs(mode_sigs),
+    .ax(ax),
+    .ay(ay),
+    .bx(bx),
+    .chainin(chainin),
+    .scanin(scanin),
+    .result(result),
+    .chainout(chainout),
+    .scanout(scanout)
+  );
+
+reg [`DWIDTH-1:0] out_b0;
+reg [`DWIDTH-1:0] out_b1;
+
+wire [`DWIDTH-1:0] in_mac;
+wire [`DWIDTH-1:0] out_c;
+
+assign out_c = result;
+assign in_mac = (b_data_sel==0)? out_b0 : out_b1;
+        
+assign out_a = result; 
+assign out_a_chain = scanout;
+
+always @(posedge clk)begin 
+    if (reset) begin
+        out_b0<=0;
+    end
+    if(b_data_valid_ping == 1) begin
+        out_b0<=in_b;
+    end
+end
+
+always @(posedge clk)begin 
+    if (reset) begin
+        out_b1<=0;
+    end
+    if(b_data_valid_pong == 1) begin
+        out_b1<=in_b;
+    end
+end
+
+`else
 
 reg [`DWIDTH-1:0] out_a;
 reg [`DWIDTH-1:0] out_b;
@@ -1649,9 +1722,11 @@ always @(posedge clk)begin
         out_a<=0;
     end
     else begin  
-        out_a<=in_a;
+        out_a<=mode ? in_a : in_a_chain;
     end
 end
+
+assign out_a_chain = out_a;
 
 always @(posedge clk)begin
     if(reset) begin
@@ -1680,7 +1755,11 @@ always @(posedge clk)begin
     end
 end
 
+`endif
+
 endmodule
+
+`ifndef complex_dsp
 
 //////////////////////////////////////////////////////////////////////////
 // Multiply-and-accumulate (MAC) block
@@ -1777,3 +1856,4 @@ assign c = a + b;
 
 endmodule
 
+`endif

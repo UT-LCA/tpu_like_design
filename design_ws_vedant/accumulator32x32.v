@@ -499,6 +499,11 @@ reg [7:0] start_pooling_count;
 always @ (posedge clk) begin
     if (~resetn)
         start_pooling <= 0;
+    //TODO: Note the hardcodign of value below.
+    //This value (8'd14) is supposed to be 2*MATMUL_SIZE-2.
+    //For 8x8 matmul, this is 8'd14
+    //For 16x16 matmul, this should be 8'd30
+    //For 32x32 matmul, this should be 8'd62
     else if (start_pooling_count > 8'd14) begin
     	start_pooling <= 0;
     	done_pooling <= 1;
