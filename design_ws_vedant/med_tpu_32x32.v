@@ -16572,7 +16572,7 @@ output reg [MW*DW-1:0] q0;
 output reg [MW*DW-1:0] q1;
 input clk;
 
-`ifdef VCS
+`ifndef hard_mem
 reg [MW*DW-1:0] ram[((1 << AW)-1):0];
   
 wire we0_coalesced;
@@ -16592,7 +16592,9 @@ end
   
 `else
 
-/*
+defparam u_dual_port_ram.ADDR_WIDTH = AW;
+defparam u_dual_port_ram.DATA_WIDTH = MW*DW;
+
 dual_port_ram u_dual_port_ram(
 .addr1(addr0),
 .we1(we0_coalesced),
@@ -16604,10 +16606,8 @@ dual_port_ram u_dual_port_ram(
 .out2(q1),
 .clk(clk)
 );
-*/
 
 `endif
-
 
 endmodule
 
@@ -22815,7 +22815,6 @@ reg [31:0] i;
         bram_a_wdata_available <= 0;
     end
   end
- 
 
 endmodule
 
